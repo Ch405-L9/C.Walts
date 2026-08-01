@@ -1,0 +1,8 @@
+Read `README_START_HERE_C.Walts_v0.4_Gate0.md` and execute
+`prompts/PF_C.Walts_v0.4_Gate0_dataset-acquisition.md` exactly.
+
+This is Gate 0 only. Do not select final queries, create the 600-query set,
+fit thresholds, modify ChromaDB/BM25, acquire audiobook corpora, or promote main.
+
+Version, test, document, commit, and push at every required checkpoint.
+Stop after the dataset acquisition and inventory report.

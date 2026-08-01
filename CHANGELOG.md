@@ -3,6 +3,33 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [0.4.0-dev.1] — C.Walts v0.4 Gate 0, dataset acquisition baseline
+
+Development version. Not a release candidate. `v0.3.0-rc.2` is untouched.
+
+### Added
+
+- `config/approved_eval_datasets.json` — the only three authorised evaluation
+  sources (CLINC150, MASSIVE 1.0 en-US, Banking77), their archive URLs, extract
+  allowlists, and embedded-licence markers.
+- `config/query_allocation.yaml` — the planned 600-query allocation. Planning
+  input only; no query is selected in this phase.
+- `schemas/eval_query.schema.json` — the future atomic evaluation-record schema.
+  One query per JSONL record; evaluation records are never chunked.
+- `docs/owner_actions.md`, `docs/repeatability_blueprint.md`.
+
+### Changed
+
+- Version `0.3.0` → `0.4.0-dev.1` in `pyproject.toml` and
+  `src/natural_flow_rag/__init__.py`.
+- `.gitignore` now excludes `var/eval_sources/`, `eval/holdout/private/`, and
+  `eval/sources/public_pool/`. Raw public datasets stay local-only.
+
+### Boundary
+
+Acquired records are evaluation-query candidates. They are not corpus chunks and
+are never written to `var/chroma/`, `var/bm25/`, or `badgr_natural_flow_v1`.
+
 ## [Unreleased]
 
 ### Corrected after tagging rc.2

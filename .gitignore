@@ -1,6 +1,14 @@
 # Runtime state — never tracked
 var/
 *.sqlite3
+
+# C.Walts v0.4 evaluation-source acquisition
+# Raw public datasets and derived bulk pools are local-only. var/ already covers
+# the first path; it is repeated so the boundary survives any change to var/.
+var/eval_sources/
+eval/holdout/private/
+eval/sources/public_pool/
+
 *.pyc
 __pycache__/
 .pytest_cache/

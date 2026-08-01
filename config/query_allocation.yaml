@@ -1,0 +1,66 @@
+version: 1
+
+total_queries: 600
+
+classes:
+  supported_in_domain:
+    total: 150
+    calibration:
+      custom: 75
+      public: 0
+    holdout:
+      custom: 75
+      public: 0
+
+  near_domain_unsupported:
+    total: 150
+    calibration:
+      clinc150: 45
+      massive_en_us: 30
+      custom: 0
+    holdout:
+      clinc150: 15
+      massive_en_us: 15
+      custom: 45
+
+  far_out_of_domain:
+    total: 150
+    calibration:
+      massive_en_us: 50
+      banking77: 25
+      custom: 0
+    holdout:
+      massive_en_us: 40
+      banking77: 20
+      custom: 15
+
+  ambiguous_adversarial_insufficient:
+    total: 150
+    calibration:
+      clinc150_oos: 75
+      custom: 0
+    holdout:
+      public: 0
+      custom: 75
+
+totals:
+  calibration:
+    public: 225
+    custom: 75
+    total: 300
+  holdout:
+    public: 90
+    custom: 210
+    total: 300
+  overall:
+    public: 315
+    custom: 285
+    total: 600
+
+rules:
+  - Evaluation records are atomic; never chunk them.
+  - Evaluation records must never enter ChromaDB or BM25.
+  - No group may appear in both calibration and holdout.
+  - Public holdout records must come from groups unused in calibration.
+  - The holdout is frozen and SHA-256 hashed before its first scored run.
+  - A holdout becomes historical regression data after it influences development.

@@ -1,0 +1,5 @@
+# C.Walts v0.4 evaluation-source acquisition
+# Raw public datasets and derived bulk pools are local-only.
+var/eval_sources/
+eval/holdout/private/
+eval/sources/public_pool/

@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "C.Walts evaluation query record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "query_text",
+    "class",
+    "expected_behavior",
+    "source_dataset",
+    "source_version",
+    "group_id",
+    "split",
+    "license_ref",
+    "provenance"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^CWQ-[A-Z]+-[0-9]{4}$"
+    },
+    "query_text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "class": {
+      "enum": [
+        "supported_in_domain",
+        "near_domain_unsupported",
+        "far_out_of_domain",
+        "ambiguous_adversarial_insufficient"
+      ]
+    },
+    "expected_behavior": {
+      "enum": [
+        "grounded",
+        "partially_grounded",
+        "exact_lexical",
+        "abstain",
+        "assist_ungrounded_only",
+        "request_clarification"
+      ]
+    },
+    "source_dataset": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_record_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_partition": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_intent": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_domain": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "group_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "split": {
+      "enum": [
+        "calibration",
+        "holdout"
+      ]
+    },
+    "license_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "public_verbatim",
+            "public_transformed",
+            "owner_authored",
+            "vendor_generated_owner_approved"
+          ]
+        },
+        "generator": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "prompt_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reviewer": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "approved": {
+          "type": "boolean"
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

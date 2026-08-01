@@ -449,3 +449,94 @@ untouched, which is the property the two-collection design exists to guarantee.
 `feat/natural-flow-rag-activation` is the remote's **default branch** and `main`
 does not exist remotely. Promoting to `main` is a repository decision for the
 owner after acceptance, not a build step, so it was deliberately not done here.
+
+---
+
+## C.Walts v0.4 Gate 0 — controlled dataset acquisition and inventory
+
+Executed on branch `feat/narration-generalization-v0.4`, cut from
+`8a86ae3` (the tip of `feat/natural-flow-rag-activation`), **not** from the
+`v0.3.0-rc.2` tag. HEAD carries rc.2 plus the three post-tag documentation
+corrections; branching from the tag would have silently dropped them. RC2 is not
+retagged or modified anywhere in this phase.
+
+### Immutable baseline, re-measured before any change
+
+| Fact | Value |
+|---|---|
+| `v0.3.0-rc.2` tag object | `8b0d2d7a85a9b9e905db761fbaa5ddb370244eae` |
+| `v0.3.0-rc.2^{commit}` | `5ece81db9ab9334246f8e58781627a159d036a68` |
+| Branch point (`8a86ae3`) | `8a86ae310f5f88099f88a24cbb4dcc75f1bcea79` |
+| Chroma `badgr_natural_flow_v1` | 101 |
+| Chroma `badgr_natural_flow_feedback_v1` | 2 |
+| BM25 `var/bm25/index.json` | 101 chunk_ids / 101 token rows |
+| Embedding model / dimension | `nomic-embed-text` (digest `0a109f422b47`) / 768 |
+| BADGR Harness store MD5 | `bdcbe32b706c6ccce1f62e8e9f2d2c49` |
+| Free disk on project filesystem | 70 GiB (gate requires 20 GiB) |
+
+Gate results at baseline:
+
+```
+scripts/corpus_lint.py        PASS — 101 chunks, 0 findings
+eval/run_evaluation.py        17/17 useful hits, exact-term PASS,
+                              negative contamination 0, citation failures 0,
+                              preservation 10/10
+pytest tests/ -q              145 passed
+scripts/smoke_test.py         42/43 passed
+scripts/mcp_session_check.py  23/23 passed
+sha256sum -c docs/evidence/source-snapshots/SHA256SUMS   7/7 OK
+sha256sum -c SHA256SUMS (delivered Gate 0 package)       12/12 OK
+```
+
+### Failure 1 — the baseline smoke suite is 42/43, and why
+
+`scripts/smoke_test.py` §11.2 asserts `ruff passes` across the whole working
+tree, and the Gate 0 package had just been extracted into it. Ruff reported six
+errors, all in the three delivered Python files:
+
+```
+F401  scripts/acquire_eval_sources.py   `dataclasses.dataclass` imported but unused
+S310  scripts/acquire_eval_sources.py   urllib.request.Request  (audit URL open)
+S310  scripts/acquire_eval_sources.py   urllib.request.urlopen  (audit URL open)
+F401  scripts/inventory_eval_sources.py `hashlib` imported but unused
+UP035 scripts/inventory_eval_sources.py `typing.Iterable` -> `collections.abc`
+F401  tests/test_gate0_dataset_tools.py `io` imported but unused
+```
+
+This is **not** an rc.2 regression: it is the incoming package failing the
+repository's existing static-quality gate. Root cause: the package was authored
+outside this repository's Ruff configuration (`select = E,F,I,B,UP,S`).
+
+Correction: the four unused/legacy imports were removed. The two `S310` findings
+were resolved with targeted `# noqa: S310` comments carrying the justification
+that `assert_https()` pins the scheme on the request URL **and again** on
+`response.geturl()` after redirects. `S310` was deliberately **not** added to the
+project-wide `ignore` list in `pyproject.toml` — that would have weakened an
+existing gate to make this phase pass, which §8 forbids. Smoke returns to 43/43.
+
+### Deviation from the delivered package, recorded
+
+Three files were edited after receipt, so the root `SHA256SUMS` no longer matches
+for them. `SHA256SUMS` is left byte-identical to the delivery as the record of
+receipt integrity (it verified 12/12 on arrival). Post-edit hashes are recorded
+in `docs/dataset-acquisition-report-gate0.md`.
+
+### Hardening 1 — a missing embedded licence must be a refusal, not a traceback
+
+`verify_license()` called `Path.read_text()` directly, so an archive that ships
+no licence file raised `FileNotFoundError`. That is an `OSError`, not an
+`AcquisitionError`, so §8's "a missing embedded license is rejected" could not be
+asserted as a rejection path. A `path.is_file()` check now raises
+`AcquisitionError("embedded license file is missing: ...")` first.
+
+### Hardening 2 — the dry run now prints what §5 says to review
+
+§5 requires reviewing "the exact URLs, destination paths, archive members, and
+size caps" before `--execute`. The delivered `dry_run()` printed URLs, type,
+licence, and members — but no destination paths and no cap, so the gate could not
+actually be performed on its own output. It now prints the size cap, the
+minimum-free-disk requirement against currently free space, the manifest
+destination, the archive and extraction destinations per dataset, the licence
+markers, the approval flag, and the resolved on-disk target of every allowlisted
+member.
+
