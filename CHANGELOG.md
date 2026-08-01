@@ -5,6 +5,22 @@ is Semantic Versioning as required by Prompt C §4.3.
 
 ## [Unreleased]
 
+### Corrected after tagging rc.2
+
+- The set-2 examples header said "twenty-five pairs" — written before CW-038 and
+  CW-039 were appended in response to the EVAL-005 miss. It now says
+  twenty-seven and states why the last two exist.
+- The A7 note in `config/sources.yaml` still framed CMUdict as the only
+  externally licensed material. Marked superseded in part: A7 still holds for
+  third-party text that would be INGESTED, which CMUdict alone would be, but
+  seven CC BY works now ground the glossary by citation.
+- The owner report now connects §6's `demote_doc_types` change to §7's marker
+  churn. One retrieval-policy change required three expectation updates, and
+  that coupling should be visible to whoever plans rc.3.
+
+All gates re-run after these edits: lint 0/0, evaluation 17/17, 136 tests,
+smoke 43/43, fresh-session MCP 23/23, ruff clean, 101 chunks.
+
 ## [0.3.0-rc.2] — 2026-08-01 — release candidate `v0.3.0-rc.2`
 
 Corpus quality. The software surface is unchanged in shape; what changed is what

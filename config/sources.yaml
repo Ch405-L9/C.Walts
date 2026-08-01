@@ -3,6 +3,14 @@
 #
 # A7 decision (owner, 2026-07-31): CMUdict only, for externally licensed material.
 #
+# SUPERSEDED IN PART, 2026-08-01 (rc.2): CMUdict is no longer the only externally
+# licensed material in play. Seven CC BY 4.0 works now ground the prosody
+# glossary — see config/glossary_sources.yaml. The A7 decision still holds for
+# INGESTED third-party text: CMUdict remains the only external corpus whose text
+# would be embedded directly, and its path is still empty. The glossary's own
+# text is owner-authored, so it needs no external licence decision; the CC BY
+# works are cited, not chunked.
+#
 # NOTE ON SCOPE: CMUdict is a pronunciation dictionary — ARPAbet phonemes and
 # 0/1/2 lexical stress digits. It answers "how is this word stressed". It contains
 # no prose about rhythm, cadence, information flow, or emphasis, and therefore

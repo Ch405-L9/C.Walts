@@ -255,6 +255,17 @@ standard: both are more exact answers than the originally declared CW-005, one
 restoring a weakened "must" and the other preserving "may" and "has not been
 shown" verbatim.
 
+**These three marker changes are connected to one policy change, and that is
+worth seeing.** `demote_doc_types` (§6) affects every query, not only
+definitional ones — and all three of EVAL-005, EVAL-006 and EVAL-007 changed
+which document they matched once it landed. Nothing was lost: it is a stable
+partition, so the evaluation cases stayed in the results and only stopped
+leading. But one retrieval-policy change requiring three expectation updates is
+the kind of coupling that looks free in this release and constrains the next.
+If the owner wants a stricter regime, the alternative is to leave ranking alone
+and instead never ingest evaluation prompts into the retrieval collection — at
+the cost of losing the pass criteria that EVAL-005 through EVAL-007 draw on.
+
 ---
 
 ## 8. Reproducing this report

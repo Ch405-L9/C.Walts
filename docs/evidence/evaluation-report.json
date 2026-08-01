@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated": "2026-08-01T20:34:08.450626+00:00",
+    "generated": "2026-08-01T20:36:12.340872+00:00",
     "collection": "badgr_natural_flow_v1",
     "collection_count": 101,
     "embedding_model": "nomic-embed-text",
@@ -14,7 +14,7 @@
     "negative_contamination": 0,
     "citation_failures": 0,
     "lexical_degraded": false,
-    "latency_ms_p50": 79,
+    "latency_ms_p50": 78,
     "latency_ms_p95": 83,
     "distance_min": 0.114202,
     "distance_max": 0.457925,
@@ -29,7 +29,7 @@
     {
       "id": "EVAL-001",
       "mode": "retrieval",
-      "latency_ms": 113,
+      "latency_ms": 118,
       "ranked": 5,
       "neighbours": 7,
       "dense_n": 24,
@@ -61,7 +61,7 @@
     {
       "id": "EVAL-002",
       "mode": "retrieval",
-      "latency_ms": 82,
+      "latency_ms": 79,
       "ranked": 5,
       "neighbours": 5,
       "dense_n": 24,
@@ -93,7 +93,7 @@
     {
       "id": "EVAL-003",
       "mode": "retrieval",
-      "latency_ms": 81,
+      "latency_ms": 82,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -105,8 +105,8 @@
         "approved_example",
         "approved_example",
         "approved_example",
-        "approved_example",
-        "style_rule"
+        "style_rule",
+        "approved_example"
       ],
       "positive_chunks": 5,
       "negative_chunks": 0,
@@ -116,8 +116,8 @@
         "Pair CW-033 \u2014 Reflective narration: holding an o",
         "Pair CW-003 \u2014 Reflective scholarly narration",
         "Pair CW-037 \u2014 Reflective narration: ending witho",
-        "Pair CW-036 \u2014 Reflective narration: qualifying a",
-        "Market Voice-Delivery Rules"
+        "Market Voice-Delivery Rules",
+        "Pair CW-036 \u2014 Reflective narration: qualifying a"
       ],
       "min_distance": 0.116306,
       "max_distance": 0.291006
@@ -208,9 +208,9 @@
     {
       "id": "EVAL-006",
       "mode": "retrieval",
-      "latency_ms": 75,
+      "latency_ms": 74,
       "ranked": 5,
-      "neighbours": 5,
+      "neighbours": 6,
       "dense_n": 24,
       "lexical_n": 24,
       "lexical_error": null,
@@ -229,9 +229,9 @@
       "bad_citations": [],
       "top_headings": [
         "Pair CW-018 \u2014 Technical: retry and backoff behav",
+        "Depth set added for v0.3.0-rc.2",
         "Pair CW-001 \u2014 Technical security explainer",
         "Pair CW-020 \u2014 Technical: migration warning",
-        "Pair CW-036 \u2014 Reflective narration: qualifying a",
         "Market Voice-Delivery Rules"
       ],
       "min_distance": 0.160112,
@@ -240,7 +240,7 @@
     {
       "id": "EVAL-007",
       "mode": "retrieval",
-      "latency_ms": 75,
+      "latency_ms": 78,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -272,7 +272,7 @@
     {
       "id": "EVAL-008",
       "mode": "retrieval",
-      "latency_ms": 81,
+      "latency_ms": 83,
       "ranked": 5,
       "neighbours": 6,
       "dense_n": 24,
@@ -304,9 +304,9 @@
     {
       "id": "EVAL-009",
       "mode": "retrieval",
-      "latency_ms": 83,
+      "latency_ms": 78,
       "ranked": 5,
-      "neighbours": 4,
+      "neighbours": 5,
       "dense_n": 24,
       "lexical_n": 24,
       "lexical_error": null,
@@ -328,7 +328,7 @@
         "Pair CW-005 \u2014 Technical warning",
         "Pair CW-027 \u2014 Professional introduction: handove",
         "Pair CW-020 \u2014 Technical: migration warning",
-        "L-L%"
+        "information structure"
       ],
       "min_distance": 0.144602,
       "max_distance": 0.382585
@@ -336,7 +336,7 @@
     {
       "id": "EVAL-010",
       "mode": "retrieval",
-      "latency_ms": 80,
+      "latency_ms": 78,
       "ranked": 5,
       "neighbours": 7,
       "dense_n": 24,
@@ -400,7 +400,7 @@
     {
       "id": "EVAL-012",
       "mode": "retrieval",
-      "latency_ms": 78,
+      "latency_ms": 76,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -432,7 +432,7 @@
     {
       "id": "EVAL-016",
       "mode": "retrieval",
-      "latency_ms": 81,
+      "latency_ms": 77,
       "ranked": 5,
       "neighbours": 4,
       "dense_n": 24,
@@ -472,7 +472,7 @@
     {
       "id": "EVAL-017",
       "mode": "retrieval",
-      "latency_ms": 74,
+      "latency_ms": 75,
       "ranked": 5,
       "neighbours": 1,
       "dense_n": 24,
@@ -510,7 +510,7 @@
     {
       "id": "EVAL-018",
       "mode": "retrieval",
-      "latency_ms": 78,
+      "latency_ms": 77,
       "ranked": 5,
       "neighbours": 4,
       "dense_n": 24,
@@ -550,7 +550,7 @@
     {
       "id": "EVAL-019",
       "mode": "retrieval",
-      "latency_ms": 73,
+      "latency_ms": 80,
       "ranked": 5,
       "neighbours": 4,
       "dense_n": 24,
@@ -590,7 +590,7 @@
     {
       "id": "EVAL-020",
       "mode": "retrieval",
-      "latency_ms": 71,
+      "latency_ms": 76,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -663,7 +663,7 @@
     {
       "id": "EVAL-014",
       "mode": "behavioural",
-      "latency_ms": 76,
+      "latency_ms": 78,
       "ranked": 5,
       "neighbours": 1,
       "dense_n": 24,
@@ -707,8 +707,8 @@
       "doc_types": [
         "approved_example",
         "style_rule",
-        "glossary",
         "approved_example",
+        "glossary",
         "approved_example"
       ],
       "positive_chunks": 4,
@@ -718,8 +718,8 @@
       "top_headings": [
         "Pair CW-021 \u2014 Technical: dense architecture para",
         "Market Voice-Delivery Rules",
-        "textual prosody",
         "Depth set added for v0.3.0-rc.2",
+        "textual prosody",
         "Pair CW-039 \u2014 Technical: rewriting around exact "
       ],
       "min_distance": 0.154891,

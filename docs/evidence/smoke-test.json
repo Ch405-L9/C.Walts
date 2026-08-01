@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-01T20:34:10.801439+00:00",
+  "generated": "2026-08-01T20:36:14.695479+00:00",
   "total": 43,
   "failed": 0,
   "checks": [
@@ -277,7 +277,7 @@
       "section": "11.7 rollback",
       "check": "a verified backup exists",
       "passed": true,
-      "detail": "20260801T202053Z"
+      "detail": "20260801T203546Z"
     },
     {
       "section": "11.7 rollback",

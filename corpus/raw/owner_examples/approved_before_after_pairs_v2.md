@@ -3,7 +3,7 @@
 
 **Status:** approved
 **Use:** textual ingestion and retrieval evaluation
-**Relationship to set 1:** CW-001 through CW-012 remain authoritative. This set adds twenty-five pairs across the five registers the delivery policy names, so that each register is represented by more than one or two instances.
+**Relationship to set 1:** CW-001 through CW-012 remain authoritative. This set adds twenty-seven pairs across the five registers the delivery policy names, so that each register is represented by more than one or two instances. The last two, CW-038 and CW-039, were added after EVAL-005 exposed that numeric and identifier preservation had only one worked example anywhere in the corpus.
 
 Each pair names the prosodic mechanism the rewrite uses, in the vocabulary fixed by the prosody glossary. That is deliberate: "sounds better" is not a reusable instruction, and "the rewrite moves the prominence onto the contrasted word and gives it its own phrase" is.
 
