@@ -42,10 +42,52 @@ sha256sum -c var/backups/<STAMP>/chroma.sqlite3.sha256
 mv var/chroma var/chroma.broken.$(date -u +%Y%m%dT%H%M%SZ)
 mkdir -p var/chroma
 cp var/backups/<STAMP>/chroma.sqlite3 var/chroma/chroma.sqlite3
+
+# REQUIRED: the lexical index is not in the snapshot — see below
+NFR_ALLOW_WRITES=true .venv/bin/python scripts/ingest.py --commit
 ```
 
 Verified snapshot: `var/backups/20260801T124553Z/` — checksum verified, and a
 read-only open of the restored copy lists `badgr_natural_flow_v1`.
+
+### The lexical index must be rebuilt too
+
+**Measured during the rc.2 rollback rehearsal on 2026-08-01, and the reason the
+last command above is not optional.** Restoring `chroma.sqlite3` alone rolled
+the vector store back from 97 chunks to 48 and left `var/bm25/index.json` still
+holding all 97. Retrieval still returned results, so the failure was silent from
+the caller's side.
+
+`natural_flow_collection_health` caught it and reported `DEGRADED` with
+`count: 48` against `lexical_index_chunks: 97`, which is exactly what that field
+exists for. Check it after any restore:
+
+```bash
+.venv/bin/python -c "
+import sys; sys.path.insert(0,'src'); sys.path.insert(0,'.')
+import importlib.util
+spec = importlib.util.spec_from_file_location('s','mcp/server.py')
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+h = m.tool_collection_health()
+print(h['status'], h['count'], h['lexical_index_chunks'])"
+```
+
+`OK` with the two counts equal means the restore is complete. `DEGRADED` with
+them unequal means the lexical index is still describing a collection that no
+longer exists.
+
+### rc.2 rollback rehearsal — executed, not described
+
+| Step | Result |
+|---|---|
+| Reindex with `delete_stale=true` | 97 written, 1 stale deleted, backup verified |
+| Backup checksum re-checked from the shell | `OK` |
+| Backup opened read-only | lists both collections, 48 + 1 rows |
+| Restore performed | collection returned to exactly 48 |
+| Query against the restored store | 6 hits, retrieval functional |
+| Health after restore | `DEGRADED` — caught the stale lexical index |
+| Re-applied reindex | 97 chunks, health `OK`, lexical 97 |
+| Harness store MD5 throughout | `bdcbe32b706c6ccce1f62e8e9f2d2c49`, unchanged |
 
 ## 3. Or recreate the collection from source
 
