@@ -1,0 +1,4 @@
+# Retrieved source snapshots are LICENCE EVIDENCE. Their SHA-256 checksums in
+# docs/evidence/source-snapshots/SHA256SUMS are computed over the bytes as
+# served, so git must not normalise line endings or the checksums stop verifying.
+docs/evidence/source-snapshots/** -text -diff
