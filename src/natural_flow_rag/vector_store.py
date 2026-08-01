@@ -194,6 +194,56 @@ class VectorStore:
             ids=ids, embeddings=embeddings, documents=documents, metadatas=metadatas
         )
 
+    def delete(self, ids: list[str], name: str | None = None) -> list[str]:
+        """Remove chunks by id. Write-gated, allowlisted, and never open-ended.
+
+        The only destructive operation in this module, so it is deliberately the
+        narrowest. Three refusals, each closing a way this could remove more than
+        the caller meant:
+
+          * an empty id list is refused rather than treated as a no-op, because
+            `delete()` with no argument is Chroma's "delete everything" spelling
+            and a caller that computed an empty stale set should not be one typo
+            away from it;
+          * ids not present in the collection are refused, so a mistyped or
+            stale-by-a-run id set cannot partially apply;
+          * the collection name goes through the same allowlist as every other
+            operation, so the production stores stay unnameable.
+
+        Returns the ids actually removed, confirmed by re-reading the collection
+        rather than by trusting the call to have worked.
+        """
+        target = self._resolve_name(name)
+        self.settings.assert_writes_allowed(f"delete({target})")
+
+        if not ids:
+            raise VectorStoreError(
+                "delete(): refusing an empty id list. Chroma treats a missing id "
+                "argument as 'delete the whole collection'; an empty stale set "
+                "means there is nothing to do, so say so rather than calling."
+            )
+
+        unique = list(dict.fromkeys(ids))
+        collection = self.get(target)
+        present = set(collection.get(ids=unique, include=[])["ids"])
+        missing = [i for i in unique if i not in present]
+        if missing:
+            raise VectorStoreError(
+                f"delete(): {len(missing)} of {len(unique)} ids are not in "
+                f"{target!r} (first: {missing[:3]}). Refusing a partial delete — "
+                f"recompute the stale set against the current collection."
+            )
+
+        collection.delete(ids=unique)
+
+        still_there = set(collection.get(ids=unique, include=[])["ids"])
+        if still_there:
+            raise VectorStoreError(
+                f"delete(): {len(still_there)} ids survived the delete in {target!r}. "
+                f"The collection is in an unexpected state; restore from backup."
+            )
+        return unique
+
     # ── health ────────────────────────────────────────────────────────────────
 
     def health(self, name: str | None = None) -> HealthReport:

@@ -29,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from natural_flow_rag import preservation  # noqa: E402
 from natural_flow_rag.analysis import analyze as analyze_flow  # noqa: E402
+from natural_flow_rag.backup import BackupError, create_verified_backup  # noqa: E402
 from natural_flow_rag.citations import build_citations  # noqa: E402
 from natural_flow_rag.embeddings import OllamaEmbedder  # noqa: E402
 from natural_flow_rag.lexical_search import LexicalIndex  # noqa: E402
@@ -267,6 +268,11 @@ def tool_rewrite(
 
 FEEDBACK_COLLECTION = "badgr_natural_flow_feedback_v1"
 
+# Ceiling on how many stale ids one delete may remove. It exists so that "list
+# the stale ids before deleting" cannot degrade into "list the first fifty of
+# them". Above this, a full rebuild is both safer and easier to reason about.
+STALE_DELETE_LIMIT = 200
+
 
 def tool_feedback(
     chunk_id: str,
@@ -324,11 +330,31 @@ def tool_feedback(
     }
 
 
-def tool_reindex(dry_run: bool = True, source: str | None = None) -> dict[str, Any]:
+def tool_reindex(
+    dry_run: bool = True,
+    source: str | None = None,
+    delete_stale: bool = False,
+) -> dict[str, Any]:
     """Re-run ingestion. DRY RUN BY DEFAULT — a commit needs dry_run=false.
 
     Chunk ids are content-derived, so a dry run can state exactly which chunks
     would be added or would go stale without touching the store.
+
+    Stale removal is a SEPARATE opt-in on top of the write gates, because it is
+    the only operation here that destroys data. It requires, in order and with no
+    way to skip a step:
+
+      1. ``confirm=true``           — enforced in `dispatch`, before this runs
+      2. ``writes.allow_writes``    — enforced in `dispatch`, before this runs
+      3. ``dry_run=false``          — the default keeps a mistake harmless
+      4. ``delete_stale=true``      — adding chunks never implies removing any
+      5. every stale id listed      — refuses above STALE_DELETE_LIMIT rather
+                                      than deleting more ids than it can show
+      6. a verified backup          — taken here, checksum-checked and reopened,
+                                      and a failure aborts before any mutation
+
+    The BM25 index is rebuilt from the surviving records AFTER the store
+    mutations, so lexical and dense retrieval cannot disagree about what exists.
     """
     import importlib.util
 
@@ -356,20 +382,70 @@ def tool_reindex(dry_run: bool = True, source: str | None = None) -> dict[str, A
     wanted = {r.id for r in records}
     existing = set(STORE.get().get(include=[])["ids"]) if STORE.exists() else set()
 
-    plan = {
+    # A partial `source=` reindex knows nothing about the other sources' chunks,
+    # so everything they own would look stale. Deleting on that basis would wipe
+    # the rest of the corpus, which is exactly the mistake this tool must not
+    # make easy.
+    partial = source is not None
+    stale = sorted(existing - wanted)
+    to_add = sorted(wanted - existing)
+
+    plan: dict[str, Any] = {
         "dry_run": dry_run,
         "sources": [s["id"] for s in sources],
+        "partial_reindex": partial,
         "chunks_in_corpus": len(records),
         "chunks_in_collection": len(existing),
-        "would_add": sorted(wanted - existing)[:50],
-        "would_add_count": len(wanted - existing),
-        "stale_in_collection": sorted(existing - wanted)[:50],
-        "stale_count": len(existing - wanted),
+        "would_add": to_add[:50],
+        "would_add_count": len(to_add),
+        # Listed in FULL, not truncated: an id that is about to be deleted and is
+        # not shown to the operator has not really been declared.
+        "stale_in_collection": stale[:STALE_DELETE_LIMIT],
+        "stale_count": len(stale),
+        "stale_listing_complete": len(stale) <= STALE_DELETE_LIMIT,
+        "delete_stale_requested": delete_stale,
     }
 
+    if delete_stale and partial:
+        return _error(
+            "INVALID_PARAMS",
+            "delete_stale is refused together with source=: a single-source "
+            "reindex cannot see the other sources' chunks, so every one of them "
+            "would be classified stale. Reindex the whole corpus to delete.",
+            {"source": source, "would_have_deleted": len(stale)},
+        )
+
+    if delete_stale and len(stale) > STALE_DELETE_LIMIT:
+        return _error(
+            "TOO_MANY_STALE",
+            f"{len(stale)} stale chunks exceeds the {STALE_DELETE_LIMIT} that can "
+            f"be listed in one response. Refusing to delete ids the operator has "
+            f"not been shown. Rebuild from scratch instead: see docs/rollback.md §3.",
+            {"stale_count": len(stale)},
+        )
+
     if dry_run:
-        plan["note"] = "Nothing written. Call again with dry_run=false to commit."
+        plan["note"] = (
+            "Nothing written. Call again with dry_run=false to commit."
+            + (
+                f" {len(stale)} stale chunk(s) would then be deleted, after a "
+                f"verified backup." if delete_stale and stale
+                else " Stale chunks would be REPORTED ONLY; pass delete_stale=true "
+                     "to remove them."
+            )
+        )
         return plan
+
+    # ── mutations begin here ──────────────────────────────────────────────────
+    # The backup is taken BEFORE any write, not just before the delete, so a
+    # restore returns the collection to its exact pre-reindex state.
+    if delete_stale and stale:
+        try:
+            backup = create_verified_backup(SETTINGS, SETTINGS.collection.name)
+        except BackupError as exc:
+            return _error("BACKUP_FAILED", str(exc))
+        plan["backup"] = backup.to_dict()
+        log.info("verified backup before delete: %s", backup.path)
 
     vectors = EMBEDDER.embed([r.text for r in records])
     STORE.add(
@@ -378,15 +454,31 @@ def tool_reindex(dry_run: bool = True, source: str | None = None) -> dict[str, A
         documents=[r.text for r in records],
         metadatas=[r.metadata() for r in records],
     )
+    plan["written"] = len(records)
+
+    if delete_stale and stale:
+        deleted = STORE.delete(stale)
+        plan["deleted"] = deleted
+        plan["deleted_count"] = len(deleted)
+        log.warning("reindex deleted %s stale chunks; backup at %s",
+                    len(deleted), plan["backup"]["path"])
+    else:
+        plan["deleted_count"] = 0
+
+    # Rebuilt from the surviving records, AFTER the store mutations. Rebuilding
+    # first would leave BM25 advertising chunks the vector store no longer holds.
     LEXICAL.build([r.id for r in records], [r.text for r in records])
     LEXICAL.save()
-    plan["written"] = len(records)
+
     plan["collection_count"] = STORE.count()
+    plan["lexical_count"] = len(LEXICAL)
     plan["note"] = (
-        "Stale chunks are reported, not deleted. Removal is an operator action: "
-        "delete var/chroma/ and re-run scripts/ingest.py --commit."
+        f"Committed. Restore with docs/rollback.md §2 from {plan['backup']['path']}."
+        if plan.get("backup")
+        else "Committed. Stale chunks were REPORTED ONLY — pass delete_stale=true "
+             "to remove them."
     )
-    log.info("reindex committed chunks=%s", len(records))
+    log.info("reindex committed chunks=%s deleted=%s", len(records), plan["deleted_count"])
     return plan
 
 
@@ -434,7 +526,9 @@ TOOLS: dict[str, dict[str, Any]] = {
         "write": True,
         "description": "Re-run ingestion. DRY RUN BY DEFAULT. WRITE-CAPABLE: requires "
                        "confirm=true and writes.allow_writes, and dry_run=false to "
-                       "actually write.",
+                       "actually write. Stale-chunk removal is a further opt-in "
+                       "(delete_stale=true) that takes a verified backup first and "
+                       "lists every id it removes.",
     },
 }
 
@@ -580,6 +674,16 @@ def _schema_for(name: str) -> dict[str, Any]:
                     "description": "Defaults to true. Set false to actually write.",
                 },
                 "source": {"type": "string", "maxLength": 64},
+                "delete_stale": {
+                    "type": "boolean",
+                    "default": False,
+                    "description": "Remove chunks that are in the collection but no "
+                                   "longer in the corpus. DESTRUCTIVE. Requires "
+                                   "dry_run=false as well, takes and verifies a backup "
+                                   "first, lists every id it will remove, and is "
+                                   "refused alongside `source` because a single-source "
+                                   "reindex would classify the rest of the corpus stale.",
+                },
                 "confirm": {
                     "type": "boolean",
                     "default": False,
