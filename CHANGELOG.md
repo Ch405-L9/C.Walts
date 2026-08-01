@@ -5,8 +5,19 @@ is Semantic Versioning as required by Prompt C §4.3.
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-08-01
+
+Isolated collection, ingestion, and the embedding contract are operational.
+
 ### Added
 
+- `scripts/verify_embedding_contract.py` — Prompt C §8.1 proof in a disposable
+  collection under `var/tmp/`, deleted after evidence capture. All ten checks
+  pass; evidence at `docs/evidence/embedding-contract.json`.
+- `badgr_natural_flow_v1` created and populated: 48 chunks, 768 dimensions,
+  cosine space, persisted at `var/chroma/` and verified to survive a process
+  restart. BM25 index built over the same 48 chunks.
+- First verified backup at `var/backups/20260801T124553Z/`.
 - C.Walts approved corpus placed under `corpus/raw/`: 12 before/after rewrite
   pairs, four positive voice-reference descriptions, two delivery-ready
   reference scripts, the market voice-delivery rules, EVAL-001…015, and the

@@ -1,0 +1,96 @@
+{
+  "generated": "2026-08-01T12:45:26.785426+00:00",
+  "probe_collection": "nfr_contract_probe",
+  "probe_persistence": "/home/t0n34781/projects/natural-language-flow-rag/var/tmp/contract-probe",
+  "inside_project_root": true,
+  "configured_model": "nomic-embed-text",
+  "configured_dimension": 768,
+  "onnx_cache_before": {
+    "present": true,
+    "files": 7,
+    "bytes": 174510889
+  },
+  "checks": {
+    "dimension_is_768": true,
+    "explicit_vectors_accepted": true,
+    "stored_dimension_is_768": true,
+    "query_paths_agree": true,
+    "schema_names_nomic": true,
+    "schema_is_not_chroma_default": true,
+    "schema_dimension_is_768": true,
+    "reopen_without_ef_matches": true,
+    "no_onnx_fallback": true,
+    "persistence_inside_project": true
+  },
+  "measured": {
+    "dimension": 768,
+    "l2_norm": 1.0,
+    "model": "nomic-embed-text",
+    "prenormalized": true
+  },
+  "stored_vector_dimension": 768,
+  "query_texts_top_id": "probe_2",
+  "query_vector_top_id": "probe_2",
+  "query_texts_distance": 0.479514,
+  "query_vector_distance": 0.479514,
+  "sqlite": {
+    "tables": [
+      "acquire_write",
+      "collection_metadata",
+      "collections",
+      "databases",
+      "embedding_fulltext_search",
+      "embedding_fulltext_search_config",
+      "embedding_fulltext_search_content",
+      "embedding_fulltext_search_data",
+      "embedding_fulltext_search_docsize",
+      "embedding_fulltext_search_idx",
+      "embedding_metadata",
+      "embedding_metadata_array",
+      "embeddings",
+      "embeddings_queue",
+      "embeddings_queue_config",
+      "maintenance_log",
+      "max_seq_id",
+      "migrations",
+      "segment_metadata",
+      "segments",
+      "tenants"
+    ],
+    "collection_row": {
+      "id": "2003bd86-52cd-4143-b5b4-d889c710f215",
+      "name": "nfr_contract_probe",
+      "dimension": 768,
+      "config_json_str": "{}",
+      "schema_str": "{\"defaults\":{\"string\":{\"fts_index\":{\"enabled\":false,\"config\":{}},\"string_inverted_index\":{\"enabled\":true,\"config\":{}}},\"float_list\":{\"vector_index\":{\"enabled\":false,\"config\":{\"space\":\"cosine\",\"embedding_function\":{\"type\":\"known\",\"name\":\"ollama\",\"config\":{\"model_name\":\"nomic-embed-text\",\"timeout\":120,\"url\":\"http://127.0.0.1:11434\"}},\"hnsw\":{\"ef_construction\":100,\"max_neighbors\":16,\"ef_search\":100,\"num_threads\":12,\"batch_size\":100,\"sync_threshold\":1000,\"resize_factor\":1.2}}}},\"sparse_vector\":{\"sparse_vector_index\":{\"enabled\":false,\"config\":{\"embedding_function\":{\"type\":\"unknown\"},\"bm25\":false}}},\"int\":{\"int_inverted_index\":{\"enabled\":true,\"config\":{}}},\"float\":{\"float_inverted_index\":{\"enabled\":true,\"config\":{}}},\"bool\":{\"bool_inverted_index\":{\"enabled\":true,\"config\":{}}}},\"keys\":{\"#embedding\":{\"float_list\":{\"vector_index\":{\"enabled\":true,\"config\":{\"space\":\"cosine\",\"embedding_function\":{\"type\":\"known\",\"name\":\"ollama\",\"config\":{\"model_name\":\"nomic-embed-text\",\"timeout\":120,\"url\":\"http://127.0.0.1:11434\"}},\"source_key\":\"#document\",\"hnsw\":{\"ef_construction\":100,\"max_neighbors\":16,\"ef_search\":100,\"num_threads\":12,\"batch_size\":100,\"sync_threshold\":1000,\"resize_factor\":1.2}}}}},\"#document\":{\"string\":{\"fts_index\":{\"enabled\":true,\"config\":{}},\"string_inverted_index\":{\"enabled\":false,\"config\":{}}}},\"probe\":{\"bool\":{\"bool_inverted_index\":{\"enabled\":true,\"config\":{}}}}}}"
+    },
+    "segments": [
+      {
+        "scope": "VECTOR",
+        "type": "urn:chroma:segment/vector/hnsw-local-persisted"
+      },
+      {
+        "scope": "METADATA",
+        "type": "urn:chroma:segment/metadata/sqlite"
+      }
+    ]
+  },
+  "embedding_function_config": {
+    "url": "http://127.0.0.1:11434",
+    "model_name": "nomic-embed-text",
+    "timeout": 120
+  },
+  "schema_declared_dimension": 768,
+  "reopened_without_ef": {
+    "top_id": "probe_2",
+    "distance": 0.479514,
+    "python_side_function": "DefaultEmbeddingFunction"
+  },
+  "onnx_cache_after": {
+    "present": true,
+    "files": 7,
+    "bytes": 174510889
+  },
+  "passed": true,
+  "probe_removed": true
+}

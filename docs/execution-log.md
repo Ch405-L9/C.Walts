@@ -119,3 +119,76 @@ this build.
 48 chunks / 6,240 tokens / ~0.1 MiB of vectors. Single license in play:
 `Proprietary — BADGRTechnologies LLC`. Manifest written to
 `corpus/manifests/dryrun-20260801T124137.json`. Nothing written to the store.
+
+Commit `235a4d0` — `feat: add licensed corpus schema and deterministic ingestion`.
+Pushed. Rollback point: `git revert 235a4d0` restores the empty-corpus state; no
+database existed yet at this checkpoint.
+
+---
+
+## 2026-08-01 — Checkpoint 3: isolated Chroma and embedding contract
+
+### Disposable-collection proof (Prompt C §8.1)
+
+Ran in `var/tmp/contract-probe/`, removed afterwards. Ten checks, all PASS:
+
+| Check | Result |
+|---|---|
+| dimension is 768 through the project's own client | PASS (L2 norm 1.000000) |
+| explicit vectors accepted | PASS |
+| stored vector dimension is 768 | PASS |
+| `query_texts=` and explicit query embedding agree | PASS (same id, distance delta < 1e-4) |
+| persisted schema names `nomic-embed-text` | PASS |
+| persisted schema is **not** Chroma's default embedder | PASS |
+| schema-declared dimension is 768 | PASS |
+| reopen without an embedding function still matches | PASS |
+| no ONNX fallback downloaded or invoked | PASS (cache unchanged: 7 pre-existing files) |
+| persistence inside the project root | PASS |
+
+**Correction to an audit assumption, with evidence.** The audit expected the
+embedding function to be recorded in `collections.config_json_str`. On ChromaDB
+1.5.8 that column is `"{}"`; the record lives in `collections.schema_str` as
+`"embedding_function":{"type":"known","name":"ollama","config":{"model_name":
+"nomic-embed-text",...}}`. The verification script was corrected to read the
+column that actually carries the contract — a check that reads the wrong column
+would have passed vacuously in the other direction.
+
+**Hazard B2 re-tested as an experiment.** A collection created with an explicit
+`OllamaEmbeddingFunction` was reopened with `get_collection(name)` and **no**
+embedding function — the exact mistake that made `badgr_corpus` and
+`job_opportunities` unsafe. Chroma 1.5.8 reconstructs the persisted `known`
+Ollama function: identical ids and identical distances to 6 decimal places, and
+no ONNX model fetched. The python-side attribute still reports
+`DefaultEmbeddingFunction`, so the attribute is not evidence; the query path is.
+
+### Real collection (Prompt C §8.2)
+
+Writes stayed **disabled in configuration**. `writes.allow_writes` is still
+`false` in `config/rag.yaml`; the commit ingest ran with `NFR_ALLOW_WRITES=true`
+scoped to that single process, so the MCP write tools remain gated by default.
+
+| Item | Value |
+|---|---|
+| Collection | `badgr_natural_flow_v1` |
+| Count | 48 |
+| Dimension declared / expected / measured | 768 / 768 / 768 |
+| Space | cosine |
+| Persistence | `/home/t0n34781/projects/natural-language-flow-rag/var/chroma` |
+| Embedding model recorded | `nomic-embed-text` |
+| Health status after fresh process | `OK` |
+| Free disk at write time | 71 GB (floor: 20 GB) |
+
+`schema_str` for the real collection records `"name":"ollama"` and
+`nomic-embed-text`, and contains no reference to a default or MiniLM embedder.
+
+### Production data untouched
+
+`/home/t0n34781/projects/badgr_harness/rag_db/chroma.sqlite3` MD5 before and
+after ingestion: `bdcbe32b706c6ccce1f62e8e9f2d2c49` — unchanged.
+
+### Rollback point
+
+Verified backup: `var/backups/20260801T124553Z/chroma.sqlite3` (+ `.sha256`,
+`sha256sum -c` OK). Recreate path: delete `var/chroma/` and re-run
+`NFR_ALLOW_WRITES=true .venv/bin/python scripts/ingest.py --commit`; ingestion is
+idempotent because chunk ids are content-derived.
