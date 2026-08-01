@@ -1,6 +1,6 @@
 {
-  "generated": "2026-08-01T13:09:12.235452+00:00",
-  "total": 42,
+  "generated": "2026-08-01T20:30:09.789590+00:00",
+  "total": 43,
   "failed": 0,
   "checks": [
     {
@@ -49,13 +49,13 @@
       "section": "11.2 static quality",
       "check": "pytest passes",
       "passed": true,
-      "detail": "..................................                                       [100%]"
+      "detail": "................................................................         [100%]"
     },
     {
       "section": "11.2 static quality",
       "check": "corpus lint passes",
       "passed": true,
-      "detail": "0 failure(s), 1 warning(s)"
+      "detail": "PASS \u2014 no findings."
     },
     {
       "section": "11.2 static quality",
@@ -71,9 +71,15 @@
     },
     {
       "section": "11.4 collection",
-      "check": "count is 48",
+      "check": "count matches the corpus on disk",
       "passed": true,
-      "detail": 48
+      "detail": "collection=101 corpus=101"
+    },
+    {
+      "section": "11.4 collection",
+      "check": "lexical index covers the same chunks",
+      "passed": true,
+      "detail": "lexical=101 collection=101"
     },
     {
       "section": "11.4 collection",
@@ -98,16 +104,16 @@
       "check": "exact prosody terms retrieve lexically",
       "passed": true,
       "detail": {
-        "ToBI": 1,
-        "H*": 1,
-        "L-L%": 1
+        "ToBI": 3,
+        "H*": 3,
+        "L-L%": 3
       }
     },
     {
       "section": "11.4 collection",
       "check": "semantic query returns ranked results",
       "passed": true,
-      "detail": 10
+      "detail": 9
     },
     {
       "section": "11.4 collection",
@@ -120,8 +126,8 @@
       "check": "citations map to real source files",
       "passed": true,
       "detail": [
-        "corpus/raw/owner_examples/approved_before_after_pairs.md",
         "corpus/raw/style_rules/market_voice_delivery_rules.md",
+        "corpus/raw/owner_examples/approved_before_after_pairs.md",
         "corpus/raw/style_rules/market_voice_delivery_rules.md"
       ]
     },
@@ -244,7 +250,7 @@
       "section": "MCP surface",
       "check": "search returns cited results",
       "passed": true,
-      "detail": 11
+      "detail": 12
     },
     {
       "section": "MCP surface",
@@ -265,19 +271,20 @@
       "section": "MCP surface",
       "check": "source_inspect returns provenance",
       "passed": true,
-      "detail": "owner_examples"
+      "detail": "cwalts_prosody_glossary"
     },
     {
       "section": "11.7 rollback",
       "check": "a verified backup exists",
       "passed": true,
-      "detail": "20260801T124553Z"
+      "detail": "20260801T202053Z"
     },
     {
       "section": "11.7 rollback",
       "check": "backup restores and holds the collection",
       "passed": true,
       "detail": [
+        "badgr_natural_flow_feedback_v1",
         "badgr_natural_flow_v1"
       ]
     },

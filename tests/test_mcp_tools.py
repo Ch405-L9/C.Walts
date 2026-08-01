@@ -164,3 +164,26 @@ def test_feedback_targets_a_separate_collection(server):
     """Feedback must never be able to write into the retrieval corpus."""
     assert server.FEEDBACK_COLLECTION != server.SETTINGS.collection.name
     assert server.FEEDBACK_COLLECTION in server.SETTINGS.collection.allowlisted_collections
+
+
+def test_incomplete_call_is_a_caller_error_not_an_internal_one(server, monkeypatch):
+    """A missing required argument must not be reported as a server fault.
+
+    Found in the rc.2 smoke run: dispatching natural_flow_feedback with only
+    confirm=true, while writes were enabled, raised TypeError inside the generic
+    handler and returned INTERNAL_ERROR. That tells the caller the server broke
+    when the request was simply incomplete — and it hides real internal faults
+    among ordinary bad requests.
+    """
+    monkeypatch.setenv("NFR_ALLOW_WRITES", "true")
+    payload = server.dispatch("natural_flow_feedback", {"confirm": True})
+    assert payload["error"]["code"] == "INVALID_PARAMS"
+    assert "chunk_id" in payload["error"]["message"]
+
+
+def test_unexpected_argument_is_also_a_caller_error(server, monkeypatch):
+    monkeypatch.setenv("NFR_ALLOW_WRITES", "true")
+    payload = server.dispatch(
+        "natural_flow_reindex", {"confirm": True, "not_a_real_parameter": 1}
+    )
+    assert payload["error"]["code"] == "INVALID_PARAMS"

@@ -45,11 +45,41 @@ def record(section: str, name: str, passed: bool, detail: object = "") -> bool:
     return bool(passed)
 
 
-def load_server():
-    spec = importlib.util.spec_from_file_location("nfr_mcp_server", ROOT / "mcp" / "server.py")
+def load_module(path: Path, name: str):
+    spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def corpus_chunk_count(settings) -> int:
+    """Chunks the corpus on disk would produce, computed the same way ingest does."""
+    import contextlib
+    import io
+
+    from natural_flow_rag.settings import load_sources
+
+    ingest = load_module(ROOT / "scripts" / "ingest.py", "nfr_ingest")
+    total = 0
+    # ingest reports per-file progress on stdout; this is a counting call, not a
+    # run, so its chatter would only obscure the checklist.
+    with contextlib.redirect_stdout(io.StringIO()):
+        for source in ingest.approved_sources(load_sources()):
+            total += len(ingest.build_records(settings, source, settings.project_root))
+    return total
+
+
+def lexical_chunk_count(settings) -> int:
+    index = LexicalIndex(settings.project_root / "var" / "bm25" / "index.json")
+    try:
+        index.load()
+    except Exception:  # noqa: BLE001 — reported as a count mismatch, not a crash
+        return -1
+    return len(index)
+
+
+def load_server():
+    return load_module(ROOT / "mcp" / "server.py", "nfr_mcp_server")
 
 
 def main() -> int:  # noqa: PLR0915 — a checklist reads better flat than split up
@@ -96,7 +126,20 @@ def main() -> int:  # noqa: PLR0915 — a checklist reads better flat than split
     health = store.health()
     record("11.4 collection", "collection exists after process restart", health.exists,
            health.collection)
-    record("11.4 collection", "count is 48", health.count == 48, health.count)
+    # Derived from the corpus, not hardcoded. This assertion read "count is 48"
+    # through rc.1 and failed the moment the corpus legitimately grew, which
+    # tests nothing except that the number had not changed. What actually needs
+    # proving is that the collection matches the corpus on disk — the same check
+    # that catches a half-finished ingest or an undeleted stale chunk.
+    expected_count = corpus_chunk_count(settings)
+    record("11.4 collection",
+           "count matches the corpus on disk",
+           health.count == expected_count,
+           f"collection={health.count} corpus={expected_count}")
+    record("11.4 collection",
+           "lexical index covers the same chunks",
+           lexical_chunk_count(settings) == health.count,
+           f"lexical={lexical_chunk_count(settings)} collection={health.count}")
     record("11.4 collection", "declared dimension matches measured", health.dimension_match,
            f"{health.dimension_declared} vs {health.dimension_expected}")
     record("11.4 collection", "embedding model recorded on the collection",

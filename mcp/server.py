@@ -544,8 +544,23 @@ def dispatch(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
             SETTINGS.assert_writes_allowed(name)
         except ConfigError as exc:
             return _error("WRITES_DISABLED", str(exc))
+    call_args = {k: v for k, v in arguments.items() if k != "confirm"}
+
+    # Bind before calling so a missing or unexpected argument is reported as the
+    # caller error it is. Without this, `natural_flow_feedback` with no arguments
+    # raised TypeError inside the generic handler and came back as
+    # INTERNAL_ERROR — telling the caller the server broke when in fact the
+    # request was incomplete. Binding here keeps a TypeError raised *inside* a
+    # handler classified as a genuine internal fault.
+    import inspect
+
     try:
-        return spec["handler"](**{k: v for k, v in arguments.items() if k != "confirm"})
+        inspect.signature(spec["handler"]).bind(**call_args)
+    except TypeError as exc:
+        return _error("INVALID_PARAMS", f"{name}: {exc}")
+
+    try:
+        return spec["handler"](**call_args)
     except (VectorStoreError, ConfigError) as exc:
         return _error("COLLECTION_UNAVAILABLE", str(exc))
     except ValueError as exc:
