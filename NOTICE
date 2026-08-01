@@ -51,6 +51,54 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 -------------------------------------------------------------------------------
+Prosody glossary reference sources (CC BY 4.0)
+
+The C.Walts prosody glossary (corpus/raw/glossary/prosody_glossary.md) is
+owner-authored text. Its definitions are grounded in the open-access works
+below, each retrieved and license-verified 2026-08-01 by reading the JATS
+<license> element out of the retrieved article itself. Archived copies and
+their SHA-256 checksums are under docs/evidence/source-snapshots/; the full
+audit, including refused and quarantined candidates, is in
+config/glossary_sources.yaml.
+
+All seven are licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/),
+which permits commercial use, redistribution, and adaptation provided the
+original author and source are credited. Credit is given here as required.
+
+  Hualde, J. I., Prieto, P., et al. (2016). Towards an International Prosodic
+    Alphabet (IPrA). Laboratory Phonology, Ubiquity Press.
+    doi:10.5334/labphon.11
+
+  Cole, J., & Shattuck-Hufnagel, S. (2016). New Methods for Prosodic
+    Transcription: Capturing Variability as a Source of Information.
+    Laboratory Phonology, Ubiquity Press. doi:10.5334/labphon.29
+
+  D'Imperio, M., Cangemi, F., Grice, M., et al. (2016). Introducing Advancing
+    Prosodic Transcription. Laboratory Phonology, Ubiquity Press.
+    doi:10.5334/labphon.32
+
+  Jeon, H.-S., & Nolan, F. (2017). Prosodic Marking of Narrow Focus in Seoul
+    Korean. Laboratory Phonology, Ubiquity Press. doi:10.5334/labphon.48
+
+  Biron, T., Baum, D., Freche, D., et al. (2021). Automatic detection of
+    prosodic boundaries in spontaneous speech. PLoS ONE, PLOS.
+    doi:10.1371/journal.pone.0250969
+
+  Liu, X., Chen, S., Kuang, J., et al. (2025). Cross-Linguistic Influences on
+    L2 Prosody Perception. Brain Sciences, MDPI. doi:10.3390/brainsci15091000
+
+  Powell, S. J., Nayak, S., Magne, C., et al. (2024). Examining the Neural
+    Markers of Speech Rhythm in Silent Reading. Brain Sciences, MDPI.
+    doi:10.3390/brainsci14111142
+
+NOT USED, recorded so the exclusion is auditable: the canonical ToBI labelling
+guidelines (Beckman & Ayers Elam, Ohio State University Research Foundation)
+are restricted to non-commercial use and may not be redistributed. No text from
+them appears in this repository. MIT OpenCourseWare 6.911 is CC BY-NC-SA 4.0
+and is refused on the same grounds.
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
 nomic-embed-text (embedding model, served locally via Ollama)
 Licensed Apache License 2.0 — confirmed via `ollama show nomic-embed-text`.
 Model weights are not redistributed by this project; they are pulled by the

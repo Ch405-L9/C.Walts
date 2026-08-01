@@ -1,0 +1,2983 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.0 20120330//EN" "http://jats.nlm.nih.gov/publishing/1.0/JATS-journalpublishing1.dtd">
+<!--<?xml-stylesheet type="text/xsl" href="article.xsl"?>-->
+<article article-type="research-article" dtd-version="1.0" xml:lang="en" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<front>
+<journal-meta>
+<journal-id journal-id-type="issn">1868-6354</journal-id>
+<journal-title-group>
+<journal-title>Laboratory Phonology: Journal of the Association for Laboratory Phonology</journal-title>
+</journal-title-group>
+<issn pub-type="epub">1868-6354</issn>
+<publisher>
+<publisher-name>Ubiquity Press</publisher-name>
+</publisher>
+</journal-meta>
+<article-meta>
+<article-id pub-id-type="doi">10.5334/labphon.29</article-id>
+<article-categories>
+<subj-group>
+<subject>Journal article</subject>
+</subj-group>
+</article-categories>
+<title-group>
+<article-title>New Methods for Prosodic Transcription: Capturing Variability as a Source of Information</article-title>
+</title-group>
+<contrib-group>
+<contrib contrib-type="author" corresp="yes">
+<name>
+<surname>Cole</surname>
+<given-names>Jennifer</given-names>
+</name>
+<email>jscole@illinois.edu</email>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author">
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>Stefanie</given-names>
+</name>
+<xref ref-type="aff" rid="aff-2"/>
+</contrib>
+</contrib-group>
+<aff id="aff-1">University of Illinois, US</aff>
+<aff id="aff-2">Massachusetts Institute of Technology, US</aff>
+<pub-date publication-format="electronic" date-type="pub" iso-8601-date="2016-06-30">
+<day>30</day>
+<month>06</month>
+<year>2016</year>
+</pub-date>
+<volume>7</volume>
+<issue>1</issue>
+<elocation-id>8</elocation-id>
+<permissions>
+<copyright-statement>Copyright: &#x00A9; 2016 The Author(s)</copyright-statement>
+<copyright-year>2016</copyright-year>
+<license license-type="open-access" xlink:href="http://creativecommons.org/licenses/by/4.0/">
+<license-p>This is an open-access article distributed under the terms of the Creative Commons Attribution 4.0 International License (CC-BY 4.0), which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited. See <uri xlink:href="http://creativecommons.org/licenses/by/4.0/">http://creativecommons.org/licenses/by/4.0/</uri>.</license-p>
+</license>
+</permissions>
+<self-uri xlink:href="http://www.journal-labphon.org/articles/10.5334/labphon.29/"/>
+<abstract>
+<p>Understanding the role of prosody in encoding linguistic meaning and in shaping phonetic form requires the analysis of prosodically annotated speech drawn from a wide variety of speech materials. Yet obtaining accurate and reliable prosodic annotations for even small datasets is challenging due to the time and expertise required. We discuss several factors that make prosodic annotation difficult and impact its reliability, all of which relate to <italic>variability</italic>: in the patterning of prosodic elements (features and structures) as they relate to the linguistic and discourse context, in the acoustic cues for those prosodic elements, and in the parameter values of the cues. We propose two novel methods for prosodic transcription that capture variability as a source of information relevant to the linguistic analysis of prosody. The first is <italic>Rapid Prosody Transcription</italic> (RPT), which can be performed by non-experts using a simple set of unary labels to mark prominence and boundaries based on immediate auditory impression. Inter-transcriber variability is used to calculate continuous-valued prosody &#8216;scores&#8217; that are assigned to each word and represent the perceptual salience of its prosodic features or structure. RPT can be used to model the relative influence of top-down factors and acoustic cues in prosody perception, and to model prosodic variation across many dimensions, including language variety, speech style, or speaker&#8217;s affect. The second proposed method is the identification of individual cues to the contrastive prosodic elements of an utterance. Cue specification provides a link between the contrastive symbolic categories of prosodic structures and the continuous-valued parameters in the acoustic signal, and offers a framework for investigating how factors related to the grammatical and situational context influence the phonetic form of spoken words and phrases. While cue specification as a transcription tool has not yet been explored as RPT has, it has the potential to provide a level of detail that will be useful in modelling systematic context-governed variation in the implementation of prosodic categories, with applications in automatic speech synthesis and recognition, as well as modelling human speech production and perception. We discuss how RPT and cue specification, particularly when combined, can improve the efficiency and reliability of prosodic transcription and how they can be integrated with expert phonological transcription.</p>
+</abstract>
+</article-meta>
+</front>
+<body>
+<sec>
+<title>1 Introduction</title>
+<p>Prosody offers rich data for the investigation of sentence structure, information structure, and pragmatic meaning. Prosody is also an important consideration for models of spoken language processing and discourse interaction. An essential component of any investigation of prosody is a speech sample that is annotated to locate and identify the prosodic <italic>elements</italic> of an utterance&#8212;a term we will use throughout this paper to refer to the prosodic structures that locate prominences and boundaries and the tonal or other features associated with those structures. A serious concern for prosody researchers, then, is the difficulty of obtaining prosodic annotation, especially for spontaneous speech that is produced in meaningful communication, where prosodic expression can be rich and varied, but where acoustic variation is generally also the greatest and annotation can be particularly challenging. This paper begins by considering the reasons why prosodic annotation is difficult despite the expert knowledge and training of the transcriber. The answer appears to be that the prosodic annotation of an utterance is difficult when available cues fail to converge on a unique assignment of prosodic features, taking into account acoustic cues and information in the form of predictions from the syntactic, semantic and discourse context. We propose two innovations that enable prosodic annotation in situations of uncertain or conflicting cues. The proposed methods involve annotation from untrained, non-expert transcribers, and identification of acoustic cues to prosodic features. The proposed methods differ from traditional approaches to prosodic annotation in that they embrace variability in the production and perception of prosody as a source of information. The proposed methods are mutually independent and complement one another, but combined they offer richly detailed information from which we can learn more about the perceptual salience and phonetic expression of contrastive prosodic features, about the role of prosody in conveying meaning, and about the nature of the speech processing systems.</p>
+</sec>
+<sec>
+<title>2 Why prosodic annotation is difficult</title>
+<p>There are a number of factors that make prosodic annotation challenging. Here we review difficulties related to the acoustic cues to prosodic features, individual speaker differences, and effects of the linguistic context. Some of these same factors are noted by other authors in this collection (<xref ref-type="bibr" rid="B19">Cangemi &amp; Grice, 2016</xref>; <xref ref-type="bibr" rid="B40">Frota, 2016</xref>; <xref ref-type="bibr" rid="B2">Arvaniti, 2016</xref>), to which list Arvaniti also mentions speech rate, style, and task. Cangemi and Grice also point to nuances of pragmatic meaning related to interrogatives and politeness as factors that may condition intonation variation. We also recognize these myriad factors, but do not discuss them further here.</p>
+<sec>
+<title>2.1 Reduced and ambiguous acoustic cues</title>
+<p>One problem that occurs frequently is that acoustic cues to prosodic features can be reduced or ambiguous. Prosodic cues may be reduced as a consequence of the general phenomenon of phonetic reduction in speaking conditions that favor hypoarticulation, or as the result of overlap or blending of prosodic features in contexts where multiple prosodic features are crowded in a small phonological region (<xref ref-type="bibr" rid="B3">Arvaniti et al., 2006</xref>; <xref ref-type="bibr" rid="B44">Grabe et al., 2000</xref>; <xref ref-type="bibr" rid="B102">Silverman &amp; Pierrehumbert, 1990</xref>). An ambiguous cue is one that appears in a context that is compatible with more than one assignment of prosodic features. For example, lengthened duration of a stressed syllable can occur as a cue to prominence or prosodic phrase boundary; or, an <italic>F<sub>0</sub></italic> fall on two consecutive full-vowel syllables can cue either a high tonal prominence on the first syllable (e.g., a H* pitch accent in the ToBI annotation system; see <xref ref-type="bibr" rid="B9">Beckman et al., 2005</xref>), or a falling tonal prominence on the second accented syllable (e.g., a H+!H* in the ToBI system).</p>
+<p>Faced with reduced or ambiguous cues in the acoustic signal, the transcriber has several options, a point also raised by Cangemi and Grice (<xref ref-type="bibr" rid="B19">2016</xref>) in discussing the labeling of variable <italic>F<sub>0</sub></italic> contours in Italian. The transcriber may explicitly mark the uncertain presence of a prominence or boundary (e.g., *? to mark an uncertain pitch accent in ToBI annotation); identify alternatives to an uncertain label (e.g., marking &#8220;H* <italic>or</italic> L+H*&#8221; in a ToBI annotation); or appeal to contextual information to choose the prosodic label that is most likely in the given context (e.g., a prosodic boundary at the location of a syntactic clause boundary). The choice among these options may depend on the nature of the uncertainty, the plausibility of alternative analyses, and the strength of predictions based on contextual information. And though it is useful to allow the transcriber flexibility in choosing the best way to resolve uncertainty in any instance, annotation is slow when transcribers must consider multiple solutions in assigning a prosodic element to given word. The problem is compounded by the fact that prosodic elements interact, so the prosodic element assigned to a word with ambiguous or uncertain acoustic cues can influence the interpretation of the cues and corresponding prosodic elements of an adjacent word. For example, positing a prosodic phrase boundary at the end of a word has the result that the following word now stands in phrase-initial position, which in turn suggests the presence of phonetic strengthening effects that are often observed for phrase-initial phones. Finally, general criteria for resolving these ambiguities can be difficult to make explicit, thus increasing the likelihood of inter-transcriber disagreement.</p>
+</sec>
+<sec>
+<title>2.2 Weighting of acoustic cues</title>
+<p>It is widely recognized that prosodic elements are expressed in the acoustic signal through numerous parameters including <italic>F<sub>0</sub></italic>, overall intensity, spectral tilt, duration, and various measures of voice quality. As with acoustic cues to segmental features, the acoustic cues and cue parameter values associated with an individual prosodic element vary across instances of that element. The patterning of prosodic cue variation has not been widely investigated, so we have much yet to learn about the contribution of individual cues or cue combinations to the perception of prosodic features. Nonetheless, it seems likely that in natural speech settings listeners perceptually integrate cues to identify prosodic elements on the basis of the entire cue package. Ideally, transcribers performing prosodic annotation would also take into consideration the entire cue package when assigning a prosodic feature to a word. Yet the transcriber&#8217;s task differs from that of ordinary speech perception in that the transcriber customarily receives not only an auditory signal, but also a graphical speech display that visually conveys patterns in <italic>F<sub>0</sub></italic>, intensity, and formants. Unfortunately, other important cues to prosody, e.g., phone-normalized duration, phonation quality, or spectral tilt, lack a clear visual representation in standard speech displays. This means that information the transcriber receives about which cues are present in the signal is biased, privileging especially <italic>F<sub>0</sub></italic> and intensity as cues to prosodic features. There are currently no explicit, objective criteria for weighting acoustic cues to prosodic features, and so we can expect variation among transcribers in cue weighting. Disparities in cue weighting across transcribers can percolate up and result in differences in the assignment of the phonological prosodic elements, compromising comparisons across studies, and thereby diminishing the value of the prosodically annotated speech data.</p>
+</sec>
+<sec>
+<title>2.3 Individual speaker differences</title>
+<p>Our experience as &#8216;expert&#8217; transcribers (i.e., having in-depth familiarity with theoretical claims about the phonological structures and with phonetic correlates of prosody) annotating spontaneous speech materials is that annotation often becomes easier and faster as we gain familiarity with the speech patterns of an individual speaker. This reflects the fact that individual speakers vary in their use of prosody. Production studies of prosody in varieties of British and American English report individual speaker differences in the assignment of prosodic elements marking prominence and boundaries (<xref ref-type="bibr" rid="B44">Grabe, 2004</xref>; <xref ref-type="bibr" rid="B117">Yoon, 2010</xref>), and in the phonetic encoding of prosodic elements (<xref ref-type="bibr" rid="B25">Cole &amp; Shattuck-Hufnagel, 2011</xref>; <xref ref-type="bibr" rid="B87">Pepp&#233; et al., 2000</xref>). For instance, Pepp&#233; et al. (<xref ref-type="bibr" rid="B87">2000</xref>) find that British English speakers vary in their use of silent pause and final lengthening as a cue to prosodic phrase boundary in short read-aloud sentences designed to elicit internal juncture (&#8216;<italic>cream, buns, and jam</italic>&#8217; vs. &#8216;<italic>cream buns and jam</italic>&#8217;), and Cole and Shattuck-Hufnagel (<xref ref-type="bibr" rid="B25">2011</xref>) find similar differences among American English speakers in their use of silent pause to mark a prosodic phrase boundary in utterances imitated from spontaneous speech stimuli. What this means for prosodic annotation is that a transcriber annotating a multi-speaker database cannot rely on any one acoustic cue as evidence for a particular prosodic feature, though there may be patterns of relative consistency in the prosodic patterns produced by an individual speaker.</p>
+</sec>
+<sec>
+<title>2.4 Influence from linguistic context</title>
+<p>Prosodic structures and features are assigned to words based in part on their syntactic and semantic context. For example, in English the end of a sentence is often marked with a prosodic phrase boundary, and a pitch accent is very frequently assigned to the rightmost content word (or compound) in eventive sentences, subject to conditions of semantic weight or informativeness. The co-occurrence of prosodic features with specific properties of the syntactic or semantic context enables the listener to predict prosodic elements based on recognized syntactic or semantic properties, prior to (or independent of) consideration of the acoustic cues to prosody. Top-down effects of this sort are demonstrated in a recent study of prosody perception in American English by Cole and her colleagues (<xref ref-type="bibr" rid="B23">Cole, Mo, &amp; Baek, 2010</xref>; <xref ref-type="bibr" rid="B24">Cole, Mo, &amp; Hasegawa-Johnson, 2010</xref>). In that study, words that are marked as prominent by transcribers (using the RPT method, see Section 4) can be predicted on the basis of acoustic cues from the stressed vowel about as well as they can be predicted from the top-down factors of the word&#8217;s log-frequency and repeated mention index as measures of informativeness (<xref ref-type="bibr" rid="B24">Cole, Mo, &amp; Hasegawa-Johnson, 2010</xref>). These top-down factors make an independent contribution to the prominence prediction model, which suggests that in at least some cases transcribers may mark prominence based on the top-down predictors in the absence of strong cues from the acoustic signal. The same study showed similar effects of partially independent top-down prediction from the syntactic context in transcribers&#8217; boundary labeling (<xref ref-type="bibr" rid="B23">Cole, Mo, &amp; Baek, 2010</xref>). We reason that these top-down predictions about prosodic elements do not typically trump the acoustic evidence, so that information from the acoustic signal is in fact relevant to the transcriber&#8217;s choice of labels. In fact, it appears that acoustic cues are primary in prosodic transcription in the default case, as shown by Cole, Mahrt, and Hualde (<xref ref-type="bibr" rid="B22">2014</xref>), who find that transcribers assign a higher weight to top-down factors like syntactic context or information status only when explicitly instructed to attend to those factors while performing transcription. In the absence of special instructions, the transcribers&#8217; choice of labels is more strongly predicted by acoustic cues; but when acoustic cues are ambiguous, top-down information may play a stronger role.</p>
+<p>The influence of top-down processing in predicting prosodic elements poses a problem for prosodic transcription. Even if transcribers are instructed to consider only acoustic cues, and to disregard the syntactic, semantic, and discourse context, as in the ToBI transcription guidelines (<xref ref-type="bibr" rid="B8">Beckman &amp; Ayers Elam, 1997</xref>), transcribers can&#8217;t help but be aware of the linguistic context of a word in a given utterance and they may find it hard to fully suppress predictions stemming from their extensive experience with the prosodic patterns of the target language. Predicted prosodic elements may intrude on the transcriber&#8217;s evaluation of acoustic cues and may favor annotation of prosodic elements that agree with predictions. Intrusions of this sort may be particularly influential in situations where the acoustic cues are reduced or ambiguous, and may partially explain the challenge of automatic prosodic feature detection based only on acoustic input (see <xref ref-type="bibr" rid="B96">Rosenberg, 2009</xref>).</p>
+</sec>
+</sec>
+<sec>
+<title>3 Acoustic cues and perceptual criteria in prosodic annotation</title>
+<p>There are a number of competing approaches to prosodic annotation. Some approaches annotate prosody using abstract phonological features that characterize distinct levels or types of prominences and boundaries. Two examples of such systems are the Tones and Break Indices [ToBI] system (<xref ref-type="bibr" rid="B9">Beckman et al., 2005</xref>), and the Rhythm and Pitch [RaP] system (<xref ref-type="bibr" rid="B12">Breen et al., 2012</xref>). Other approaches use continuous acoustic measures (mainly <italic>F<sub>0</sub></italic>) that can be automatically calculated from the speech signal. Such systems include the Parametric Intonation Event [PaIntE] model (<xref ref-type="bibr" rid="B81">M&#246;hler &amp; Conkie, 1998</xref>), Quantitative Target Approximation [qTA] (<xref ref-type="bibr" rid="B93">Prom-on et al., 2009</xref>), and TILT (<xref ref-type="bibr" rid="B111">Taylor, 2000</xref>).</p>
+<p>Prosodic annotation with abstract phonological elements requires the effort of human transcribers; it is based on the transcriber&#8217;s auditory impression of prosodic elements related to prominences and boundaries supplemented by visual inspection of the waveform, spectrogram, and <italic>F<sub>0</sub></italic> contours of the utterance. The advantage of this method is that the human listener can integrate information from many cues, and can take into account relationships between neighboring prosodic elements, considering, e.g., the degree of juncture between successive boundaries, or the level of prominence across successive pitch accents. These relationships have been shown to be important for the prosodic expression of focus, finality, and certain syntactic dependencies (e.g., <xref ref-type="bibr" rid="B61">Katz &amp; Selkirk, 2011</xref>; <xref ref-type="bibr" rid="B70">Ladd, 2008, p. 78</xref>; <xref ref-type="bibr" rid="B114">Wagner, 2010</xref>). The disadvantage of prosodic annotation using abstract phonological elements is that it is in the end a perceptual annotation, and as such it is at least partly subjective. Labeling criteria must be explicit and very clear in order for annotations to be consistent across transcribers, and must provide a standard measure of reliability, yet currently available labeling guidelines simply do not address the range of annotation challenges that are commonly encountered, and that have been highlighted by several decades of experience with prosodic transcription.</p>
+<p>Approaches that use acoustic measures to characterize prosody face different challenges. The acoustic measures themselves can often be extracted without human intervention, though most rely on a prior segmentation of the speech signal to designate the word or syllable from which acoustic measures are taken. If word and syllable segmentation can be done automatically, as in Reichel&#8217;s (<xref ref-type="bibr" rid="B94">2014</xref>) CoPaSaul system, then these methods can be used with little human intervention, avoiding the subjectivity of a perceptual annotation. The shortcoming of these methods is that they do not easily perform the cue integration that is automatic for human listeners, nor do they typically take into account the relationship between the acoustic measures of neighboring (or nearby) words. The point we wish to emphasize here is that the association between a prosodic element and its function in signaling linguistic structure and meaning involves not a single cue, but a constellation of cues, with the cue mixture and cue values subject to variation due to factors such as those described in Section 2.</p>
+<p>In a prosodic transcription system using abstract phonological elements (i.e., features and structures) to label prominences and boundaries, the elements serve to bundle the phonetic variables that express the structural and meaning functions of prosody. In other words, abstract prosodic elements play the same mediating role in the mapping between speech and meaning as distinctive features do for the representation of lexical contrast (<xref ref-type="bibr" rid="B53">Jakobson et al., 1952</xref>; see <xref ref-type="bibr" rid="B78">Mielke, 2011</xref>). Stevens (<xref ref-type="bibr" rid="B109">2002</xref>) proposed that, in speech perception, listeners extract individual cues to those features from the signal, and integrate that cue information to determine the feature composition of the speaker&#8217;s intended words; in more recent work (e.g., <xref ref-type="bibr" rid="B110">Stevens &amp; Keyser, 2010</xref>), this proposal was extended to include the addition of individual feature-enhancing cues by speakers. This approach suggests a model for segmental processing based on a distinction between the abstract discrete features that carry meaning functions and the phonetic cues that express those features in the speech signal, with different cue patterns occurring in different contexts. Similarly, prosody can be decomposed into two components, with discrete prosodic elements that encode structural and meaning relations among linguistic units such as words and phrases, phonetic cues that are bundled in systematic and potentially language-specific patterns in the acoustic speech signal, and different cue patterns in different contexts (such as tonal crowding). We argue here that prosodic transcription must explicitly consider both levels. In distinguishing two levels of prosodic representation&#8212;one for abstract elements and one for phonetically detailed cues&#8212;our proposal resonates with the proposals by other authors in this collection (<xref ref-type="bibr" rid="B19">Cangemi &amp; Grice, 2016</xref>; <xref ref-type="bibr" rid="B40">Frota, 2016</xref>; <xref ref-type="bibr" rid="B52">Hualde &amp; Prieto, 2016</xref>). Beyond the papers in this collection, our proposal is also somewhat similar to that of Hirst (<xref ref-type="bibr" rid="B50">2005</xref>), who posits an abstract feature annotation at a level termed Intonation Function, with a stylized encoding of <italic>F<sub>0</sub></italic> target points that define phonetic cues.</p>
+<p>Different systems of prosodic transcription propose different sets of labels to mark prosodic elements. These differences may be more than superficial, because the choice of prosodic labels determines how information from the continuous speech signal gets translated into information about linguistic structure (e.g., stress constituents, syntactic or discourse juncture), information structure (e.g, given, new, accessible), or discourse reference (e.g., narrow, contrastive, or corrective focus). The prosodic label set must provide distinct labels for prosodic sound patterns that are associated with different meanings, and for those associated with different structures at the phonological, syntactic, or discourse levels. In other words, a prosodic annotation system (like any sound-level transcription system) embodies a hypothesis about the relationship between the prosodic form of an utterance, in terms of the elements that encode prosody, and the associated function of that prosodic form in conveying linguistic meaning. Frota (<xref ref-type="bibr" rid="B40">2016</xref>) makes a similar claim, in stating that &#8220;a transcription is an analysis of the intonation system, which ultimately aims to identify the contrastive intonation categories of a given language and establish how they signal meaning.&#8221; It follows, then, that decisions about the type of labels included in a prosodic annotation system can be made only with reference to the nature of the meaningful linguistic contrasts that are conveyed through prosody.</p>
+<p>The necessity of considering meaning distinctions for questions about transcription is not a new claim, and is not specific to prosodic transcription (a point also emphasized by <xref ref-type="bibr" rid="B19">Cangemi &amp; Grice, 2016</xref>, and <xref ref-type="bibr" rid="B2">Arvaniti, 2016</xref>). Transcription at the level of the phone (a consonant or vowel segment) is always grounded in the criterion of meaningful distinction, including distinctions that carry lexical contrasts, as well as distinctions that characterize systematic positional allophones. Phonetic detail that does not distinguish among meaningful categories may be salient to the listener, it may signal important information (such as speaker identity, her physiological or psychological state, or social affiliations of the speaker), and it may be included in memory representation, but it is not typically represented in speech transcription. Rather, a phone-level transcription is a discretization of the speech signal that labels phones (or other sub-lexical units) with their distinct category labels, e.g., using IPA phone symbols. For purposes of linguistic inquiry, a phonetic transcription that employs discrete, categorical labels is appropriate, since evidence suggests that similarly abstract units are part of the cognitive representation of speech. For instance, recent work on speech perception shows a privileged role for abstract category representations in speech perception (<xref ref-type="bibr" rid="B79">Mitterer &amp; Ernestus, 2008</xref>; <xref ref-type="bibr" rid="B36">Ernestus, 2013</xref>), and in perceptual learning of the acoustic boundaries between phoneme categories (<xref ref-type="bibr" rid="B26">Cutler, 2008</xref>).</p>
+<p>Existing approaches to prosodic analysis differ in the degree to which the prosodic labels assigned to words are grounded in a theory of the meaning function of those labels in the language under study. Explicit proposals about the linguistic function of prosodic elements (e.g., pitch accents and boundaries) are found in a number of early works on prosody, including Bolinger (<xref ref-type="bibr" rid="B11">1989</xref>), and Gussenhoven (<xref ref-type="bibr" rid="B46">1983</xref>), and in some work in the Autosegmental-Metrical framework, including the seminal work on English by Beckman and Pierrehumbert (<xref ref-type="bibr" rid="B10">1986</xref>) and Pierrehumbert and Hirschberg (<xref ref-type="bibr" rid="B89">1990</xref>), and later work on German by Grice, Baumann, and Benzm&#252;ller (<xref ref-type="bibr" rid="B45">2005</xref>) and Baumann and Grice (<xref ref-type="bibr" rid="B5">2006</xref>). Studies investigating the meaning function of prosodic elements have been carried out for other languages as well&#8212;see papers by numerous authors in Elordieta and Prieto (<xref ref-type="bibr" rid="B35">2012</xref>) and in the <italic>Speech Prosody</italic> proceedings volumes beginning in 2002. Yet, while researchers may recognize the importance of meaning criteria in establishing an inventory of prosodic features, prosodic annotation itself is typically carried out without consideration of the meaning function of the prosodic labels assigned to individual words. Indeed, functional considerations may be explicitly set aside so that researchers can use a prosodic annotation to explore the prosodic form-function relationship in a given language. In our view this practice is potentially problematic, a concern also expressed by Arvaniti (<xref ref-type="bibr" rid="B2">2016</xref>). In the situation where prosodic annotation is difficult due to ambiguous or unclear cues, as described above, a prosodic label assigned to a word may be of uncertain status at two levels: in its acoustic expression and in its meaning function. Such uncertainty jeopardizes subsequent analysis of the relationship between prosodic elements and their meaning functions, or between prosodic elements and their phonetic expression, and presents a challenge for corpus analyses of spontaneous speech, and more generally for the analysis of any set of speech materials where the prosodic annotation is of uncertain reliability, including analyses of languages where there is little prior work on the inventory of prosodic elements.</p>
+</sec>
+<sec>
+<title>4 Prosodic annotation from untrained, non-expert transcribers</title>
+<p>We have argued that variability and ambiguity in the acoustic cues to prosody can lead to differences among transcribers in the prosodic labels assigned to a given utterance. In common transcription practice inter-transcriber differences are resolved through consensus, majority vote, or arbitration, to yield a single &#8220;true&#8221; annotation. In other words inter-transcriber differences are discarded, as noise in the transcription signal; yet those differences can also be viewed as a source of information, e.g., about where ambiguities are likely to arise. This section describes Rapid Prosody Transcription (RPT) as a method that captures inter-transcriber differences in annotation, offering new insight into the interaction between the prosodic form of an utterance and its function in conveying linguistic structural relations and meaning.</p>
+<p>RPT is a simple method of transcription in which listeners identify prominences and boundaries, in separate tasks, based on their auditory impression of an utterance. It has been used by Cole and her colleagues in a number of studies investigating prosody in American English (<xref ref-type="bibr" rid="B23">Cole, Mo, &amp; Baek, 2010</xref>; Cole, Mo, &amp; Hasegawa-Johnson, 2011; <xref ref-type="bibr" rid="B80">Mo, 2011</xref>), Hindi (<xref ref-type="bibr" rid="B58">Jyothi et al., 2014</xref>), and Russian (<xref ref-type="bibr" rid="B74">Luchkina &amp; Cole, 2013</xref>, <xref ref-type="bibr" rid="B75">2014</xref>). Other work has used RPT for the prosodic analysis of French (<xref ref-type="bibr" rid="B103">Smith, 2011</xref>, <xref ref-type="bibr" rid="B104">2013</xref>) and Spanish (<xref ref-type="bibr" rid="B51">Hualde et al., 2016</xref>), for the study of L2 English prosody production as judged by L1 listeners (<xref ref-type="bibr" rid="B105">Smith &amp; Edmunds, 2013</xref>) and for the study of L2 prosody perception with Japanese learners of English (<xref ref-type="bibr" rid="B91">Pint&#233;r et al., 2014</xref>).</p>
+<sec sec-type="methods">
+<title>4.1 RPT method</title>
+<sec>
+<title>4.1.1 Transcribers</title>
+<p>RPT can be performed by any person with functioning hearing and vision, and though our studies have used transcribers who self-report as having normal hearing and vision, the method could also be used by transcribers with sensory impairment to test the effect of the impairment on prosody perception and comprehension. RPT does not require training in prosodic transcription, or any specific knowledge about prosody, speech, or any aspect of linguistics. Some knowledge of the target language is deemed necessary in order for the transcriber to be able to pick out words in fluent speech, and transcribers should also have sufficient reading ability to be able to follow a transcript of the speech sample they are listening to. RPT studies have been successfully conducted with native speakers of the target language, with fluent bilinguals, and with language learners at different ability levels. Multiple transcribers from the same speaker/listener population transcribe the same speech materials, and patterns of inter-transcriber agreement are used to calculate the prosody &#8220;score&#8221; for each word, as described below. We have used 10&#8211;22 transcribers with the RPT method in our work, with no noticeable differences in the resulting patterns of agreement related to the number of transcribers.</p>
+</sec>
+<sec>
+<title>4.1.2 Speech materials</title>
+<p>We have used RPT with speech samples of length varying between 10&#8211;60 s in duration, and which typically include one or more syntactic clauses and one or more prosodic phrases. RPT can be used for transcription of speech regardless of genre or style. The emphasis in developing RPT was to have an efficient means of transcribing prosody in spontaneous speech produced in interactive communication contexts, though we have also used it with read-aloud sentences, and for transcription of &#8216;imagined&#8217; prosody based only on text materials.</p>
+</sec>
+<sec>
+<title>4.1.3 Task</title>
+<p>Transcribers listen to recorded speech samples through headphones or speakers, and are asked to mark prominences and boundaries on individual words in a transcript of the speech sample. Transcripts are prepared without punctuation, capitalization, or any other orthographic or font specification that might normally be used to convey prosody in written materials. Transcribers are given minimal instructions, such as (for English): <italic>&#8220;mark as prominent words that the speaker has highlighted for the listener, to make them stand out,&#8221;</italic> and <italic>&#8220;mark boundaries between words that belong to different chunks that serve to group words in a way that helps listeners interpret the utterance.&#8221;</italic> Depending on the goals of the research, instructions can be varied to draw the transcriber&#8217;s attention to acoustic cues, to the syntactic or discourse structure properties of utterance, to information structure, discourse context, or any other aspect of the stimulus that can be perceived and judged by the listener (<xref ref-type="bibr" rid="B22">Cole, Hualde, &amp; Mahrt, 2014</xref>). Transcribers are given no example transcriptions, and no feedback on their transcription. They are told that listeners may differ in how they perceive the prominences or boundaries for the same utterance, and that such variation is informative for the investigator. The goal is to reduce the transcriber&#8217;s concern about matching a &#8220;correct&#8221; transcription. Figure <xref ref-type="fig" rid="F1">1</xref> shows a screen shot of an individual&#8217;s RPT transcription for an excerpt of spontaneous speech, performed using a customized web interface for digital collection of transcription data (<xref ref-type="bibr" rid="B76">Mahrt, 2015</xref>).</p>
+<fig id="F1">
+<label>Figure 1</label>
+<caption>
+<p>Example RPT output from an individual transcriber showing perceived prominences (red) and boundaries (vertical bars) for a spontaneous speech audio excerpt transcribed in its entirety. Transcript excerpted from the Buckeye Corpus (<xref ref-type="bibr" rid="B92">Pitt et al., 2007</xref>), speaker 17, track 1. This audio content is available at: <ext-link ext-link-type="uri" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://dx.doi.org/10.5334/labphon.29.wav1">http://dx.doi.org/10.5334/labphon.29.wav1</ext-link>.</p>
+</caption>
+<graphic xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/article/id/6176/file/74503/"/>
+</fig>
+<p>A key feature of RPT is that the speech sample is presented to the transcriber in its entirety; the transcriber does not have control over playback and cannot preferentially listen to any portion of the speech sample. RPT can be performed in real-time, as the speech sample plays, in which case the transcriptions reflect the listener&#8217;s immediate perceptual response as a function of the prior context of the utterance. Practically speaking, real-time transcription is necessary with longer speech samples if listeners are not able to start and stop playback of the recording, since it would otherwise be very difficult to recall prosodic judgments for words that appear early in the sample. We have found it helpful to let listeners hear the speech sample two times for each transcription task, and to allow limited modification of labels assigned on the first pass, though within the time constraints of real-time transcription on both listening passes.</p>
+<p>Transcription of prominences and boundaries are done as separate tasks when RPT is performed in real-time or rapid mode, because of the difficulty in explicitly attending to these two dimensions of prosody simultaneously, under time pressure. The two tasks can performed by the same transcriber for the same speech materials, either in immediate succession for each speech sample, or sequentially over the entire set of materials transcribed in two blocks of the transcription session, or even in successive sessions.</p>
+<p>Transcriptions for each speech sample and all transcribers are aggregated, and each word is assigned a prominence score (p-score) and boundary score (b-score) representing the proportion of transcribers who marked that word as prominent, or as preceding a boundary. Figure <xref ref-type="fig" rid="F2">2</xref> shows the p-scores and b-scores of the words in a sample speech excerpt for American English. Scores near zero indicate that few or no transcribers perceived the word as prominent (or preceding a boundary), while scores near 1 indicate that all or most transcribers perceived the word as prominent (or pre-boundary). Intermediate values represent lesser inter-transcriber agreement.</p>
+<fig id="F2">
+<label>Figure 2</label>
+<caption>
+<p>P-scores (prominence) and b-scores (boundaries) for individual words calculated from RPT output from 16 transcribers, for a spontaneous speech sample. Only a portion of the transcribed sample is shown here. Speech sample from the Buckeye Corpus (<xref ref-type="bibr" rid="B92">Pitt et al., 2007</xref>), speaker 26, track 1. This audio content is available at: <ext-link ext-link-type="uri" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://dx.doi.org/10.5334/labphon.29.wav2">http://dx.doi.org/10.5334/labphon.29.wav2</ext-link>.</p>
+</caption>
+<graphic xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/article/id/6176/file/74504/"/>
+</fig>
+<p>Figure <xref ref-type="fig" rid="F2">2</xref> illustrates patterns we observe frequently in RPT annotations for American English spontaneous speech. First, the most frequent p- and b-score values are zero, indicating that many words in this excerpt are never judged as prominent (8/24) or as preceding a boundary (15/24). Conversely, there are no words that all listeners agree are prominent, and only one word that all heard as preceding a boundary. This finding, which generalizes across our RPT database, indicates that the absence of prosodic marking is more salient than the presence of such marking, suggesting either a clear acoustic &#8220;profile&#8221; for prosodically unmarked words, and/or a convergence of acoustic cues and top-down factors predicting non-prominence or non-finality. We observe that strong perceptual prosodic breaks (after <italic>though</italic> and <italic>just</italic>) are sparsely distributed, with relatively weaker peaks of perceived prominence on a few words at locations in between. The locations of the strong and weak perceptual breaks suggest a correspondence with the higher and lower prosodic boundaries in hierarchical models of phrase structure (Beckman <xref ref-type="bibr" rid="B10">&amp; Pierrehumbert, 1986</xref>; <xref ref-type="bibr" rid="B84">Nespor &amp; Vogel, 1986</xref>; <xref ref-type="bibr" rid="B99">Selkirk, 1995</xref>). If this finding is confirmed through comparison of RPT with prosodic transcription in one of these frameworks (including the ToBI system), it would indicate a lesser perceptual salience for lower-level prosodic boundaries, which would in turn have implications for our understanding of the role boundaries play in speech processing. Looking at the pattern of perceived prominence across this excerpt, we find less sharply distinguished peaks of prominence, and more numerous smaller prominence peaks, including multi-word spans with diffuse, low-level prominence. These patterns, which again are not unique to this sample, demonstrate that prominence perception is not as consistent across listeners.</p>
+</sec>
+</sec>
+<sec>
+<title>4.2 Relating variability in acoustic cues and perception</title>
+<p>Although the individual transcriber using RPT makes only binary distinctions for prominence and boundary (marking only those words perceived as prominent or pre-boundary), the p-scores and b-scores derived from RPT are (quasi-)continuous-valued, ranging from 0 to 1, with higher values indicating strong perceptual salience of the prosodic element. This results in graded prosodic labels that can be used to test the contribution of individual acoustic cues or other non-acoustic predictors to the perception of prominence and boundaries. For instance, prior studies show that multiple acoustic measures are correlated with prosodic elements (e.g., <xref ref-type="bibr" rid="B21">Cole et al., 2007</xref>; <xref ref-type="bibr" rid="B65">Kochanski et al., 2005</xref>), and with the syntactic structures, focus, or information structure that are prosodically encoded (e.g., <xref ref-type="bibr" rid="B13">Breen et al., 2010</xref>). The acoustic correlates of prosodic elements are variable across instances of any given prominence or boundary element, a fact well-known to anyone who tries to match training examples to speech samples they are prosodically annotating, which raises the question of whether cue variability contributes to lower inter-transcriber agreement in prosodic annotation. Is it the case that transcribers are more likely to agree in the assignment of a prosodic label in the presence of strong acoustic cues? The answer appears to be yes, at least for RPT. Several studies that examine acoustic correlates of RPT scores find that higher (i.e., more extreme) cue values predict higher p-scores and b-scores, meaning that transcribers are more likely to mark prominence and boundaries in the presence of strong cues (<xref ref-type="bibr" rid="B23">Cole, Mo, &amp; Baek, 2010</xref>; <xref ref-type="bibr" rid="B24">Cole, Mo, &amp; Hasegawa-Johnson, 2010</xref>, <xref ref-type="bibr" rid="B77">Mahrt et al., 2012</xref>). An interesting question for future research is whether the link between high RPT scores and strong acoustic cues can be used to distinguish among types of prominences or boundaries, or between various structural or meaning functions that those prosodic features encode&#8212;e.g., are there stronger acoustic cues signaling a pitch accent marking contrastive focus (e.g., L+H* in the ToBI system) compared to pitch accents marking new-information focus (e.g., ToBI H*), or do stronger cues signal phrases that end at topic boundaries compared to topic-internal phrases? And are RPT p-scores and b-scores also higher for such word tokens with stronger acoustic cues? Preliminary findings for American English are promising (<xref ref-type="bibr" rid="B20">Cole et al., 2014</xref>), and we expect that further exploration of these patterns, examining factors that predict the RPT p- and b-scores, may reveal new insights into prosodic elements and their meaning functions.</p>
+</sec>
+<sec>
+<title>4.3 RPT and linguistic models of prosody</title>
+<p>Like the other papers in this collection, RPT draws on linguistic theories of prosody (or intonation) in recognizing prominence and phrasing as two separate dimensions of prosodic form, and as such RPT can be used within any theoretical framework that recognizes prominence and phrasing, as a means of tapping into ordinary listeners&#8217; subjective impression of prominences and boundaries in speech. RPT can even be used to explore prosody, from the perspective of the listener, in languages for which the prosodic phonology has not yet been worked out, and such data may be then used as the basis for developing more articulated grammatical models. For languages where there are existing models of the prosodic phonology, such as English, RPT p-scores and b-scores provide an independent measure of the perceived similarity (or difference) among prosodic elements, such as pitch accents or boundary tones. RPT scores also reveal constraints on the localization and sequencing of prominence and boundaries, in the distribution of scores at different locations in the utterance. For example, a common finding with RPT scores when viewed over individual speech samples, as in Figure <xref ref-type="fig" rid="F2">2</xref>, is that there are diffuse peaks of prominence (or boundaries), where in a sequence of two or more words, each word has an elevated p-score (or b-score), indicating that listeners hear a prosodic event in the region of those words, but that the event is not as clearly localized in perception compared to other locations. In Figure <xref ref-type="fig" rid="F2">2</xref> such an example can be seen in the elevated p-scores over the first two words, &#8230;<italic>I think&#8230;</italic>, suggesting a prominence on one of those words, though the audio sample for that excerpt does not convey strong emphasis that would be expected if both words were individually and independently prominent.</p>
+<p>Another potentially fruitful application of RPT is in research on dialectal variation. Using similar speech materials in related languages, differences in listeners&#8217; judgments of prominence and phrasing can be correlated with measurable differences in acoustic cues to gain insight into the parameters of variation. In this collection, the papers by Frota and Prieto and Hualde advocate the adoption of phonetically transparent intonational labels to facilitate comparisons of intonation systems across dialects and languages. RPT can be used independently or as a supplement to this practice, with RPT scores providing an independent measure of the similarity (or differences) in the location of pitch accents or boundary-marking tones across language varieties, as a basis for assigning differences at the level of the phonological prosodic element, or in the acoustic cues associated with an element.</p>
+</sec>
+<sec>
+<title>4.4 Broadening the empirical foundations of prosodic theory</title>
+<p>RPT transcription is much faster for the individual transcriber than what is commonly reported for prosodic transcription performed by trained, expert annotators, as in a ToBI transcription. As already mentioned, RPT can be done in real time, and even allowing for two listening passes each for prominence and boundary transcription, RPT can be carried out in something like 4x real time. This is at least one order of magnitude faster than transcription under the ToBI method, as anecdotally reported from many ToBI transcription sites, and consistent with our collective experience. RPT does require many more transcribers than are typically used for an expert transcription, but RPT transcribers can work in parallel. With transcription tasks conducted over the internet, an entire study can be completed in very short time, depending only on the availability of transcribers. The efficiency of RPT at the level of the individual transcriber opens the door for large transcription projects, and for transcription of spontaneous speech or other genres that exhibit high phonetic variability, and including materials with disfluencies or emotional and affective content that can affect the expression of prosodic elements at the level of the acoustic cue.</p>
+<p>A further advantage of RPT is that it allows many people to participate as listeners/transcribers in prosody research, including those from populations not easily accessed from the university communities where most prosody researchers reside. This opens the door to obtaining prosody judgments from minority linguistic communities, from elderly people and those in rural communities, and from communities of language learners.</p>
+</sec>
+<sec>
+<title>4.5 Prosodic variation across speech genres and styles</title>
+<p>An important goal of prosody research is to identify the function of prosody in encoding structural and meaning distinctions. This goal has been pursued in prior work through controlled elicitation of utterances produced in response to prompting questions or statements. For example, Eady et al. (<xref ref-type="bibr" rid="B34">1986</xref>) investigate the prosodic encoding of focus in sentences like <italic>Jeff gave the ball to the cat</italic> produced in response to different prompts that elicit broad focus (<italic>What happened?</italic>), focus on the verb phrase (<italic>What did Jeff do?</italic>), or focus on the indirect object (<italic>What did Jeff give the ball to?</italic>). In this case, the information status and focus conditions that are being studied for their relation to prosody are determined in advance by the experimenter and built into the speech materials. The analysis can focus directly on evidence of prosodic elements such as pitch accent, or their absence, on the pre-designated target words. This experimental approach has been successfully used to elicit both read aloud productions (e.g., <xref ref-type="bibr" rid="B34">Eady et al., 1986</xref>; <xref ref-type="bibr" rid="B46">Gussenhoven, 1983</xref>, and others), and spontaneous productions (e.g., <xref ref-type="bibr" rid="B13">Breen et al., 2010</xref>; <xref ref-type="bibr" rid="B107">Speer et al., 2011</xref>), and has provided rich insight into the prosodic encoding of information structure, focus, and syntactic structure. But the same experimental methods are not easily extended to investigate prosodic phenomena of a more complex nature, or from a greater variety of discourse contexts.</p>
+<p>To the extent that RPT can be used to gauge the perceptual salience of prominences and boundaries in speech representing any genre or style, it may yield insight into the relationship between prosodic elements and their function. For example, radio news announcers tend to have a very lively and engaging speech style that is manifest in the frequent use of pitch accents, relative to conversational speech. This raises the question for English, where pitch accents are used to mark focus, whether listeners associate pitch accents with information status to the same degree in radio news speech and in conversational speech. Does the frequency of pitch accent in radio news speech lead listeners to discount the value of pitch accents in signaling important information? More generally, do listeners adapt their sensitivity to prosodic cues in the speech signal, or adjust the weighting of prosodically signaled information, as a function of the speaking style, discourse context, or other situational factors? RPT can provide direct answers to such questions, and more generally, offers a window for viewing the prosodic processing in speech.</p>
+</sec>
+</sec>
+<sec>
+<title>5 Annotation of acoustic cues</title>
+<p>The second approach we propose to advancing prosodic transcription is based on lessons learned from recent work on transcription of segmental variation. These lessons concern the degree and type of surface phonetic variation that spoken utterances exhibit. Over the past few decades, a large body of information has accumulated about the striking degree and systematic nature of context- and situationally-governed variation in the surface phonetic forms of words and their component sounds in spoken utterances (e.g., <xref ref-type="bibr" rid="B16">Bybee, 2001</xref>; <xref ref-type="bibr" rid="B47">Hawkins, 2003</xref>, <xref ref-type="bibr" rid="B48">2011</xref>; <xref ref-type="bibr" rid="B54">Johnson, 2004</xref>; <xref ref-type="bibr" rid="B57">Jurafsky et al., 2001</xref>; <xref ref-type="bibr" rid="B66">Kohler, 1998</xref>). These observations in the segmental domain have provided a new way to think about transcription. In this section we discuss lessons learned from this work about how the acoustic cues to a given linguistic contrast or structure vary systematically in different contexts, and we examine the potential applicability of these lessons to studies of prosody. Specifically, we suggest that prosodic transcription might benefit from focusing on the question of precisely how the patterns of <italic>individual cues</italic> to the contrastive categories of prominence and boundary types can vary in different contexts. That is, we suggest a focus on the presence vs. absence of individual acoustic cues that are known (or hypothesized) to signal prosodic contrasts, as well as on how both cue choice and cue values vary systematically. We believe that this approach can lead to a better understanding of the contrastive phonemic categories of prosodic structure, as well as of the systematic differences in how these structures are implemented phonetically across contexts, across languages, and across individual speakers.</p>
+<p>The identification of individual cues to distinctive features has long been considered in studies of the phonetic implementation of contrastive segmental categories. For example, in a well-known early paper on the cues to the voicing contrast in stop consonants in American English, Lisker (<xref ref-type="bibr" rid="B73">1986</xref>) observes that &#8220;as many as 16 pattern properties can be counted that may play a role in determining whether a listener reports hearing, for example, <italic>rapid</italic> vs <italic>rabid</italic>&#8221; (p. 3). Since then, a large number of authors too numerous to mention here have discussed the active control of phonetic variation in speech processing. For example, Kingston and Diehl (1994) proposed that &#8220;the phonetic interpretation of phonological representations may be controlled as well as automatic, because contextual variation in the realization of distinctive feature values is a flexible and adaptive response to variation in the demands on the production or perception of these values between contexts&#8221; (p. 419). And more recently, Steriade (<xref ref-type="bibr" rid="B108">1999</xref>) and Flemming (<xref ref-type="bibr" rid="B38">2004</xref>) have proposed a critical role for the perceptibility of feature cues in the process of phonological and phonetic sound change. Wright (2005) lists a comprehensive set of acoustic cues to segmental feature contrasts, summarizing much of the knowledge in this area that has accumulated over the past 50 or 60 years of speech signal analysis and perceptual experimentation.</p>
+<p>While these and many other authors have considered the effects of feature cues on phonological and phonetic processes, the potential implication of separate cognitive representations of cues has not always been thoroughly drawn out. Stevens (<xref ref-type="bibr" rid="B109">2002</xref>) took the further step of proposing distinct roles in perception for different types of feature cues, distinguishing between acoustic <bold>landmarks</bold> (abrupt changes in the acoustic signal, largely associated with manner features), and other acoustic cues (associated with place and voicing features). He proposed that landmark cues are recognized first, providing not only information about manner features, but also the location of regions likely to be rich in other cues (such as formant transitions into and out of consonant closures) and constraints on which kinds of features to search for evidence of, in those landmark-defined regions (e.g., in the region of a vowel landmark, analyses of the signal for cues to the feature [strident] are not required). In work with Keyser (<xref ref-type="bibr" rid="B62">Keyser &amp; Stevens, 2006</xref>; <xref ref-type="bibr" rid="B110">Stevens &amp; Keyser, 2010</xref>), this proposal for landmark-based initial processing in speech perception was combined with the suggestion that speakers, like listeners, represent individual feature cues, and that they sometimes choose to enhance a feature contrast by adding, strengthening, omitting, or weakening individual feature cues in different contexts. In this approach, a feature cue is not a raw acoustic measure of the speech signal, but rather a derived value, which captures a change in or relationship among measurable values in the speech signal (see below for further discussion).</p>
+<p>Traditionally, systematic context-governed phonetic variation has been handled in transcription by the use of allophones, sometimes called positional allophones. However, it is not clear that allophonic transcription is the best way to handle some of the phenomena which have been gradually revealed over the past decades by large-scale analysis of speech corpora made up of speech produced in natural communicative situations. For example, these analyses have revealed many cases of massive reduction (<xref ref-type="bibr" rid="B54">Johnson, 2004</xref>), in which, e.g., English words like <italic>totally</italic> and <italic>probably</italic> are produced as something close to (but potentially distinct from) the words <italic>toy</italic> and <italic>pry</italic>. Allophonic transcription, in which each allophonic character represents a symbolic category that summarizes a specific bundle of cues, elegantly captures many aspects of the extensive surface variation in word form that is observed in communicative speech. But it is not well suited to capturing the fact that some of the cues specified by a single allophone relate to one word, phoneme, or feature of the target utterance, while other cues relate to a different word, phoneme, or feature of the utterance&#8212;a circumstance that is particularly extensive in cases of massive reduction. In such cases, the transcription might lead one to assume that an entire phoneme had been deleted from the utterance, while in fact one or more cues to the features of an apparently deleted phoneme may well be available in the signal. A processing model in which speakers and listeners represent and manipulate individual cues to feature contrasts as well as their quantitative values provides a natural account of this otherwise puzzling phenomenon. That is, in a cue-based model it is natural that when speakers massively reduce the form of a word, they sometimes leave just a few cues to the target phonemic segments of that word in the signal; this set of remaining cues has been called the &#8216;phonetic residue&#8217; (<xref ref-type="bibr" rid="B85">Niebuhr &amp; Kohler, 2011</xref>). Such a model is also consistent with a large number of findings illustrating the sensitivity of speakers and listeners to detailed variation in cue values produced by different speakers (such as VOT duration (<xref ref-type="bibr" rid="B83">Neilson, 2011</xref>) or the spectral profile of the noise associated with /s/ vs. /f/ (<xref ref-type="bibr" rid="B27">Cutler et al., 2010</xref>)).</p>
+<p>This proposal for individual-feature-cue-based analysis in the segmental domain has inspired attempts to transcribe individual cues to segmental features in both adult and child speech (<xref ref-type="bibr" rid="B72">Levy et al., 2014</xref>; <xref ref-type="bibr" rid="B101">Shattuck-Hufnagel &amp; Veilleux, 2000</xref>; Shattuck-Hufnagel et al., 2012; <xref ref-type="bibr" rid="B106">Song et al., 2012</xref>). Results have shown that about 80% of the landmark cues predicted by the words of an utterance are implemented as predicted (Shattuck-Hufnagel &amp; Veilleux, 2002); children sometimes produce non-adult-like cues that enhance feature contrasts (<xref ref-type="bibr" rid="B100">Shattuck-Hufnagel et al., 2015</xref>); and careful cue-based analysis of apparently deviant child speech can sometimes help to distinguish a child&#8217;s typical adult-like contextual variation from a speech disorder (<xref ref-type="bibr" rid="B118">Zhao, 2010</xref>).</p>
+<p>What are the implications of this individual-feature-cue-based view of segment-level transcription, for the transcription of prosody? If we were to take a parallel feature-cue-based approach to the prosodic domain, then we would take it as the goal of a prosodic transcription system to specify (a) the contrastive phonological elements that define the grammatical prosody of the utterance, i.e., its phrasing and prominence patterns, (b) the acoustic cues to the contrastive features of those prosodic elements, and (c) the values of those cues. This means that we would need to identify (i) the set of abstract symbolic prosodic categories that can distinguish among different structures and meanings, i.e., the phonological contrasts; (ii) the set of acoustic cues that can signal these contrasts in different contexts, as well as the ways speakers choose among these cues; and (iii) the pattern of variation in the signal parameter values associated with those cues. When viewed in this light, the task of resolving the current lack of agreement about the phonological categories of prosodic structure (and their relationship to meaning) takes on new urgency: if there is an analogy between contrastive phonemic categories defined by segmental features and contrastive categories similarly defined by prosodic features, it will be important to determine what these categories and features are (and how they relate to meaning differences), as part of the process of developing a more effective prosodic transcription system.</p>
+<p>In the meantime, it is useful to consider what evidence we have that speakers represent and manipulate individual cues to prosodic elements, and that listeners perceive and use these patterns. That is, to what extent might there be a parallel benefit to developing a system for transcribing the individual cues to prosodic elements and their features? And in what ways might such a system be useful in dealing with variation in the surface form of prosodic elements across speakers, contexts, and languages? In the next section we consider briefly some of the individual cues to prosodic boundaries and prominences, knowledge of which has begun to emerge from multiple efforts over the past few decades to specify how prosodic elements and contrasts are signaled, using acoustic measures in corpus-based and experimental studies. We also examine behavioral evidence suggesting that speakers represent individual prosodic cues, and discuss some of the potential benefits of an approach to prosodic transcription that includes cue specification.</p>
+<sec>
+<title>5.1 Cues to prosodic elements</title>
+<p>For many years, the cues to phrase-level prosody were taken to be <italic>F<sub>0</sub></italic> contours, duration adjustments, and amplitude variation. In this traditional view, which pre-dated the proposals (e.g., in <xref ref-type="bibr" rid="B49">Hayes, 1989</xref>; <xref ref-type="bibr" rid="B84">Nespor &amp; Vogel, 1986</xref>; <xref ref-type="bibr" rid="B98">Selkirk, 1984</xref>) for a hierarchy of prosodic constituents and prominences, contrastive levels of stress or prominence were all of the same &#8216;type&#8217; and could involve all of these cues, without (for example) a distinction between lexical-level and phrase-level prominence. As more acoustic analyses of prosodic contours have been carried out, it has become clear not only that there are additional cues to prosodic contrasts, but that the choice of cues can vary systematically with context. For example, in the 1990s, Beckman and Edwards (<xref ref-type="bibr" rid="B7">1994</xref>) proposed a hierarchy of prominences for English prosody, from reduced syllables to full-vowel syllables to lexically-stressed syllables to phrasally-Pitch-Accented syllables. These authors proposed a different set of cues for each level: e.g., in English, greater duration and amplitude distinguish lexically-stressed syllables from reduced syllables, while <italic>F<sub>0</sub></italic> markers distinguish lexically-stressed syllables from syllables that bear additional phrasal prominence in the form of Pitch Accents. Similarly, it was proposed that speakers also mark the different levels of boundaries in the prosodic constituent hierarchy with different cues and different degrees of, e.g., durational lengthening (<xref ref-type="bibr" rid="B115 ">Wightman et al., 1992</xref> and <xref ref-type="bibr" rid="B63 ">Kim et al., 2006</xref> for English; <xref ref-type="bibr" rid="B56 ">Jun &amp; Fougeron, 2000</xref> for French). Brugos (<xref ref-type="bibr" rid="B14">2015</xref>) summarizes a number of cues to prosodic phrase boundaries that have been reported, including &#8220;segmental duration, silent intervals between segments, intensity and loudness of the segments, changes to the f0 in which the segments are produced, and voice quality and spectral changes&#8221; (p. 21). In particular, she notes two that have not yet been mentioned here: pausing, and pitch reset (sometimes described as the return to a neutral phrase-onset <italic>F<sub>0</sub></italic>, from a high or low phrase-final <italic>F<sub>0</sub></italic> level at the end of the preceding phrase). There is some evidence that boundary cues from pause duration and final lengthening may be interdependent (<xref ref-type="bibr" rid="B39">Fon &amp; Johnson, 2004</xref>; <xref ref-type="bibr" rid="B69">Ladd, 1988</xref>; <xref ref-type="bibr" rid="B71">Lehiste et al., 1976</xref>; <xref ref-type="bibr" rid="B97">Scott, 1982</xref>; <xref ref-type="bibr" rid="B93">Prom-On et al., 2009</xref>). For example, Fant and Kruckenberg (<xref ref-type="bibr" rid="B37">1989</xref>) found evidence in Swedish that if the degree of final lengthening is less, the duration of the following pause is greater.</p>
+<p>Other investigators have noted an additional cue to both phrase-level boundaries and prominences: a change in voice-quality. It has long been observed that speakers sometimes produce irregular pitch periods toward the end of an utterance, a phenomenon called final creak. But analyses based on the hierarchy of prosodic constituents revealed that, at least in American English, some speakers also produce irregular pitch periods at the <italic>onsets</italic> of prosodic constituents, and of pitch accented syllables, particularly if those constituents begin with a vowel (or, more rarely, a sonorant consonant). For example, Pierrehumbert and Talkin (<xref ref-type="bibr" rid="B90">1991</xref>) showed that speakers often produce an episode of irregular pitch periods at the onset of a phrase-initial vowel, and an analysis of FM radio news speech by Dilley et al. (<xref ref-type="bibr" rid="B32">1996</xref>) showed that, for reduced vowels, this is more likely to occur for Full Intonational Phrases than for lower-level Intermediate Intonational Phrases. Dilley et al. also documented the tendency for speakers to produce irregular pitch periods at the onset of vowels that begin a Pitch-Accented syllable, a finding corroborated for additional dialects of English by Garellek (<xref ref-type="bibr" rid="B42">2014</xref>). Detailed studies of the articulatory changes that occur at prosodic boundaries have been carried out by Byrd and colleagues (<xref ref-type="bibr" rid="B18">Byrd &amp; Saltzman, 2003</xref>; <xref ref-type="bibr" rid="B17">Byrd et al., 2006</xref>, <xref ref-type="bibr" rid="B68">Krivokapic &amp; Byrd, 2012</xref>), by Krivokapic (<xref ref-type="bibr" rid="B67">2007</xref>), and by Katsika et al. (<xref ref-type="bibr" rid="B59">2014</xref>), but will not be described in detail here.</p>
+<p>The detailed distribution of prosodic prominence- and boundary-related lengthening in the speech signal has been investigated by Turk and White (<xref ref-type="bibr" rid="B113">1999</xref>), who studied precisely where accent-related lengthening occurs across the accented syllable and adjacent syllables, and by Turk and Shattuck-Hufnagel (<xref ref-type="bibr" rid="B112">2007</xref>), who found that phrase-final lengthening in English was concentrated in the phrase-final rhyme, but also occurred in the rhyme of the main-lexical-stress syllable of the phrase-final word, when the main-stress syllable was not word-final (as in, e.g., <italic>Michigan</italic>).</p>
+<p>Over the decades it has been observed that prosodic prominences and boundaries can influence the production of segmental cues as well; for example, Jun (<xref ref-type="bibr" rid="B55">1993</xref>) showed that, in Korean, the voice onset time for a stop release increases systematically for preceding boundaries that are higher in the hierarchy of prosodic constituents. Moreover, speakers can adjust the implementation of their prosodic cues to maintain the segmental contrasts of their phonemic system. For example, Nakai and Turk (<xref ref-type="bibr" rid="B82">2011</xref>) showed that, in languages with vowel quantity (duration) contrasts, speakers produce less phrase-final lengthening on the phonemically short vowels than on the long vowels, presumably to ensure that the contrast in duration between these two types of vowels is not obscured. Thus it is possible that systematic variation in cues to segmental features may also provide information to the listener about prosodic structure.</p>
+<p>This brief review of some of the types of cues that have been reported for prosodic boundaries and prominences suggests a wide variety of signaling options at the disposal of the speaker (and listener) to signal these prosodic elements. Interestingly, it appears that these cues can sometimes function in a trading relationship, just as has been suggested for cues to segmental features (<xref ref-type="bibr" rid="B95">Repp, 1982</xref>). The relation between final duration lengthening and pausing in production, described above, is one example; another is the work of Beach and colleagues (<xref ref-type="bibr" rid="B6">1991</xref>; <xref ref-type="bibr" rid="B60">Katz et al., 1996</xref>) on cue trading between duration and pitch in the perception of prosodic boundaries. Such functional relationships suggest that speakers can mutually adjust the values of the cues so that they work together to meet the more general goal of signaling a prosodic boundary or prominence. We turn now to some additional evidence that speakers represent and manipulate individual prosodic cues.</p>
+</sec>
+<sec>
+<title>5.2 Evidence that speakers represent individual cues</title>
+<p>One line of evidence is that speakers can substitute individual cues to prosodic elements, just as they can substitute cues to segmental feature contrasts, e.g., in challenging speaking situations. For example, in whispered Mandarin speech, where the production of canonical pitch cues to lexical tones is not possible, there is evidence that speakers can use amplitude variation to signal the missing pitch contours (<xref ref-type="bibr" rid="B41">Gao, 2002</xref>). This might be an example of promoting and exaggerating an existing acoustic correlate of a prosodic feature, since a similar but smaller pattern of amplitude variation appears in typically-phonated versions of the same tone. Another example is found in the behavior of speakers with dysarthria, who have trouble controlling their <italic>F<sub>0</sub></italic> contours. Patel (<xref ref-type="bibr" rid="B86">2011</xref>) has shown that some dysarthric speakers of English signal the distinction between questions (often produced with rising intonation by typical speakers) and statements (typically produced with falling intonation) by exaggerating the final-syllable duration difference between these two forms. Moreover, interlocutors familiar with the speech of these dysarthric speakers have learned to use these new cues to distinguish the two forms perceptually.</p>
+<p>One of the earliest lines of evidence consistent with the hypothesis that speakers and listeners manipulate individual cues and their values came from studies showing that the intonational targets postulated in Autosegmental-Metrical theory (<xref ref-type="bibr" rid="B10">Beckman &amp; Pierrehumbert, 1986</xref>; <xref ref-type="bibr" rid="B70">Ladd, 2008</xref>; <xref ref-type="bibr" rid="B88">Pierrehumbert, 1980</xref>) exhibit systematically different shapes in different contexts (such as in conditions of tonal crowding) or vary across a range of parameter values (<xref ref-type="bibr" rid="B4">Barnes et al., 2012</xref>; <xref ref-type="bibr" rid="B33">D&#8217;Imperio, 2000</xref>; <xref ref-type="bibr" rid="B64">Knight, 2008</xref>), and that words and segments take on very different surface phonetic shapes in different prosodic contexts. These differences, sometimes called subphonemic, include such phenomena as hierarchy-related increases in phrase-final lengthening (Wightman et al., 1992). This kind of observation is not explained by the idea that speakers select context-appropriate or positional segmental allophones, because the different degrees of final lengthening are not contrastive in any language, and so don&#8217;t meet the criterion for allophonic status. While some aspects of contextual variation in surface phonetic form may arise as the more-or-less automatic outcome of conflicting pressures on the production system&#8212;e.g., undershoot of an articulatory target due to temporal crowding among competing targets&#8212;these observations of systematic subphonemic variation in different prosodic contexts are also consistent with the view that speakers can manipulate cue values, such as the degree of lengthening or the alignment of an <italic>F<sub>0</sub></italic> contour with its text, and its scaling, not only to signal contrasting prosodic elements but also in response to contextual demands. Support for this view is found in the fact that different speakers of the same language may choose different ways of signaling a prosodic element (<xref ref-type="bibr" rid="B87">Pepp&#233; et al., 2000</xref>), and speakers of different languages may similarly vary in their cue choice and cue settings (<xref ref-type="bibr" rid="B44">Grabe, 2004</xref>).</p>
+<p>These examples suggest that speakers have the ability to represent and choose among cues to prosodic elements, and to vary their cues to fit circumstances. If this is the case, then the ability to transcribe individual cues might be useful (and perhaps even necessary) in order to study these patterns of cue distribution, and how they vary across different contexts, different speakers, and different languages. If our experience with segmental cue analysis is any guide, there is a considerable amount to be learned from examining these detailed patterns of systematic surface variation. We turn now to an example which illustrates how a prosody transcription approach focused on individual cues might offer some new insights.</p>
+</sec>
+<sec>
+<title>5.3 A cue-based system for transcribing prosodic disfluency</title>
+<p>An example of the usefulness of cue-based prosodic transcription is found in recent work by Brugos and Shattuck-Hufnagel (<xref ref-type="bibr" rid="B15">2012</xref>), who have developed a system for annotating the separate cues to prosodic disfluency. Disfluencies in the form of pauses, lengthenings, and repetitions have long been a challenge to phonologically-based transcription systems like ToBI, which require the listener to determine which well-formed prosodic shape the speaker intended to produce (<xref ref-type="bibr" rid="B8">Beckman &amp; Ayers, 1997</xref>). In contrast, the cue-based transcription system proposed by Brugos and Shattuck-Hufnagel draws on work by Arbisi-Kelm (<xref ref-type="bibr" rid="B1">2006</xref>), who developed a system to separately label the several phenomena associated with disfluencies produced by speakers who stutter. Rather than labelling a disfluency with a single label, this approach allows the transcriber to specify which set of these individual disfluency-related phenomena have occurred in the disfluency (e.g., pause, lengthening, restart, repetition, editorial remark, etc.) This is particularly useful in light of the fact that the cues can combine in patterns whose distribution is not yet fully understood, e.g., duration lengthening with or without pause and vice versa. The ability to label the individual cues separately opens the possibility of quantifying how often they occur together and in what patterns. Our hypothesis in proposing a cue-based approach to more general aspects of prosodic labelling is that these advantages will also move us toward a better understanding of which cues are used to signal which prosodic elements, and how the cues to these prosodic categories vary in different contexts.</p>
+</sec>
+<sec>
+<title>5.4 What would a cue-based transcription system look like?</title>
+<p>Given the evidence that speakers and listeners may represent and manipulate individual cues to prosodic structure and prominence, and their quantitative values, how might a cue-based transcription system work? First, there is the problem of defining the cues, and second, the problem of determining how each cue can be annotated. With regard to definitions, as noted earlier, a cue is defined not as a single signal-parameter value, but rather as a relation or pattern among measured values. That is, cues are not simple acoustic measurement points but require some additional processing, to determine, e.g., a change in a measured parameter over time and the direction/size of that change (such as the change in an <italic>F<sub>0</sub></italic> contour over time), or a comparison of values in the signal at a given time (such as the energy distribution across the frequency spectrum which specifies spectral peaks). Thus, cues are particularly useful in that they provide a link between measureable acoustic values and contrastive categories. But determining which of the acoustic correlates of a category actually function as cues for listeners in perception, and which correlates are planned and controlled as cues by the speaker, will require considerable experimentation, just as determining the same kinds of information for segmental feature cues will. As noted above, potential cues to the prosodic elements of boundaries and prominences have been determined to include patterns in the domains of pitch (contours and resets), duration (lengthening and shortening) of both spoken elements and silence, amplitude, voice quality, and changes in cues to segmental categories.</p>
+<p>Cues like duration lengthening and <italic>F<sub>0</sub></italic> scaling pose an interesting challenge for labelling: what should be the criterion for labelling cues which involve &#8216;more of something than would be expected if there were not a prominence or a boundary here&#8217;, i.e., which apparently involve comparison with a stored prototypical value. A model based on stored prototypical values (e.g., <xref ref-type="bibr" rid="B6">Beach, 1991</xref>) requires a unit for the stored value, and it is not clear what that unit should be. For example, it is unlikely to be the word, since listeners can seemingly recognize prosodic grouping and prominence patterns in utterances consisting of nonwords (e.g., in reiterant speech). One possibility is suggested by Stevens&#8217;s (<xref ref-type="bibr" rid="B109">2002</xref>) proposal that listeners&#8217; initial processing of an incoming speech signal involves the detection of acoustic landmarks. As noted earlier, a landmark in Stevens&#8217;s sense is an abrupt change across a range of frequencies, associated with a change in the manner of articulation, such as a consonant closure or release. The duration of the intervals between such abrupt &#8216;acoustic edges&#8217; might provide the initial comparison unit for determining the occurrence of duration lengthening.</p>
+<p>Another challenge posed by relational cues such as duration lengthening and shortening is that the same duration value may be interpreted differently depending on the context. For example, a given duration of a rhyme may be perceived as lengthened in an utterance that is spoken rapidly, but as not lengthened in an utterance that is spoken more slowly. While human listeners might be relatively reliable in making this context-based judgment, developing an automatic prosodic cue labeler to take advantage of such information may not be straightforward. One approach would be to update the comparison durations for a particular utterance using the inter-landmark durations mentioned above. Support for this possibility is found in the work of Dilley and Pitt (<xref ref-type="bibr" rid="B29">2010</xref>) and Dilley (<xref ref-type="bibr" rid="B30">2015</xref>), showing that a given stretch of acoustic material (e.g., the rhyme of <italic>leisure</italic>) can be perceived as part of one word (as in <italic>leisure time</italic>) or of two (as in <italic>leisure or time</italic>), depending on the speaking rate of the preceding material. Additional work by Dilley and McAuley (<xref ref-type="bibr" rid="B28">2008</xref>), as well as earlier work by Huss (1978) and others, shows a similarly powerful contextual effect, this time of preceding prominence patterns on the perception of prominence. For example, if the word string <italic>you&#8217;re all right now</italic> is produced with a H-L-H-L <italic>F<sub>0</sub></italic> pattern, and preceded by either a H-L <italic>maybe</italic> or a H-L <italic>perhaps</italic>, after the high-low <italic>F<sub>0</sub></italic> pattern on <italic>maybe&#8230;</italic> (where the high <italic>F<sub>0</sub></italic> signals a High pitch accent on the lexically stressed syllable <italic>may</italic>-), the alternating high-low <italic>F<sub>0</sub></italic> pattern on <italic>you&#8217;re all right now</italic> is more likely to be perceived as signaling a High pitch accent on the high-<italic>F<sub>0</sub></italic> words (<italic>you&#8217;re</italic> and <italic>right</italic>). In contrast, when preceded by a high-low <italic>F<sub>0</sub></italic> pattern on <italic>perhaps&#8230;</italic> (where the low <italic>F<sub>0</sub></italic> signals a Low pitch accent on the lexically stressed syllable -<italic>haps</italic>), the same alternating high-low <italic>F<sub>0</sub></italic> pattern on the subsequent words &#8230;<italic>you&#8217;re all right now</italic> is more likely to be perceived as signaling a Low pitch accent on the low <italic>F<sub>0</sub></italic> words (<italic>all</italic> and <italic>right</italic>) (<xref ref-type="bibr" rid="B31">Dilley &amp; Shattuck-Hufnagel, 1998</xref>, 1999).</p>
+<p>Such findings illustrate the fact that labelling of cues to prosodic structure (and the eventual development of tools for the automatic labelling of these cues) is not simply a matter of registering acoustic parameter values, but (like human perception) requires a degree of context- and experience-governed interpretation of evidence for contrastive phonemic categories. We believe that cue-based labeling, despite its challenges, is a good first step toward the development of a better understanding of the interpretive processes required, both by a model of human prosodic processing, and by an automatic prosody detection algorithm.</p>
+</sec>
+<sec>
+<title>5.5 Potential benefits of a cue-based transcription system</title>
+<p>Much work will be needed in order to test the hypothesis that these scattered examples represent a more general phenomenon, i.e., that speakers and listeners represent and manipulate individual cues to prosodic elements, as well as the parameter values of those cues. However, to the extent that this hypothesis is correct, a cue-based approach to transcription will offer substantial advantages, by capturing the aspects of utterances that speakers and listeners are attending to and representing in speech processing. Transcriptions in terms of individual cues also offers the possibility of enabling the development of an automatic prosody transcription algorithm, since cues can be specified in quantitative signal-processing terms. The trade-off, however, is that this approach requires more complex integration and interpretation of the cues as evidence for the categories. It must be noted here that prosody is particularly complex to transcribe, in any approach, in part because its acoustic correlates (including traditionally-defined patterns of duration, <italic>F<sub>0</sub></italic>, intensity and, as increasingly recognized, voice quality) are influenced not only by the grammatical categories of phrasing and prominence, but also by speaker- and situation-specific factors, such as the speaker&#8217;s emotional state and the social relationship between interlocutors. (This comes as no surprise, since the past few decades of research on phonetic behavior has revealed that these same complex factors influence the production of cues to segmental features as well&#8212;but the degree to which structure and social-emotional factors are signaled by overlapping cues appears to be greater in prosody, and thus more challenging to unravel.) Untangling the influences of these factors in a way that facilitates more effective use of prosody in automatic speech recognition and synthesis, as well as more complete models of human speech perception and production, may well be encouraged by the development of a prosodic transcription system focused on contrastive categories, their individual cues, and the variation of these cues (and the range of acoustic values they can take on) across contexts, speakers, and languages, with the flexibility to tailor the transcription level to the research task at hand.</p>
+</sec>
+</sec>
+<sec>
+<title>6 Conclusion</title>
+<p>Given the significance of prosody in conveying grammatical and extra-grammatical meaning in spoken language, establishing a system for identifying and characterizing the prosodic elements in speech is a research priority. We have described challenges that arise in the use of existing systems for prosodic transcription due to variability in the prosodic encoding of grammatical information, in the individual acoustic cues that express prosodic elements, and in the acoustic cue values. We have also argued, along with Arvaniti (<xref ref-type="bibr" rid="B2">2016</xref>), that advancing prosodic transcription toward the goal of greater accuracy and reliability ultimately depends on having a better understanding of how prosody functions to mark grammatical contrasts. A further requirement is to understand how prosodic elements and their acoustic cue implementation vary according to context, such as speech style or other situational factors. Along with Cangemi and Grice (<xref ref-type="bibr" rid="B19">2016</xref>), we see a critical need for research on variability in phonetic prosodic cues in relation to their meaning functions, and in relation to their phonological categories.</p>
+<p>We propose two novel methods in prosodic transcription, which differ from current approaches in their handling of variability. The first method, Rapid Prosody Transcription (RPT), records listeners&#8217; immediate impressions of prosodic elements and explicitly captures information about the perceptual salience of those elements, by calculating prominence and boundary &#8216;scores&#8217; for each word as real-number values based on inter-transcriber agreement. The prosody scores simultaneously reflect all factors that influence prosody perception, including acoustic cues and top-down factors, and reveal the conditions in which ambiguity arises in the phonetic expression of prosodic elements. The patterning of these prosody scores may shed light on prosodic encoding of grammatical information at different levels of linguistic organization (e.g., word, phrase, utterance, discourse segment), and on the mechanisms for prosody processing in speech production and perception.</p>
+<p>The second method proposed here is the identification of individual cues to the contrastive prosodic elements of an utterance. This focus on individual cues has the potential to provide a link between the contrastive symbolic categories of prosodic structures and their signal parameters, as well as a framework for investigating the systematic effects of a wide range of contextual factors, both grammatical and situational, on the surface phonetic forms of spoken words.</p>
+<p>RPT and cue specification are complementary methods that we believe are most informative when used together, or in conjunction with expert transcription that is grounded in a linguistic model of the contrastive prosodic elements or their function in conveying structural or meaning distinctions. We believe that, combined, these methods can yield transcriptions that inform us about the patterning of contrastive prosodic elements as an aspect of phonological form, the perception of those prosodic elements, and the variable expression of those elements in individual acoustic cues and cue parameter values.</p>
+<p>At first glance, it may seem that performing RPT with cue specification alongside expert phonological transcription will greatly increase the effort required for prosodic transcription, but in our experience this is not necessarily the case. As for RPT, it is an efficient transcription method because it does not require trained experts and can be performed in real time (or double) for each of prominence and boundary annotation. RPT scores are useful input for a detailed expert transcription because they provide a kind of perceptual weighting of prosodic elements, pointing out areas of perceptual ambiguity as well as areas where prosodic elements are clearer. This information allows transcribers to choose where to allocate their attention, for example, by prioritizing labeling of words with prosody scores that indicate high inter-transcriber agreement as prominent or adjacent to a boundary. Cue specification, on the other hand, can be done through a combination of quantitative and qualitative methods. Quantitative measures are most appropriate for cues that are not easily rendered in visual format on the graphical speech display, such as durational lengthening or shortening. Other cues, such as the occurrence of irregular pitch periods (IPP), can be identified qualitatively based on visual evidence from the waveform and/or spectrogram, and trained transcribers can therefore record the presence of such cues in a manual cue-level annotation. Our experience suggests that manual transcription of cues like IPP may be more straightforward than phonological transcription because cue annotation hews more closely to the acoustic signal, thereby minimizing the difficult perceptual judgments that often arise in transcribing higher-level phonological constructs such as pitch accent. Indeed, we anticipate advances in automatic methods for detection of all cues, minimizing or eliminating the involvement of an expert human transcriber at this level. Cue specification could be used in conjunction with other information from the syntactic or discourse context and the perceived meaning to induce phonological categories in an empirically grounded and rigorous fashion. Furthermore, allowing that in some research scenarios human transcribers remain necessary, as for example with a prosodic transcription using ToBI, information about individual cues and their acoustic parameter values can aid the expert human transcriber by providing explicit criteria for assignment of a prosodic label. To summarize, the resources required for RPT and cue specification are likely to lead to a savings in the effort required for expert transcription, while also opening new avenues for automated transcription.</p>
+<p>Depending on the goals of the individual researcher, RPT and cue specification may be used to augment or facilitate prosodic annotation performed by trained experts, or as noted above, to induce the phonological prosodic categories for a given language, offering a new avenue for prosodic analysis of previously undescribed languages. We believe that RPT and cue specification are especially important for research that considers the perceptual processing of prosody, and by extension, the role of prosody in speech-mediated social interactions. Looking forward, we think the use of RPT and the identification of individual prosodic cues will enrich prosodic transcription by capturing information about variability, while also bringing gains in efficiency. Adopting these practices into the transcription toolkit will provide richer data from a wider range of speech materials that will help in constructing models of prosodic elements and their function in speech communication, across languages.</p>
+</sec>
+</body>
+<back>
+<sec>
+<title>Supplementary Files</title>
+<p>For accompanying TextGrid and wav files, go to <ext-link ext-link-type="uri" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://dx.doi.org/10.5334/labphon.29.smo">http://dx.doi.org/10.5334/labphon.29.smo</ext-link></p>
+</sec>
+<ack>
+<title>Acknowledgements</title>
+<p>We have benefited from hearing many perspectives on prosodic transcription from participants at the first workshop on Advancing Prosodic Transcription in Stuttgart, 2012 and from the authors of papers in this special collection. SSH gratefully acknowledges the intellectual basis of the cue-based approach to transcription drawn from the work of Kenneth Stevens on cues to segmental features, and the support provided by MIT&#8217;s Undergraduate Research Opportunities Program for the development of training materials for LM labelling. We thank two anonymous reviewers and the editors for helpful comments on an earlier version of our paper, and assign them no responsibility for remaining shortcomings. The research reported here was made possible in part with NSF grants BCS 12-51343 and BCS 12-51134 to the first author.</p>
+</ack>
+<sec>
+<title>Competing Interests</title>
+<p>The authors declare that they have no competing interests.</p>
+</sec>
+<ref-list>
+<ref id="B1">
+<label>1</label>
+<element-citation publication-type="thesis">
+<person-group person-group-type="author">
+<name>
+<surname>Arbisi-Kelm</surname>
+<given-names>T.</given-names>
+</name>
+</person-group>
+<source>An intonational analysis of disfluency patterns in stuttering, (Unpublished Ph.D. dissertation)</source>
+<year iso-8601-date="2006">2006</year>
+<publisher-name>Department of Linguistics, University of California at Los Angeles</publisher-name>
+</element-citation>
+</ref>
+<ref id="B2">
+<label>2</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Arvaniti</surname>
+<given-names>A.</given-names>
+</name>
+</person-group>
+<article-title>Analytical Decisions in Intonation Research and the Role of Representations: Lessons from Romani</article-title>
+<source>Laboratory Phonology: Journal of the Association for Laboratory Phonology</source>
+<year iso-8601-date="2016">2016</year>
+<volume>7</volume>
+<issue>1</issue>
+<elocation-id>6</elocation-id>
+<fpage>1</fpage>
+<lpage>43</lpage>
+<pub-id pub-id-type="doi">10.5334/labphon.14</pub-id>
+</element-citation>
+</ref>
+<ref id="B3">
+<label>3</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Arvaniti</surname>
+<given-names>A.</given-names>
+</name>
+<name>
+<surname>Ladd</surname>
+<given-names>D. R.</given-names>
+</name>
+<name>
+<surname>Mennen</surname>
+<given-names>I.</given-names>
+</name>
+</person-group>
+<article-title>Phonetic effects of focus and &#8216;tonal crowding&#8217; in intonation: evidence from Greek polar questions</article-title>
+<source>Speech Communication</source>
+<year iso-8601-date="2006">2006</year>
+<volume>48</volume>
+<fpage>667</fpage>
+<lpage>696</lpage>
+<pub-id pub-id-type="doi">10.1016/j.specom.2005.09.012</pub-id>
+</element-citation>
+</ref>
+<ref id="B4">
+<label>4</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Barnes</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Veilleux</surname>
+<given-names>N.</given-names>
+</name>
+<name>
+<surname>Brugos</surname>
+<given-names>A.</given-names>
+</name>
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>Tonal Center of Gravity: A global approach to tonal implementation in a level-based intonational phonology</article-title>
+<source>Journal of Laboratory Phonology</source>
+<year iso-8601-date="2012">2012</year>
+<volume>3</volume>
+<issue>2</issue>
+<fpage>337</fpage>
+<lpage>383</lpage>
+<pub-id pub-id-type="doi">10.1515/lp-2012-0017</pub-id>
+</element-citation>
+</ref>
+<ref id="B5">
+<label>5</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Baumann</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Grice</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<article-title>The Intonation of accessibility</article-title>
+<source>Journal of Pragmatics</source>
+<year iso-8601-date="2006">2006</year>
+<volume>38</volume>
+<issue>10</issue>
+<fpage>1636</fpage>
+<lpage>1657</lpage>
+<pub-id pub-id-type="doi">10.1016/j.pragma.2005.03.017</pub-id>
+</element-citation>
+</ref>
+<ref id="B6">
+<label>6</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Beach</surname>
+<given-names>C. M.</given-names>
+</name>
+</person-group>
+<article-title>The interpretation of prosodic patterns at points of syntactic structure ambiguity: evidence for cue trading relationships</article-title>
+<source>Journal of Memory and Language</source>
+<year iso-8601-date="1991">1991</year>
+<volume>30</volume>
+<fpage>644</fpage>
+<lpage>663</lpage>
+<pub-id pub-id-type="doi">10.1016/0749-596X(91)90030-N</pub-id>
+</element-citation>
+</ref>
+<ref id="B7">
+<label>7</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Beckman</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Edwards</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Keating</surname>
+<given-names>P. A.</given-names>
+</name>
+</person-group>
+<chapter-title>Articulatory evidence for differentiating stress categories</chapter-title>
+<source>Papers in Laboratory Phonology III: Phonological structure and phonetic form</source>
+<year iso-8601-date="1994">1994</year>
+<publisher-loc>Cambridge, UK</publisher-loc>
+<publisher-name>Cambridge University Press</publisher-name>
+<fpage>7</fpage>
+<lpage>33</lpage>
+</element-citation>
+</ref>
+<ref id="B8">
+<label>8</label>
+<element-citation publication-type="webpage">
+<person-group person-group-type="author">
+<name>
+<surname>Beckman</surname>
+<given-names>M. E.</given-names>
+</name>
+<name>
+<surname>Elam</surname>
+<given-names>G. A.</given-names>
+</name>
+</person-group>
+<source>Guidelines for ToBI labelling, v3</source>
+<year iso-8601-date="1997">1997</year>
+<publisher-name>The Ohio State University Research Foundation</publisher-name>
+<comment>Retrieved from <uri>http://www.ling.ohio-state.edu/~tobi/ame_tobi/</uri></comment>
+</element-citation>
+</ref>
+<ref id="B9">
+<label>9</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Beckman</surname>
+<given-names>M. E.</given-names>
+</name>
+<name>
+<surname>Hirschberg</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+</person-group>
+<chapter-title>The original ToBI system and the evolution of the ToBI framework</chapter-title>
+<source>Prosodic typology: The phonology of intonation and phrasing</source>
+<year iso-8601-date="2005">2005</year>
+<publisher-loc>Oxford, UK</publisher-loc>
+<publisher-name>Oxford University Press</publisher-name>
+<fpage>9</fpage>
+<lpage>54</lpage>
+<pub-id pub-id-type="doi">10.1093/acprof:oso/9780199249633.003.0002</pub-id>
+</element-citation>
+</ref>
+<ref id="B10">
+<label>10</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Beckman</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Pierrehumbert</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<article-title>Intonational structure in Japanese and English</article-title>
+<source>Phonology Yearbook</source>
+<year iso-8601-date="1986">1986</year>
+<volume>3</volume>
+<fpage>255</fpage>
+<lpage>309</lpage>
+<pub-id pub-id-type="doi">10.1017/S095267570000066X</pub-id>
+</element-citation>
+</ref>
+<ref id="B11">
+<label>11</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Bolinger</surname>
+<given-names>D.</given-names>
+</name>
+</person-group>
+<source>Intonation and its uses: Melody in grammar and discourse</source>
+<year iso-8601-date="1989">1989</year>
+<publisher-name>Stanford University Press</publisher-name>
+</element-citation>
+</ref>
+<ref id="B12">
+<label>12</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Breen</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Dilley</surname>
+<given-names>L. C.</given-names>
+</name>
+<name>
+<surname>Kraemer</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Gibson</surname>
+<given-names>E.</given-names>
+</name>
+</person-group>
+<article-title>Inter-transcriber reliability for two systems of prosodic annotation: ToBI (Tones and Break Indices) and RaP (Rhythm and Pitch)</article-title>
+<source>Corpus Linguistics and Linguistic Theory</source>
+<year iso-8601-date="2012">2012</year>
+<volume>8</volume>
+<issue>2</issue>
+<fpage>277</fpage>
+<lpage>312</lpage>
+<pub-id pub-id-type="doi">10.1515/cllt-2012-0011</pub-id>
+</element-citation>
+</ref>
+<ref id="B13">
+<label>13</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Breen</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Fedorenko</surname>
+<given-names>E.</given-names>
+</name>
+<name>
+<surname>Wagner</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Gibson</surname>
+<given-names>E.</given-names>
+</name>
+</person-group>
+<article-title>Acoustic correlates of information structure</article-title>
+<source>Language and Cognitive Processes</source>
+<year iso-8601-date="2010">2010</year>
+<volume>25</volume>
+<issue>7</issue>
+<fpage>1044</fpage>
+<lpage>1098</lpage>
+<pub-id pub-id-type="doi">10.1080/01690965.2010.504378</pub-id>
+</element-citation>
+</ref>
+<ref id="B14">
+<label>14</label>
+<element-citation publication-type="thesis">
+<person-group person-group-type="author">
+<name>
+<surname>Brugos</surname>
+<given-names>A.</given-names>
+</name>
+</person-group>
+<source>The interaction of pitch and timing in the perception of prosodic grouping (Unpublished Ph.D. dissertation)</source>
+<year iso-8601-date="2015">2015</year>
+<publisher-loc>Department of Applied Linguistics, Boston University</publisher-loc>
+</element-citation>
+</ref>
+<ref id="B15">
+<label>15</label>
+<element-citation publication-type="webpage">
+<person-group person-group-type="author">
+<name>
+<surname>Brugos</surname>
+<given-names>A.</given-names>
+</name>
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<chapter-title>A proposal for labelling prosodic disfluencies in ToBI. Poster presented at Advancing Prosodic Transcription for Spoken Language Science and Technology</chapter-title>
+<year iso-8601-date="2012">2012</year>
+<month>July</month>
+<day>31</day>
+<publisher-loc>Stuttgart, Germany</publisher-loc>
+<comment>Retrieved from <uri>http://blogs.bu.edu/prosodylab/publications/</uri></comment>
+</element-citation>
+</ref>
+<ref id="B16">
+<label>16</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Bybee</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<source> Phonology and language use</source>
+<year iso-8601-date="2001">2001</year>
+<publisher-loc>Cambridge</publisher-loc>
+<publisher-name>Cambridge University Press</publisher-name> 
+<pub-id pub-id-type="doi">10.1017/CBO9780511612886</pub-id>
+</element-citation>
+</ref>
+<ref id="B17">
+<label>17</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Byrd</surname>
+<given-names>D.</given-names>
+</name>
+<name>
+<surname>Krivokapic</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Lee</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>How far, how long: On the temporal scope of phrase boundary effects</article-title>
+<source>Journal of the Acoustical Society of America</source>
+<year iso-8601-date="2006">2006</year>
+<volume>120</volume>
+<fpage>1589</fpage>
+<lpage>1599</lpage>
+<pub-id pub-id-type="doi">10.1121/1.2217135</pub-id>
+</element-citation>
+</ref>
+<ref id="B18">
+<label>18</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Byrd</surname>
+<given-names>D.</given-names>
+</name>
+<name>
+<surname>Saltzman</surname>
+<given-names>E.</given-names>
+</name>
+</person-group>
+<article-title>The elastic phrase: modeling the dynamics of boundary-adjacent lengthening</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2003">2003</year>
+<volume>31</volume>
+<fpage>149</fpage>
+<lpage>180</lpage>
+<pub-id pub-id-type="doi">10.1016/S0095-4470(02)00085-2</pub-id>
+</element-citation>
+</ref>
+<ref id="B19">
+<label>19</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Cangemi</surname>
+<given-names>F.</given-names>
+</name>
+<name>
+<surname>Grice</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<article-title>The Importance of a Distributional Approach to Categoriality in Autosegmental-Metrical Accounts of Intonation</article-title>
+<source>Laboratory Phonology: Journal of the Association for Laboratory Phonology</source>
+<year iso-8601-date="2016">2016</year>
+<volume>7</volume>
+<issue>1</issue>
+<elocation-id>9</elocation-id>
+<fpage>1</fpage>
+<lpage>20</lpage>
+<pub-id pub-id-type="doi">10.5334/labphon.28</pub-id>
+</element-citation>
+</ref>
+<ref id="B20">
+<label>20</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Cole</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Hualde</surname>
+<given-names>J. I.</given-names>
+</name>
+<name>
+<surname>Mahrt</surname>
+<given-names>T.</given-names>
+</name>
+<name>
+<surname>Eager</surname>
+<given-names>C.</given-names>
+</name>
+<name>
+<surname>Im</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<source>The perception of phrasal prominence in conversational speech</source>
+<year iso-8601-date="2014">2014</year>
+<publisher-loc>Tokyo</publisher-loc>
+<comment>Poster presented at Laboratory Phonology 14</comment>
+</element-citation>
+</ref>
+<ref id="B21">
+<label>21</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Cole</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Kim</surname>
+<given-names>H.</given-names>
+</name>
+<name>
+<surname>Choi</surname>
+<given-names>H.</given-names>
+</name>
+<name>
+<surname>Hasegawa-Johnson</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<article-title>Prosodic effects on acoustic cues to stop voicing and place of articulation: Evidence from Radio News speech</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2007">2007</year>
+<volume>35</volume>
+<fpage>180</fpage>
+<lpage>209</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2006.03.004</pub-id>
+</element-citation>
+</ref>
+<ref id="B22">
+<label>22</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Cole</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Mahrt</surname>
+<given-names>T.</given-names>
+</name>
+<name>
+<surname>Hualde</surname>
+<given-names>J. I.</given-names>
+</name>
+</person-group>
+<chapter-title>Listening for sound, listening for meaning: Task effects on prosodic transcription</chapter-title>
+<source>Proceedings of Speech Prosody</source>
+<year iso-8601-date="2014">2014</year>
+<publisher-loc>Dublin</publisher-loc>
+<volume>7</volume>
+</element-citation>
+</ref>
+<ref id="B23">
+<label>23</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Cole</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Mo</surname>
+<given-names>Y.</given-names>
+</name>
+<name>
+<surname>Baek</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>The role of syntactic structure in guiding prosody perception with ordinary listeners and everyday speech</article-title>
+<source>Language and Cognitive Processes</source>
+<year iso-8601-date="2010">2010</year>
+<volume>25</volume>
+<issue>7</issue>
+<fpage>1141</fpage>
+<lpage>1177</lpage>
+<pub-id pub-id-type="doi">10.1080/01690960903525507</pub-id>
+</element-citation>
+</ref>
+<ref id="B24">
+<label>24</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Cole</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Mo</surname>
+<given-names>Y.</given-names>
+</name>
+<name>
+<surname>Hasegawa-Johnson</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<article-title>Signal-based and expectation-based factors in the perception of prosodic prominence</article-title>
+<source>Laboratory Phonology</source>
+<year iso-8601-date="2010">2010</year>
+<volume>1</volume>
+<fpage>425</fpage>
+<lpage>452</lpage>
+<pub-id pub-id-type="doi">10.1515/labphon.2010.022</pub-id>
+</element-citation>
+</ref>
+<ref id="B25">
+<label>25</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Cole</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<chapter-title>The phonology and phonetics of perceived prosody: What do listeners imitate?</chapter-title>
+<source>Proceedings of Interspeech</source>
+<year iso-8601-date="2011">2011</year>
+<publisher-loc>Florence, Italy</publisher-loc>
+</element-citation>
+</ref>
+<ref id="B26">
+<label>26</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Cutler</surname>
+<given-names>A.</given-names>
+</name>
+</person-group>
+<article-title>The abstract representations in speech processing</article-title>
+<source>The Quarterly Journal of Experimental Psychology</source>
+<year iso-8601-date="2008">2008</year>
+<volume>61</volume>
+<issue>11</issue>
+<fpage>1601</fpage>
+<lpage>1619</lpage>
+<pub-id pub-id-type="doi">10.1080/13803390802218542</pub-id>
+</element-citation>
+</ref>
+<ref id="B27">
+<label>27</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Cutler</surname>
+<given-names>A.</given-names>
+</name>
+<name>
+<surname>Eisner</surname>
+<given-names>F.</given-names>
+</name>
+<name>
+<surname>McQueen</surname>
+<given-names>J. M.</given-names>
+</name>
+<name>
+<surname>Norris</surname>
+<given-names>D.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Fougeron</surname>
+<given-names>C.</given-names>
+</name>
+<name>
+<surname>K&#252;hnert</surname>
+<given-names>B.</given-names>
+</name>
+<name>
+<surname>D&#8217;Imperio</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Vall&#233;e</surname>
+<given-names>N.</given-names>
+</name>
+</person-group>
+<chapter-title>How abstract phonemic categories are necessary for coping with speaker-related variation</chapter-title>
+<source>Laboratory Phonology</source>
+<year iso-8601-date="2010">2010</year>
+<publisher-loc>Berlin</publisher-loc>
+<publisher-name>de Gruyter</publisher-name>
+<volume>10</volume>
+<fpage>91</fpage>
+<lpage>111</lpage>
+</element-citation>
+</ref>
+<ref id="B28">
+<label>28</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Dilley</surname>
+<given-names>L.</given-names>
+</name>
+<name>
+<surname>McAuley</surname>
+<given-names>D.</given-names>
+</name>
+</person-group>
+<article-title>Distal prosodic context affects word segmentation and lexical processing</article-title>
+<source>Journal of Memory and Language</source>
+<year iso-8601-date="2008">2008</year>
+<volume>59</volume>
+<fpage>294</fpage>
+<lpage>311</lpage>
+<pub-id pub-id-type="doi">10.1016/j.jml.2008.06.006</pub-id>
+</element-citation>
+</ref>
+<ref id="B29">
+<label>29</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Dilley</surname>
+<given-names>L.</given-names>
+</name>
+<name>
+<surname>Pitt</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<article-title>Altering context speech rate can cause words to appear or disappear</article-title>
+<source>Psychological Science</source>
+<year iso-8601-date="2010">2010</year>
+<volume>21</volume>
+<issue>11</issue>
+<fpage>1664</fpage>
+<lpage>1670</lpage>
+<pub-id pub-id-type="doi">10.1177/0956797610384743</pub-id>
+</element-citation>
+</ref>
+<ref id="B30">
+<label>30</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Dilley</surname>
+<given-names>L.</given-names>
+</name>
+<name>
+<surname>Pitt</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Szostak</surname>
+<given-names>C.</given-names>
+</name>
+<name>
+<surname>Baese-Berk</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<collab>The Scottish Consortium for ICPhS</collab>
+</person-group>
+<article-title>Rate-dependent processing can be speech-specific: Evidence from the disappearance of words under changes in context speech rate</article-title>
+<conf-name>Proceedings of the 18th International Congress of Phonetic Sciences</conf-name>
+<year iso-8601-date="2015">2015</year>
+<conf-loc>Glasgow, UK</conf-loc>
+<conf-sponsor>University of Glasgow</conf-sponsor>
+<isbn>978-0-85261-941-4</isbn>
+<comment>Paper number 0915.1-5. Retrieved from <uri>http://www.icphs2015.info/pdfs/Papers/ICPHS0915.pdf</uri></comment>
+</element-citation>
+</ref>
+<ref id="B31">
+<label>31</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Dilley</surname>
+<given-names>L.</given-names>
+</name>
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>Ambiguity in prominence perception in spoken utterances of American English</article-title>
+<conf-name>Proceedings of the 16th International Congress on Acoustics and 135th Meeting of the Acoustical Society of America</conf-name>
+<year iso-8601-date="1998">1998</year>
+<pub-id pub-id-type="doi">10.1121/1.421799</pub-id>
+</element-citation>
+</ref>
+<ref id="B32">
+<label>32</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Dilley</surname>
+<given-names>L.</given-names>
+</name>
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Ostendorf</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<chapter-title>Glottalization of word-initial vowels as a function of prosodic structure</chapter-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="1996">1996</year>
+<volume>24</volume>
+<fpage>423</fpage>
+<lpage>444</lpage>
+<pub-id pub-id-type="doi">10.1006/jpho.1996.0023</pub-id>
+</element-citation>
+</ref>
+<ref id="B33">
+<label>33</label>
+<element-citation publication-type="thesis">
+<person-group person-group-type="author">
+<name>
+<surname>D&#8217;Imperio</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<source>The role of perception in defining tonal targets and their alignment (Unpublished Ph.D. dissertation)</source>
+<year iso-8601-date="2000">2000</year>
+<publisher-name>Department of Linguistics, The Ohio State University</publisher-name>
+</element-citation>
+</ref>
+<ref id="B34">
+<label>34</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Eady</surname>
+<given-names>S. J.</given-names>
+</name>
+<name>
+<surname>Cooper</surname>
+<given-names>W. E.</given-names>
+</name>
+<name>
+<surname>Klouda</surname>
+<given-names>G. V.</given-names>
+</name>
+<name>
+<surname>M&#252;ller</surname>
+<given-names>P. R.</given-names>
+</name>
+<name>
+<surname>Lotts</surname>
+<given-names>D. W.</given-names>
+</name>
+</person-group>
+<article-title>Acoustical characteristics of sentential focus: Narrow vs. broad and single vs. dual focus environments</article-title>
+<source>Language and Speech</source>
+<year iso-8601-date="1986">1986</year>
+<volume>29</volume>
+<issue>3</issue>
+<fpage>233</fpage>
+<lpage>251</lpage>
+</element-citation>
+</ref>
+<ref id="B35">
+<label>35</label>
+<element-citation publication-type="book">
+<person-group person-group-type="editor">
+<name>
+<surname>Elordieta</surname>
+<given-names>G.</given-names>
+</name>
+<name>
+<surname>Prieto</surname>
+<given-names>P.</given-names>
+</name>
+</person-group>
+<source>Prosody and meaning</source>
+<year iso-8601-date="2012">2012</year>
+<publisher-loc>Berlin</publisher-loc>
+<publisher-name>Walter de Gruyter</publisher-name> 
+<volume>25</volume>
+<pub-id pub-id-type="doi">10.1515/9783110261790</pub-id>
+</element-citation>
+</ref>
+<ref id="B36">
+<label>36</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Ernestus</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<article-title>Acoustic reduction and the roles of abstractions and exemplars in speech processing</article-title>
+<source>Lingua</source>
+<year iso-8601-date="2013">2013</year>
+<volume>142</volume>
+<fpage>27</fpage>
+<lpage>41</lpage>
+</element-citation>
+</ref>
+<ref id="B37">
+<label>37</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Fant</surname>
+<given-names>G.</given-names>
+</name>
+<name>
+<surname>Kruckenberg</surname>
+<given-names>A.</given-names>
+</name>
+</person-group>
+<article-title>Preliminaries to the study of Swedish prose reading and reading style</article-title>
+<source>Speech Transmission Laboratory-QPSR</source>
+<year iso-8601-date="1989">1989</year>
+<volume>2</volume>
+<fpage>1</fpage>
+<lpage>83</lpage>
+</element-citation>
+</ref>
+<ref id="B38">
+<label>38</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Flemming</surname>
+<given-names>E.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Hayes</surname>
+<given-names>B.</given-names>
+</name>
+<name>
+<surname>Kirchner</surname>
+<given-names>R.</given-names>
+</name>
+<name>
+<surname>Steriade</surname>
+<given-names>D.</given-names>
+</name>
+</person-group>
+<chapter-title>Contrast and perceptual distinctiveness</chapter-title>
+<source>Phonetically-based phonology</source>
+<year iso-8601-date="2004">2004</year>
+<publisher-loc>Cambridge, England</publisher-loc>
+<publisher-name>Cambridge University Press</publisher-name>
+<fpage>232</fpage>
+<lpage>276</lpage>
+<pub-id pub-id-type="doi">10.1017/CBO9780511486401.008</pub-id>
+</element-citation>
+</ref>
+<ref id="B39">
+<label>39</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Fon</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Johnson</surname>
+<given-names>K.</given-names>
+</name>
+</person-group>
+<article-title>Syllable onset intervals as an indicator of discourse and syntactic boundaries in Tawan Mandarin</article-title>
+<source>Language and Speech</source>
+<year iso-8601-date="2004">2004</year>
+<volume>47</volume>
+<issue>1</issue>
+<fpage>57</fpage>
+<lpage>82</lpage>
+<pub-id pub-id-type="doi">10.1177/00238309040470010301</pub-id>
+</element-citation>
+</ref>
+<ref id="B40">
+<label>40</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Frota</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>Surface and Structure: Transcribing Intonation within and across Languages</article-title>
+<source>Laboratory Phonology: Journal of the Association for Laboratory Phonology</source>
+<year iso-8601-date="2016">2016</year>
+<volume>7</volume>
+<issue>1</issue>
+<elocation-id>7</elocation-id>
+<fpage>1</fpage>
+<lpage>19</lpage>
+<pub-id pub-id-type="doi">10.5334/labphon.10</pub-id>
+<comment>5</comment>
+</element-citation>
+</ref>
+<ref id="B41">
+<label>41</label>
+<element-citation publication-type="thesis">
+<person-group person-group-type="author">
+<name>
+<surname>Gao</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<source>Tones in whispered Chinese: articulatory features and perceptual cues (Unpublished Ph.D. dissertation)</source>
+<year iso-8601-date="2002">2002</year>
+<publisher-name>University of Victoria</publisher-name>
+</element-citation>
+</ref>
+<ref id="B42">
+<label>42</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Garellek</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<article-title>Voice quality strengthening and glottalization</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2014">2014</year>
+<volume>45</volume>
+<fpage>106</fpage>
+<lpage>113</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2014.04.001</pub-id>
+</element-citation>
+</ref>
+<ref id="B43">
+<label>43</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Grabe</surname>
+<given-names>E.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Gilles</surname>
+<given-names>P.</given-names>
+</name>
+<name>
+<surname>Peters</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<chapter-title>Intonational variation in urban dialects of English spoken in the British Isles</chapter-title>
+<source>Regional variation in intonation</source>
+<year iso-8601-date="2004">2004</year>
+<publisher-loc>Tuebingen</publisher-loc>
+<publisher-name>Niemeyer</publisher-name>
+<fpage>9</fpage>
+<lpage>31</lpage>
+<comment>Linguistische Arbeiten</comment>
+</element-citation>
+</ref>
+<ref id="B44">
+<label>44</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Grabe</surname>
+<given-names>E.</given-names>
+</name>
+<name>
+<surname>Post</surname>
+<given-names>B.</given-names>
+</name>
+<name>
+<surname>Nolan</surname>
+<given-names>F.</given-names>
+</name>
+<name>
+<surname>Farrar</surname>
+<given-names>K.</given-names>
+</name>
+</person-group>
+<article-title>Pitch accent realization in four varieties of British English</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2000">2000</year>
+<volume>28</volume>
+<issue>2</issue>
+<fpage>161</fpage>
+<lpage>185</lpage>
+<pub-id pub-id-type="doi">10.006/jpho.2000.0111</pub-id>
+</element-citation>
+</ref>
+<ref id="B45">
+<label>45</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Grice</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Baumann</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Benzmuller</surname>
+<given-names>R.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+</person-group>
+<chapter-title>German intonation in autosegmental-metrical phonology</chapter-title>
+<source>Prosodic typology: The phonology of intonation and phrasing</source>
+<year iso-8601-date="2005">2005</year>
+<publisher-loc>Oxford</publisher-loc>
+<publisher-name>Oxford University Press</publisher-name>
+<fpage>55</fpage>
+<lpage>83</lpage>
+<pub-id pub-id-type="doi">10.1093/acprof:oso/9780199249633.003.0003</pub-id>
+</element-citation>
+</ref>
+<ref id="B46">
+<label>46</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Gussenhoven</surname>
+<given-names>C.</given-names>
+</name>
+</person-group>
+<article-title>Testing the reality of focus domains</article-title>
+<source>Language and Speech</source>
+<year iso-8601-date="1983">1983</year>
+<volume>26</volume>
+<fpage>61</fpage>
+<lpage>80</lpage>
+</element-citation>
+</ref>
+<ref id="B47">
+<label>47</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Hawkins</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>Roles and representations of systematic fine phonetic detail in speech understanding</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2003">2003</year>
+<volume>31</volume>
+<fpage>373</fpage>
+<lpage>405</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2003.09.006</pub-id>
+</element-citation>
+</ref>
+<ref id="B48">
+<label>48</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Hawkins</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>Does phonetic detail guide situation-specific speech recognition?</article-title>
+<conf-name>Proceedings of the 17th International Congress of Phonetic Sciences</conf-name>
+<year iso-8601-date="2011">2011</year>
+<fpage>9</fpage>
+<lpage>18</lpage>
+</element-citation>
+</ref>
+<ref id="B49">
+<label>49</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Hayes</surname>
+<given-names>B.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Kiparsky</surname>
+<given-names>P.</given-names>
+</name>
+<name>
+<surname>Youmans</surname>
+<given-names>G.</given-names>
+</name>
+</person-group>
+<article-title>The prosodic hierarchy in meter</article-title>
+<source>Phonetics and phonology 1: Rhythm and meter</source>
+<year iso-8601-date="1989">1989</year>
+<fpage>201</fpage>
+<lpage>260</lpage>
+<pub-id pub-id-type="doi">10.1016/b978-0-12-409340-9.50013-9</pub-id>
+</element-citation>
+</ref>
+<ref id="B50">
+<label>50</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Hirst</surname>
+<given-names>D. J.</given-names>
+</name>
+</person-group>
+<article-title>Form and function in the representation of speech prosody</article-title>
+<source>Speech Communication</source>
+<year iso-8601-date="2005">2005</year>
+<volume>46</volume>
+<issue>3</issue>
+<fpage>334</fpage>
+<lpage>347</lpage>
+<pub-id pub-id-type="doi">10.1016/j.specom.2005.02.020</pub-id>
+</element-citation>
+</ref>
+<ref id="B51">
+<label>51</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Hualde</surname>
+<given-names>J. I.</given-names>
+</name>
+<name>
+<surname>Cole</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Smith</surname>
+<given-names>C.</given-names>
+</name>
+<name>
+<surname>Eager</surname>
+<given-names>C.</given-names>
+</name>
+<name>
+<surname>Mahrt</surname>
+<given-names>T.</given-names>
+</name>
+<name>
+<surname>Napole&#227;o de Souza</surname>
+<given-names>R.</given-names>
+</name>
+</person-group>
+<chapter-title>The perception of phrasal prominence in English, Spanish and French conversational speech</chapter-title>
+<source>Proceedings of Speech Prosody</source>
+<year iso-8601-date="2016">2016</year>
+<publisher-loc>Boston</publisher-loc>
+<volume>8</volume>
+</element-citation>
+</ref>
+<ref id="B52">
+<label>52</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Hualde</surname>
+<given-names>J. I.</given-names>
+</name>
+<name>
+<surname>Prieto</surname>
+<given-names>P.</given-names>
+</name>
+</person-group>
+<article-title>Towards an International Prosodic Alphabet (IPrA)</article-title>
+<source>Laboratory Phonology: Journal of the Association for Laboratory Phonology</source>
+<year iso-8601-date="2016">2016</year>
+<volume>7</volume>
+<issue>1</issue>
+<elocation-id>5</elocation-id>
+<fpage>1</fpage>
+<lpage>25</lpage>
+<pub-id pub-id-type="doi">10.5334/labphon.11</pub-id>
+</element-citation>
+</ref>
+<ref id="B53">
+<label>53</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Jakobson</surname>
+<given-names>R.</given-names>
+</name>
+<name>
+<surname>Fant</surname>
+<given-names>G. M.</given-names>
+</name>
+<name>
+<surname>Halle</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<source>Preliminaries to speech analysis: The distinctive features and their correlates</source>
+<year iso-8601-date="1952">1952</year>
+<publisher-loc>Cambridge, MA</publisher-loc>
+<publisher-name>MIT Press</publisher-name>
+</element-citation>
+</ref>
+<ref id="B54">
+<label>54</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Johnson</surname>
+<given-names>K.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Yoneyama</surname>
+<given-names>K.</given-names>
+</name>
+<name>
+<surname>Maekawa</surname>
+<given-names>K.</given-names>
+</name>
+</person-group>
+<article-title>Massive reduction in conversational American English</article-title>
+<conf-name>Spontaneous speech: Data and analysis. Proceedings of the 1st Session of the 10th International Symposium</conf-name>
+<year iso-8601-date="2004">2004</year>
+<conf-loc>Tokyo, Japan</conf-loc>
+<conf-sponsor>The National International Institute for Japanese Language</conf-sponsor>
+<fpage>29</fpage>
+<lpage>54</lpage>
+</element-citation>
+</ref>
+<ref id="B55">
+<label>55</label>
+<element-citation publication-type="thesis">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+</person-group>
+<source>The phonetics and phonology of Korean prosody (Ph.D. dissertation)</source>
+<year iso-8601-date="1993">1993</year>
+<publisher-name>Ohio State University</publisher-name>
+<publisher-loc>New York</publisher-loc>
+<comment>(published 1996 by Garland Publishing Inc.)</comment>
+</element-citation>
+</ref>
+<ref id="B56">
+<label>56</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+<name>
+<surname>Fougeron</surname>
+<given-names>C.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Botinis</surname>
+<given-names>A.</given-names>
+</name>
+</person-group>
+<chapter-title>A phonological model of French intonation</chapter-title>
+<source>Intonation: Analysis, modeling and technology</source>
+<year iso-8601-date="2000">2000</year>
+<publisher-loc>Dordrecht</publisher-loc>
+<publisher-name>Kluwer Academic Publishers</publisher-name>
+<fpage>209</fpage>
+<lpage>242</lpage>
+<pub-id pub-id-type="doi">10.1007/978-94-011-4317-2_10</pub-id>
+</element-citation>
+</ref>
+<ref id="B57">
+<label>57</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Jurafsky</surname>
+<given-names>D.</given-names>
+</name>
+<name>
+<surname>Bell</surname>
+<given-names>A.</given-names>
+</name>
+<name>
+<surname>Gregory</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Raymond</surname>
+<given-names>W. D.</given-names>
+</name>
+</person-group>
+<chapter-title>The effect of language model probability on pronunciation reduction</chapter-title>
+<source>Proceedings of ICASSP-01</source>
+<year iso-8601-date="2001">2001</year>
+<publisher-loc>Salt Lake City, Utah</publisher-loc>
+<volume>II</volume>
+<fpage>801</fpage>
+<lpage>804</lpage>
+<pub-id pub-id-type="doi">10.1109/icassp.2001.941036</pub-id>
+</element-citation>
+</ref>
+<ref id="B58">
+<label>58</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Jyothi</surname>
+<given-names>P.</given-names>
+</name>
+<name>
+<surname>Cole</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Hasegawa-Johnson</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Puri</surname>
+<given-names>V.</given-names>
+</name>
+</person-group>
+<chapter-title>An investigation of prosody in Hindi narrative speech</chapter-title>
+<source>Proceedings of Speech Prosody</source>
+<year iso-8601-date="2014">2014</year>
+<publisher-loc>Dublin</publisher-loc>
+<volume>7</volume>
+</element-citation>
+</ref>
+<ref id="B59">
+<label>59</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Katsika</surname>
+<given-names>A.</given-names>
+</name>
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Mooshammer</surname>
+<given-names>C.</given-names>
+</name>
+<name>
+<surname>Tiede</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Goldstein</surname>
+<given-names>L.</given-names>
+</name>
+</person-group>
+<article-title>Effects of compatible vs. competing rhythic grouping on errors and timing variability in speech</article-title>
+<source>Language and Speech</source>
+<year iso-8601-date="2014">2014</year>
+<volume>57</volume>
+<issue>4</issue>
+<fpage>544</fpage>
+<lpage>562</lpage>
+<pub-id pub-id-type="doi">10.1177/0023830913512776</pub-id>
+</element-citation>
+</ref>
+<ref id="B60">
+<label>60</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Katz</surname>
+<given-names>W.</given-names>
+</name>
+<name>
+<surname>Beach</surname>
+<given-names>C.</given-names>
+</name>
+<name>
+<surname>Jenouri</surname>
+<given-names>K.</given-names>
+</name>
+<name>
+<surname>Verma</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>Duration and F0 correlates of phrase boundaries in productions by children and adults</article-title>
+<source>Journal of the Acoustical Society of America</source>
+<year iso-8601-date="1996">1996</year>
+<volume>99</volume>
+<fpage>3179</fpage>
+<lpage>3191</lpage>
+<pub-id pub-id-type="doi">10.1121/1.414802</pub-id>
+</element-citation>
+</ref>
+<ref id="B61">
+<label>61</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Katz</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Selkirk</surname>
+<given-names>E.</given-names>
+</name>
+</person-group>
+<article-title>Contrastive focus vs. discourse-new: Evidence from phonetic prominence in English</article-title>
+<source>Language</source>
+<year iso-8601-date="2011">2011</year>
+<volume>87</volume>
+<fpage>771</fpage>
+<lpage>816</lpage>
+<pub-id pub-id-type="doi">10.1353/lan.2011.0076</pub-id>
+</element-citation>
+</ref>
+<ref id="B62">
+<label>62</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Keyser</surname>
+<given-names>S. J.</given-names>
+</name>
+<name>
+<surname>Stevens</surname>
+<given-names>K. N.</given-names>
+</name>
+</person-group>
+<article-title>Enhancement and overlap in the speech chain</article-title>
+<source>Language</source>
+<year iso-8601-date="2006">2006</year>
+<volume>82</volume>
+<issue>1</issue>
+<fpage>33</fpage>
+<lpage>63</lpage>
+<pub-id pub-id-type="doi">10.1353/lan.2006.0051</pub-id>
+</element-citation>
+</ref>
+<ref id="B63">
+<label>63</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Kim</surname>
+<given-names>H.</given-names>
+</name>
+<name>
+<surname>Yoon</surname>
+<given-names>T.</given-names>
+</name>
+<name>
+<surname>Cole</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Hasegawa-Johnson</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<chapter-title>Acoustic differentiation of L- and L-L% in Switchboard and Radio News speech</chapter-title>
+<source>Proceedings of Speech Prosody</source>
+<year iso-8601-date="2006">2006</year>
+<publisher-loc>Dresden</publisher-loc>
+</element-citation>
+</ref>
+<ref id="B64">
+<label>64</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Knight</surname>
+<given-names>R.-A.</given-names>
+</name>
+</person-group>
+<article-title>The shape of nuclear falls and their effect on the perception of pitch and prominence: Peaks vs. plateaux</article-title>
+<source>Language and Speech</source>
+<year iso-8601-date="2008">2008</year>
+<volume>51</volume>
+<issue>3</issue>
+<fpage>223</fpage>
+<lpage>244</lpage>
+<pub-id pub-id-type="doi">10.1177/0023830908098541</pub-id>
+</element-citation>
+</ref>
+<ref id="B65">
+<label>65</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Kochanski</surname>
+<given-names>G.</given-names>
+</name>
+<name>
+<surname>Grabe</surname>
+<given-names>E.</given-names>
+</name>
+<name>
+<surname>Coleman</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Rosner</surname>
+<given-names>B.</given-names>
+</name>
+</person-group>
+<article-title>Loudness predicts prominence: Fundamental frequency lends little</article-title>
+<source>The Journal of the Acoustical Society of America</source>
+<year iso-8601-date="2005">2005</year>
+<volume>118</volume>
+<issue>2</issue>
+<fpage>1038</fpage>
+<lpage>1054</lpage>
+<pub-id pub-id-type="doi">10.1121/1.1923349</pub-id>
+</element-citation>
+</ref>
+<ref id="B66">
+<label>66</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Kohler</surname>
+<given-names>K.</given-names>
+</name>
+</person-group>
+<article-title>The disappearance of words in connected speech</article-title>
+<source>ZAS Working Papers in Linguistics</source>
+<year iso-8601-date="1998">1998</year>
+<volume>11</volume>
+<fpage>21</fpage>
+<lpage>34</lpage>
+</element-citation>
+</ref>
+<ref id="B67">
+<label>67</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Krivokapic</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<article-title>Prosodic planning: effects of phrasal length and complexity on pause duration</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2007">2007</year>
+<volume>35</volume>
+<fpage>162</fpage>
+<lpage>179</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2006.04.001</pub-id>
+</element-citation>
+</ref>
+<ref id="B68">
+<label>68</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Krivokapic</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Byrd</surname>
+<given-names>D.</given-names>
+</name>
+</person-group>
+<article-title>Prosodic boundary strength: An articulatory and perceptual study</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2012">2012</year>
+<volume>40</volume>
+<fpage>430</fpage>
+<lpage>442</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2012.02.011</pub-id>
+</element-citation>
+</ref>
+<ref id="B69">
+<label>69</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Ladd</surname>
+<given-names>D. R.</given-names>
+</name>
+</person-group>
+<article-title>Declination and &#8216;reset&#8217; and the hierarchical organization of utterances</article-title>
+<source>Journal of the Acoustical Society of America</source>
+<year iso-8601-date="1988">1988</year>
+<volume>84</volume>
+<issue>2</issue>
+<fpage>530</fpage>
+<lpage>544</lpage>
+<pub-id pub-id-type="doi">10.1121/1.396830</pub-id>
+</element-citation>
+</ref>
+<ref id="B70">
+<label>70</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Ladd</surname>
+<given-names>D. R.</given-names>
+</name>
+</person-group>
+<source>Intonational phonology</source>
+<year iso-8601-date="2008">2008</year>
+<edition>2nd ed.</edition>
+<publisher-loc>Cambridge, UK and New York, NY</publisher-loc>
+<publisher-name>Cambridge University Press</publisher-name> 
+<pub-id pub-id-type="doi">10.1017/CBO9780511808814</pub-id>
+</element-citation>
+</ref>
+<ref id="B71">
+<label>71</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Lehiste</surname>
+<given-names>I.</given-names>
+</name>
+<name>
+<surname>Olive</surname>
+<given-names>J. P.</given-names>
+</name>
+<name>
+<surname>Streeter</surname>
+<given-names>L. A.</given-names>
+</name>
+</person-group>
+<article-title>The role of duration in disambiguating syntactically ambiguous sentences</article-title>
+<source>Journal of the Acoustical Society of America</source>
+<year iso-8601-date="1976">1976</year>
+<volume>60</volume>
+<issue>5</issue>
+<fpage>1</fpage>
+<lpage>4</lpage>
+<pub-id pub-id-type="doi">10.1121/1.381180</pub-id>
+</element-citation>
+</ref>
+<ref id="B72">
+<label>72</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Levy</surname>
+<given-names>C.</given-names>
+</name>
+<name>
+<surname>Mann</surname>
+<given-names>A.</given-names>
+</name>
+<name>
+<surname>Kenney</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Choi</surname>
+<given-names>J.-Y.</given-names>
+</name>
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>Contextual landmark analysis of speech from typically and atypically developing children</article-title>
+<source>Journal of the Acoustical Society of America</source>
+<year iso-8601-date="2014">2014</year>
+<volume>135</volume>
+<fpage>2293</fpage>
+<pub-id pub-id-type="doi">10.1121/1.4877531</pub-id>
+</element-citation>
+</ref>
+<ref id="B73">
+<label>73</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Lisker</surname>
+<given-names>L.</given-names>
+</name>
+</person-group>
+<article-title>&#8220;Voicing&#8221; in English: a catalogue of acoustic features signaling /b/ versus /p/ in trochees</article-title>
+<source>Language and Speech</source>
+<volume>29</volume>
+<issue>1</issue>
+<fpage>3</fpage>
+<lpage>11</lpage>
+</element-citation>
+</ref>
+<ref id="B74">
+<label>74</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Luchkina</surname>
+<given-names>T.</given-names>
+</name>
+<name>
+<surname>Cole</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<article-title>Routes to prominence in free word order language discourse</article-title>
+<conf-name>Proceedings of the Workshop on Prosody-Discourse Interface</conf-name>
+<year iso-8601-date="2013">2013</year>
+<conf-loc>Leuven, Belgium</conf-loc>
+</element-citation>
+</ref>
+<ref id="B75">
+<label>75</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Luchkina</surname>
+<given-names>T.</given-names>
+</name>
+<name>
+<surname>Cole</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<chapter-title>Structural and prosodic correlates of prominence in free word order language discourse</chapter-title>
+<source>Proceedings of Speech Prosody</source>
+<year iso-8601-date="2014">2014</year>
+<publisher-loc>Dublin</publisher-loc>
+<volume>7</volume>
+</element-citation>
+</ref>
+<ref id="B76">
+<label>76</label>
+<element-citation publication-type="webpage">
+<person-group person-group-type="author">
+<name>
+<surname>Mahrt</surname>
+<given-names>T.</given-names>
+</name>
+</person-group>
+<article-title>Language markup and experimental design software (LMEDS)</article-title>
+<year iso-8601-date="2015">2015</year>
+<comment>Retrieved from <uri>http://prosody.beckman.illinois.edu/lmeds.html</uri></comment>
+</element-citation>
+</ref>
+<ref id="B77">
+<label>77</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Mahrt</surname>
+<given-names>T.</given-names>
+</name>
+<name>
+<surname>Cole</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Fleck</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Hasegawa-Johnson</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<chapter-title>Modeling speaker variation in cues to prominence using the Bayesian information criterion</chapter-title>
+<source>Proceedings of Speech Prosody</source>
+<year iso-8601-date="2012">2012</year>
+<publisher-loc>Shanghai</publisher-loc>
+<volume>6</volume>
+</element-citation>
+</ref>
+<ref id="B78">
+<label>78</label>
+<element-citation publication-type="webpage">
+<person-group person-group-type="author">
+<name>
+<surname>Mielke</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>van Oostendorp</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Ewen</surname>
+<given-names>C. J.</given-names>
+</name>
+<name>
+<surname>Hume</surname>
+<given-names>E.</given-names>
+</name>
+<name>
+<surname>Rice</surname>
+<given-names>K.</given-names>
+</name>
+</person-group>
+<chapter-title>Distinctive features</chapter-title>
+<source>The Blackwell companion to phonology</source>
+<year iso-8601-date="2011">2011</year>
+<publisher-name>Blackwell Publishing</publisher-name>
+<comment>Blackwell Reference Online. Retrieved from <uri>http://www.companiontophonology.com/subscriber/tocnode?id=g9781405184236_chunk_g978140518423619</uri></comment>
+</element-citation>
+</ref>
+<ref id="B79">
+<label>79</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Mitterer</surname>
+<given-names>H.</given-names>
+</name>
+<name>
+<surname>Ernestus</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<article-title>The link between speech perception and production is phonological and abstract: Evidence from the shadowing task</article-title>
+<source>Cognition</source>
+<year iso-8601-date="2008">2008</year>
+<volume>109</volume>
+<issue>1</issue>
+<fpage>168</fpage>
+<lpage>173</lpage>
+<pub-id pub-id-type="doi">10.1016/j.cognition.2008.08.002</pub-id>
+</element-citation>
+</ref>
+<ref id="B80">
+<label>80</label>
+<element-citation publication-type="thesis">
+<person-group person-group-type="author">
+<name>
+<surname>Mo</surname>
+<given-names>Y.</given-names>
+</name>
+</person-group>
+<source>Prosody production and perception with conversational speech (Unpublished Ph.D. dissertation)</source>
+<year iso-8601-date="2011">2011</year>
+<publisher-name>Department of Linguistics, University of Illinois</publisher-name>
+</element-citation>
+</ref>
+<ref id="B81">
+<label>81</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>M&#246;hler</surname>
+<given-names>G.</given-names>
+</name>
+<name>
+<surname>Conkie</surname>
+<given-names>A.</given-names>
+</name>
+</person-group>
+<article-title>Parametric modeling of intonation using vector quantization</article-title>
+<conf-name>Proceedings of the Third ESCA/COCOSDA Workshop (ETRW) on Speech Synthesis</conf-name>
+<year iso-8601-date="1998">1998</year>
+</element-citation>
+</ref>
+<ref id="B82">
+<label>82</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Nakai</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Turk</surname>
+<given-names>A.</given-names>
+</name>
+</person-group>
+<article-title>Separability of prosodic phrase boundary and phonemic information</article-title>
+<source>Journal of the Acoustical Society of America</source>
+<year iso-8601-date="2011">2011</year>
+<volume>129</volume>
+<issue>2</issue>
+<fpage>966</fpage>
+<lpage>976</lpage>
+<pub-id pub-id-type="doi">10.1121/1.3514419</pub-id>
+</element-citation>
+</ref>
+<ref id="B83">
+<label>83</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Neilson</surname>
+<given-names>K.</given-names>
+</name>
+</person-group>
+<article-title>Specificity and abstractness of VOT imitation</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2011">2011</year>
+<volume>39</volume>
+<fpage>132</fpage>
+<lpage>142</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2010.12.007</pub-id>
+</element-citation>
+</ref>
+<ref id="B84">
+<label>84</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Nespor</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Vogel</surname>
+<given-names>I.</given-names>
+</name>
+</person-group>
+<source>Prosodic phonology</source>
+<year iso-8601-date="1986">1986</year>
+<publisher-loc>Dordrecht</publisher-loc>
+<publisher-name>Foris</publisher-name>
+<comment>Republished 2007, Berlin:: Mouton de Gruyter</comment>
+</element-citation>
+</ref>
+<ref id="B85">
+<label>85</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Niebuhr</surname>
+<given-names>O.</given-names>
+</name>
+<name>
+<surname>Kohler</surname>
+<given-names>K. J.</given-names>
+</name>
+</person-group>
+<article-title>Perception of phonetic detail in the identification of highly reduced words</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2011">2011</year>
+<volume>39</volume>
+<issue>3</issue>
+<fpage>319</fpage>
+<lpage>329</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2010.12.003</pub-id>
+</element-citation>
+</ref>
+<ref id="B86">
+<label>86</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Patel</surname>
+<given-names>R.</given-names>
+</name>
+</person-group>
+<article-title>Acoustic characteristics of the question-statement contrast in severe dysarthria due to cerebral palsy</article-title>
+<source>Journal of Speech, Language and Hearing Research</source>
+<year iso-8601-date="2011">2011</year>
+<volume>46</volume>
+<fpage>1401</fpage>
+<lpage>1415</lpage>
+<pub-id pub-id-type="doi">10.1044/1092-4388(2003/109)</pub-id>
+</element-citation>
+</ref>
+<ref id="B87">
+<label>87</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Pepp&#233;</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Maxim</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Wells</surname>
+<given-names>B.</given-names>
+</name>
+</person-group>
+<article-title>Prosodic variation in southern British English</article-title>
+<source>Language and Speech</source>
+<year iso-8601-date="2000">2000</year>
+<volume>43</volume>
+<issue>3</issue>
+<fpage>309</fpage>
+<lpage>334</lpage>
+<pub-id pub-id-type="doi">10.1177/00238309000430030501</pub-id>
+</element-citation>
+</ref>
+<ref id="B88">
+<label>88</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Pierrehumbert</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<source>The phonology and phonetics of English intonation (Unpublished Ph.D. thesis)</source>
+<year iso-8601-date="1980">1980</year>
+<publisher-name>Department of Linguistics and Philosophy, Massachusetts Institute of Technology</publisher-name>
+</element-citation>
+</ref>
+<ref id="B89">
+<label>89</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Pierrehumbert</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Hirschberg</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Cohen</surname>
+<given-names>P.</given-names>
+</name>
+<name>
+<surname>Morgan</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Pollack</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<chapter-title>The meaning of intonational contours in the interpretation of discourse</chapter-title>
+<source>Intentions in communication</source>
+<year iso-8601-date="1990">1990</year>
+<publisher-loc>Cambridge, MA</publisher-loc>
+<publisher-name>MIT Press</publisher-name>
+<fpage>271</fpage>
+<lpage>311</lpage>
+</element-citation>
+</ref>
+<ref id="B90">
+<label>90</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Pierrehumbert</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Talkin</surname>
+<given-names>D.</given-names>
+</name>
+</person-group>
+<chapter-title>Lenition of /h/ and glottal stop</chapter-title>
+<source>Papers in Laboratory Phonology II</source>
+<year iso-8601-date="1991">1991</year>
+<publisher-loc>Cambridge, UK</publisher-loc>
+<publisher-name>Cambridge University Press</publisher-name>
+<fpage>90</fpage>
+<lpage>117</lpage>
+</element-citation>
+</ref>
+<ref id="B91">
+<label>91</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Pint&#233;r</surname>
+<given-names>G.</given-names>
+</name>
+<name>
+<surname>Mizuguchi</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Yamato</surname>
+<given-names>K.</given-names>
+</name>
+</person-group>
+<article-title>Boundary and prominence perception by Japanese learners of English: A preliminary study</article-title>
+<source>Phonological Studies</source>
+<year iso-8601-date="2014">2014</year>
+<volume>17</volume>
+<fpage>59</fpage>
+<lpage>66</lpage>
+</element-citation>
+</ref>
+<ref id="B92">
+<label>92</label>
+<element-citation publication-type="webpage">
+<person-group person-group-type="author">
+<name>
+<surname>Pitt</surname>
+<given-names>M. A.</given-names>
+</name>
+<name>
+<surname>Dilley</surname>
+<given-names>L.</given-names>
+</name>
+<name>
+<surname>Johnson</surname>
+<given-names>K.</given-names>
+</name>
+<name>
+<surname>Kiesling</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Raymond</surname>
+<given-names>W.</given-names>
+</name>
+<name>
+<surname>Hume</surname>
+<given-names>E.</given-names>
+</name>
+<name>
+<surname>Fosler-Lussier</surname>
+<given-names>E.</given-names>
+</name>
+</person-group>
+<chapter-title>Buckeye Corpus of Conversational Speech</chapter-title>
+<year iso-8601-date="2007">2007</year>
+<publisher-loc>Columbus, OH</publisher-loc>
+<publisher-name>Department of Psychology, Ohio State University (Distributor)</publisher-name>
+<comment>(2nd release) [<uri>www.buckeyecorpus.osu.edu</uri>]</comment>
+</element-citation>
+</ref>
+<ref id="B93">
+<label>93</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Prom-On</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Xu</surname>
+<given-names>Y.</given-names>
+</name>
+<name>
+<surname>Thipakorn</surname>
+<given-names>B.</given-names>
+</name>
+</person-group>
+<article-title>Modeling tone and intonation in Mandarin and English as a process of target approximation</article-title>
+<source>The Journal of the Acoustical Society of America</source>
+<year iso-8601-date="2009">2009</year>
+<volume>125</volume>
+<issue>1</issue>
+<fpage>405</fpage>
+<lpage>424</lpage>
+<pub-id pub-id-type="doi">10.1121/1.3037222</pub-id>
+</element-citation>
+</ref>
+<ref id="B94">
+<label>94</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Reichel</surname>
+<given-names>U. D.</given-names>
+</name>
+</person-group>
+<article-title>Linking bottom-up intonation stylization to discourse structure</article-title>
+<source>Computer Speech and Language</source>
+<year iso-8601-date="2014">2014</year>
+<volume>28</volume>
+<fpage>1340</fpage>
+<lpage>1365</lpage>
+<pub-id pub-id-type="doi">10.1016/j.csl.2014.03.005</pub-id>
+</element-citation>
+</ref>
+<ref id="B95">
+<label>95</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Repp</surname>
+<given-names>B. H.</given-names>
+</name>
+</person-group>
+<article-title>Phonetic and auditory trading relations between acoustic cues in speech perception: preliminary results</article-title>
+<source>Haskins Laboratories Status Report on Speech Research</source>
+<year iso-8601-date="1982">1982</year>
+<comment>SR-67/68</comment>
+</element-citation>
+</ref>
+<ref id="B96">
+<label>96</label>
+<element-citation publication-type="thesis">
+<person-group person-group-type="author">
+<name>
+<surname>Rosenberg</surname>
+<given-names>A.</given-names>
+</name>
+</person-group>
+<source>Automatic detection and classification of prosodic events (Unpublished Ph.D. dissertation)</source>
+<year iso-8601-date="2009">2009</year>
+<publisher-name>Columbia University</publisher-name>
+</element-citation>
+</ref>
+<ref id="B97">
+<label>97</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Scott</surname>
+<given-names>D.</given-names>
+</name>
+</person-group>
+<article-title>Duration as a cue to the perception of a phrase boundary</article-title>
+<source>Journal of the Acoustical Society of America</source>
+<year iso-8601-date="1982">1982</year>
+<volume>71</volume>
+<issue>4</issue>
+<fpage>996</fpage>
+<lpage>1007</lpage>
+<pub-id pub-id-type="doi">10.1121/1.387581</pub-id>
+</element-citation>
+</ref>
+<ref id="B98">
+<label>98</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Selkirk</surname>
+<given-names>E. O.</given-names>
+</name>
+</person-group>
+<source>Phonology and syntax: The relation between sound and structure</source>
+<year iso-8601-date="1984">1984</year>
+<publisher-loc>Cambridge</publisher-loc>
+<publisher-name>MIT Press</publisher-name>
+</element-citation>
+</ref>
+<ref id="B99">
+<label>99</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Selkirk</surname>
+<given-names>E. O.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Goldsmith</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<chapter-title>Sentence prosody: Intonation, stress, and phrasing</chapter-title>
+<source>The handbook of phonological theory</source>
+<year iso-8601-date="1995">1995</year>
+<publisher-loc>London</publisher-loc>
+<publisher-name>Blackwell</publisher-name>
+<fpage>550</fpage>
+<lpage>569</lpage>
+</element-citation>
+</ref>
+<ref id="B100">
+<label>100</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Hanson</surname>
+<given-names>H.</given-names>
+</name>
+<name>
+<surname>Zhao</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>Feature-cue-based processing of speech: A developmental perspective</article-title>
+<conf-name>Proceedings of the International Congress of Phonetic Science</conf-name>
+<year iso-8601-date="2015">2015</year>
+<conf-loc>Glasgow, Great Britain</conf-loc>
+</element-citation>
+</ref>
+<ref id="B101">
+<label>101</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Veilleux</surname>
+<given-names>N.</given-names>
+</name>
+</person-group>
+<article-title>The special phonological characteristics of monosyllabic function words in American English</article-title>
+<conf-name>Proceedings of the International Conference on Spoken Language Processing</conf-name>
+<year iso-8601-date="2000">2000</year>
+<conf-loc>Beijing</conf-loc>
+<conf-sponsor>People&#8217;s Republic of China</conf-sponsor>
+</element-citation>
+</ref>
+<ref id="B102">
+<label>102</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Silverman</surname>
+<given-names>K.</given-names>
+</name>
+<name>
+<surname>Pierrehumbert</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Kingston</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Beckman</surname>
+<given-names>M. E.</given-names>
+</name>
+</person-group>
+<chapter-title>The timing of prenuclear high accents in English</chapter-title>
+<source>Papers in Laboratory Phonology 1: Between the grammar and the physics of speech</source>
+<year iso-8601-date="1990">1990</year>
+<publisher-loc>Cambridge, UK</publisher-loc>
+<publisher-name>Cambridge University Press</publisher-name>
+<fpage>72</fpage>
+<lpage>106</lpage>
+<pub-id pub-id-type="doi">10.1017/CBO9780511627736.005</pub-id>
+</element-citation>
+</ref>
+<ref id="B103">
+<label>103</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Smith</surname>
+<given-names>C.</given-names>
+</name>
+</person-group>
+<article-title>Perception of prominence and boundaries by na&#239;ve French listeners</article-title>
+<conf-name>Proceedings of the XVIIth International Congress of Phonetic Sciences</conf-name>
+<year iso-8601-date="2011">2011</year>
+<conf-loc>Hong Kong</conf-loc>
+<fpage>1874</fpage>
+<lpage>1877</lpage>
+</element-citation>
+</ref>
+<ref id="B104">
+<label>104</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Smith</surname>
+<given-names>C.</given-names>
+</name>
+</person-group>
+<article-title>French listeners&#8217; perceptions of prominence and phrasing are differentially affected by instruction set</article-title>
+<source>Proceedings of Meetings on Acoustics</source>
+<year iso-8601-date="2013">2013</year>
+<volume>19</volume>
+<issue>1</issue>
+<fpage>60191</fpage>
+<pub-id pub-id-type="doi">10.1121/1.4799041</pub-id>
+</element-citation>
+</ref>
+<ref id="B105">
+<label>105</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Smith</surname>
+<given-names>C.</given-names>
+</name>
+<name>
+<surname>Edmunds</surname>
+<given-names>P.</given-names>
+</name>
+</person-group>
+<chapter-title>Native listeners&#8217; perception of prosody in L1 and L2 reading</chapter-title>
+<source>Proceedings of Interspeech</source>
+<year iso-8601-date="2013">2013</year>
+<publisher-loc>Lyon, France</publisher-loc>
+<fpage>235</fpage>
+<lpage>238</lpage>
+</element-citation>
+</ref>
+<ref id="B106">
+<label>106</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Song</surname>
+<given-names>J.-Y.</given-names>
+</name>
+<name>
+<surname>Demuth</surname>
+<given-names>K.</given-names>
+</name>
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>The development of acoustic cues to coda contrasts in young children learning American English</article-title>
+<source>Journal of the Acoustical Society of America</source>
+<year iso-8601-date="2012">2012</year>
+<volume>131</volume>
+<issue>4</issue>
+<fpage>3036</fpage>
+<lpage>3050</lpage>
+<pub-id pub-id-type="doi">10.1121/1.3687467</pub-id>
+</element-citation>
+</ref>
+<ref id="B107">
+<label>107</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Speer</surname>
+<given-names>S. R.</given-names>
+</name>
+<name>
+<surname>Warren</surname>
+<given-names>P.</given-names>
+</name>
+<name>
+<surname>Schafer</surname>
+<given-names>A. J.</given-names>
+</name>
+</person-group>
+<article-title>Situationally independent prosodic phrasing</article-title>
+<source>Laboratory Phonology</source>
+<year iso-8601-date="2011">2011</year>
+<volume>2</volume>
+<issue>1</issue>
+<fpage>35</fpage>
+<lpage>98</lpage>
+<pub-id pub-id-type="doi">10.1515/labphon.2011.002</pub-id>
+</element-citation>
+</ref>
+<ref id="B108">
+<label>108</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Steriade</surname>
+<given-names>D.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Gordon</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<chapter-title>Phonetics in phonology: The case of laryngeal neutralization</chapter-title>
+<source>Papers in phonology. UCLA Working Papers in Linguistics</source>
+<year iso-8601-date="1999">1999</year>
+<publisher-loc>Los Angeles</publisher-loc>
+<publisher-name>Department of Linguistics, UCLA</publisher-name>
+<volume>2</volume>
+<fpage>25</fpage>
+<lpage>146</lpage>
+</element-citation>
+</ref>
+<ref id="B109">
+<label>109</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Stevens</surname>
+<given-names>K. N.</given-names>
+</name>
+</person-group>
+<article-title>Toward a model for lexical access based on acoustic landmarks and distinctive features</article-title>
+<source>The Journal of the Acoustical Society of America</source>
+<year iso-8601-date="2002">2002</year>
+<volume>111</volume>
+<issue>4</issue>
+<fpage>1872</fpage>
+<lpage>1891</lpage>
+<pub-id pub-id-type="doi">10.1121/1.1458026</pub-id>
+</element-citation>
+</ref>
+<ref id="B110">
+<label>110</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Stevens</surname>
+<given-names>K. N.</given-names>
+</name>
+<name>
+<surname>Keyser</surname>
+<given-names>S. J.</given-names>
+</name>
+</person-group>
+<article-title>Quantal theory, enhancement and overlap</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2010">2010</year>
+<volume>38</volume>
+<fpage>10</fpage>
+<lpage>19</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2008.10.004</pub-id>
+</element-citation>
+</ref>
+<ref id="B111">
+<label>111</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Taylor</surname>
+<given-names>P.</given-names>
+</name>
+</person-group>
+<article-title>Analysis and synthesis of intonation using the tilt model</article-title>
+<source>The Journal of the Acoustical Society of America</source>
+<year iso-8601-date="2000">2000</year>
+<volume>107</volume>
+<issue>3</issue>
+<fpage>1697</fpage>
+<lpage>1714</lpage>
+<pub-id pub-id-type="doi">10.1121/1.428453</pub-id>
+</element-citation>
+</ref>
+<ref id="B112">
+<label>112</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Turk</surname>
+<given-names>A. E.</given-names>
+</name>
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>Multiple targets of phrase-final lengthening in American English words</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2007">2007</year>
+<volume>35</volume>
+<issue>4</issue>
+<fpage>445</fpage>
+<lpage>472</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2006.12.001</pub-id>
+</element-citation>
+</ref>
+<ref id="B113">
+<label>113</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Turk</surname>
+<given-names>A.</given-names>
+</name>
+<name>
+<surname>White</surname>
+<given-names>L.</given-names>
+</name>
+</person-group>
+<article-title>Structural influences on accentual lengthening</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="1999">1999</year>
+<volume>27</volume>
+<fpage>171</fpage>
+<lpage>206</lpage>
+<pub-id pub-id-type="doi">10.1006/jpho.1999.0093</pub-id>
+</element-citation>
+</ref>
+<ref id="B114">
+<label>114</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Wagner</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<article-title>Prosody and recursion in coordinate structures and beyond</article-title>
+<source>Natural Language and Linguistic Theory</source>
+<year iso-8601-date="2010">2010</year>
+<volume>28</volume>
+<fpage>183</fpage>
+<lpage>237</lpage>
+<pub-id pub-id-type="doi">10.1007/s11049-009-9086-0</pub-id>
+</element-citation>
+</ref>
+<ref id="B115">
+<label>115</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Wightman</surname>
+<given-names>C. W.</given-names>
+</name>
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Ostendorf</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Price</surname>
+<given-names>P. J.</given-names>
+</name>
+</person-group>
+<article-title>Segmental durations in the vicinity of prosodic phrase boundaries</article-title>
+<source>Journal of the Acoustical Society of America</source>
+<year iso-8601-date="1992">1992</year>
+<volume>91</volume>
+<issue>3</issue>
+<fpage>1707</fpage>
+<lpage>1717</lpage>
+<pub-id pub-id-type="doi">10.1121/1.402450</pub-id>
+</element-citation>
+</ref>
+<ref id="B116">
+<label>116</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Wright</surname>
+<given-names>R.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Hayes</surname>
+<given-names>B.</given-names>
+</name>
+<name>
+<surname>Kirchner</surname>
+<given-names>R.</given-names>
+</name>
+<name>
+<surname>Steriade</surname>
+<given-names>D.</given-names>
+</name>
+</person-group>
+<chapter-title>A review of perceptual cues and cue robustness</chapter-title>
+<source>Phonetically-based phonology</source>
+<year iso-8601-date="2005">2005</year>
+<publisher-loc>Cambridge</publisher-loc>
+<publisher-name>Cambridge University Press</publisher-name>
+<fpage>34</fpage>
+<lpage>57</lpage>
+</element-citation>
+</ref>
+<ref id="B117">
+<label>117</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Yoon</surname>
+<given-names>T.-J.</given-names>
+</name>
+</person-group>
+<chapter-title>Speaker consistency in the realization of prosodic prominence in the Boston University Radio Speech Corpus</chapter-title>
+<source>Proceedings of Speech Prosody</source>
+<year iso-8601-date="2010">2010</year>
+<publisher-loc>Chicago, Illinois</publisher-loc>
+</element-citation>
+</ref>
+<ref id="B118">
+<label>118</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Zhao</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>Stop-like modification of the dental fricative /dh/: An acoustic analysis</article-title>
+<source>Journal of the Acoustical Society of America</source>
+<year iso-8601-date="2010">2010</year>
+<volume>128</volume>
+<issue>4</issue>
+<fpage>2009</fpage>
+<lpage>2020</lpage>
+<pub-id pub-id-type="doi">10.1121/1.3478856</pub-id>
+</element-citation>
+</ref>
+</ref-list>
+</back>
+</article>

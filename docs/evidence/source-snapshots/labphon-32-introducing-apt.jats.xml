@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.0 20120330//EN" "http://jats.nlm.nih.gov/publishing/1.0/JATS-journalpublishing1.dtd">
+<!--<?xml-stylesheet type="text/xsl" href="article.xsl"?>-->
+<article article-type="research-article" dtd-version="1.0" xml:lang="en" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<front>
+<journal-meta>
+<journal-id journal-id-type="issn">1868-6354</journal-id>
+<journal-title-group>
+<journal-title>Laboratory Phonology</journal-title>
+</journal-title-group>
+<issn pub-type="epub">1868-6354</issn>
+<publisher>
+<publisher-name>Ubiquity Press</publisher-name>
+</publisher>
+</journal-meta>
+<article-meta>
+<article-id pub-id-type="doi">10.5334/labphon.32</article-id>
+<article-categories>
+<subj-group>
+<subject>Editorial</subject>
+</subj-group>
+</article-categories>
+<title-group>
+<article-title>Introducing Advancing Prosodic Transcription</article-title>
+</title-group>
+<contrib-group>
+<contrib contrib-type="author" corresp="yes">
+<name>
+<surname>D&#8217;Imperio</surname>
+<given-names>Mariapaola</given-names>
+</name>
+<email>mariapaola.dimperio@lpl-aix.fr</email>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author">
+<name>
+<surname>Cangemi</surname>
+<given-names>Francesco</given-names>
+</name>
+<xref ref-type="aff" rid="aff-2"/>
+</contrib>
+<contrib contrib-type="author">
+<name>
+<surname>Grice</surname>
+<given-names>Martine</given-names>
+</name>
+<xref ref-type="aff" rid="aff-2"/>
+</contrib>
+</contrib-group>
+<aff id="aff-1">University of Aix-Marseille, FR</aff>
+<aff id="aff-2">University of Cologne, Germany</aff>
+<pub-date publication-format="electronic" date-type="pub" iso-8601-date="2016-06-30">
+<day>30</day>
+<month>06</month>
+<year>2016</year>
+</pub-date>
+<volume>7</volume>
+<issue>1</issue>
+<elocation-id>4</elocation-id>
+<permissions>
+<copyright-statement>Copyright: &#x00A9; 2016 The Author(s)</copyright-statement>
+<copyright-year>2016</copyright-year>
+<license license-type="open-access" xlink:href="http://creativecommons.org/licenses/by/4.0/">
+<license-p>This is an open-access article distributed under the terms of the Creative Commons Attribution 4.0 International License (CC-BY 4.0), which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited. See <uri xlink:href="http://creativecommons.org/licenses/by/4.0/">http://creativecommons.org/licenses/by/4.0/</uri>.</license-p>
+</license>
+</permissions>
+<self-uri xlink:href="http://www.journal-labphon.org/articles/10.5334/labphon.32/"/>
+</article-meta>
+</front>
+<body>
+<p>This special collection consists of papers inspired by topics covered in two different workshops addressing the challenge of prosodic transcription for research in spoken language sciences and for the development of computer speech technologies. At the heart of this collection are discussions of the phonological assumptions behind current approaches to prosodic transcription, the choice of discrete units and their granularity, the consequences of adopting a phonetically transparent transcription system, and the challenges of transcribing under-described languages. This collection of papers aims to foster further discussion on cross-linguistic prosodic transcription and the levels of linguistic analysis required by this enterprise.</p>
+<p>The contributions included in this collection represent different positions on a spectrum going from advocating the need for a broad phonetic transcription of intonation and an accompanying International Phonetic Alphabet (see the <xref ref-type="bibr" rid="B6">Hualde and Prieto</xref> contribution), to the idea that the main purpose of a prosodic transcription is to capture phonological contrast (see <xref ref-type="bibr" rid="B1">Arvaniti&#8217;s</xref> and <xref ref-type="bibr" rid="B4">Frota&#8217;s</xref> contributions). Specifically, in her invited paper, <xref ref-type="bibr" rid="B1">Arvaniti</xref> points to the need to stay close to the contrastive principle especially when it comes to analyzing highly variable data coming from understudied languages. At the heart of her paper, examples drawn from Romani serve to illustrate the point. Specifically, <xref ref-type="bibr" rid="B1">Arvaniti</xref> advances the argument by which analytical decisions concerning the analysis of intonation in highly variable data cannot separate phonetic form from (pragmatic) meaning and function. The author argues that the best practice would start with the simplest analysis, which would then be optionally enriched only if additional and compelling evidence becomes available.</p>
+<p>On the other hand, <xref ref-type="bibr" rid="B6">Hualde and Prieto</xref> start from the perspective that two levels of transcription should be favored, i.e., a broad phonetic level together with the more traditional AM phonological level. The authors argue, in particular, that the benefits of using a broad phonetic level of transcription (such as transparency in the use of labels) are widely accepted in the community when it comes to segmental transcription. The issue of &#8220;portability&#8221; of a set of commonly agreed upon labels and of analytical accuracy is also discussed. <xref ref-type="bibr" rid="B6">Hualde and Prieto</xref> underline the fact that their proposal is not entirely new, given that a level of broad phonetic transcription had been previously proposed by other authors especially to facilitate typological comparison. Suggesting the use of a full-fledged International Prosodic Alphabet (IPrA) is at the heart of their proposal, though departing from existing IPA symbols and diacritics.</p>
+<p>The problem of variability in intonational realization and the challenges that this represents for the analyst is seen as calling for a different answer for <xref ref-type="bibr" rid="B3">Cole and Shattuck-Hufnagel</xref>. In this contribution, the authors argue for the usefulness of two new transcription methodologies, i.e., <italic>Rapid Prosodic Transcription</italic> (RPT) and <italic>cue specification</italic>. Specifically, while RPT has the advantage of allowing non-expert transcriptions and hence for a very large set of transcribed data, cue specification would shed light on the interpretative process of cue integration performed by listeners in prosodic analyses, as well as guiding efforts in devising automatic prosodic annotation algorithms. The two novel transcription methods offer complementary insights into the mapping between the meaning functions of prosody and their acoustic realization, and can be informative individually or in conjunction with expert phonological annotations.</p>
+<p><xref ref-type="bibr" rid="B2">Cangemi and Grice</xref> also focus on the variability issue and the need&#8212;also underlined by <xref ref-type="bibr" rid="B3">Cole and Shattuck-Hufnagel</xref> and, in a different way, by <xref ref-type="bibr" rid="B1">Arvaniti</xref>&#8212;to stay close to meaning on the pragmatic side. Their approach stresses the importance of both phonetic substance and pragmatic meaning in shaping phonological categories in intonation. This perspective is original in that it takes into account the internal structuring of a phonological category and in particular the <italic>differential variability</italic> that is intrinsic to each of the categories envisaged by the analyst.</p>
+<p>Two of the contributions offer an in-depth coverage of the phonology end of the intonational transcription spectrum. <xref ref-type="bibr" rid="B4">Frota</xref>, in particular, underlines the need to do both system-internal analysis and cross-language comparisons using the same principles and analytical tools, namely looking at surface/structure relations, distribution, contrast, and meaning (using production and perception). The paper provides case studies of such an approach, both within language and across languages. In the discussion and conclusion section, it is explicitly stated that &#8220;by using the same labels within the same framework in identical ways, that is to express intonation categories, we are taking a step towards analytic accuracy and crosslanguage comparability&#8221;. <xref ref-type="bibr" rid="B4">Frota&#8217;s</xref> contribution also points to the importance of focusing on the relation between surface form and structure by using the tools and the labels that are already offered by mainstream AM. Finally, <xref ref-type="bibr" rid="B5">Gussenhoven&#8217;s</xref> contribution offers a critical view of MAE&#8211;ToBI, in particular regarding cases of <italic>overanalysis</italic> and <italic>underanalysis</italic> which are illustrated through a wide set of examples. The proposal advocates an <italic>off-ramp</italic> instead of an <italic>on-ramp</italic> analysis of complex pitch accent categories (such as rise-falls) in English. The proposal is accompanied by the results of a perception experiment, which go in the direction of the off-ramp analysis, supporting the revision suggested by the author.</p>
+</body>
+<back>
+<sec>
+<title>Competing Interests</title>
+<p>The authors declare that they have no competing interests.</p>
+</sec>
+<ref-list>
+<ref id="B1">
+<label>1</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Arvaniti</surname>
+<given-names>A.</given-names>
+</name>
+</person-group>
+<article-title>Analytical Decisions in Intonation Research and the Role of Representations: Lessons from Romani</article-title>
+<source>Laboratory Phonology: Journal of the Association for Laboratory Phonology</source>
+<year iso-8601-date="2016">2016</year>
+<volume>7</volume>
+<issue>1</issue>
+<elocation-id>6</elocation-id>
+<fpage>1</fpage>
+<lpage>43</lpage>
+<pub-id pub-id-type="doi">10.5334/labphon.14</pub-id>
+</element-citation>
+</ref>
+<ref id="B2">
+<label>2</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Cangemi</surname>
+<given-names>F.</given-names>
+</name>
+<name>
+<surname>Grice</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<article-title>The Importance of a Distributional Approach to Categoriality in Autosegmental-Metrical Accounts of Intonation</article-title>
+<source>Laboratory Phonology: Journal of the Association for Laboratory Phonology</source>
+<year iso-8601-date="2016">2016</year>
+<volume>7</volume>
+<issue>1</issue>
+<elocation-id>9</elocation-id>
+<fpage>1</fpage>
+<lpage>20</lpage>
+<pub-id pub-id-type="doi">10.5334/labphon.28</pub-id>
+</element-citation>
+</ref>
+<ref id="B3">
+<label>3</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Cole</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Shattuck-Hufnagel</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>New Methods for Prosodic Transcription: Capturing Variability as a Source of Information</article-title>
+<source>Laboratory Phonology: Journal of the Association for Laboratory Phonology</source>
+<year iso-8601-date="2016">2016</year>
+<volume>7</volume>
+<issue>1</issue>
+<elocation-id>8</elocation-id>
+<fpage>1</fpage>
+<lpage>29</lpage>
+<pub-id pub-id-type="doi">10.5334/labphon.29</pub-id>
+</element-citation>
+</ref>
+<ref id="B4">
+<label>4</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Frota</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>Surface and Structure: Transcribing Intonation within and across Languages</article-title>
+<source>Laboratory Phonology: Journal of the Association for Laboratory Phonology</source>
+<year iso-8601-date="2016">2016</year>
+<volume>7</volume>
+<issue>1</issue>
+<elocation-id>7</elocation-id>
+<fpage>1</fpage>
+<lpage>19</lpage>
+<pub-id pub-id-type="doi">10.5334/labphon.10</pub-id>
+</element-citation>
+</ref>
+<ref id="B5">
+<label>5</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Gussenhoven</surname>
+<given-names>C.</given-names>
+</name>
+</person-group>
+<article-title>Analysis of Intonation: the Case of MAE_ToBI</article-title>
+<source>Laboratory Phonology: Journal of the Association for Laboratory Phonology</source>
+<year iso-8601-date="2016">2016</year>
+<volume>7</volume>
+<issue>1</issue>
+<elocation-id>10</elocation-id>
+<fpage>1</fpage>
+<lpage>35</lpage>
+<pub-id pub-id-type="doi">10.5334/labphon.30</pub-id>
+</element-citation>
+</ref>
+<ref id="B6">
+<label>6</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Hualde</surname>
+<given-names>J. I.</given-names>
+</name>
+<name>
+<surname>Prieto</surname>
+<given-names>P.</given-names>
+</name>
+</person-group>
+<article-title>Towards an International Prosodic Alphabet (IPrA)</article-title>
+<source>Laboratory Phonology: Journal of the Association for Laboratory Phonology</source>
+<year iso-8601-date="2016">2016</year>
+<volume>7</volume>
+<issue>1</issue>
+<elocation-id>5</elocation-id>
+<fpage>1</fpage>
+<lpage>25</lpage>
+<pub-id pub-id-type="doi">10.5334/labphon.11</pub-id>
+</element-citation>
+</ref>
+</ref-list>
+</back>
+</article>

@@ -1,0 +1,320 @@
+# External source register for the C.Walts prosody glossary (v0.3.0-rc.2).
+#
+# This file is the LICENSE AUDIT, not an ingestion manifest. Nothing listed here
+# is embedded directly. The glossary that IS ingested
+# (corpus/raw/glossary/prosody_glossary.md, source id `cwalts_prosody_glossary`
+# in config/sources.yaml) is owner-authored text by BADGRTechnologies LLC, and
+# every one of its entries names the source below that grounds it.
+#
+# The distinction matters and is the same one already applied to
+# `cwalts_style_rules`: authoring a definition from the published record is not
+# redistributing the record. Sources marked `approved` MAY additionally be quoted
+# or redistributed; sources marked `quarantined` or `refused` may be CITED ONLY,
+# and no bytes from them are reproduced in the corpus or in this repository.
+#
+# Verification standard is the one this project already applies in
+# config/sources.yaml: an asserted license is not a verified license. For every
+# `approved` entry below the license was read out of the retrieved artifact
+# itself — the JATS <license> element — not from a publisher web page or a
+# third-party claim. The snapshots are committed under
+# docs/evidence/source-snapshots/ so the checksums are independently checkable:
+#
+#     sha256sum -c docs/evidence/source-snapshots/SHA256SUMS
+#
+# ACCESS DATE for every entry: 2026-08-01.
+
+version: 1
+updated: 2026-08-01
+audited_by: read-only fetch; license read in-band from the retrieved artifact
+snapshot_dir: docs/evidence/source-snapshots/
+
+# ---------------------------------------------------------------------------
+# APPROVED — CC BY 4.0. Commercial ingestion permitted; attribution required.
+# ---------------------------------------------------------------------------
+approved:
+
+  - id: labphon-11-ipra
+    title: Towards an International Prosodic Alphabet (IPrA)
+    authors: Hualde, Prieto, Armstrong, Roseano
+    publisher: Ubiquity Press
+    container: "Laboratory Phonology: Journal of the Association for Laboratory Phonology"
+    year: 2016
+    doi: 10.5334/labphon.11
+    url: https://doi.org/10.5334/labphon.11
+    retrieved_from: https://www.journal-labphon.org/article/6173/galley/14561/download/
+    access_date: 2026-08-01
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_by: JATS <license> element in the retrieved article XML
+    commercial_ingestion: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    status: approved
+    snapshot: labphon-11-ipra.jats.xml
+    checksum_sha256: 3e6331f4fc140d41637328bd94970999d3ea8ddab6e2529dc55397a465193678
+    bytes: 152156
+    grounds_terms: [prosody, ToBI, pitch accent, "H*", boundary tone, "L-L%",
+                    intonational phrase, prominence, contrastive focus]
+    notes: >
+      Primary grounding for the Autosegmental-Metrical label inventory. Discusses
+      ToBI as a consensus labelling system, the H*/L*+H accent contrast, and the
+      composition of nuclear configurations including H* !H* L-L%.
+
+  - id: labphon-29-new-methods
+    title: "New Methods for Prosodic Transcription: Capturing Variability as a Source of Information"
+    authors: Cole, Shattuck-Hufnagel
+    publisher: Ubiquity Press
+    container: "Laboratory Phonology: Journal of the Association for Laboratory Phonology"
+    year: 2016
+    doi: 10.5334/labphon.29
+    url: https://doi.org/10.5334/labphon.29
+    retrieved_from: https://www.journal-labphon.org/article/6176/galley/14567/download/
+    access_date: 2026-08-01
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_by: JATS <license> element in the retrieved article XML
+    commercial_ingestion: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    status: approved
+    snapshot: labphon-29-new-methods.jats.xml
+    checksum_sha256: e62046745328726ad36e5d1c31679bb6507d7672372f1792d1efdba435d6646c
+    bytes: 176439
+    grounds_terms: [prosody, acoustic prosody, ToBI, prominence, break index,
+                    information structure, sentence rhythm]
+    notes: >
+      Primary grounding for the abstract-phonological versus continuous-acoustic
+      distinction that the glossary encodes as textual vs acoustic prosody, and
+      for prominence and juncture as perceptual judgements rather than fixed
+      signal thresholds.
+
+  - id: labphon-32-introducing-apt
+    title: Introducing Advancing Prosodic Transcription
+    authors: D'Imperio, Cangemi, Grice
+    publisher: Ubiquity Press
+    container: Laboratory Phonology
+    year: 2016
+    doi: 10.5334/labphon.32
+    url: https://doi.org/10.5334/labphon.32
+    retrieved_from: https://www.journal-labphon.org/article/6172/galley/14555/download/
+    access_date: 2026-08-01
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_by: JATS <license> element in the retrieved article XML
+    commercial_ingestion: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    status: approved
+    snapshot: labphon-32-introducing-apt.jats.xml
+    checksum_sha256: 2c7be283805665c19c69ec6e67b89344e5851fcd13f50e293b91152107b9e4fe
+    bytes: 13579
+    grounds_terms: [prosody, ToBI]
+    notes: >
+      Editorial framing for the Advancing Prosodic Transcription collection.
+      Used only for the claim that prosodic transcription systems are contested
+      and revisable — which is why the glossary states scope rather than asserting
+      a single canonical inventory.
+
+  - id: labphon-48-seoul-korean-focus
+    title: Prosodic Marking of Narrow Focus in Seoul Korean
+    authors: Jeon, Nolan
+    publisher: Ubiquity Press
+    container: Laboratory Phonology
+    year: 2017
+    doi: 10.5334/labphon.48
+    url: https://doi.org/10.5334/labphon.48
+    retrieved_from: https://www.journal-labphon.org/article/6189/galley/14593/download/
+    access_date: 2026-08-01
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_by: JATS <license> element in the retrieved article XML
+    commercial_ingestion: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    status: approved
+    snapshot: labphon-48-seoul-korean-focus.jats.xml
+    checksum_sha256: 0f59063e689ece6671faaa8bba8525526ffbdad90df3851cc66820c93d332860
+    bytes: 177361
+    grounds_terms: [boundary tone, intermediate phrase, intonational phrase,
+                    prominence, contrastive focus, information structure]
+    notes: >
+      Primary grounding for the prosodic hierarchy above the word (AP, ip, IP),
+      for boundary-tone inventories written with the % diacritic, and for focus
+      raising boundary strength rather than merely raising volume.
+
+  - id: pmc8092678-prosodic-boundaries
+    title: Automatic detection of prosodic boundaries in spontaneous speech
+    authors: Biron, Baum, Freche, Matalon, Ehrmann, Weinreb
+    publisher: PLOS
+    container: PLoS ONE
+    year: 2021
+    doi: 10.1371/journal.pone.0250969
+    url: https://doi.org/10.1371/journal.pone.0250969
+    retrieved_from: https://www.ebi.ac.uk/europepmc/webservices/rest/PMC8092678/fullTextXML
+    access_date: 2026-08-01
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_by: JATS <license> element in the retrieved article XML
+    commercial_ingestion: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    status: approved
+    snapshot: PMC8092678.jats.xml
+    checksum_sha256: f8dc3977f054f4b57a4e49e5a3052dd899e61378da10bed5225589007067f634
+    bytes: 157252
+    grounds_terms: [ToBI, break index, intermediate phrase, intonational phrase,
+                    information structure]
+    notes: >
+      Primary grounding for the break-index definition. States that the
+      Autosegmental-Metrical approach is the theoretical basis of ToBI and that
+      the prosodic hierarchy distinguishes five levels of break indices, with the
+      full intonational phrase boundary and the intermediate phrase boundary at
+      the higher end of the scale.
+
+  - id: pmc12468771-l2-prosody-perception
+    title: "Cross-Linguistic Influences on L2 Prosody Perception: Evidence from English Interrogative Focus Perception"
+    authors: Liu, Chen, Kuang
+    publisher: MDPI
+    container: Brain Sciences
+    year: 2025
+    doi: 10.3390/brainsci15091000
+    url: https://doi.org/10.3390/brainsci15091000
+    retrieved_from: https://www.ebi.ac.uk/europepmc/webservices/rest/PMC12468771/fullTextXML
+    access_date: 2026-08-01
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_by: JATS <license> element in the retrieved article XML
+    commercial_ingestion: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    status: approved
+    snapshot: PMC12468771.jats.xml
+    checksum_sha256: f088e825d5321185909386f0ac179d3705f41d2e253ce554dc65102175b4c3f0
+    bytes: 153564
+    grounds_terms: ["H*", "L-L%", boundary tone, pitch accent, contrastive focus,
+                    breath group]
+    notes: >
+      Primary grounding for the internal composition of a nuclear tune: a pitch
+      accent aligned to the focused constituent, followed by a phrase tone and a
+      boundary tone, written together as e.g. H*L-L%. Also the only approved
+      source that uses `breath group` as a prosodic constituent term.
+
+  - id: pmc11592126-silent-reading-rhythm
+    title: Examining the Neural Markers of Speech Rhythm in Silent Reading
+    authors: Powell, Nayak, Magne
+    publisher: MDPI
+    container: Brain Sciences
+    year: 2024
+    doi: 10.3390/brainsci14111142
+    url: https://doi.org/10.3390/brainsci14111142
+    retrieved_from: https://www.ebi.ac.uk/europepmc/webservices/rest/PMC11592126/fullTextXML
+    access_date: 2026-08-01
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_verified_by: JATS <license> element in the retrieved article XML
+    commercial_ingestion: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    status: approved
+    snapshot: PMC11592126.jats.xml
+    checksum_sha256: 052c4658021f0d2facfcd869e17d2bd36d441a1b269e710d58486dcda076d79f
+    bytes: 128802
+    grounds_terms: [textual prosody, sentence rhythm, cadence, prominence]
+    notes: >
+      Primary grounding for textual prosody: readers construct rhythmic and
+      prominence structure from written text with no acoustic signal present.
+      This is the evidential basis for the whole C.Walts premise that a rewrite
+      can change delivery before any voice is synthesised.
+
+# ---------------------------------------------------------------------------
+# QUARANTINED — cited only. No bytes reproduced, nothing ingested.
+# ---------------------------------------------------------------------------
+quarantined:
+
+  - id: w3c-ssml-11
+    title: Speech Synthesis Markup Language (SSML) Version 1.1 — W3C Recommendation
+    publisher: World Wide Web Consortium (W3C)
+    year: 2010
+    url: https://www.w3.org/TR/speech-synthesis11/
+    access_date: 2026-08-01
+    license: W3C Document License
+    license_url: https://www.w3.org/Consortium/Legal/copyright-documents
+    license_verified_by: copyright notice read from the retrieved specification
+    commercial_ingestion: refused
+    redistribution: verbatim and unmodified only
+    status: quarantined
+    checksum_sha256: fef640ef810bf10f01296325bd95dc6c1c0f9f30064af5dfc5e3d11acd91edb2
+    bytes: 255490
+    reason: >
+      The W3C Document License permits reproduction only WITHOUT modification.
+      Chunking a specification for retrieval is a modification, and whether
+      transformed retrieval output is a prohibited derivative is the same
+      unresolved question that quarantined the Santa Barbara corpus in
+      config/sources.yaml. Cited as the standards-body definition of prosody
+      ("pitch, timing, pausing, speaking rate, emphasis"); not ingested.
+
+  - id: upf-sp-tobi
+    title: Sp_ToBI training materials — prosodic phrasing, break index levels
+    publisher: Grup d'Estudis de Prosòdia (GrEP), Universitat Pompeu Fabra
+    url: https://prosodia.upf.edu/sp_tobi/en/labeling_system/prosodic_phrasing/level4.html
+    access_date: 2026-08-01
+    license: none stated
+    license_verified_by: page and site footer inspected; no license or terms located
+    commercial_ingestion: refused
+    status: quarantined
+    checksum_sha256: null
+    reason: >
+      University-hosted and directly on-topic — it states that break index 4
+      marks intonational phrase boundaries and break index 3 a weaker internal
+      rupture — but NO license statement exists on the page or in the site
+      footer. An absent license is not a permissive license. Used only to
+      corroborate a definition independently grounded in
+      `pmc8092678-prosodic-boundaries`, which is CC BY. No checksum recorded:
+      the host timed out on the archival fetch, so no artifact was retained.
+
+# ---------------------------------------------------------------------------
+# REFUSED — non-commercial terms. Incompatible with this project entirely.
+# ---------------------------------------------------------------------------
+refused:
+
+  - id: osu-tobi-guidelines
+    title: Guidelines for ToBI Labelling (English ToBI home)
+    authors: Beckman, Ayers Elam
+    publisher: The Ohio State University Research Foundation
+    year: 1997
+    url: https://www.ling.ohio-state.edu/research/phonetics/E_ToBI/
+    access_date: 2026-08-01
+    license: proprietary, non-commercial use only
+    license_verified_by: terms-of-use paragraph read from the retrieved page
+    commercial_ingestion: refused
+    redistribution: prohibited
+    status: refused
+    checksum_sha256: 38762382dda2df97b0c41bd412da66032970dacbd4a781ff0f4ed7f7b2be9317
+    bytes: 10139
+    reason: >
+      THE CANONICAL ToBI SOURCE, AND IT IS UNUSABLE HERE. Its terms state that
+      the text "cannot be copied or distributed in any format unless this
+      paragraph is included", that the accompanying utterances are available
+      "only for non-commercial use", and that the materials "are not to be
+      redistributed by other user sites". Same refusal class as the Buckeye
+      corpus. The glossary's ToBI entry is therefore grounded in the CC BY
+      secondary literature that describes the system, NOT in this document, and
+      no text from it appears anywhere in the corpus.
+
+  - id: mit-ocw-6911-tobi
+    title: "6.911 Transcribing Prosodic Structure of Spoken Utterances with ToBI (IAP 2006)"
+    publisher: MIT OpenCourseWare
+    url: https://ocw.mit.edu/courses/6-911-transcribing-prosodic-structure-of-spoken-utterances-with-tobi-january-iap-2006/
+    access_date: 2026-08-01
+    license: CC BY-NC-SA 4.0
+    license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+    license_verified_by: license link read from the retrieved course page footer
+    commercial_ingestion: refused
+    redistribution: non-commercial only, share-alike
+    status: refused
+    checksum_sha256: 7241b3d2da233a6a4a40758cc131c1d2be9c7d0c6a53a25fe7d27d07d2c9eeb4
+    bytes: 54251
+    reason: >
+      The NonCommercial term is incompatible with a commercial product corpus,
+      and ShareAlike would additionally propagate to derived material. Refused
+      on the same grounds as the Buckeye corpus and openSMILE.

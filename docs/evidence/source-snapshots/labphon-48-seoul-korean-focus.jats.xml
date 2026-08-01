@@ -1,0 +1,3314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.0 20120330//EN" "http://jats.nlm.nih.gov/publishing/1.0/JATS-journalpublishing1.dtd">
+<!--<?xml-stylesheet type="text/xsl" href="article.xsl"?>-->
+<article article-type="research-article" dtd-version="1.0" xml:lang="en" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<front>
+<journal-meta>
+<journal-id journal-id-type="issn">1868-6354</journal-id>
+<journal-title-group>
+<journal-title>Laboratory Phonology</journal-title>
+</journal-title-group>
+<issn pub-type="epub">1868-6354</issn>
+<publisher>
+<publisher-name>Ubiquity Press</publisher-name>
+</publisher>
+</journal-meta>
+<article-meta>
+<article-id pub-id-type="doi">10.5334/labphon.48</article-id>
+<article-categories>
+<subj-group>
+<subject>Journal article</subject>
+</subj-group>
+</article-categories>
+<title-group>
+<article-title>Prosodic Marking of Narrow Focus in Seoul Korean</article-title>
+</title-group>
+<contrib-group>
+<contrib contrib-type="author" corresp="yes">
+<contrib-id contrib-id-type="orcid">http://orcid.org/0000-0001-7536-5571</contrib-id>
+<name>
+<surname>Jeon</surname>
+<given-names>Hae-Sung</given-names>
+</name>
+<email>HJeon1@uclan.ac.uk</email>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author">
+<name>
+<surname>Nolan</surname>
+<given-names>Francis</given-names>
+</name>
+<xref ref-type="aff" rid="aff-2"/>
+</contrib>
+</contrib-group>
+<aff id="aff-1">School of Language and Global Studies, University of Central Lancashire, Preston, UK</aff>
+<aff id="aff-2">Department of Theoretical and Applied Linguistics, University of Cambridge, Cambridge, UK</aff>
+<pub-date publication-format="electronic" date-type="pub" iso-8601-date="2017-01-05">
+<day>05</day>
+<month>01</month>
+<year>2017</year>
+</pub-date>
+<volume>8</volume>
+<issue>1</issue>
+<elocation-id>2</elocation-id>
+<permissions>
+<copyright-statement>Copyright: &#x00A9; 2017 The Author(s)</copyright-statement>
+<copyright-year>2017</copyright-year>
+<license license-type="open-access" xlink:href="http://creativecommons.org/licenses/by/4.0/">
+<license-p>This is an open-access article distributed under the terms of the Creative Commons Attribution 4.0 International License (CC-BY 4.0), which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited. See <uri xlink:href="http://creativecommons.org/licenses/by/4.0/">http://creativecommons.org/licenses/by/4.0/</uri>.</license-p>
+</license>
+</permissions>
+<self-uri xlink:href="http://www.journal-labphon.org/articles/10.5334/labphon.48/"/>
+<abstract>
+<p>This paper explores prosodic marking of narrow (corrective) focus in Seoul Korean. Korean lacks lexical stress and it has a phonologized association between the Accentual Phrase (AP) initial segment and intonation. In the experiment, 4 speakers read sentences including a two-item list which were designed to elicit either an L or H AP-initial tone. The durational variations, the pitch events at prosodic boundaries, and <italic>F<sub>0</sub></italic> span in 32 sentences read neutrally and 64 sentences read with one of the items under focus were analyzed. The results show that the focused constituent consistently initiates a new prosodic phrase. In comparison to the neutrally spoken or defocused counterpart, the focused constituent was more likely to be realized as an Intonational Phrase (IP) in some contexts. Bitonal IP boundary tones were more likely to occur under focus than monotonal tones. In addition, in focused constituents, durational expansion particularly at the phrase-edges, expansion in <italic>F<sub>0</sub></italic> span, and raising of the phrase-initial pitch were observed. On the other hand, defocused constituents were not phonetically reduced compared to the neutral counterparts. The results imply that the phonetic cues spreading over the focused constituent complement the exaggerated prosodic boundaries.</p>
+</abstract>
+<kwd-group>
+<kwd>Korean</kwd>
+<kwd>prosody</kwd>
+<kwd>intonation</kwd>
+<kwd>focus</kwd>
+</kwd-group>
+</article-meta>
+</front>
+<body>
+<sec>
+<title>1 Introduction</title>
+<p>The information structure in a given discourse influences the phonetic shape of an utterance. For example, across languages, emphasized elements tend to be realized with an increase in articulatory effort such as increased duration, amplitude and pitch excursion size (e.g., <xref ref-type="bibr" rid="B19">Gussenhoven, 2002</xref>; <xref ref-type="bibr" rid="B20">Gussenhoven, 2004</xref>). Our current understanding of the relationship between information structure and the speech signal is significantly influenced by West Germanic languages. In West Germanic languages, the location of pitch accents contributes to marking information structure, and gradient variation in the realization of a pitch accent, mainly in its pitch excursion and duration, conveys the degree of emphasis (e.g., <xref ref-type="bibr" rid="B3">Baumann et al., 2006</xref>). Pitch accents are associated with lexically stressed syllables.</p>
+<p>However, the assumption that there is a direct link between focal structure and pitch accent distribution in all languages is empirically inadequate (see <xref ref-type="bibr" rid="B44">Ladd, 2008, Ch. 7</xref>). Even in the West Germanic languages, the presence of a pitch accent by no means always signals focus, and in other languages such as French or Japanese without lexical stress, the concept of a focal pitch accent is not clearly applicable. In these languages, phrasing and increase in the acoustic salience in focused constituents have been reported as prosodic markers of narrow focus (see Section 1.2). Previous studies on Korean, which is another language without lexical stress (see <xref ref-type="bibr" rid="B25">Jeon, 2015 for a recent survey</xref>), reveal that Korean shares some similarities with French and Japanese in that focal structure directly affects prosodic structuring. However, the prosodic marking of information structure in Korean has not previously been thoroughly described.</p>
+<p>This paper explores the prosodic markers of one kind of narrow focus, corrective focus, which is related to rejecting and correcting what has been already said in a conversation (see <xref ref-type="bibr" rid="B21">Gussenhoven, 2007</xref>) in Seoul Korean (henceforth Korean). Narrow focus here refers to a word-sized unit being highlighted, as opposed to broad focus on a larger unit (see e.g., <xref ref-type="bibr" rid="B44">Ladd, 2008, p. 215</xref>). Although there are morphological or syntactic means for focus marking (see <xref ref-type="bibr" rid="B17">F&#233;ry, 2013</xref> and references therein), narrow focus is marked prosodically in many languages (see e.g., <xref ref-type="bibr" rid="B3">Baumann et al., 2006 for German</xref>; <xref ref-type="bibr" rid="B16">F&#233;ry, 2001 for French</xref>; <xref ref-type="bibr" rid="B62">Venditti et al., 2008 for Japanese</xref>; <xref ref-type="bibr" rid="B63">Wang &amp; Xu, 2011 for Mandarin Chinese</xref>).</p>
+<p>The broad aims of the study are as follows. First, we aim to investigate the manifestation of an equivalent to focal accent in Korean, a language which lacks word-level stress (see <xref ref-type="bibr" rid="B48">Nolan &amp; Jeon, 2014</xref>). The West Germanic type of pitch accent associated with lexical stress and focal prominence is theoretically undefinable in Korean (e.g., <xref ref-type="bibr" rid="B36">Jun &amp; Fougeron, 2000</xref>). Unlike in West Germanic languages where focus triggers intonational events in prosodic phrases (see Section 1.2), in other languages such as French and Japanese with unclear word-level prominence, speakers&#8217; adjustment of the phonetic shape is more apparent near the prosodic phrase edges (see Sections 1.2 and 1.3). The study of a language such as Korean would therefore contribute to understanding the relationship between the (lack of) word-level prominence and the higher-level prosodic organization related to the focal structure.</p>
+<p>Second, we aim to examine focus-related intonational variation in Korean.<xref ref-type="fn" rid="n1">1</xref> The <italic>F<sub>0</sub></italic> contour shapes over prosodic phrases in Korean show a wide range of variation (see Section 1.1). This variation poses complications in speech data analyses and the majority of previous studies limited their scope to <italic>F<sub>0</sub></italic> contour shapes common at the level of the Accentual Phrase (AP) such as LHLH or HH (<xref ref-type="bibr" rid="B39">Jun &amp; Lee, 1998</xref>; <xref ref-type="bibr" rid="B37">Jun &amp; Kim, 2007</xref>; <xref ref-type="bibr" rid="B46">Lee &amp; Xu, 2010</xref>; <xref ref-type="bibr" rid="B11">Cho et al., 2011</xref>; <xref ref-type="bibr" rid="B68">Yang et al., 2015</xref>). As a consequence of this experimental control of contours, it is still not clear whether focal structure is one of the factors determining the <italic>F<sub>0</sub></italic> contour shapes (e.g., the location of <italic>F<sub>0</sub></italic> turning points in a phrase) and the phonetic shape of the right edge of the phrase, and whether the segmentally induced AP-initial tones (reviewed in Section 1.1) interact with the focus-related prosodic variations. Furthermore, there has been little systematic comparison between neutral, focused, and defocused constituents in speech.</p>
+<p>Third, we will quantify speakers&#8217; durational adjustment related to focal structure. In West Germanic languages, lengthening of the word carrying the pitch accent, with the greatest magnitude of such lengthening associated with the stressed syllable (e.g., <xref ref-type="bibr" rid="B6">Cambier-Langeveld &amp; Turk, 1999</xref>; <xref ref-type="bibr" rid="B60">Turk &amp; White, 1999</xref>; <xref ref-type="bibr" rid="B13">Dimitrova &amp; Turk, 2012</xref>), would serve as an important cue to the focus. In Korean, on the other hand, it is difficult to delineate the extent of such accentual lengthening due to the lack of a definable lexical stress and pitch accent.</p>
+<sec>
+<title>1.1 The prosodic hierarchy in Korean</title>
+<p>We adopt Jun&#8217;s analysis of the prosodic structure (<xref ref-type="bibr" rid="B26">Jun, 1996a</xref>, <xref ref-type="bibr" rid="B28">1998</xref>, <xref ref-type="bibr" rid="B29">2000</xref>, <xref ref-type="bibr" rid="B30">2005</xref>, <xref ref-type="bibr" rid="B31">2006</xref>, <xref ref-type="bibr" rid="B33">2012</xref>), which is currently the most widely used model for prosodic analysis in Korean. Jun&#8217;s model is based on the Prosodic Hierarchy (<xref ref-type="bibr" rid="B55">Selkirk, 1984</xref>, <xref ref-type="bibr" rid="B56">1986</xref>; <xref ref-type="bibr" rid="B47">Nespor &amp; Vogel, 1986</xref>), and represents intonation with L and H targets following the Autosegmental-Metrical theory (<xref ref-type="bibr" rid="B44">Ladd, 2008</xref>). In addition, Jun (<xref ref-type="bibr" rid="B26">1996a</xref>, <xref ref-type="bibr" rid="B28">1998</xref>, <xref ref-type="bibr" rid="B29">2000</xref>, <xref ref-type="bibr" rid="B30">2005</xref>, <xref ref-type="bibr" rid="B31">2006</xref>, <xref ref-type="bibr" rid="B33">2012</xref>) classifies Korean as a language without any head prominence related to lexical stress, pitch accent or tone, but a language with edge prominence. Four levels above the lowest unit, the syllable, are defined in the Prosodic Hierarchy: The Phonological Word (PW), the Accentual Phrase (AP), the Intermediate Phrase (ip), and the Intonational Phrase (IP). Although the ip was added in a later revision (<xref ref-type="bibr" rid="B31">Jun, 2006</xref>), demarcating ips in speech data is not straightforward and therefore the ip is excluded in the following discussion.<xref ref-type="fn" rid="n2">2</xref></p>
+<p>In Jun&#8217;s model (<xref ref-type="bibr" rid="B26">1996a</xref>, <xref ref-type="bibr" rid="B28">1998</xref>, <xref ref-type="bibr" rid="B29">2000</xref>, <xref ref-type="bibr" rid="B30">2005</xref>), the PW does not have any prosodic specification and the AP is the basic unit for prosodic analysis. The AP is a word-sized unit defined with particular reference to the pitch contour (see <xref ref-type="bibr" rid="B54">Schafer &amp; Jun, 2002</xref>; <xref ref-type="bibr" rid="B38">Jun &amp; Kim, 2004</xref>).<xref ref-type="fn" rid="n3">3</xref> An AP tends to have 3&#8211;4 syllables and 1.14&#8211;1.2 content words on average (<xref ref-type="bibr" rid="B40">Kim, 2004</xref>; <xref ref-type="bibr" rid="B41">Kim, 2009</xref>). Jun (<xref ref-type="bibr" rid="B26">1996a</xref>, <xref ref-type="bibr" rid="B28">1998</xref>, <xref ref-type="bibr" rid="B31">2006</xref>) proposes that the AP has the underlying tonal pattern THLH, where the realization of the initial tone (T) tends to depend on the laryngeal configuration of the phrase initial segment. When the initial segment is a fortis (/p*, t*, k*, ts*/) or aspirated (/p&#688;, t&#688;, k&#688;, ts&#688;/) consonant, /s/ or /h/, the initial tone tends to be H, but otherwise it is L. Segments triggering AP-initial H and segments triggering AP-initial L (i.e., lenis consonants, nasals, semivowels, and vowels) will hereafter be referred to respectively as strong segments and weak segments. The association between the type of segment and the tonal target (L vs. H) in AP-initial position is considered phonologized in Korean (<xref ref-type="bibr" rid="B26">Jun, 1996a</xref>, <xref ref-type="bibr" rid="B28">1998</xref>), although the AP-initial tones are not always predictable (e.g., <xref ref-type="bibr" rid="B29">Jun, 2000</xref>; <xref ref-type="bibr" rid="B40">Kim, 2004</xref>). Jun (<xref ref-type="bibr" rid="B28">1998</xref>) states that all four tones are realized when there are four or more syllables in an AP, but if there are fewer than four syllables, some of the tones are not realized. There are 14 pitch contours of the AP reported in Jun (<xref ref-type="bibr" rid="B29">2000</xref>) (i.e., LH, LHH, LLH, HLH, HH, HL, LHL, HHL, HLL, LL, HHLH, LHLH, LHLL, and HHLL) and the last tone, either L or H, is associated with the AP-final syllable. The AP and IP are differentiated by the size of the perceivable disjuncture at the phrase boundary. For instance, the IP is often marked by boundary tones (e.g., L%, H%, LH%, LHL%, etc.) and significant final lengthening. Unlike the AP, boundary tones can consist of two or more tones which can be realized on the IP-final syllable.</p>
+<p>The causes of intonational variation in Korean have not been investigated much so far. What is known is that there is a tendency referred to as the see-saw effect in Jun (<xref ref-type="bibr" rid="B27">1996b</xref>), which avoids the same type of tones occurring adjacent to each other, that speaking style affects the shape of the pitch contour (<xref ref-type="bibr" rid="B40">Kim, 2004</xref>; <xref ref-type="bibr" rid="B41">Kim, 2009</xref>; <xref ref-type="bibr" rid="B42">Kim et al., 2007</xref>), and that there is a strong preference for the AP-final H (<xref ref-type="bibr" rid="B40">Kim, 2004</xref> and references therein).</p>
+</sec>
+<sec>
+<title>1.2 Prosodic marking of narrow focus across languages</title>
+<p>Across languages, the constituent under focus tends to involve hyper-articulation of a kind consistent with the Effort Code (<xref ref-type="bibr" rid="B19">Gussenhoven, 2002</xref>; <xref ref-type="bibr" rid="B20">Gussenhoven, 2004</xref>) and the focus can affect the phonetic shape of the following constituent in the utterance (as in post-focus compression; see below). There are multiple ways of signalling narrow focus prosodically including, for example, an increase in segmental duration or <italic>F<sub>0</sub></italic> span (e.g., <xref ref-type="bibr" rid="B65">Xu, 1999</xref>; <xref ref-type="bibr" rid="B9">Chen, 2006 for Standard Chinese</xref>; <xref ref-type="bibr" rid="B14">Eady &amp; Cooper, 1986</xref>; <xref ref-type="bibr" rid="B67">Xu &amp; Xu, 2005 for American English</xref>; <xref ref-type="bibr" rid="B3">Baumann et al., 2006 for German</xref>; <xref ref-type="bibr" rid="B50">Peters et al., 2014 for varieties in Dutch, Frisian, or German</xref>); varying the alignment of <italic>F<sub>0</sub></italic> turning points (e.g., <xref ref-type="bibr" rid="B67">Xu &amp; Xu, 2005 for American English</xref>; <xref ref-type="bibr" rid="B50">Peters et al., 2014 for varieties in Dutch, Frisian, or German</xref>); creating prosodic breaks by phrasing (e.g., <xref ref-type="bibr" rid="B16">F&#233;ry, 2001 for French</xref>); using boundary tones (e.g., <xref ref-type="bibr" rid="B62">Venditti et al., 2008 for Japanese</xref>); varying pitch accent types (e.g., <xref ref-type="bibr" rid="B3">Baumann et al., 2006 for German</xref>); and compressing the pitch range, duration, and/or intensity of the constituent preceding or following the focused constituent (e.g., <xref ref-type="bibr" rid="B15">Eady et al., 1986</xref>; <xref ref-type="bibr" rid="B67">Xu &amp; Xu, 2005 for American English</xref>; <xref ref-type="bibr" rid="B8">Chen et al., 2009 for Taiwanese and Mandarin</xref>; <xref ref-type="bibr" rid="B45">Lee &amp; Xu, 2012 for Japanese</xref>).</p>
+<p>In West Germanic languages such as English, German, and Dutch, the marking of narrow focus is often discussed in relation to the placement and acoustic salience of a pitch accent, which are respectively interpreted to be phonological (i.e., categorical) and phonetic (i.e., showing gradient variation within a category). The common view is that the focused word receives a pitch accent while the defocused counterpart is de-accented (e.g., <xref ref-type="bibr" rid="B4">Beckman &amp; Pierrehumbert, 1986</xref>) especially if following the focused item. Alternatively, the type of pitch accent employed may differ between focused and defocused constituents (e.g., <xref ref-type="bibr" rid="B3">Baumann et al., 2006 for German</xref>). The type of pitch accent may also be determined by the distinction between narrow focus and broad focus, though this distinction is not always clearly marked (e.g., <xref ref-type="bibr" rid="B3">Baumann et al., 2006</xref>; <xref ref-type="bibr" rid="B43">K&#252;gler, 2008</xref>; <xref ref-type="bibr" rid="B18">F&#233;ry &amp; K&#252;gler, 2008 for German</xref>). The gradience is related to duration (e.g., <xref ref-type="bibr" rid="B3">Baumann et al., 2006 for German</xref>) and scaling or alignment in <italic>F<sub>0</sub></italic> (e.g., earlier peak in narrow focus in American English, <xref ref-type="bibr" rid="B67">Xu &amp; Xu, 2005</xref>; <xref ref-type="bibr" rid="B3">Baumann et al., 2006 for Standard German</xref>).</p>
+<p>In languages without clear lexical stress such as French and Japanese, prosodic phrasing is often referred to as a phonological marker to focus. In French, the focused constituent is generally realized in a separate phrase with its own tonal structure and with optional dephrasing of the following constituents, and sometimes with short breaks before and/or after the phrase boundaries (e.g., <xref ref-type="bibr" rid="B36">Jun &amp; Fougeron, 2000</xref>)<xref ref-type="fn" rid="n4">4</xref>. Phonetic markers of narrow (or contrastive) focus include the raising of the phrase-initial pitch and a higher <italic>F<sub>0</sub></italic> peak in the prosodic phrase (<xref ref-type="bibr" rid="B16">F&#233;ry, 2001</xref>). In Japanese, which has lexical pitch accent, dephrasing or prosodic subordination seems to occur in relation to focal structure (e.g., <xref ref-type="bibr" rid="B4">Beckman &amp; Pierrehumbert, 1986</xref>; <xref ref-type="bibr" rid="B20">Gussehnhoven, 2004</xref>). For instance, Venditti et al. (<xref ref-type="bibr" rid="B62">2008</xref>) discuss a variety of intonational means to mark focus in Japanese, including pitch range expansion, <italic>F<sub>0</sub></italic> reset at the left edge of the focused constituent which may co-occur with the insertion of the IP boundary at the beginning of the focused constituent, dephrasing (i.e., post-focal prosodic subordination), and boundary pitch movement (H%, HL%). Prosodic subordination (dephrasing) is considered the most crucial way of focus marking in Japanese, and the rest are optional (<xref ref-type="bibr" rid="B62">Venditti et al., 2008 and references therein</xref>).</p>
+<p>Narrow focus affects the phonetic shape of the out-of-focus constituent in some languages. Xu et al. (<xref ref-type="bibr" rid="B66">2012</xref>) classify languages into those with or without post-focus compression (PFC) in <italic>F<sub>0</sub></italic> span, intensity, and/or duration, while the pre-focus constituent generally does not show systematic variation. PFC occurs independently of whether lexical tone, pitch accent, or lexical stress is present in a language. Languages such as English (<xref ref-type="bibr" rid="B14">Eady &amp; Cooper, 1986</xref>; <xref ref-type="bibr" rid="B67">Xu &amp; Xu, 2005</xref>), Japanese (<xref ref-type="bibr" rid="B45">Lee &amp; Xu, 2012</xref>), and Beijing Mandarin (<xref ref-type="bibr" rid="B8">Chen et al., 2009</xref>) show PFC.</p>
+<p>In summary, the focused constituent tends to be associated across languages with an increase in articulatory effort. In general, studies of West Germanic languages suggest a strong link between lexical stress and the prosodic manifestation of the focus, while the manifestation of focal structure in languages without lexical stress seems to be best described in terms of prosodic phrasing and phonetic events near prosodic boundaries. The presence of post-focus compression is known to be independent of the presence of lexical tone or stress in a language.</p>
+</sec>
+<sec>
+<title>1.3 Previous studies on prosodic marking of focus in Korean</title>
+<p>Previous studies show that narrow focus in Korean is signalled by phrasing together with other phonetic markers.<xref ref-type="fn" rid="n5">5</xref> A focused constituent initiates a new prosodic phrase and tends to be longer than neutral or post-focus counterparts, and the lengthening tends to be greater in magnitude at the edges of the focused constituent; furthermore, the lengthening at the left edge seems to be more consistent than that at the right edge (e.g., <xref ref-type="bibr" rid="B12">Chung &amp; Kenstowicz, 1997</xref>; <xref ref-type="bibr" rid="B39">Jun &amp; Lee, 1998</xref>; <xref ref-type="bibr" rid="B37">Jun &amp; Kim, 2007</xref>). Jun and Lee (<xref ref-type="bibr" rid="B39">1998</xref>) show that the phrase-initial lengthening under focus is mainly due to extra articulatory strengthening of the phrase-initial segment, although Cho et al. (<xref ref-type="bibr" rid="B11">2011</xref>) found significant lengthening of the second syllable of focused words. The focused constituent also tends to be spoken more loudly than neutral or post-focus words (<xref ref-type="bibr" rid="B46">Lee &amp; Xu, 2010</xref>; <xref ref-type="bibr" rid="B11">Cho et al., 2011</xref>) and shows an increased <italic>F<sub>0</sub></italic> excursion, while the <italic>F<sub>0</sub></italic> peak of the post-focus words tends to be compressed (<xref ref-type="bibr" rid="B12">Chung &amp; Kenstowicz, 1997</xref>; <xref ref-type="bibr" rid="B37">Jun &amp; Kim, 2007</xref>; <xref ref-type="bibr" rid="B46">Lee &amp; Xu, 2010</xref>). Jun and Lee (<xref ref-type="bibr" rid="B39">1998</xref>) show that the <italic>F<sub>0</sub></italic> peak in the post-focus constituent may not necessarily be lower than that of the neutral counterpart, although it tends to be lower than that of the focused constituent within the utterance.</p>
+<p>An important phonological marker seems to be that the focused constituent always begins a new prosodic phrase. In previous studies, the phrase headed by a focused constituent has the status minimally of an Accentual Phrase (AP) (<xref ref-type="bibr" rid="B39">Jun &amp; Lee, 1998</xref>) or of an Intonational Phrase (IP) (<xref ref-type="bibr" rid="B37">Jun &amp; Kim, 2007</xref>). When the new phrase is headed by a focused constituent, the post-focal constituent, which would have been produced as an AP with acoustic disjuncture at both edges in the neutrally spoken utterance, may be realized without the perceivable acoustic disjuncture at its left edge. That is, the prosodic boundary following the focused constituent may be deleted, but such dephrasing is optional in Korean (<xref ref-type="bibr" rid="B37">Jun &amp; Kim, 2007</xref>; <xref ref-type="bibr" rid="B46">Lee &amp; Xu, 2010</xref>).<xref ref-type="fn" rid="n6">6</xref></p>
+<p>The findings on the out-of-focus constituents are inconsistent. Although Lee and Xu (<xref ref-type="bibr" rid="B46">2010</xref>) report PFC in Korean, Jun and Lee (<xref ref-type="bibr" rid="B39">1998</xref>) and Yang et al. (<xref ref-type="bibr" rid="B68">2015</xref>) offer only inconsistent evidence of the <italic>F<sub>0</sub></italic> span compression or shortening of the syllable duration in pre- or post-focus constituents. Jun and Lee (<xref ref-type="bibr" rid="B39">1998</xref>) report mixed results; only 3 speakers out of 5 reduced the <italic>F<sub>0</sub></italic> peak height compared to neutral speech, while the defocused constituents tended to be shorter than the neutral counterpart. In Yang et al. (<xref ref-type="bibr" rid="B68">2015</xref>), <italic>F<sub>0</sub></italic> span was wider in focused words than in defocused words when the defocused words were pre-focus but not post-focus, although the opposite trend would be expected from the findings in other languages in which PFC has been demonstrated. Yang et al. (<xref ref-type="bibr" rid="B68">2015</xref>) also report an interaction between the size of the focused constituent and the prosodic marking of focus; the focus effect was shown when the target word had four syllables but not with disyllabic words.</p>
+</sec>
+<sec>
+<title>1.4 Aims and hypotheses</title>
+<p>We explore the prosodic variation associated with information structure. In particular, we investigate prosodic marking of narrow focus not only at the level of the AP but potentially at a larger domain, and, complementarily, the prosodic properties of defocused constituents. The prosodic characteristics of Korean lead us to expect that focus marking in Korean may exploit cues similar to those reported in French and Japanese (see Section 1.2). Our expectation follows from shared features of the three languages: They lack lexical stress, and the smallest prosodic unit&#8212;the AP in Korean, for instance&#8212;is demarcated by the <italic>F<sub>0</sub></italic> contour (see e.g., <xref ref-type="bibr" rid="B64">Welby, 2006 for French</xref>; <xref ref-type="bibr" rid="B61">Venditti, 2005 for Japanese</xref>; <xref ref-type="bibr" rid="B30">Jun, 2005</xref> for Korean; note, however, that the AP in Japanese may include a lexical pitch accent). In both French and Korean the lack of lexical stress means there is no culminative prominence marking focus; rather, it is phrasal structure that fulfils the role, with support from overall adjustment of the <italic>F<sub>0</sub></italic> span of APs. In addition, the frequent use of a complex pitch movement at the right edge of the IP, which contributes to pragmatic interpretation of the utterance in Japanese (<xref ref-type="bibr" rid="B61">Venditti, 2005</xref>; <xref ref-type="bibr" rid="B62">Venditti et al., 2008</xref>), seems to resemble that in Korean (e.g., <xref ref-type="bibr" rid="B30">Jun, 2005</xref>; <xref ref-type="bibr" rid="B49">Park, 2012</xref>).</p>
+<p>In the experiment, we focus on examining the following specific hypotheses formulated based on the previous findings in Korean and other languages. First, there would be lengthening of the focused constituent and the linguistic units therein, and there would be shortening of the defocused constituent. We expect lengthening spreading over the focused constituent but a larger magnitude of lengthening near the constituent edges. Second, narrow focus would affect the formation of prosodic phrases in that the focused constituent begins a new prosodic phrase. Third, as in Japanese (e.g., <xref ref-type="bibr" rid="B62">Venditti et al., 2008</xref>), the focused constituent may be associated with a higher-level prosodic phrase than the AP and boundary tones with a complex pitch movement at the right edge. Fourth, the <italic>F<sub>0</sub></italic> contour shapes in the AP would be affected by focal structure, and speakers&#8217; <italic>F<sub>0</sub></italic> adjustment in relation to the focal structure may interact with the segmentally-induced <italic>F<sub>0</sub></italic> variation. Fifth, <italic>F<sub>0</sub></italic> span would be affected by focal structure; the <italic>F<sub>0</sub></italic> span would be widest in the focused constituent, whereas the <italic>F<sub>0</sub></italic> span would be compressed in the defocused constituent in comparison to the focused or neutrally spoken counterpart. In addition, we expect to observe an association between the AP-initial segment type and tone in speech data as widely reported in previous studies (reviewed in Section 1.1).</p>
+</sec>
+</sec>
+<sec>
+<title>2 Experiment</title>
+<sec>
+<title>2.1 Experimental materials</title>
+<p>There were 32 targets of 5- or 7-syllable sequences of two number units (Table <xref ref-type="table" rid="T1">1</xref>). It was assumed that each number unit is a Phonological Word (PW) corresponding to an Accentual Phrase (AP) in speech. The term PW is used to refer to the semantically coherent number unit in the reading materials henceforth (while in speech, a PW is produced without perceivable disjuncture at its edges, as discussed in Section 2.3). They were classified into 4 phrasing types (2 + 3, 3 + 2, 3 + 4, and 4 + 3, where + indicates the PW boundary), and there were two types of initial segments (weak and strong, see Section 1.1) in the second PW. The location of the strong segments was systematically controlled to have APs beginning with a low tone (L) or a high tone (H) in the dataset. Each PW was designed to include between two and four syllables, as 2-, 3-, and 4-syllable APs tend to occur frequently. It was intended to have experimental materials that were meaningful and familiar to speakers, while the possible confounding effect of the morpho-semantic structure was controlled. All constituents of the targets were monosyllabic numbers referring to, for example, 1 (/il/), 10 (/sip/), 100 (/p&#603;k/), 1,000 (/ts&#688;&#652;n/) or 10,000 (/man/), in Korean, which could be combined to create different numbers resembling words, depending on the location of a prosodic boundary. Targets were designed not to include diphthongs, but otherwise different types of segments and syllable structures were used.<xref ref-type="fn" rid="n7">7</xref></p>
+<table-wrap id="T1">
+<label>Table 1</label>
+<caption>
+<p>Experimental materials. /il/ (1), /i/ (2), /sam/ (3), /sa/ (4), /o/ (5), /juk/ (6), /ts&#688;il/ (7), /p&#688;al/ (8), /ku/ (9), /sip/ (10), /p&#603;k/ (100), / ts&#688;&#652;n/ (1,000), and /man/ (10,000).</p>
+</caption>
+<table>
+<tr>
+<th align="left">Phrasing</th>
+<th align="left">PW2-initial</th>
+<th align="center">Number</th>
+<th align="left">Phonemic transcription</th>
+</tr>
+<tr>
+<td colspan="4"><hr/></td>
+</tr>
+<tr>
+<td align="left" rowspan="8">2 + 3</td>
+<td align="left" rowspan="4">w</td>
+<td align="right">20,000#10,005</td>
+<td align="left">iman#ilmano</td>
+</tr>
+<tr>
+<td align="right">20,000#105</td>
+<td align="left">iman#ilp&#603;ko</td>
+</tr>
+<tr>
+<td align="right">20,000#6,005</td>
+<td align="left">iman#jukts&#688;&#652;no</td>
+</tr>
+<tr>
+<td align="right">20,000#1,005</td>
+<td align="left">iman#ilts&#688;&#652;no</td>
+</tr>
+<tr>
+<td align="left" rowspan="4">s</td>
+<td align="right">20,000#30,005</td>
+<td align="left">iman#sammano</td>
+</tr>
+<tr>
+<td align="right">20,000#70,005</td>
+<td align="left">iman#ts&#688;ilmano</td>
+</tr>
+<tr>
+<td align="right">20,000#3,005</td>
+<td align="left">iman#samts&#688;&#652;no</td>
+</tr>
+<tr>
+<td align="right">20,000#7,005</td>
+<td align="left">iman#ts&#688;ilts&#688;&#652;no</td>
+</tr>
+<tr>
+<td align="left" rowspan="8">3 + 2</td>
+<td align="left" rowspan="4">w</td>
+<td align="right">20,001#10,005</td>
+<td align="left">imanil#mano</td>
+</tr>
+<tr>
+<td align="right">20,001#105</td>
+<td align="left">imanil#p&#603;ko</td>
+</tr>
+<tr>
+<td align="right">20,003#10,005</td>
+<td align="left">imansam#mano</td>
+</tr>
+<tr>
+<td align="right">20,007#10,005</td>
+<td align="left">imants&#688;il#mano</td>
+</tr>
+<tr>
+<td align="left" rowspan="4">s</td>
+<td align="right">20,006#1,005</td>
+<td align="left">imanjuk#ts&#688;&#652;no</td>
+</tr>
+<tr>
+<td align="right">20,001#1,005</td>
+<td align="left">imanil#ts&#688;&#652;no</td>
+</tr>
+<tr>
+<td align="right">20,003#1,005</td>
+<td align="left">imansam#ts&#688;&#652;no</td>
+</tr>
+<tr>
+<td align="right">20,007#1,005</td>
+<td align="left">imants&#688;il#ts&#688;&#652;no</td>
+</tr>
+<tr>
+<td align="left" rowspan="8">3 + 4</td>
+<td align="left" rowspan="4">w</td>
+<td align="right">2,000,000#10,200</td>
+<td align="left">ip&#603;kman#ilmanip&#603;k</td>
+</tr>
+<tr>
+<td align="right">2,000,000#1,000,200</td>
+<td align="left">ip&#603;kman#p&#603;kmanip&#603;k</td>
+</tr>
+<tr>
+<td align="right">2,000,000#1,200</td>
+<td align="left">ip&#603;kman#ilts&#688;&#652;nip&#603;k</td>
+</tr>
+<tr>
+<td align="right">2,000,000#1,00,100</td>
+<td align="left">ip&#603;kman#ilsipmanp&#603;k<sup>&#8224;</sup></td>
+</tr>
+<tr>
+<td align="left" rowspan="4">s</td>
+<td align="right">2,000,000#30,200</td>
+<td align="left">ip&#603;kman#sammanip&#603;k</td>
+</tr>
+<tr>
+<td align="right">2,000,000#70,200</td>
+<td align="left">ip&#603;kman#ts&#688;ilmanip&#603;k</td>
+</tr>
+<tr>
+<td align="right">2,000,000#3,200</td>
+<td align="left">ip&#603;kman#samts&#688;&#652;nip&#603;k</td>
+</tr>
+<tr>
+<td align="right">2,000,000#7,200</td>
+<td align="left">ip&#603;kman#ts&#688;ilts&#688;&#652;nip&#603;k</td>
+</tr>
+<tr>
+<td align="left" rowspan="8">4 + 3</td>
+<td align="left" rowspan="4">w</td>
+<td align="right">2,000,001#10,200</td>
+<td align="left">ip&#603;kmanil#manip&#603;k</td>
+</tr>
+<tr>
+<td align="right">2,000,100#10,200</td>
+<td align="left">ip&#603;kmanp&#603;k#manip&#603;k</td>
+</tr>
+<tr>
+<td align="right">2,000,003#10,200</td>
+<td align="left">ip&#603;kmansam#manip&#603;k</td>
+</tr>
+<tr>
+<td align="right">2,000,007#10,200</td>
+<td align="left">ip&#603;kmants&#688;il#manip&#603;k</td>
+</tr>
+<tr>
+<td align="left" rowspan="4">s</td>
+<td align="right">2,000,001#1,200</td>
+<td align="left">ip&#603;kmanil#ts&#688;&#652;nip&#603;k</td>
+</tr>
+<tr>
+<td align="right">2,000,001#100,100</td>
+<td align="left">ip&#603;kmanil#sipmanp&#603;k<sup>&#8224;</sup></td>
+</tr>
+<tr>
+<td align="right">2,000,003#1,200</td>
+<td align="left">ip&#603;kmansam#ts&#688;&#652;nip&#603;k</td>
+</tr>
+<tr>
+<td align="right">2,000,007#1,200</td>
+<td align="left">ip&#603;kmants&#688;il#ts&#688;&#652;nip&#603;k</td>
+</tr>
+</table>
+</table-wrap>
+<p>As many syllables as possible were kept identical at a given position across the targets to minimize the variance unrelated to the factors of interest. The first two syllables /i.man/ and the last syllable /o/ were identical for all 5-syllable targets. For the 7-syllable targets, the first three syllables, /i.p&#603;k.man/, and the last two syllables, /i.p&#603;k/, were identical for all targets, with two exceptions (marked with <sup>&#8224;</sup> in Table <xref ref-type="table" rid="T1">1</xref>), where /man/ was used as the penultimate syllable. Since the potential target APs had a similar number of syllables, fillers were constructed to have different phrasing structure from them (e.g., 3 + 3, 2 + 2, 1 + 2 + 1, or 2 + 2 + 2) to distract speakers from producing speech with strict rhythmic regularity. Various numbers which did not appear in the targets were used for fillers, together with the numbers used in the targets. Some of the experimental materials were originally designed for an experiment in which speakers&#8217; prosodic strategies for disambiguating two alternative phrasings (e.g., 2 + 3 vs. 3 + 2) are examined, reported in Jeon (<xref ref-type="bibr" rid="B24">2011, Chap. 4</xref>).</p>
+<p>There were three Focus conditions: Neutral (read neutrally), PW1-focus (the first PW under narrow corrective focus) and PW2-focus (the second PW under narrow corrective focus). This design makes it possible to compare the same PW spoken in three different ways: Neutral, focused (PW1 in PW1-focus, PW2 in PW2-focus), and defocused (PW2 in PW1-focus, PW1 in PW2-focus). For the recording of the Neutral utterances, a list of sentences (&#8216;neutral list&#8217;) was created as in Example (1) with the targets and fillers between two carrier phrases (meaning &#8220;the numbers for this time are <bold>[target]</bold>&#8221;)<xref ref-type="fn" rid="n8">8</xref>.</p>
+<list list-type="gloss">
+<list-item>
+<list list-type="sentence-gloss">
+<list-item>
+<list list-type="final-sentence">
+<list-item><p>Example (1)</p></list-item>
+</list>
+</list-item>
+<list-item>
+<list list-type="word">
+<list-item><p>carrier 1</p></list-item>
+<list-item><p>/ip&#652;n#sut&#623;l&#623;n#</p></list-item>
+<list-item><p><italic>this time # numbers + TOP #</italic></p></list-item>
+</list>
+<list list-type="word">
+<list-item><p><bold>target</bold></p></list-item>
+<list-item><p><bold>target</bold> (PW1#PW2)</p></list-item>
+<list-item><p><bold><italic>target</italic></bold> <italic>(PW1#PW2)</italic></p></list-item>
+</list>
+<list list-type="word">
+<list-item><p>carrier 2</p></list-item>
+<list-item><p># tw&#603;k&#603;s*&#623;mnita/</p></list-item>
+<list-item><p><italic># become + ENDER</italic></p></list-item>
+</list>
+</list-item>
+</list>
+</list-item>
+</list>
+<p>In the written sentences, commas were placed after the first carrier phrase (/ip&#652;n#sut&#623;l&#623;n/) and after each PW in the target or filler.</p>
+<p>A &#8216;focus list&#8217; of sentences was prepared for the recordings of PW1-focus and PW2-focus. On the &#8216;focus list,&#8217; either PW1 or PW2 was underlined and was preceded by a phrase with a &#8220;not A, B but A, C&#8221; construction in parentheses, as shown in Example (2), &#8220;([it is] not twenty thousand and one, a thousand and one), but the numbers this time are twenty thousand and one, ten thousand and five.&#8221;</p>
+<list list-type="gloss">
+<list-item>
+<list list-type="sentence-gloss">
+<list-item>
+<list list-type="final-sentence">
+<list-item><p>Example (2)</p></list-item>
+</list>
+</list-item>
+<list-item>
+<list list-type="word">
+<list-item><p>carrier 1</p></list-item>
+<list-item><p>(imanil <underline>ts&#688;&#652;nil</underline>i anila,)</p></list-item>
+<list-item><p><italic>(20,001, 1,001 + NM not,)</italic></p></list-item>
+</list>
+<list list-type="word">
+<list-item><p><bold>target</bold></p></list-item>
+<list-item><p>/ip&#652;n #sut&#623;l&#623;n <bold>#imanil# mano#</bold></p></list-item>
+<list-item><p><italic>this time numbers+TOP 20,001, 10,005</italic></p></list-item>
+</list>
+<list list-type="word">
+<list-item><p>carrier 2</p></list-item>
+<list-item><p>tw&#603;k&#603;s*&#623;mnita/</p></list-item>
+<list-item><p><italic>become + ENDER</italic></p></list-item>
+</list>
+</list-item>
+</list>
+</list-item>
+</list>
+<p>This construction may appear to be a double correction in English (e.g., &#8216;ten thousand five&#8217; in Example (2)) but it was intended to have completely different numbers resembling lexical units to be contrasted in the materials in Korean (/ts&#688;&#652;nil/, 1,001 vs. /mano/, 10,005). That is, the English-type single correction (e.g., &#8220;not twenty thousand and one (20,001), a thousand and one (1,001), but twenty thousand and one (20,001), a thousand and FIVE (1,005)&#8221;) in Korean would not yield the AP structure as desired because it could lead speakers to produce three APs as target, e.g., (imanil#<underline>ts&#688;&#652;nil</underline>i#anila,)# imanil#<underline>ts&#688;&#652;n</underline>#<underline>o</underline>, &#8220;not 20,001, 1,001, but 20,001, 1,005&#8221; with monosyllabic APs.</p>
+<p>The &#8216;neutral list&#8217; consisted of 32 sentences with the targets and 64 sentences with the fillers between the carrier phrases. In the &#8216;focus list,&#8217; there were 64 sentences with the targets and 128 sentences with the fillers. The order of the sentences on each list was randomized for each subject, and two filler sentences in a random order were inserted between two sentences with a target, so that there would always be two filler sentences separating sentences with a target.</p>
+<p>The inherent nature of the number sequence in the form of a two-item list might lead to readings deviating from those of ordinary sentences which do not include numbers. However, the use of the number sequence did not elicit any noticeably different prosodic properties from what is reported in literature for ordinary sentences when read neutrally (see <xref ref-type="bibr" rid="B24">Jeon, 2011, Ch. 4</xref>). Further, the number sequences are likely to be associated with a phrase-final rising intonation which can be interpreted as signalling phrase-finality, continuation, and the organization of the successive items (<xref ref-type="bibr" rid="B49">Park, 2012</xref>) across all materials, and therefore tight experimental control was achieved.</p>
+</sec>
+<sec>
+<title>2.2 Experimental procedure</title>
+<p>Four native speakers of Seoul Korean (2 females&#8212;YH, HKL, and two males&#8212;KJ, CHJ) aged between 20 and 22 participated in the experiment. Participants were given a small payment. All recording was done in a sound-attenuated booth in the Hanyang University in Seoul, using a Tascam HD-P2 recorder and a Shure KSM 44 microphone. The sampling rate was 44.1 kHz.</p>
+<p>Participants were given the &#8216;neutral list&#8217; first. They had time to become familiar with the materials, and were allowed to practise if they wanted. They read through the &#8216;neutral list&#8217; five times for recording. The &#8216;focus list&#8217; reading was recorded after each speaker completed the &#8216;neutral list&#8217; reading. With the &#8216;focus list,&#8217; speakers were asked to imagine a situation in which their interlocutor misunderstood the sentence, and they were told they could silently read the phrase in the parentheses if they wanted to (see <xref ref-type="bibr" rid="B39">Jun &amp; Lee, 1998</xref> for a similar technique). They were asked to practise until they could read the materials naturally. The &#8216;focus list&#8217; was read three times in total, and speakers took a short break after each list reading.</p>
+</sec>
+<sec>
+<title>2.3 Data annotation and measurements</title>
+<p>For Neutral, 640 utterances including the target (4 targets &#215; 2 PW2-initial segment types &#215; 4 phrasings &#215; 5 repetitions &#215; 4 speakers) were recorded. Fifteen utterances with hesitation or ambiguous phrasing were discarded, finally leaving 625 utterances for the analysis. Since we aimed to investigate natural intonational variation in speech data, no utterances were discarded by reason of being produced with <italic>F<sub>0</sub></italic> contour shapes which are infrequently observed in Korean. In each of PW1-focus and PW2-focus, 378 and 382 utterances out of 384 utterances including the target (4 targets &#215; 2 PW-initial segment types &#215; 4 phrasings &#215; 3 repetitions &#215; 4 speakers) in each category were analyzed.</p>
+<p>In order to examine durational variations related to the focus, boundaries of segments, syllables, and PWs in each utterance were annotated using Praat (<xref ref-type="bibr" rid="B5">Boersma &amp; Weenink, 2010</xref>), following standard criteria suggested in Peterson and Lehiste (<xref ref-type="bibr" rid="B51">1960</xref>) and Turk et al. (<xref ref-type="bibr" rid="B59">2006</xref>). Glottal stops or creaky parts which often appeared at the vowel onset or offset were marked separately but included as part of a vowel. Glottal stops were marked only when there was a clear silent interval, and irregular but continuous pulses were marked as creak. When there was a sequence of consonants with a single closure (e.g., <italic>kts<sup>h</sup></italic> in /juk.ts<sup>h</sup>&#652;n/ &#8216;6,000&#8217;), the closure was halved, and each half was treated as a closure of one consonant. The syllable boundary was defined as suggested in Korean orthography which reflects the morphological structure without regard to possible resyllabification, for instance, CVC.V to CV.CV (e.g., /man.il/ to /ma.nil/ &#8216;10,001&#8217;), for ease and consistency in the analysis. Although it was assumed that one PW in the reading materials would form an AP in speech, the targets included sequences of various syllabic compositions (e.g., /manil/ &#8216;10,001&#8217; and /mansam/ &#8216;10,003&#8217;), and one orthographic syllable (e.g., /man/ &#8216;10,000&#8217;), a morphonological unit as an independent noun could form an AP. Therefore, the orthographic syllable division was used in all data. The duration of each syllable and PW was extracted using a Praat script.</p>
+<p>In addition, the first author annotated the <italic>F<sub>0</sub></italic> contour shape in the PW together with the type of prosodic boundary at the right edge of each prosodic phrase, following the criteria in Jun (<xref ref-type="bibr" rid="B29">2000</xref>). Annotation of the <italic>F<sub>0</sub></italic> contour shape was necessary in order to investigate possible variations related to focal structure and also for analyzing <italic>F<sub>0</sub></italic> span in PW. The PWs realized with a static pitch contour shape (e.g., HH) would need to be separated from those in a PW with a clear <italic>F<sub>0</sub></italic> peak (e.g., LHLH).</p>
+<p>The prosodic boundary strength before PW1, after PW1, and after PW2 was labelled as PW (with no perceivable prosodic disjuncture), AP (with perceivable prosodic disjuncture and the AP boundary tone), or IP (with significant phrase-final lengthening and an IP boundary tone). The points of <italic>F<sub>0</sub></italic> maximum and minimum in each number unit (i.e., PW) were detected semi-automatically in Praat, their values were extracted using a Praat script, and they were used in calibrating <italic>F<sub>0</sub></italic> span within each PW. The <italic>F<sub>0</sub></italic> values were measured in semitones (ST) relative to 100 Hz. Outliers and octave jumps were manually corrected. Samples of 160 utterances in total were cross-checked by four native Korean speakers who are trained in prosodic annotation. The between-annotator agreement rate was high at 82% for <italic>F<sub>0</sub></italic> contour shapes and at 93% for the prosodic boundary strength. For the <italic>F<sub>0</sub></italic> contour shapes, out of the 18% of tokens where there was disagreement, 10% were caused by minor disagreement on the precise turning point of the <italic>F<sub>0</sub></italic> (e.g., LH vs. LLH in multisyllabic PWs), which would not affect the result of the study. The rest of the disagreement was on the identification of the initial or final tone between L and H (e.g., LHLH vs. HHLH, LHL vs. LHLH). The cases where there was disagreement were re-examined by the first author, and a decision between the alternatives was made on the basis of the <italic>F<sub>0</sub></italic> contour and the perceived pitch. For the prosodic boundary strength, annotators disagreed when the presence of the phrase-final lengthening in the target PW was not clear. The annotation of the tokens where there was disagreement was corrected so that prosodic phrases with clearly perceived final lengthening and a boundary tone would be referred to as the IP.</p>
+</sec>
+</sec>
+<sec>
+<title>3 Results</title>
+<p>For the statistical analysis, mixed-effect models were fitted to the data with <italic>R</italic> (<xref ref-type="bibr" rid="B53">R Development Team, 2015</xref>) and with the package <italic>lmer4</italic> (<xref ref-type="bibr" rid="B2">Bates et al., 2014</xref>). P-values were corrected for multiple comparisons using the <italic>mcp</italic> function in the <italic>multComp</italic> package in the post-hoc tests (<xref ref-type="bibr" rid="B23">Hothorn et al., 2008</xref>). In the comparison of A vs. B, the positive parameter value indicates the relationship A &gt; B and the negative parameter value indicates A &lt; B. The dependent variables were PW duration, syllable duration, the prosodic boundary type (AP vs. IP), the type of IP boundary tone (monotonal vs. bitonal) when present, and <italic>F<sub>0</sub></italic> span in each PW. In the modelling process, the random factors, Speaker and Item, were always included with random intercepts and the fixed factors are provided in the relevant section. The initial full model was constructed with all relevant fixed factors and the best-fitting model was identified using the log-likelihood &#967;<sup>2</sup> tests. Only the results of the final models or the contrast tests directly relevant to hypotheses are reported.</p>
+<sec>
+<title>3.1 Duration</title>
+<sec>
+<title>3.1.1 PW duration</title>
+<p>It was hypothesized that the PW duration would show the order focused &gt; neutral &gt; defocused. In order to explore this hypothesis, the initial full model was constructed with the dependent variable PW duration (ms) and fixed factors, Focus (Neutral, PW1, PW2), Phrasing (2 + 3, 3 + 2, 3 + 4, 4 + 3), Location (PW1, PW2), and PW-Initial Segment (strong, weak). Since the interactions involving Location (PW1, PW2) were statistically significant (Location &#215; Focus, <italic>&#967;<sup>2</sup></italic> (2) = 368.2, <italic>p</italic> &lt; 0.001; Location &#215; Phrasing, <italic>&#967;<sup>2</sup></italic> (3) = 1627.3, <italic>p</italic> &lt; 0.001), data were split by Location in order to examine durational variations of each PW. PW-Initial Segment was not included in the final models, since its effect was not significant for PW2 (&#967;<sup>2</sup> (1) = 0.48, <italic>ns</italic>; there was only one level for PW1).</p>
+<p>The effect of Focus was significant for PW1 (<italic>&#967;<sup>2</sup></italic> (2) = 506.52, <italic>p</italic> &lt; 0.001) and PW2 (<italic>&#967;<sup>2</sup></italic> (2) = 630.55, <italic>p</italic> &lt; 0.001). Phrasing also significantly affected PW duration (<italic>&#967;<sup>2</sup></italic> (3) = 102.44, <italic>p</italic> &lt; 0.001 for PW1 and <italic>&#967;<sup>2</sup></italic> (3) = 84.47, <italic>p</italic> &lt; 0.001 for PW2), while the Focus &#215; Phrasing interaction was not significant (<italic>&#967;<sup>2</sup></italic> (6) = 12.45, <italic>ns</italic> for PW1 and <italic>&#967;<sup>2</sup></italic> (6) = 10.92, <italic>ns</italic> for PW2). Table <xref ref-type="table" rid="T2">2</xref> shows that for both PW1 and PW2, the focused PWs were significantly longer than Neutral (see PW1-f vs. Neutral for PW1 and PW2-f vs. Neutral for PW2 in Table <xref ref-type="table" rid="T2">2</xref>), while the duration of the defocused PW did not show a significant difference from Neutral (PW2-f vs. Neutral for PW1 and PW1-f vs. Neutral for PW2 in Table <xref ref-type="table" rid="T2">2</xref>).</p>
+<table-wrap id="T2">
+<label>Table 2</label>
+<caption>
+<p>Summary of the Tukey contrast test for Focus with a dependent variable PW duration (ms). A positive estimate indicates that the first level in the comparison has a higher group mean. <italic>n</italic> = 1385 for PW1; <italic>n</italic> = 1385 for PW2. Significance codes * <italic>p</italic> &lt; 0.05, ** <italic>p</italic> &lt; 0.01, *** <italic>p</italic> &lt; 0.001.</p>
+</caption>
+<table>
+<tr>
+<th align="left" rowspan="2"></th>
+<th align="center" colspan="3">PW1</th>
+<th align="center" colspan="3">PW2</th>
+</tr>
+<tr>
+<th colspan="6"><hr/></th>
+</tr>
+<tr>
+<th align="left"></th>
+<th align="center">Estimate</th>
+<th align="center">SE</th>
+<th align="center">z</th>
+<th align="center">Estimate</th>
+<th align="center">SE</th>
+<th align="center">Z</th>
+</tr>
+<tr>
+<td colspan="7"><hr/></td>
+</tr>
+<tr>
+<td align="left">PW1-f vs. Neutral</td>
+<td align="right">106.47</td>
+<td align="right">4.62</td>
+<td align="right">23.05***</td>
+<td align="right">&#8211;5.06</td>
+<td align="right">5.15</td>
+<td align="right">&#8211;0.98</td>
+</tr>
+<tr>
+<td align="left">PW2-f vs. Neutral</td>
+<td align="right">&#8211;0.33</td>
+<td align="right">4.60</td>
+<td align="right">&#8211;0.07</td>
+<td align="right">133.26</td>
+<td align="right">5.13</td>
+<td align="right">25.96***</td>
+</tr>
+<tr>
+<td align="left">PW2-f vs. PW1-f</td>
+<td align="right">&#8211;106.80</td>
+<td align="right">5.14</td>
+<td align="right">&#8211;20.77***</td>
+<td align="right">138.32</td>
+<td align="right">5.73</td>
+<td align="right">24.12***</td>
+</tr>
+</table>
+</table-wrap>
+</sec>
+<sec>
+<title>3.1.2 Syllable duration</title>
+<p>The hypothesized relationship for syllable duration was focused &gt; neutral &gt; defocused, and it was expected that lengthening triggered by focus would be more pronounced at the focused constituent edges. Figure <xref ref-type="fig" rid="F1">1</xref> demonstrates that all syllables in the Focused PW tended to be longer than those in its neutral or defocused counterpart. As expected, the magnitude of lengthening under focus was more pronounced at phrase edges than in phrase-medial syllables. Compared to Neutral, PW-initial syllables were lengthened under focus by 27% on average (mean = 46.53 ms, range 26.09&#8211;62.12 ms), PW-medial syllables by 14.3% on average (mean = 23.39 ms, range 15.01&#8211;35.53 ms), and PW-final syllables by 25% on average (mean = 46.88 ms, range 32.70&#8211;62.67 ms; also see larger absolute values of the estimates in Table <xref ref-type="table" rid="T4">4</xref> for the PW-initial syllable). However, the duration of syllables in the defocused PW tends to overlap with that in Neutral in Figure <xref ref-type="fig" rid="F1">1</xref>.</p>
+<fig id="F1">
+<label>Figure 1</label>
+<caption>
+<p>Mean duration of each syllable (ms) for each PHRASING averaged over all speakers. Error bars indicate one standard error, <italic>n</italic> = 8328. Neutral: solid line, PW1-focus: dotted line, PW2-focus: dotdash line.</p>
+</caption>
+<graphic xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/article/id/6189/file/74682/"/>
+</fig>
+<p>Linear mixed-effect models were fitted to the syllable duration (ms) as a dependent variable. The initial full models were constructed for 5-syllable targets and 7-syllable targets respectively with fixed factors, Focus, Phrasing, PW-Initial Segment, and Syllable Position (1&#8211;5 in 5-syllable targets, 1&#8211;7 in 7-syllable targets). In the modelling process, the three-way interaction effect Syllable Position &#215; Focus &#215; Phrasing was statistically significant (5-syllable targets, <italic>&#967;<sup>2</sup></italic> (8) = 113.63, <italic>p</italic> &lt; 0.001; 7-syllable targets, <italic>&#967;<sup>2</sup></italic> (12) = 132.5, <italic>p</italic> &lt; 0.001). Further models were constructed for the syllable duration (ms) in each Syllable Position to explore the Focus &#215; Phrasing interaction. Some syllables in the same position in the target occupy different position relative to the PW boundaries depending on the phrasing (e.g., the second syllable would be PW1-final in 2 + 3 phrasing but PW1-medial in 3 + 2 phrasing) and, therefore, it was necessary to examine the potential interaction between Focus and Phrasing in each Syllable Position. Since there was a significant Focus &#215; Phrasing effect in the majority of cases (see Table <xref ref-type="table" rid="T3">3</xref> for the effects of fixed factors), the pairwise comparisons between the focus conditions were conducted within each phrasing.</p>
+<table-wrap id="T3">
+<label>Table 3</label>
+<caption>
+<p>Summary of the main effects Focus and Phrasing and the Focus x Phrasing interaction in the mixed-effects model with syllable duration (ms) as a dependent variable for each syllable in 5-syllable targets and in 7-syllable targets. Significance codes * <italic>p</italic> &lt; 0.05, ** <italic>p</italic> &lt; 0.01, *** <italic>p</italic> &lt; 0.001.</p>
+</caption>
+<table>
+<tr>
+<th align="left" rowspan="2"></th>
+<th align="center" colspan="2">5-syllable target</th>
+<th align="center" colspan="2">7-syllable target</th>
+</tr>
+<tr>
+<th colspan="4"><hr/></th>
+</tr>
+<tr>
+<th align="left">Syll no.</th>
+<th align="center">&#967;<sup>2</sup></th>
+<th align="center">df</th>
+<th align="center">&#967;<sup>2</sup></th>
+<th align="center">df</th>
+</tr>
+<tr>
+<td colspan="5"><hr/></td>
+</tr>
+<tr>
+<td align="left" colspan="5">Focus</td>
+</tr>
+<tr>
+<td align="left">1</td>
+<td align="right">132.89***</td>
+<td align="right">2</td>
+<td align="right">157.37***</td>
+<td align="right">2</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="right">120.11***</td>
+<td align="right"></td>
+<td align="right">112.95***</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="right">118.02***</td>
+<td align="right"></td>
+<td align="right">148.8***</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">4</td>
+<td align="right">226.15***</td>
+<td align="right"></td>
+<td align="right">65.524***</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">5</td>
+<td align="right">219.60***</td>
+<td align="right"></td>
+<td align="right">243.45***</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">6</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">166.71***</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">7</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">153.68***</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left" colspan="5">Phrasing</td>
+</tr>
+<tr>
+<td align="left">1</td>
+<td align="right">21.59***</td>
+<td align="right">1</td>
+<td align="right">6.81**</td>
+<td align="right">1</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="right">5.34*</td>
+<td align="right"></td>
+<td align="right">17.43***</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="right">2.75</td>
+<td align="right"></td>
+<td align="right">10.85***</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">4</td>
+<td align="right">18.30***</td>
+<td align="right"></td>
+<td align="right">2.60</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">5</td>
+<td align="right">0.16</td>
+<td align="right"></td>
+<td align="right">6.46*</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">6</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">0</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">7</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">0.67</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left" colspan="5">Focus x Phrasing</td>
+</tr>
+<tr>
+<td align="left">1</td>
+<td align="right">10.40*</td>
+<td align="right">2</td>
+<td align="right">1.14</td>
+<td align="right">2</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="right">28.52***</td>
+<td align="right"></td>
+<td align="right">3.63</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="right">145.26***</td>
+<td align="right"></td>
+<td align="right">30.62***</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">4</td>
+<td align="right">31.51***</td>
+<td align="right"></td>
+<td align="right">140.87***</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">5</td>
+<td align="right">3.99</td>
+<td align="right"></td>
+<td align="right">16.81***</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">6</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">2.04</td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">7</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">1.03</td>
+<td align="right"></td>
+</tr>
+</table>
+</table-wrap>
+<p>The pairwise comparisons in each phrasing showing statistically significant differences are the following (see Table <xref ref-type="table" rid="T4">4</xref>): for 2 + 3, syllables 1 (PW1-initial) and 2 (PW1-final) were significantly longer in PW1-focus than PW2-focus or Neutral, whereas there was no statistically significant difference between Neutral and PW2-focus. Syllable 3 (PW2-initial) was significantly longer in the order PW2-focus &gt; PW1-focus &gt; Neutral. Syllables 4 and 5 were significantly longer in PW2-focus than Neutral and PW1-focus, whereas there was no significant difference between Neutral and PW1-focus.</p>
+<table-wrap id="T4">
+<label>Table 4</label>
+<caption>
+<p>The output of a Tukey contrast test for syllable duration. A positive estimate indicates that the first level in the comparison has a higher group mean. 5-syllable targets, 2 + 3, <italic>n</italic> = 346; 3 + 2, <italic>n</italic> = 341; 7-syllable targets, 3 + 4, <italic>n</italic> = 350; 4 + 3, <italic>n</italic> = 349. Significance codes * <italic>p</italic> &lt; 0.05, ** <italic>p</italic> &lt; 0.01, *** <italic>p</italic> &lt; 0.001.</p>
+</caption>
+<table>
+<tr>
+<th align="center"></th>
+<th align="center" colspan="4">5-syllable targets</th>
+<th align="center" colspan="4">7-syllable targets</th>
+</tr>
+<tr>
+<th colspan="9"><hr/></th>
+</tr>
+<tr>
+<th align="center"></th>
+<th align="center"></th>
+<th align="center">Estimate</th>
+<th align="center">SE</th>
+<th align="center">Z</th>
+<th align="center"></th>
+<th align="center">Estimate</th>
+<th align="center">SE</th>
+<th align="center">z</th>
+</tr>
+<tr>
+<td colspan="9"><hr/></td>
+</tr>
+<tr>
+<td align="left" rowspan="6">1</td>
+<td align="left">2+3.PW1-f vs. 2+3.N</td>
+<td align="right">46.03</td>
+<td align="right">4.49</td>
+<td align="right">10.25***</td>
+<td align="left">3+4.PW1-f vs. 3+4.N</td>
+<td align="right">38.92</td>
+<td align="right">4.28</td>
+<td align="right">9.10***</td>
+</tr>
+<tr>
+<td align="left">2+3.PW2-f vs. 2+3.N</td>
+<td align="right">1.46</td>
+<td align="right">4.51</td>
+<td align="right">0.32</td>
+<td align="left">3+4.PW2-f vs. 3+4.N</td>
+<td align="right">5.10</td>
+<td align="right">4.28</td>
+<td align="right">1.19</td>
+</tr>
+<tr>
+<td align="left">2+3.PW2&#8209;f&#160;vs. 2+3.PW1&#8209;f</td>
+<td align="right">&#8211;44.57</td>
+<td align="right">5.00</td>
+<td align="right">&#8211;8.91***</td>
+<td align="left">3+4.PW2&#8209;f&#160;vs. 3+4.PW1&#8209;f</td>
+<td align="right">&#8211;33.82</td>
+<td align="right">4.77</td>
+<td align="right">&#8211;7.09***</td>
+</tr>
+<tr>
+<td align="left">3+2.PW1-f vs. 3+2.N</td>
+<td align="right">25.94</td>
+<td align="right">4.56</td>
+<td align="right">5.69***</td>
+<td align="left">4+3.PW1-f vs. 4+3.N</td>
+<td align="right">37.14</td>
+<td align="right">4.29</td>
+<td align="right">8.67***</td>
+</tr>
+<tr>
+<td align="left">3+2.PW2-f vs. 3+2.N</td>
+<td align="right">&#8211;1.47</td>
+<td align="right">4.50</td>
+<td align="right">&#8211;0.33</td>
+<td align="left">4+3.PW2-f vs. 4+3.N</td>
+<td align="right">&#8211;1.34</td>
+<td align="right">4.29</td>
+<td align="right">&#8211;0.31</td>
+</tr>
+<tr>
+<td align="left">3+2.PW2-f vs. 3+2.PW1-f</td>
+<td align="right">&#8211;27.41</td>
+<td align="right">5.05</td>
+<td align="right">&#8211;5.43***</td>
+<td align="left">4+3.PW2-f vs. 4+3.PW1-f</td>
+<td align="right">&#8211;38.48</td>
+<td align="right">4.80</td>
+<td align="right">&#8211;8.02***</td>
+</tr>
+<tr>
+<td align="left" rowspan="6">2</td>
+<td align="left">2+3.PW1-f vs. 2+3.N</td>
+<td align="right">43.16</td>
+<td align="right">3.72</td>
+<td align="right">11.61***</td>
+<td align="left">3+4.PW1-f vs. 3+4.N</td>
+<td align="right">21.08</td>
+<td align="right">2.31</td>
+<td align="right">9.13***</td>
+</tr>
+<tr>
+<td align="left">2+3.PW2-f vs. 2+3.N</td>
+<td align="right">4.56</td>
+<td align="right">3.73</td>
+<td align="right">1.22</td>
+<td align="left">3+4.PW2-f vs. 3+4.N</td>
+<td align="right">5.37</td>
+<td align="right">2.31</td>
+<td align="right">2.33</td>
+</tr>
+<tr>
+<td align="left">2+3.PW2-f vs. 2+3.PW1-f</td>
+<td align="right">&#8211;38.60</td>
+<td align="right">4.14</td>
+<td align="right">&#8211;9.32***</td>
+<td align="left">3+4.PW2-f vs. 3+4.PW1-f</td>
+<td align="right">&#8211;15.71</td>
+<td align="right">2.58</td>
+<td align="right">&#8211;6.10***</td>
+</tr>
+<tr>
+<td align="left">3+2.PW1-f vs. 3+2.N</td>
+<td align="right">15.12</td>
+<td align="right">3.78</td>
+<td align="right">4.00***</td>
+<td align="left">4+3.PW1-f vs. 4+3.N</td>
+<td align="right">14.99</td>
+<td align="right">2.31</td>
+<td align="right">6.48***</td>
+</tr>
+<tr>
+<td align="left">3+2.PW2-f vs. 3+2.N</td>
+<td align="right">&#8211;0.81</td>
+<td align="right">3.73</td>
+<td align="right">&#8211;0.22</td>
+<td align="left">4+3.PW2-f vs. 4+3.N</td>
+<td align="right">4.27</td>
+<td align="right">2.31</td>
+<td align="right">1.85</td>
+</tr>
+<tr>
+<td align="left">3+2.PW2-f vs. 3+2.PW1-f</td>
+<td align="right">&#8211;15.94</td>
+<td align="right">4.18</td>
+<td align="right">&#8211;3.82**</td>
+<td align="left">4+3.PW2-f vs. 4+3.PW1-f</td>
+<td align="right">&#8211;10.71</td>
+<td align="right">2.59</td>
+<td align="right">&#8211;4.14***</td>
+</tr>
+<tr>
+<td align="left" rowspan="6">3</td>
+<td align="left">2+3.PW1-f vs. 2+3.N</td>
+<td align="right">16.56</td>
+<td align="right">4.47</td>
+<td align="right">3.70**</td>
+<td align="left">3+4.PW1-f vs. 3+4.N</td>
+<td align="right">41.88</td>
+<td align="right">3.71</td>
+<td align="right">11.28***</td>
+</tr>
+<tr>
+<td align="left">2+3.PW2-f vs. 2+3.N</td>
+<td align="right">45.60</td>
+<td align="right">4.49</td>
+<td align="right">10.16***</td>
+<td align="left">3+4.PW2-f vs. 3+4.N</td>
+<td align="right">&#8211;8.27</td>
+<td align="right">3.71</td>
+<td align="right">&#8211;2.23</td>
+</tr>
+<tr>
+<td align="left">2+3.PW2-f vs. 2+3.PW1-f</td>
+<td align="right">29.04</td>
+<td align="right">4.98</td>
+<td align="right">5.83***</td>
+<td align="left">3+4.PW2-f vs. 3+4.PW1-f</td>
+<td align="right">&#8211;50.15</td>
+<td align="right">4.14</td>
+<td align="right">&#8211;12.11***</td>
+</tr>
+<tr>
+<td align="left">3+2.PW1-f vs. 3+2.N</td>
+<td align="right">62.94</td>
+<td align="right">4.55</td>
+<td align="right">13.85***</td>
+<td align="left">4+3.PW1-f vs. 4+3.N</td>
+<td align="right">15.75</td>
+<td align="right">3.72</td>
+<td align="right">4.23***</td>
+</tr>
+<tr>
+<td align="left">3+2.PW2-f vs. 3+2.N</td>
+<td align="right">1.86</td>
+<td align="right">4.48</td>
+<td align="right">0.42</td>
+<td align="left">4+3.PW2-f vs. 4+3.N</td>
+<td align="right">&#8211;5.56</td>
+<td align="right">3.72</td>
+<td align="right">&#8211;1.49</td>
+</tr>
+<tr>
+<td align="left">3+2.PW2-f vs. 3+2.PW1-f</td>
+<td align="right">&#8211;61.08</td>
+<td align="right">5.02</td>
+<td align="right">&#8211;12.16***</td>
+<td align="left">4+3.PW2-f vs. 4+3.PW1-f</td>
+<td align="right">&#8211;21.31</td>
+<td align="right">4.16</td>
+<td align="right">&#8211;5.12***</td>
+</tr>
+<tr>
+<td align="left" rowspan="6">4</td>
+<td align="left">2+3.PW1-f vs. 2+3.N</td>
+<td align="right">&#8211;1.435</td>
+<td align="right">4.022</td>
+<td align="right">&#8211;0.357</td>
+<td align="left">3+4.PW1-f vs. 3+4.N</td>
+<td align="right">10.59</td>
+<td align="right">5.09</td>
+<td align="right">2.08</td>
+</tr>
+<tr>
+<td align="left">2+3.PW2-f vs. 2+3.N</td>
+<td align="right">29.70</td>
+<td align="right">4.04</td>
+<td align="right">7.36***</td>
+<td align="left">3+4.PW2-f vs. 3+4.N</td>
+<td align="right">50.71</td>
+<td align="right">5.09</td>
+<td align="right">9.97***</td>
+</tr>
+<tr>
+<td align="left">2+3.PW2-f vs. 2+3.PW1-f</td>
+<td align="right">31.14</td>
+<td align="right">4.48</td>
+<td align="right">6.95***</td>
+<td align="left">3+4.PW2-f vs. 3+4.PW1-f</td>
+<td align="right">40.13</td>
+<td align="right">5.68</td>
+<td align="right">7.07***</td>
+</tr>
+<tr>
+<td align="left">3+2.PW1-f vs. 3+2.N</td>
+<td align="right">11.38</td>
+<td align="right">4.09</td>
+<td align="right">2.79</td>
+<td align="left">4+3.PW1-f vs. 4+3.N</td>
+<td align="right">52.37</td>
+<td align="right">5.10</td>
+<td align="right">10.27***</td>
+</tr>
+<tr>
+<td align="left">3+2.PW2-f vs. 3+2.N</td>
+<td align="right">62.10</td>
+<td align="right">4.03</td>
+<td align="right">15.40***</td>
+<td align="left">4+3.PW2-f vs. 4+3.N</td>
+<td align="right">&#8211;7.56</td>
+<td align="right">5.10</td>
+<td align="right">&#8211;1.48</td>
+</tr>
+<tr>
+<td align="left">3+2.PW2-f vs. 3+2.PW1-f</td>
+<td align="right">50.72</td>
+<td align="right">4.52</td>
+<td align="right">11.23***</td>
+<td align="left">4+3.PW2-f vs. 4+3.PW1-f</td>
+<td align="right">&#8211;59.93</td>
+<td align="right">5.71</td>
+<td align="right">&#8211;10.51***</td>
+</tr>
+<tr>
+<td align="left" rowspan="6">5</td>
+<td align="left">2+3.PW1-f vs. 2+3.N</td>
+<td align="right">&#8211;12.19</td>
+<td align="right">5.36</td>
+<td align="right">&#8211;2.28</td>
+<td align="left">3+4.PW1-f vs. 3+4.N</td>
+<td align="right">&#8211;12.31</td>
+<td align="right">4.33</td>
+<td align="right">&#8211;2.84*</td>
+</tr>
+<tr>
+<td align="left">2+3.PW2-f vs. 2+3.N</td>
+<td align="right">50.05</td>
+<td align="right">5.38</td>
+<td align="right">9.31***</td>
+<td align="left">3+4.PW2-f vs. 3+4.N</td>
+<td align="right">35.39</td>
+<td align="right">4.33</td>
+<td align="right">8.18***</td>
+</tr>
+<tr>
+<td align="left">2+3.PW2-f vs. 2+3.PW1-f</td>
+<td align="right">62.25</td>
+<td align="right">5.97</td>
+<td align="right">10.42***</td>
+<td align="left">3+4.PW2-f vs. 3+4.PW1-f</td>
+<td align="right">47.69</td>
+<td align="right">4.83</td>
+<td align="right">9.88***</td>
+</tr>
+<tr>
+<td align="left">3+2.PW1-f vs. 3+2.N</td>
+<td align="right">2.50</td>
+<td align="right">5.45</td>
+<td align="right">0.46</td>
+<td align="left">4+3.PW1-f vs. 4+3.N</td>
+<td align="right">3.80</td>
+<td align="right">4.34</td>
+<td align="right">0.88</td>
+</tr>
+<tr>
+<td align="left">3+2.PW2-f vs. 3+2.N</td>
+<td align="right">59.50</td>
+<td align="right">5.37</td>
+<td align="right">11.07***</td>
+<td align="left">4+3.PW2-f vs. 4+3.N</td>
+<td align="right">59.49</td>
+<td align="right">4.34</td>
+<td align="right">13.72***</td>
+</tr>
+<tr>
+<td align="left">3+2.PW2-f vs. 3+2.PW1-f</td>
+<td align="right">57.00</td>
+<td align="right">6.02</td>
+<td align="right">9.47***</td>
+<td align="left">4+3.PW2-f vs. 4+3.PW1-f</td>
+<td align="right">55.70</td>
+<td align="right">4.85</td>
+<td align="right">11.48***</td>
+</tr>
+<tr>
+<td align="left" rowspan="6">6</td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">3+4.PW1-f vs. 3+4.N</td>
+<td align="right">&#8211;7.92</td>
+<td align="right">3.54</td>
+<td align="right">&#8211;2.24</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">3+4.PW2-f vs. 3+4.N</td>
+<td align="right">24.71</td>
+<td align="right">3.54</td>
+<td align="right">6.99***</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">3+4.PW2-f vs. 3+4.PW1-f</td>
+<td align="right">32.62</td>
+<td align="right">3.94</td>
+<td align="right">8.27***</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">4+3.PW1-f vs. 4+3.N</td>
+<td align="right">&#8211;10.34</td>
+<td align="right">3.54</td>
+<td align="right">&#8211;2.92*</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">4+3.PW2-f vs. 4+3.N</td>
+<td align="right">30.03</td>
+<td align="right">3.54</td>
+<td align="right">8.47***</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">4+3.PW2-f vs. 4+3.PW1-f</td>
+<td align="right">40.37</td>
+<td align="right">3.96</td>
+<td align="right">10.18***</td>
+</tr>
+<tr>
+<td align="left" rowspan="6">7</td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">3+4.PW1-f vs. 3+4.N</td>
+<td align="right">&#8211;7.84</td>
+<td align="right">4.44</td>
+<td align="right">&#8211;1.77</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">3+4.PW2-f vs. 3+4.N</td>
+<td align="right">32.91</td>
+<td align="right">4.44</td>
+<td align="right">7.42***</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">3+4.PW2-f vs. 3+4.PW1-f</td>
+<td align="right">40.75</td>
+<td align="right">4.95</td>
+<td align="right">8.23***</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">4+3.PW1-f vs. 4+3.N</td>
+<td align="right">&#8211;13.80</td>
+<td align="right">4.45</td>
+<td align="right">&#8211;3.10*</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">4+3.PW2-f vs. 4+3.N</td>
+<td align="right">32.74</td>
+<td align="right">4.45</td>
+<td align="right">7.36***</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">4+3.PW2-f vs. 4+3.PW1-f</td>
+<td align="right">46.54</td>
+<td align="right">4.98</td>
+<td align="right">9.35***</td>
+</tr>
+</table>
+</table-wrap>
+<p>For 3 + 2, syllables 1 (PW1-initial), 2 (PW1-medial), and 3 (PW1-final) were longer in PW1-focus than in Neutral or PW2-focus, whereas there was no significant difference between Neutral and PW2-focus. Syllables 4 (PW2-initial) and 5 (PW2-final) were longer in PW2-focus than in Neutral or PW1-focus. The duration of syllables 4 and 5 did not show a significant difference between Neutral and PW1-focus.</p>
+<p>For 3 + 4, syllables 1 (PW1-initial), 2 (PW1-medial), and 3 (PW1-final) were significantly longer in PW1-focus than in Neutral or PW2-focus, whereas there was no significant difference between Neutral and PW2-focus. Syllables 4 (PW2-initial), 6 (PW2-medial), and 7 (PW2-final) were significantly longer in PW2-focus than in Neutral or PW1-focus, and no statistically significant difference was found between Neutral and PW1-focus. Syllable 5 (PW2-medial) showed the order PW2-focus &gt; Neutral &gt; PW1-focus.</p>
+<p>For 4 + 3, syllables 1 (PW1-initial), 2 (PW1-medial), 3 (PW1-medial), and 4 (PW1-final) were significantly longer in PW1-focus than in Neutral or PW2-focus, whereas the difference between Neutral and PW2-focus did not reach significance for all comparisons. Syllables 5 (PW2-initial) was also significantly lengthened in PW2-focus than in Neutral or PW1-focus, and the difference between PW2-focus and Neutral did not reach significance. Syllables 6 (PW2-medial) and 7 (PW2-final) showed the order PW2-focus &gt; Neutral &gt; PW1-focus.</p>
+</sec>
+</sec>
+<sec>
+<title>3.2 Focus and the prosodic boundary type</title>
+<p>It was hypothesized that the focused constituent begins a new prosodic phrase. As hypothesized, the PWs under narrow focus always initiated a new prosodic phrase, either the AP or the IP. Figure <xref ref-type="fig" rid="F2">2</xref> shows that there was no PW-sized disjuncture (meaning there was always a perceivable prosodic disjuncture) before the focused constituent (i.e., Pre-PW1 for PW1 under focus and Post-PW1 for PW2 under focus). The hypothesis that focused PWs would be associated with a larger prosodic boundary than neutrally spoken or defocused PWs was supported in some contexts. Figure <xref ref-type="fig" rid="F2">2</xref> shows that the most frequent prosodic boundary type was IP between the carrier phrase and the PW1 (Pre-PW1) and also after the PW2 (Post-PW2) in all Focus conditions. For Post-PW1, although AP was more common for Neutral or PW2-focus, when PW1 was under focus, the most frequent type boundary type was IP.</p>
+<fig id="F2">
+<label>Figure 2</label>
+<caption>
+<p>The frequency (percentage) of each boundary type between the carrier phrase and PW1 (Pre-PW1), after PW1 (Post-PW1) and after PW2 (Post-PW2). Neutral, <italic>n</italic> = 626; PW1-focus, <italic>n</italic> = 378; PW2-focus, <italic>n</italic> = 382.</p>
+</caption>
+<graphic xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/article/id/6189/file/74683/"/>
+</fig>
+<p>The probability of an IP boundary occurrence as opposed to an AP boundary was modelled by mixed effects logistic regression (e.g., <xref ref-type="bibr" rid="B52">Pinheiro &amp; Bates, 2000</xref>; <xref ref-type="bibr" rid="B1">Baayen et al., 2008</xref>). The initial full model included fixed factors, Focus, Phrasing, Location, and PW-Initial Segment. All two-way interaction effects were statistically significant (Focus &#215; Phrasing, <italic>&#967;<sup>2</sup></italic> (6) = 12.76, <italic>p</italic> &lt; 0.05; Phrasing &#215; Location, <italic>&#967;<sup>2</sup></italic> (6) = 88.05, <italic>p</italic> &lt; 0.001; Focus &#215; Location, <italic>&#967;<sup>2</sup></italic> (4) = 219.99), although the Focus &#215; Phrasing &#215; Location interaction was not (<italic>&#967;<sup>2</sup></italic> (12) = 17.44, <italic>ns</italic>). Due to the interdependence between the three fixed factors, data were split by Location (Pre-PW1, Post-PW1, and Post-PW2) in order to explore how the PW in different positions in the utterance was affected by Focus. There were significant Focus and Phrasing effects for Pre-PW1 (Focus, <italic>&#967;<sup>2</sup></italic> (2) = 31.49, <italic>p</italic> &lt; 0.001; Phrasing, <italic>&#967;<sup>2</sup></italic> (2) = 15.71, <italic>p</italic> &lt; 0.01), Post-PW1 (Focus, <italic>&#967;<sup>2</sup></italic> (2) = 315.17, <italic>p</italic> &lt; 0.001; Phrasing <italic>&#967;<sup>2</sup></italic> (3) = 37.66, <italic>p</italic> &lt; 0.001) and Post-PW2 (Focus, <italic>&#967;<sup>2</sup></italic> (2) = 25.48, <italic>p</italic> &lt; 0.001; Phrasing <italic>&#967;<sup>2</sup></italic> (3) = 10.51, <italic>p</italic> &lt; 0.05). For Post-PW2, the Focus &#215; Phrasing interaction was also significant (<italic>&#967;<sup>2</sup></italic> (6) = 21.33, <italic>p</italic> &lt; 0.01).</p>
+<p>The result of the contrast test (Table <xref ref-type="table" rid="T5">5</xref>) demonstrates the effect of Focus for Pre-PW1 and Post-PW1. For both Pre-PW1 and Post-PW1, more IP boundaries were likely to occur in PW1-focus than in Neutral or PW2-focus. Phrasing affected the likelihood of the IP boundary presence in some cases. For Pre-PW1, the target in 2 + 3 phrasing was more likely to be preceded by the IP boundary than other phrasing types. For Post-PW1, the IP boundary was more likely observed when PW1 had more syllables than PW2. For Post-PW2, a statistically significant difference in the contrast test was observed in only a few comparisons; for 3 + 2, the IP boundary was more likely to be present in PW2-focus than in Neutral or PW1-focus. For 3 + 4, more IP boundaries were present for Neutral than for PW1-focus.</p>
+<table-wrap id="T5">
+<label>Table 5</label>
+<caption>
+<p>The output of a Tukey contrast test in a generalized linear mixed effects model of the IP boundary presence, main effects of Focus and Phrasing for Pre-PW1, Post-PW1, and Post-PW2. In the Tukey test result, a positive estimate indicates that the first level in the comparison has a higher group mean. Significance codes * <italic>p</italic> &lt; 0.05, ** <italic>p</italic> &lt; 0.01, *** <italic>p</italic> &lt; 0.001.</p>
+</caption>
+<table>
+<tr>
+<th align="left"></th>
+<th align="center" colspan="3">Pre-PW1</th>
+<th align="left"></th>
+<th align="center" colspan="3">Post-PW1</th>
+</tr>
+<tr>
+<th align="left"></th>
+<th colspan="7"><hr/></th>
+</tr>
+<tr>
+<th align="center"></th>
+<th align="center">Estimate</th>
+<th align="center">SE</th>
+<th align="center">z</th>
+<th align="center"></th>
+<th align="center">Estimate</th>
+<th align="center">SE</th>
+<th align="center">z</th>
+</tr>
+<tr>
+<td colspan="8"><hr/></td>
+</tr>
+<tr>
+<td align="left">PW1-f vs. N</td>
+<td align="right">1.12</td>
+<td align="right">0.21</td>
+<td align="right">5.41***</td>
+<td align="left">PW1-f vs. N</td>
+<td align="right">2.56</td>
+<td align="right">0.17</td>
+<td align="right">14.89***</td>
+</tr>
+<tr>
+<td align="left">PW2-f vs. N</td>
+<td align="right">0.47</td>
+<td align="right">0.19</td>
+<td align="right">2.44</td>
+<td align="left">PW2-f vs. N</td>
+<td align="right">0.10</td>
+<td align="right">0.16</td>
+<td align="right">0.63</td>
+</tr>
+<tr>
+<td align="left">PW2-f vs. PW1-f</td>
+<td align="right">&#8211;0.65</td>
+<td align="right">0.23</td>
+<td align="right">&#8211;2.87*</td>
+<td align="left">PW2-f vs. PW1-f</td>
+<td align="right">&#8211;2.46</td>
+<td align="right">0.19</td>
+<td align="right">&#8211;13.11***</td>
+</tr>
+<tr>
+<td align="left">3+2 vs. 2+3</td>
+<td align="right">&#8211;0.76</td>
+<td align="right">0.24</td>
+<td align="right">&#8211;3.20**</td>
+<td align="left">3+2 vs. 2+3</td>
+<td align="right">0.72</td>
+<td align="right">0.23</td>
+<td align="right">3.11*</td>
+</tr>
+<tr>
+<td align="left">3+4 vs. 2+3</td>
+<td align="right">&#8211;0.94</td>
+<td align="right">0.23</td>
+<td align="right">&#8211;4.03***</td>
+<td align="left">3+4 vs. 2+3</td>
+<td align="right">&#8211;0.23</td>
+<td align="right">0.24</td>
+<td align="right">&#8211;0.98</td>
+</tr>
+<tr>
+<td align="left">4+3 vs. 2+3</td>
+<td align="right">&#8211;0.67</td>
+<td align="right">0.24</td>
+<td align="right">&#8211;2.84*</td>
+<td align="left">4+3 vs. 2+3</td>
+<td align="right">1.48</td>
+<td align="right">0.23</td>
+<td align="right">6.42***</td>
+</tr>
+<tr>
+<td align="left">3+4 vs. 3+2</td>
+<td align="right">&#8211;0.19</td>
+<td align="right">0.22</td>
+<td align="right">&#8211;0.84</td>
+<td align="left">3+4 vs. 3+2</td>
+<td align="right">&#8211;0.95</td>
+<td align="right">0.24</td>
+<td align="right">&#8211;4.05***</td>
+</tr>
+<tr>
+<td align="left">4+3 vs. 3+2</td>
+<td align="right">0.09</td>
+<td align="right">0.23</td>
+<td align="right">0.39</td>
+<td align="left">4+3 vs. 3+2</td>
+<td align="right">0.76</td>
+<td align="right">0.22</td>
+<td align="right">3.44**</td>
+</tr>
+<tr>
+<td align="left">4+3 vs. 3+4</td>
+<td align="right">0.27</td>
+<td align="right">0.22</td>
+<td align="right">1.24</td>
+<td align="left">4+3 vs. 3+4</td>
+<td align="right">1.72</td>
+<td align="right">0.24</td>
+<td align="right">7.29***</td>
+</tr>
+<tr>
+<td align="left">Post-PW2</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">2+3.PW1-f vs. 2+3.N</td>
+<td align="right">&#8211;0.14</td>
+<td align="right">0.37</td>
+<td align="right">&#8211;0.38</td>
+<td align="left">3+4.PW1-f vs. 3+4.N</td>
+<td align="right">&#8211;1.38</td>
+<td align="right">0.35</td>
+<td align="right">&#8211;3.89**</td>
+</tr>
+<tr>
+<td align="left">2+3.PW2-f vs. 2+3.N</td>
+<td align="right">0.63</td>
+<td align="right">0.39</td>
+<td align="right">1.59</td>
+<td align="left">3+4.PW2-f vs. 3+4.N</td>
+<td align="right">&#8211;0.41</td>
+<td align="right">0.37</td>
+<td align="right">&#8211;1.09</td>
+</tr>
+<tr>
+<td align="left">2+3.PW2-f vs. 2+3.PW1-f</td>
+<td align="right">0.77</td>
+<td align="right">0.43</td>
+<td align="right">1.78</td>
+<td align="left">3+4.PW2-f vs. 3+4.PW1-f</td>
+<td align="right">0.97</td>
+<td align="right">0.39</td>
+<td align="right">2.50</td>
+</tr>
+<tr>
+<td align="left">3+2.PW1-f vs. 3+2.N</td>
+<td align="right">0.03</td>
+<td align="right">0.33</td>
+<td align="right">0.08</td>
+<td align="left">4+3.PW1-f vs. 4+3.N</td>
+<td align="right">&#8211;0.46</td>
+<td align="right">0.34</td>
+<td align="right">&#8211;1.33</td>
+</tr>
+<tr>
+<td align="left">3+2.PW2-f vs. 3+2.N</td>
+<td align="right">1.83</td>
+<td align="right">0.41</td>
+<td align="right">4.41**</td>
+<td align="left">4+3.PW2-f vs. 4+3.N</td>
+<td align="right">0.27</td>
+<td align="right">0.36</td>
+<td align="right">0.75</td>
+</tr>
+<tr>
+<td align="left">3+2.PW2-f vs. 3+2.PW1-f</td>
+<td align="right">1.80</td>
+<td align="right">0.44</td>
+<td align="right">4.02**</td>
+<td align="left">4+3.PW2-f vs. 4+3.PW1-f</td>
+<td align="right">0.73</td>
+<td align="right">0.39</td>
+<td align="right">1.85</td>
+</tr>
+</table>
+</table-wrap>
+</sec>
+<sec>
+<title>3.3 F<sub>0</sub></title>
+<sec>
+<title>3.3.1 <italic>F<sub>0</sub></italic> contour shapes over the PW</title>
+<p>It was hypothesized that the <italic>F<sub>0</sub></italic> contour shapes in the PW would be affected by focal structure and speakers&#8217; <italic>F<sub>0</sub></italic> adjustment would interact with the segmentally-induced <italic>F<sub>0</sub></italic> variation. First, the analysis of the annotated <italic>F<sub>0</sub></italic> contour shapes revealed that when the PW was realized as an AP, the most common <italic>F<sub>0</sub></italic> contour shapes were LH, HH, HLH, LHLH, and HLHL. These five types accounted for 79.25% of the total APs. Further details are not provided since the variations in the <italic>F<sub>0</sub></italic> contour shapes within the AP were not related to Focus in contrast to the hypothesis, although some cases with static pitch contours (LL and HH) are presented below. The assumption that one PW in the reading materials would be realized as one AP was met in general; there were only 23 cases of the PW boundary percept (i.e., no marked prosodic disjuncture), and 9 cases out of 23 were observed in Post-PW2 when PW2 was under focus indicating post-focus dephrasing. The AP-final H frequently appeared as expected (84.33% of total APs) and the AP-initial tone tended to be determined by the type (weak/strong) of its initial segment. However, there were exceptions; Table <xref ref-type="table" rid="T6">6</xref> shows that not all PW2s beginning with a strong segment were realized with a phrase-initial H and there were cases of association of H with a PW-initial weak segment. In Neutral, 2% of PW1s (which all began with a weak segment) and 23% of PW2s with a weak initial segment began with H. This is likely to be an artefact related to the composition of the experimental materials. The PW2 of 2 + 3 and 3 + 4 often begins with /il/ (&#8216;one&#8217;); some Korean speakers raise AP-initial pitch for /il/ (&#8216;one&#8217;) in order to distinguish the two numbers /il/ (&#8216;one&#8217;) and /i/ (&#8216;two&#8217;) which could sound similar to each other (<xref ref-type="bibr" rid="B34">Jun &amp; Cha, 2011</xref>, <xref ref-type="bibr" rid="B35">2015</xref>).</p>
+<table-wrap id="T6">
+<label>Table 6</label>
+<caption>
+<p>Frequency of PW-initial H (percentage) in PW1 and PW2 for each the type of the PW2-initial segment for Neutral, PW1-focus, and PW2-focus.</p>
+</caption>
+<table>
+<tr>
+<th align="left"></th>
+<th align="center" colspan="2">Weak</th>
+<th align="center" colspan="2">Strong</th>
+</tr>
+<tr>
+<td colspan="5"><hr/></td>
+</tr>
+<tr>
+<td align="left" rowspan="3">PW1</td>
+<td align="left">Neutral (n = 626)</td>
+<td align="right">2%</td>
+<td align="left"></td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">PW1-focus (n = 378)</td>
+<td align="right">8%</td>
+<td align="left"></td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left">PW2-focus (n = 382)</td>
+<td align="right">5%</td>
+<td align="left"></td>
+<td align="right"></td>
+</tr>
+<tr>
+<td align="left" rowspan="3">PW2</td>
+<td align="left">Neutral (n = 314)</td>
+<td align="right">23%</td>
+<td align="left">Neutral (n = 312)</td>
+<td align="right">92%</td>
+</tr>
+<tr>
+<td align="left">PW1-focus (n = 189)</td>
+<td align="right">20%</td>
+<td align="left">PW1-focus (n = 189)</td>
+<td align="right">88%</td>
+</tr>
+<tr>
+<td align="left">PW2-focus (n = 190)</td>
+<td align="right">28%</td>
+<td align="left">PW2-focus (n = 192)</td>
+<td align="right">97%</td>
+</tr>
+</table>
+</table-wrap>
+<p>Second, a final rise (H% and LH%) occurred frequently when the PW was aligned to the right edge of the IP. The frequency statistics in Table <xref ref-type="table" rid="T7">7</xref> suggests that in Neutral, H% was the most common IP boundary tone and the frequency of LH% increased when the PW was focused. The probability of the bitonal IP boundary tone (LH%, HL%) being present was modelled using mixed effects logistic regression with the fixed factors Focus, Location, and Phrasing. Since the Focus &#215; Phrasing &#215; Location effect was statistically significant (<italic>&#967;<sup>2</sup></italic> (6) = 21.28, <italic>p</italic> &lt; 0.01), the data were split by Location (PW1, PW2). The effect of Focus was significant for both PW1 (<italic>&#967;<sup>2</sup></italic> (2) = 30.67, <italic>p</italic> &lt; 0.001) and PW2 (<italic>&#967;<sup>2</sup></italic> (2) = 222.31, <italic>p</italic> &lt; 0.001). However, the Phrasing effect (<italic>&#967;<sup>2</sup></italic> (3) = 25.69, <italic>p</italic> &lt; 0.001) and the Focus &#215; Phrasing interaction (<italic>&#967;<sup>2</sup></italic> (6) = 37.13, <italic>p</italic> &lt; 0.001) were significant only for PW2. A Tukey contrast test revealed that for PW1, the bitonal IP boundary tones were more likely to occur for PW1-focus than in PW2-focus, while there was no significant difference between Neutral and either of PW1-focus or PW2-focus (Table <xref ref-type="table" rid="T8">8</xref>). For PW2, although no statistically significant differences between the Focus levels were revealed for 4 + 3, the bitonal IP boundary tones were more likely to occur when PW2 was under focus in other phrasings in comparison to Neutral or PW1-focus.</p>
+<table-wrap id="T7">
+<label>Table 7</label>
+<caption>
+<p>Frequency of IP boundary tones (percentage) in Neutral, PW1-focus, and PW2-focus.</p>
+</caption>
+<table>
+<tr>
+<th align="left" rowspan="2"></th>
+<th align="center" colspan="3">PW1</th>
+<th align="center" colspan="3">PW2</th>
+</tr>
+<tr>
+<th colspan="6"><hr/></th>
+</tr>
+<tr>
+<th align="left"></th>
+<th align="center">Neutral (n = 147)</th>
+<th align="center">PW1-focus (n = 274)</th>
+<th align="center">PW2-focus (n = 96)</th>
+<th align="center">Neutral (n = 410)</th>
+<th align="center">PW1-focus (n = 223)</th>
+<th align="center">PW2-focus (n = 277)</th>
+</tr>
+<tr>
+<td colspan="7"><hr/></td>
+</tr>
+<tr>
+<td align="left">H%</td>
+<td align="right">96</td>
+<td align="right">56</td>
+<td align="right">67</td>
+<td align="right">94</td>
+<td align="right">78</td>
+<td align="right">47</td>
+</tr>
+<tr>
+<td align="left">L%</td>
+<td align="right"></td>
+<td align="right">18</td>
+<td align="right">17</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">2</td>
+</tr>
+<tr>
+<td align="left">LH%</td>
+<td align="right">2</td>
+<td align="right">23</td>
+<td align="right">2</td>
+<td align="right">5</td>
+<td align="right">21</td>
+<td align="right">52</td>
+</tr>
+<tr>
+<td align="left">HL%</td>
+<td align="right">2</td>
+<td align="right">4</td>
+<td align="right">15</td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+</tr>
+</table>
+</table-wrap>
+<table-wrap id="T8">
+<label>Table 8</label>
+<caption>
+<p>The output of the post-hoc Tukey contrast test for the IP boundary tone type (monotonal vs. bitonal). A positive estimate indicates that the first level in the comparison has a higher group mean. Significance codes * <italic>p</italic> &lt; 0.05, ** <italic>p</italic> &lt; 0.01, *** <italic>p</italic> &lt; 0.001.</p>
+</caption>
+<table>
+<tr>
+<th align="center" colspan="4">PW1</th>
+<th align="center" colspan="4">PW2</th>
+</tr>
+<tr>
+<th align="left"></th>
+<th colspan="7"><hr/></th>
+</tr>
+<tr>
+<th align="left"></th>
+<th align="center">Estimate</th>
+<th align="center">SE</th>
+<th align="center">z</th>
+<th align="center"></th>
+<th align="center">Estimate</th>
+<th align="center">SE</th>
+<th align="center">z</th>
+</tr>
+<tr>
+<td colspan="8"><hr/></td>
+</tr>
+<tr>
+<td align="left">PW1-f vs. N</td>
+<td align="right">5.95</td>
+<td align="right">17.18</td>
+<td align="right">0.35</td>
+<td align="left">2+3.PW1-f vs. 2+3.N</td>
+<td align="right">&#8211;0.35</td>
+<td align="right">0.45</td>
+<td align="right">&#8211;0.77</td>
+</tr>
+<tr>
+<td align="left">PW2-f vs. N</td>
+<td align="right">7.70</td>
+<td align="right">17.19</td>
+<td align="right">0.45</td>
+<td align="left">2+3.PW2-f vs. 2+3.N</td>
+<td align="right">2.69</td>
+<td align="right">0.40</td>
+<td align="right">6.75***</td>
+</tr>
+<tr>
+<td align="left">PW2-f vs. PW1-f</td>
+<td align="right">1.75</td>
+<td align="right">0.24</td>
+<td align="right">7.23***</td>
+<td align="left">2+3.PW2-f vs. 2+3.PW1-f</td>
+<td align="right">3.04</td>
+<td align="right">0.47</td>
+<td align="right">6.43***</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">3+2.PW1-f vs. 3+2.N</td>
+<td align="right">3.19</td>
+<td align="right">0.68</td>
+<td align="right">4.70***</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">3+2.PW2-f vs. 3+2.N</td>
+<td align="right">4.55</td>
+<td align="right">0.67</td>
+<td align="right">6.82***</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">3+2.PW2-f vs. 3+2.PW1-f</td>
+<td align="right">1.35</td>
+<td align="right">0.42</td>
+<td align="right">3.22*</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">3+4.PW1-f vs. 3+4.N</td>
+<td align="right">3.18</td>
+<td align="right">1.08</td>
+<td align="right">2.96</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">3+4.PW2-f vs. 3+4.N</td>
+<td align="right">4.25</td>
+<td align="right">1.05</td>
+<td align="right">4.06**</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">3+4.PW2-f vs. 3+4.PW1-f</td>
+<td align="right">1.07</td>
+<td align="right">0.49</td>
+<td align="right">2.18</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">4+3.PW1-f vs. 4+3.N</td>
+<td align="right">18.48</td>
+<td align="right">209.03</td>
+<td align="right">0.09</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">4+3.PW2-f vs. 4+3.N</td>
+<td align="right">20.04</td>
+<td align="right">209.03</td>
+<td align="right">0.10</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="left">4+3.PW2-f vs. 4+3.PW1-f</td>
+<td align="right">1.56</td>
+<td align="right">0.49</td>
+<td align="right">3.18</td>
+</tr>
+</table>
+</table-wrap>
+<p>Further analyses of the APs produced with the static pitch contour such as LL or HH were carried out. There were no APs with LL in the data, but the APs produced with HH in Neutral could be identified (23 utterances from YH, 1 utterance from HKL, 24 utterances from KJ, and 20 utterances from CHJ). The data showed that some speakers (e.g., YH and HKL in Figure <xref ref-type="fig" rid="F3">3</xref>) consistently produced LH% on the final syllable of the focused PW in all cases whereas the two male speakers preferred raising overall pitch for the HH (e.g., KJ and CHJ in Figure <xref ref-type="fig" rid="F4">4</xref>). Statistical analysis was not carried out since there were insufficient data points.</p>
+<fig id="F3">
+<label>Figure 3</label>
+<caption>
+<p>Neutral (left) and PW2-focus (right), produced by YH (female).</p>
+</caption>
+<graphic xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/article/id/6189/file/74684/"/>
+</fig>
+<fig id="F4">
+<label>Figure 4</label>
+<caption>
+<p>Neutral (left) and PW2-focus (right), produced by KJ (male).</p>
+</caption>
+<graphic xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/article/id/6189/file/74685/"/>
+</fig>
+</sec>
+<sec>
+<title>3.3.2 <italic>F<sub>0</sub></italic> span expansion under narrow focus</title>
+<p>In order to examine the hypothesis that the size of <italic>F<sub>0</sub></italic> span in the PW would show the order focused &gt; neutral &gt; defocused, data were split into two subsets prior to the statistical modelling: PWs with relatively static pitch (i.e., LL and HH) and the rest which involve a dynamic <italic>F<sub>0</sub></italic> movement in the PW (i.e., LH, HL, LHL, etc.). Models are not reported for the static PW, since none of the factors showed a statistically significant effect. For dynamic <italic>F<sub>0</sub></italic> contours, the initial full mixed effects model was constructed with <italic>F<sub>0</sub></italic> span (ST) as the dependent variable and the fixed factors Focus, Location, and PW-Initial Segment. Phrasing, which was not the factor of interest here, was excluded. Due to the significant interaction effect of Focus &#215; Location &#215; PW-Initial Segment (<italic>&#967;<sup>2</sup></italic> (2) = 6.14, <italic>p</italic> &lt; 0.05), the data were split into subsets by Location (PW1, PW2) for further modelling with Focus and PW-Initial Segment as fixed factors.</p>
+<p>For PW1, the only statistically significant effect was from Focus (<italic>&#967;<sup>2</sup></italic> (2) = 396.95, <italic>p</italic> &lt; 0.001). The <italic>F<sub>0</sub></italic> span showed the order PW1-focus &gt; PW2-focus &gt; Neutral (Table <xref ref-type="table" rid="T9">9</xref>). For PW2, since the effect of Focus &#215; PW-Initial Segment was significant (<italic>&#967;<sup>2</sup></italic> (2) = 13.44, <italic>p</italic> &lt; 0.01), the data were further split into PWs with a weak onset consonant and those with a strong onset consonant. The Focus effect was statistically significant for PW2s beginning with a strong consonant (<italic>&#967;<sup>2</sup></italic> (2) = 160.49, <italic>p</italic> &lt; 0.001) and also for PW2s with a weak consonant (<italic>&#967;<sup>2</sup></italic> (2) = 157.05, <italic>p</italic> &lt; 0.001). For PW2s beginning with a strong segment, the contrast test showed that the focused PW2 tended to have larger <italic>F<sub>0</sub></italic> span under focus in comparison to PW1-focus or Neutral, while <italic>F<sub>0</sub></italic> span in defocused PW2s (PW1-focus) was not significantly reduced compared to Neutral. For PW2s beginning with a weak segment, PW2 had the largest <italic>F<sub>0</sub></italic> span under focus and shows the order PW2-focus &gt; PW1-focus &gt; Neutral (see Table <xref ref-type="table" rid="T9">9</xref>).</p>
+<table-wrap id="T9">
+<label>Table 9</label>
+<caption>
+<p>The output of a Tukey contrast test in a linear mixed effects model for PW1s, for PW2s beginning with a strong consonant, and for PW2s beginning with a weak consonant. All PWs had a dynamic <italic>F<sub>0</sub></italic> contour shape. A positive estimate indicates that the first level in the comparison has a higher group mean. Significance codes * <italic>p</italic> &lt; 0.05, ** <italic>p</italic> &lt; 0.01, *** <italic>p</italic> &lt; 0.001.</p>
+</caption>
+<table>
+<tr>
+<th align="left"></th>
+<th align="center">Estimate</th>
+<th align="center">SE</th>
+<th align="center">Z</th>
+</tr>
+<tr>
+<td colspan="4"><hr/></td>
+</tr>
+<tr>
+<td align="left" colspan="4">PW1</td>
+</tr>
+<tr>
+<td align="left">PW1-f vs. N</td>
+<td align="right">0.21</td>
+<td align="right">0.01</td>
+<td align="right">21.59***</td>
+</tr>
+<tr>
+<td align="left">PW2-f vs. N</td>
+<td align="right">0.08</td>
+<td align="right">0.01</td>
+<td align="right">8.58***</td>
+</tr>
+<tr>
+<td align="left">PW2-f vs. PW1-f</td>
+<td align="right">&#8211;0.13</td>
+<td align="right">0.01</td>
+<td align="right">&#8211;11.67***</td>
+</tr>
+<tr>
+<td align="left" colspan="4"></td>
+</tr>
+<tr>
+<td align="left" colspan="4">PW2, strong segment</td>
+</tr>
+<tr>
+<td align="left">PW1-f vs. N</td>
+<td align="right">0</td>
+<td align="right">0.02</td>
+<td align="right">&#8211;0.25</td>
+</tr>
+<tr>
+<td align="left">PW2-f vs. N</td>
+<td align="right">0.20</td>
+<td align="right">0.02</td>
+<td align="right">12.45**</td>
+</tr>
+<tr>
+<td align="left">PW2-f vs. PW1-f</td>
+<td align="right">0.20</td>
+<td align="right">0.02</td>
+<td align="right">11.44**</td>
+</tr>
+<tr>
+<td align="left" colspan="4"></td>
+</tr>
+<tr>
+<td align="left" colspan="4">PW2, weak segment</td>
+</tr>
+<tr>
+<td align="left">PW1-f vs. N</td>
+<td align="right">0.063</td>
+<td align="right">0.01</td>
+<td align="right">4.41***</td>
+</tr>
+<tr>
+<td align="left">PW2-f vs. N</td>
+<td align="right">0.19</td>
+<td align="right">0.01</td>
+<td align="right">13.36***</td>
+</tr>
+<tr>
+<td align="left">PW2-f vs. PW1-F</td>
+<td align="right">0.13</td>
+<td align="right">0.02</td>
+<td align="right">7.89***</td>
+</tr>
+</table>
+</table-wrap>
+</sec>
+</sec>
+</sec>
+<sec>
+<title>4 Discussion</title>
+<sec>
+<title>4.1 Prosodic marking of narrow focus in Seoul Korean</title>
+<p>Overall, the results show that Korean speakers actively adjust the prosodic organization of the utterance in response to its focal structure. Although an exact analogue of the culminative pitch accent in West Germanic languages is not apparent in Korean due to the lack of lexical stress, similar prominence-lending acoustic properties are employed and the focus-marking phonetic events are concentrated at phrase boundaries. The speakers&#8217; focus marking strategies are in line with general cross-linguistic trends showing an increase in the articulatory effort in the element under narrow focus, e.g., lengthening, more pitch movements, pitch raising, and wider pitch excursions (see <xref ref-type="bibr" rid="B20">Gussenhoven, 2004</xref>).</p>
+<p>In the experiment, speakers were under pressure to convey emphasis in the reading materials <italic>verbatim</italic> and they were not allowed to use any of the alternative non-phonetic strategies such as changing the word order. The reading materials were sentences of two PWs that were numbers between carrier phrases, and speakers produced one or the other, or neither, of the PWs under corrective focus. The type of PW-initial segment in the target included both weak segments and strong segments.</p>
+<p>The hypothesis that the focused constituent and syllables therein would be lengthened in comparison to the neutrally spoken or defocused constituent was supported, since the durational marking of the focused constituent was robust in the data. Duration of the target PWs was affected by Focus; the PW-initial and PW-final syllables were lengthened more (on average 27% and 25%, respectively, compared to Neutral) than phrase-medial syllables (14.3%), although the lengthening could spread over the focused constituent. Unlike the West Germanic languages in which a pitch-accented lexically-stressed syllable undergoes the greatest amount of lengthening under focus (e.g., <xref ref-type="bibr" rid="B6">Cambier-Langeveld &amp; Turk, 1999</xref>), Korean speakers lengthen syllables at the phrase edges to the greatest magnitude. Although both edges of the prosodic phrase under focus are subject to lengthening in Korean, its motivation seems to be different between the left and the right edges. This study did not examine segmental duration, but previous studies reveal that the lengthening of the phrase-initial syllable is partly due to articulatory strengthening (<xref ref-type="bibr" rid="B39">Jun &amp; Lee, 1998</xref>; <xref ref-type="bibr" rid="B10">Cho &amp; Keating, 2001</xref>; <xref ref-type="bibr" rid="B11">Cho et al., 2011</xref>). On the other hand, the lengthening at the right edge is probably caused by speakers&#8217; attempt to produce the IP boundary tones, as discussed further below.</p>
+<p>As hypothesized, the focal structure affects the formation of prosodic phrases in that the focused constituent always initiated a new AP or IP. The interpretation that the boundary strength varies between the AP and the IP may appear to be inconsistent but it is justifiable. Following the K-ToBI criteria (<xref ref-type="bibr" rid="B29">Jun, 2000</xref>), at the right edge of the focused constituent there may be a simple pitch rise or fall with no perceived final lengthening (AP) or an IP-type boundary tone with significant final lengthening (IP); or there may not be a prosodic disjuncture. What is of importance is that the focused constituent is preceded by prosodic disjuncture.</p>
+<p>The focused constituent was more likely to form an IP than an AP and it was associated with more pitch movements near the phrase boundary in comparison to its neutrally spoken or defocused counterpart. In the present experiment, in which speakers&#8217; intonational choice was not constrained, they seemed to enjoy the freedom to manipulate the pitch movement at the right edge of the prosodic phrase by employing monotonal (H%, L%) or bitonal (HL%, LH%) IP boundary tones. For example, the constituent that carried LHLH in the AP in Neutral was realized with a bitonal boundary IP tone LH% (LH LH%) under narrow focus (see Figure <xref ref-type="fig" rid="F5">5</xref>). The bitonal LH% was used by two speakers when the Neutral PW2 had a high-static pitch (HH) (see Figure <xref ref-type="fig" rid="F3">3</xref>), while the other two speakers seemed to raise the overall level of HH (see Figure <xref ref-type="fig" rid="F4">4</xref>). When an IP was formed in the utterance, the most frequent boundary tone was a rise: 91% of the IP boundary tones were H% or LH% on average, and specifically for PW2 99% of the IP boundary tones were either H% or LH% regardless of the focus condition. This would be partly due to the nature of the reading materials, which included a two-item list, but speakers&#8217; choice of IP boundary tone was affected by Focus and Phrasing. In general, the IP boundary was commonly observed between the first carrier phrase and PW1 (Pre-PW1) and then between PW2 and the final carrier phrase (Post-PW2), as shown in Example (3), &#8220;([it is] not twenty thousand and one, a thousand and one), but the numbers this time are twenty thousand and one, ten thousand and five.&#8221;</p>
+<fig id="F5">
+<label>Figure 5</label>
+<caption>
+<p>Speaker HKL (female), Neutral (left) and PW1-focus (right).</p>
+</caption>
+<graphic xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/article/id/6189/file/74686/"/>
+</fig>
+<list list-type="gloss">
+<list-item>
+<list list-type="sentence-gloss">
+<list-item>
+<list list-type="final-sentence">
+<list-item><p>Example (3)</p></list-item>
+</list>
+</list-item>
+<list-item>
+<list list-type="word">
+<list-item><p><sub>IP</sub>[carrier 1]</p></list-item>
+<list-item><p>/ip&#652;n sut&#623;l&#623;n</p></list-item>
+<list-item><p><italic>&#8216;this time&#8217; &#8216;numbers&#8217; + TOP</italic></p></list-item>
+</list>
+<list list-type="word">
+<list-item><p><sub>IP</sub><bold>[target (PW1, PW2)]</bold></p></list-item>
+<list-item><p><bold>imanil, mano</bold></p></list-item>
+<list-item><p><italic>20,001, 10,005</italic></p></list-item>
+</list>
+<list list-type="word">
+<list-item><p><sub>IP</sub>[carrier 2]</p></list-item>
+<list-item><p>tw&#603;k&#603;s*&#623;mnita/</p></list-item>
+<list-item><p><italic>&#8216;become&#8217; + ENDER</italic></p></list-item>
+</list>
+</list-item>
+</list>
+</list-item>
+</list>
+<p>The right edge of the PW2 corresponded to the end of the target phrase, and speakers seemed to have produced the IP boundaries to separate the target phrase from the surrounding carrier phrases.</p>
+<p>PW1 and PW2 were affected by Focus in a different way. PW1 was frequently realized as an AP when neutrally spoken or defocused (i.e., when PW2 was focused), but focused PW1 was more likely to be realized as an IP. In addition, focus on PW1 seemed to affect the magnitude of its preceding prosodic boundary together with Phrasing; the first carrier phrase was more likely to form the IP when PW1 was focused and also when the target was 2 + 3. The Focus effect was reliable for Pre-PW1 (right edge of the first carrier phrase) and Post-PW1 (right edge of PW1). In particular, PW1 under focus was more likely to have a bitonal IP boundary tone (LH% or HL%) than a monotonal boundary tone (H%, L%) regardless of Phrasing. The same tendency was observed at the right edge of PW2. However, the Focus effect was less clear, and the statistically significant Focus &#215; Phrasing interaction suggests that the prosodic boundary strength after PW2 was more likely to be affected by other factors such as the number of syllables in the prosodic phrase (see Section 3.2).</p>
+<p>The effect of narrow focus on prosodic structuring in Korean shares similarities to that in French (e.g., <xref ref-type="bibr" rid="B16">F&#233;ry, 2001</xref>) and Japanese (e.g., <xref ref-type="bibr" rid="B4">Beckman &amp; Pirrehumbert, 1986</xref>; <xref ref-type="bibr" rid="B62">Venditti et al., 2008</xref>). One difference is that the focused constituent is aligned to the right in the prosodic phrase in French (<xref ref-type="bibr" rid="B17">F&#233;ry, 2013</xref>) but to the left in Japanese and Korean. In addition, Japanese speakers use a salient rise (H) or a rise-fall (LHL) pitch movement at the final syllable of the focused word (<xref ref-type="bibr" rid="B62">Venditti et al., 2008, sect. 3.4.2</xref>). These seem similar to Korean speakers&#8217; use of the IP boundary tones (e.g., H%, L%, LH%, HL%) observed in the present study.</p>
+<p>The occurrences of IP boundary tones in relation to focal structure may not be surprising in that in Korean, complex IP boundary tones are commonly used to deliver pragmatic meaning (<xref ref-type="bibr" rid="B29">Jun, 2000</xref>; <xref ref-type="bibr" rid="B49">Park, 2012</xref>). Although K-ToBI suggests nine boundary tones (i.e., L%, H%, LH%, HL%, LHL%, HLH%, LHLH%, HLHL% and LHLHL%; see <xref ref-type="bibr" rid="B29">Jun, 2000</xref>), even more complex pitch movement such as HLHLHLHLHL% is observed in spontaneous speech (<xref ref-type="bibr" rid="B49">Park, 2012</xref>). Yet there is little research investigating the complex pitch movement that seems to be accompanied by substantial phrase-final lengthening, and the use of the IP boundary tones in relation to focal structure has not been previously reported in Korean. This is probably because the experimental materials in previous studies were generally in the form of pairs of a simple WH-question and an answer, and also unexpected <italic>F<sub>0</sub></italic> contours were discarded in order to investigate phonetic variations within one type of <italic>F<sub>0</sub></italic> contour shape.</p>
+<p>The IP boundary tone is a potentially important cue to information structure for listeners. Speakers seem to highlight the focused constituent by increasing its prosodic boundary strength and separating it from adjacent constituents. The adjustment of duration or pitch (e.g., the use of complex pitch movements) at the right edge seems to be exploited when speakers make a semantic or pragmatic change from a neutral reading. These strategies would complement the consistent marker of narrow focus&#8212;the prosodic disjuncture occurring at the left edge of the focused constituent&#8212;since the disjunctural cue may not be a sufficient marker to information structure. Although the strength of the left edge is enhanced under narrow focus by <italic>F<sub>0</sub></italic> raising in some cases and lengthening, these cues would be ambiguous with respect to the domain of the focus. When listeners perceive a large magnitude of prosodic disjuncture or complex pitch movements, they would be able to confirm that the preceding part of the utterance carried informational prominence. However, it should be noted that the rise on the phrase-final syllable (H% or LH%) does not exclusively signal narrow focus or emphasis in the corrective sense. For example, LH% is associated with questions, continuation rises, explanatory endings, annoyance, irritation, or disbelief (<xref ref-type="bibr" rid="B29">Jun, 2000</xref>) and also surprise, incredulity, or confirmation (<xref ref-type="bibr" rid="B49">Park, 2012</xref>). It is possible that the use of narrow corrective focus in conversation is linked to a negative speaker attitude such as irritation or disbelief.</p>
+<p>One of the aims of the present study was to investigate whether focal structure affects the <italic>F<sub>0</sub></italic> contour shapes in the utterance. The result is that narrow focus affects the presence or the type of boundary tones in the IP as discussed above, but not within the AP. In Korean, the distribution of the <italic>F<sub>0</sub></italic> turning points is less predictable than in West Germanic languages. In West Germanic languages, the turning point is likely to be associated with the lexically stressed syllable (see <xref ref-type="bibr" rid="B7">Chen, 2012</xref> and references therein), and its distribution within an utterance is considered phonologically motivated (<xref ref-type="bibr" rid="B44">Ladd, 2008</xref>). In this case, the conventionalized phonetic cues include the height and scaling of the <italic>F<sub>0</sub></italic> turning points, which systematically vary depending on the focal structure (e.g., <xref ref-type="bibr" rid="B22">Hanssen et al., 2008</xref>). On the other hand, in Korean, the <italic>F<sub>0</sub></italic> turning point locations are strongly affected by phrasing as often signalled by boundary tones, and also partly determined by the number of syllables in the AP and the type of phrase-initial segment. The distribution of pitch turning points apart from the IP boundary tones at the right edge does not seem to be what native Korean speakers directly manipulate in relation to the focal structure.</p>
+<p>In the design of the experimental materials, the type of AP-initial segment, which is known to affect the AP-initial tone (L vs. H), was taken into account, since it was expected to interact with focus-related variations in <italic>F<sub>0</sub></italic>. However, the statistical analysis results regarding temporal adjustment and also <italic>F<sub>0</sub></italic> show that the AP-initial segment type does not significantly affect the way speakers adjust the phonetic parameters under narrow focus (one exception is the treatment of <italic>F<sub>0</sub></italic> span in defocused constituents, discussed in Section 4.2).</p>
+<p>When the target PWs were realized as APs, the expectation about their phonetic shape was generally met, in that the majority of the APs (79.25%) showed previously reported frequent <italic>F<sub>0</sub></italic> contour shapes such as LH, HH, HLH, LHLH and HLHL and the AP-final H was commonly observed in the data (84.33% of total APs). The phonologized association between the type of segment and the AP-initial tone (see Section 1.1) was observed in general in the dataset, although there were some exceptions (see Table <xref ref-type="table" rid="T6">6</xref>). The main cause of this exception seems to be that /il/ &#8216;one,&#8217; which tends to trigger AP-initial H in young people&#8217;s speech, often appeared in the reading materials (<xref ref-type="bibr" rid="B34">Jun &amp; Cha, 2011</xref>, <xref ref-type="bibr" rid="B35">2015</xref>). Although /il/ &#8216;one&#8217; begins with a vowel, which is commonly associated with an AP-initial L tone as an initial segment, Korean speakers often produce the word with a H tone. Jun and Cha (<xref ref-type="bibr" rid="B34">2011</xref>, <xref ref-type="bibr" rid="B35">2015</xref>) suggest that the H tone associated with /il/ &#8216;one&#8217; probably originates from a need to distinguish it from /i/ &#8216;two,&#8217; since the two numbers can be confused in communication.</p>
+<p>An expansion in the <italic>F<sub>0</sub></italic> span under narrow focus was observed in the data as hypothesized (e.g., <xref ref-type="bibr" rid="B39">Jun &amp; Lee, 1998</xref>; <xref ref-type="bibr" rid="B46">Lee &amp; Xu, 2010</xref>), similarly to the increase in the <italic>F<sub>0</sub></italic> excursion size of the pitch accent in West Germanic languages. In addition, Cho et al. (<xref ref-type="bibr" rid="B11">2011</xref>) showed that speakers enhance the consonantally-induced <italic>F<sub>0</sub></italic> perturbations at high-information sites in prosodically important positions in Korean; <italic>F<sub>0</sub></italic> was higher in the vowels of focused words with HH than in those of defocused words. Although the data in the present study were not sufficient to determine corrective focus as a factor conditioning the <italic>F<sub>0</sub></italic> variation in the phrase-initial syllable, there were some cases where the focus was cued by boosted <italic>F<sub>0</sub></italic> when the neutral target had HH (Figure <xref ref-type="fig" rid="F4">4</xref>).</p>
+<p>We conclude that the focused constituent is always preceded by a prosodic boundary and also signalled by lengthening in Korean, since these effects are consistently observed across studies (e.g., <xref ref-type="bibr" rid="B39">Jun &amp; Lee, 1998</xref>; <xref ref-type="bibr" rid="B37">Jun &amp; Kim, 2007</xref>; <xref ref-type="bibr" rid="B46">Lee &amp; Xu, 2010</xref>; <xref ref-type="bibr" rid="B11">Cho et al., 2011</xref>). As hypothesized, the focused constituent could be aligned to a higher-level prosodic domain than the AP. As demonstrated in Figure <xref ref-type="fig" rid="F2">2</xref>, although each PW is likely to be realized as an AP in neutral reading, the target PW1 under focus, or the right edge of PW2 in any experimental condition, was frequently perceived as an IP. The IPs under focus were more likely to be associated with a bitonal boundary tone (e.g., LH%) than a monotonal one in comparison to neutral or defocused readings. However, there seem be restrictions on the environment in which the IP is formed; for example, IP formation seemed to be affected by the location of the focused constituent within a sentence and also the number of syllables in the target. The results also suggest that post-focal dephrasing, i.e., deletion of the prosodic boundary as reported in some speakers&#8217; speech in Jun and Lee (<xref ref-type="bibr" rid="B39">1998</xref>), is not likely to occur when the utterance includes an itemized list; and in addition they confirm that dephrasing is only optional (see <xref ref-type="bibr" rid="B39">Jun &amp; Lee, 1998</xref> and <xref ref-type="bibr" rid="B46">Lee &amp; Xu, 2010 for similar findings</xref>). In the present analysis, there were only a few cases that were marked as having merely PW-sized disjuncture (i.e., no perceivable prosodic disjucture) between PW2 and the following carrier phrase.</p>
+<p>These prosodic structural cues to narrow focus can be accompanied by the expansion in <italic>F<sub>0</sub></italic> span and/or the boundary pitch movement at the right edge. The focus-related increase in acoustic parameters interacts with other factors such as the size of the prosodic unit and the morphosyntactic construction of the utterance. The prosodic markers of focus tend to be concentrated near the phrase edges. Probably due to the lack of lexical prominence, the syllables at the phrase edges seem to serve as the anchoring site of the adjustments in Korean.</p>
+<p>It is possible that there are non-prosodic constraints on the phonetic manifestations of focal structure. One potential area for further research is the relationship between morphosyntactic and prosodic marking of narrow focus, particularly the effect of the position of the focused constituent and the omission of the defocused constituent, which is a common strategy for signalling focal structure in Korean. Although native Korean speakers&#8217; tendency to place the focused constituent utterance-initially is noted (<xref ref-type="bibr" rid="B57">Sohn, 1999</xref>), the phonetic properties of the utterance-initial focused constituent are not well understood.</p>
+</sec>
+<sec>
+<title>4.2 Defocusing in Seoul Korean</title>
+<p>The experimental evidence does not fully support the hypothesis that systematic reduction in duration and <italic>F<sub>0</sub></italic> span would be observed in defocused constituents in comparison to neutrally spoken counterparts. Syllable duration was statistically significantly shorter in defocused PWs only for syllable 5 in 3 + 4 and for syllables 6 and 7 in 4 + 3 than in Neutral. There was no evidence showing <italic>F<sub>0</sub></italic> span reduction in defocused constituents; when the PW-initial segment was a weak consonant (for all PW1s and part of PW2s), the <italic>F<sub>0</sub></italic> span measurement showed the order focused &gt; defocused &gt; neutral. With the PW-initial strong segment in PW2, <italic>F<sub>0</sub></italic> span did not show a statistically significant difference between defocused and neutrally spoken PWs, although it was wider in the focused PWs.</p>
+<p>In the present study, the defocused constituent was either pre-focus (PW1 in PW2-focus) or post-focus (PW2 in PW1-focus). Our finding seems to be in contrast to Lee and Xu (<xref ref-type="bibr" rid="B46">2010</xref>), who found post-focus reduction in prosodic parameters. In fact, there are possible reasons for the inconsistency across the studies: First, different <italic>F<sub>0</sub></italic> properties were measured in different studies. For example, Lee and Xu (<xref ref-type="bibr" rid="B46">2010</xref>) report the mean and maximum <italic>F<sub>0</sub></italic> values in their target materials; the focused constituent had higher values than neutral, while these values were lower in the post-focus constituent. These measurements compare the <italic>F<sub>0</sub></italic> level rather than the span, which is the difference between the maximum and the minimum <italic>F<sub>0</sub></italic> values, measured in the present study. Second, the experimental tasks differed across studies. In Lee and Xu (<xref ref-type="bibr" rid="B46">2010</xref>), speakers answered prompt WH-questions (A: &#8220;What did you say Minswu eats?&#8221; and B: &#8220;Minswu eats potstickers&#8221;). In contrast, in this study and in Jun and Lee (<xref ref-type="bibr" rid="B39">1998</xref>), listeners were explicitly asked to emphasize the target constituent as a correction of what was previously said. These differences may be related to different focus types. The experimental techniques in the present study would elicit corrective focus (also in <xref ref-type="bibr" rid="B39">Jun &amp; Lee, 1998</xref>), unlike those in Lee and Xu (<xref ref-type="bibr" rid="B46">2010</xref>) which may correspond to presentational (<xref ref-type="bibr" rid="B21">Gussenhoven, 2007</xref>) or informational focus (<xref ref-type="bibr" rid="B17">F&#233;ry, 2013</xref>). Third, the differences in the structure of the experimental materials may have led to different results. For instance, in Lee and Xu (<xref ref-type="bibr" rid="B46">2010</xref>), the target word seemed to be either utterance-initial as a subject of the sentence or utterance-penultimate as a direct object of the final predicate, although the full materials were not provided. However, in the present study, the defocused constituent was within the target between carrier phrases forming a number sequence with the preceding focused constituent and the target was never utterance-initial or -penultimate. Lee and Xu (<xref ref-type="bibr" rid="B46">2010</xref>) actually found a statistically significant effect of the position of the constituent (utterance initial vs. medial), and it is possible that the post-focus compression effect is more easily observed towards the end of the utterance. All in all, there is no strong evidence showing the reduction in prosodic parameters in defocused constituents in comparison to the neutrally spoken counterpart in Korean.</p>
+</sec>
+</sec>
+<sec>
+<title>5 Conclusions</title>
+<p>Speech data from 4 Seoul Korean speakers revealed that the constituent under narrow (corrective) focus tends to be acoustically more salient than its neutrally-spoken or defocused counterparts. The focused constituent always begins a new prosodic phrase and the hierarchical level of the prosodic phrase at its right edge shows variation, and speakers&#8217; production of the focused constituent boundaries can be exaggerated at both edges. The focal structure did not affect the <italic>F<sub>0</sub></italic> contour shapes of the APs and there was no significant direct effect of the type of phrase-initial segment, which tends to be associated with the AP-initial tone type on the measured prosodic parameters in relation to focus.</p>
+<p>Under narrow focus, speakers were likely to employ an IP boundary tone compared to when speaking neutrally. Although IP boundary tones with a rise (e.g., H%, LH%) were frequently observed across experimental conditions, the bitonal boundaries (LH%, HL%) were more likely to occur than the monotonal ones (L%, H%) under narrow focus. The formation of IPs was also affected by how the target was phrased (e.g., 2 + 3, 3 + 2), the number of syllables in the target, and the location of the target in the utterance. Focused constituents also tended to have wider <italic>F<sub>0</sub></italic> span, and there were cases showing higher phrase-initial <italic>F<sub>0</sub></italic> compared to neutrally spoken counterparts.</p>
+<p>In addition, focused constituents tended to be longer than neutrally spoken or defocused counterparts. Phrase-initial or -final syllables were lengthened to a greater magnitude than phrase-medial syllables. Focus-related lengthening at the left edge may be related to articulatory strengthening. The right edge seems to be related to the fact that complex pitch movement frequently occurs in focused constituents delivering semantic or pragmatic meaning.</p>
+<p>On the other hand, the defocused constituent did not seem to be distinct from the neutrally spoken counterpart in general. There was no significant difference in the constituent duration and <italic>F<sub>0</sub></italic> span between defocused PWs and neutrally spoken PWs. All in all, the results suggest that the consistent marker for focus in Korean is prosodic disjuncture at the left edge, but variations in the phonetic parameters (e.g., increase in <italic>F<sub>0</sub></italic> span) or formation of a higher-level prosodic phrase for the focused constituent can be complementary cues to listeners. Unlike in West Germanic languages with lexical stress, the phonetic events related to focus marking tend to be concentrated near prosodic boundaries in Korean.</p>
+</sec>
+</body>
+<back>
+<fn-group>
+<fn id="n1">
+<p>Intonation here refers to the pitch contour excluding collaborative phonetic dimensions such as duration and intensity. This is a more restrictive definition than that in Ladd (<xref ref-type="bibr" rid="B44">2008</xref>), where intonation is defined as &#8220;the use of suprasegmental phonetic features to convey &#8216;post-lexical&#8217; or sentence-level pragmatic meanings in a linguistically structured way (<xref ref-type="bibr" rid="B44">Ladd, 2008, p. 4</xref>).&#8221;</p>
+</fn>
+<fn id="n2">
+<p>In Jun (<xref ref-type="bibr" rid="B31">2006</xref>), the ip is defined in relation to focal or syntactic structure, i.e., 1) a focused AP which is realized with expanded pitch range, and with a larger magnitude of disjuncture from the preceding AP compared with the AP sequences in an unfocused condition, forms an ip, or 2) an ip is defined when a syntactic clause boundary or a complex syntactic phrase is marked by a larger boundary than that of an AP. Chung and Kenstowicz (<xref ref-type="bibr" rid="B12">1997</xref>) also considered the ip in relation to narrow focus. The larger degree of perceivable disjuncture than that between canonical APs would be created before the focused AP when the pitch downtrend is interrupted (<xref ref-type="bibr" rid="B12">Chung &amp; Kenstowicz, 1997</xref>; <xref ref-type="bibr" rid="B32">Jun, 2007</xref>), or when there is a higher AP-initial tone or AP-final H than that of the canonical AP (<xref ref-type="bibr" rid="B31">Jun 2006</xref>, <xref ref-type="bibr" rid="B32">2007</xref>). However, using pitch range or phonetic downstep as a marker to define the ip is problematic as discussed in Jun (<xref ref-type="bibr" rid="B31">2006</xref>). The fact that the type of phrase-initial segment also affects the phrasal tones makes the picture even more complicated.</p>
+</fn>
+<fn id="n3">
+<p>A word here includes a lexical item and a following particle or particles (e.g., case marker, delimiters, conjunctive particle, etc.). Although the particle can be considered an independent word (<xref ref-type="bibr" rid="B57">Sohn, 1999, sect. 8.1.</xref>), the definition of &#8216;word&#8217; adopted here has been commonly used in prosodic analyses in Korean.</p>
+</fn>
+<fn id="n4">
+<p>The definition of pitch accent, deaccenting and dephrasing in French is not consistent across studies. For example, Jun and Fougeron (<xref ref-type="bibr" rid="B36">2000</xref>) assume that the Accentual Phrase has the underlying tonal pattern LHiLH*. Hi is an optional initial H which can be promoted to be a pitch accent and the final H* is referred to as a demarcative pitch accent, and the post-focal constituent is deaccented (i.e., realized as a plateau) but not dephrased (i.e., there is no decrease in its duration). On the other hand, F&#233;ry (<xref ref-type="bibr" rid="B16">2001</xref>) refers to the deletion of tones as a consequence of dephrasing.</p>
+</fn>
+<fn id="n5">
+<p>Morpho-syntactic marking of narrow focus is possible but not always transparent in Korean. The focused constituent can be marked by attaching a particle or particles, by changing the word order (i.e., the focused constituent tends to be at the beginning of an utterance), or by clefting (<xref ref-type="bibr" rid="B57">Sohn, 1999</xref>).</p>
+</fn>
+<fn id="n6">
+<p>As in French, the distinction between dephrasing and deaccenting is unclear in Korean. Despite the elusiveness of pitch accents in Korean, Jun and Fougeron (<xref ref-type="bibr" rid="B36">2000</xref>) comment that post-focus constituents in Korean are deaccented.</p>
+</fn>
+<fn id="n7">
+<p>The traditional analysis of the Korean vowel system provides ten monophthongs including /y, &#248;/. However, in contemporary Seoul Korean, these are realized as /wi, w&#603;/ respectively and analyzed as diphthongs (see <xref ref-type="bibr" rid="B58">Shin, 2015</xref>).</p>
+</fn>
+<fn id="n8">
+<p>TOP (topic particle), NM (nominative particle), ENDER (sentence ender).</p>
+</fn>
+</fn-group>
+<ack>
+<title>Acknowledgements</title>
+<p>We would like to thank Taehong Cho and members of the Phonetics and Psycholinguistics Laboratory at the Hanyang University, Seoul, for their help in the data collection process. We would also like to thank Soyoung Kang, Sahyang Kim, Kyuchul Yoon, and Tae-Jin Yoon for cross-checking the prosodic transcription of our data, and also &#352;tefan Be&#328;u&#353;, Mirjam Ernestus, and anonymous reviewers for their constructive feedback on the earlier versions of the manuscript. We gratefully acknowledge the financial support of the Academy of Korean Studies for the present work (grant number AKS-2012-R56).</p>
+</ack>
+<sec>
+<title>Competing Interests</title>
+<p>The authors have no competing interests to declare.</p>
+</sec>
+<ref-list>
+<ref id="B1">
+<label>1</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Baayen</surname>
+<given-names>R. H.</given-names>
+</name>
+<name>
+<surname>Davidson</surname>
+<given-names>D. J.</given-names>
+</name>
+<name>
+<surname>Bates</surname>
+<given-names>D. M.</given-names>
+</name>
+</person-group>
+<article-title>Mixed-effects modeling with crossed random effects for subjects and items</article-title>
+<source>Journal of Memory and Language</source>
+<year iso-8601-date="2008">2008</year>
+<volume>59</volume>
+<fpage>390</fpage>
+<lpage>412</lpage>
+<pub-id pub-id-type="doi">10.1016/j.jml.2007.12.005</pub-id>
+</element-citation>
+</ref>
+<ref id="B2">
+<label>2</label>
+<element-citation publication-type="webpage">
+<person-group person-group-type="author">
+<name>
+<surname>Bates</surname>
+<given-names>D.</given-names>
+</name>
+<name>
+<surname>Maechler</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Bolker</surname>
+<given-names>B.</given-names>
+</name>
+<name>
+<surname>Walker</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<source>lme4: Linear mixed-effects models using Eigen and S4</source>
+<year iso-8601-date="2014">2014</year>
+<comment>R package version 1.1&#8211;7. Retrieved from: <uri>http://CRAN.R-project.org/package=lme4</uri></comment>
+</element-citation>
+</ref>
+<ref id="B3">
+<label>3</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Baumann</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Grice</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Steindamm</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>Prosodic marking of focus domains: Categorical or gradient?</article-title>
+<conf-name>Proceedings of the Speech Prosody 2006</conf-name>
+<conf-date>May 2&#8211;5</conf-date>
+<year iso-8601-date="2006">2006</year>
+<conf-loc>Dresden, Germany</conf-loc>
+<fpage>301</fpage>
+<lpage>304</lpage>
+</element-citation>
+</ref>
+<ref id="B4">
+<label>4</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Beckman</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Pierrehumbert</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<article-title>Intonational structure in Japanese and English</article-title>
+<source>Phonology Yearbook</source>
+<year iso-8601-date="1986">1986</year>
+<volume>3</volume>
+<fpage>225</fpage>
+<lpage>309</lpage>
+<pub-id pub-id-type="doi">10.1017/S095267570000066X</pub-id>
+</element-citation>
+</ref>
+<ref id="B5">
+<label>5</label>
+<element-citation publication-type="webpage">
+<person-group person-group-type="author">
+<name>
+<surname>Boersma</surname>
+<given-names>P.</given-names>
+</name>
+<name>
+<surname>Weenink</surname>
+<given-names>D.</given-names>
+</name>
+</person-group>
+<source>Praat: Doing phonetics by computer [computer program]</source>
+<year iso-8601-date="2010">2010</year>
+<comment>Version 5.1.31. Retrieved 4 April 2010 from <uri>http://www.praat.org/</uri></comment>
+</element-citation>
+</ref>
+<ref id="B6">
+<label>6</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Cambier-Langeveld</surname>
+<given-names>T.</given-names>
+</name>
+<name>
+<surname>Turk</surname>
+<given-names>A. E.</given-names>
+</name>
+</person-group>
+<article-title>A cross-linguistic study of accentual lengthening: Dutch vs. English</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="1999">1999</year>
+<volume>27</volume>
+<fpage>255</fpage>
+<lpage>280</lpage>
+<pub-id pub-id-type="doi">10.1006/jpho.1999.0096</pub-id>
+</element-citation>
+</ref>
+<ref id="B7">
+<label>7</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Chen</surname>
+<given-names>A.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Krifka</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Musan</surname>
+<given-names>R.</given-names>
+</name>
+</person-group>
+<chapter-title>The prosodic investigation of information structure</chapter-title>
+<source>The Expression of Information Structure</source>
+<year iso-8601-date="2012">2012</year>
+<publisher-loc>Berlin</publisher-loc>
+<publisher-name>de Gruyter</publisher-name>
+<fpage>249</fpage>
+<lpage>286</lpage>
+<pub-id pub-id-type="doi">10.1515/9783110261608.249</pub-id>
+</element-citation>
+</ref>
+<ref id="B8">
+<label>8</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Chen</surname>
+<given-names>Szu-wei.</given-names>
+</name>
+<name>
+<surname>Wang</surname>
+<given-names>B.</given-names>
+</name>
+<name>
+<surname>Xu</surname>
+<given-names>Y.</given-names>
+</name>
+</person-group>
+<article-title>Closely related languages, different ways of realizing focus</article-title>
+<conf-name>Proceedings of Interspeech 2009</conf-name>
+<conf-date>6&#8211;10 September</conf-date>
+<year iso-8601-date="2009">2009</year>
+<conf-loc>Brighton, UK</conf-loc>
+<fpage>1007</fpage>
+<lpage>1010</lpage>
+</element-citation>
+</ref>
+<ref id="B9">
+<label>9</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Chen</surname>
+<given-names>Y.</given-names>
+</name>
+</person-group>
+<article-title>Durational adjustment under corrective focus in Standard Chinese</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2006">2006</year>
+<volume>34</volume>
+<fpage>176</fpage>
+<lpage>201</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2005.05.002</pub-id>
+</element-citation>
+</ref>
+<ref id="B10">
+<label>10</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Cho</surname>
+<given-names>T.</given-names>
+</name>
+<name>
+<surname>Keating</surname>
+<given-names>P.</given-names>
+</name>
+</person-group>
+<article-title>Articulatory and acoustic studies on domain-initial strengthening in Korean</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2001">2001</year>
+<volume>29</volume>
+<fpage>155</fpage>
+<lpage>190</lpage>
+<pub-id pub-id-type="doi">10.1006/jpho.2001.0131</pub-id>
+</element-citation>
+</ref>
+<ref id="B11">
+<label>11</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Cho</surname>
+<given-names>T.</given-names>
+</name>
+<name>
+<surname>Lee</surname>
+<given-names>Y.</given-names>
+</name>
+<name>
+<surname>Kim</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>Communicatively driven versus prosodically driven hyper-articulation in Korean</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2011">2011</year>
+<volume>39</volume>
+<fpage>344</fpage>
+<lpage>361</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2011.02.005</pub-id>
+</element-citation>
+</ref>
+<ref id="B12">
+<label>12</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Chung</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Kenstowicz</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<chapter-title>Focus expression in Seoul Korean</chapter-title>
+<source>Harvard Studies in Korean Linguistics</source>
+<year iso-8601-date="1997">1997</year>
+<publisher-loc>Montr&#233;al</publisher-loc>
+<month>June</month>
+<day>2&#8211;7</day>
+<volume>12</volume>
+<fpage>93</fpage>
+<lpage>105</lpage>
+</element-citation>
+</ref>
+<ref id="B13">
+<label>13</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Dimitrova</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Turk</surname>
+<given-names>A.</given-names>
+</name>
+</person-group>
+<article-title>Patterns of accentual lengthening in English four-syllable words</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2012">2012</year>
+<volume>40</volume>
+<fpage>403</fpage>
+<lpage>418</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2012.02.008</pub-id>
+</element-citation>
+</ref>
+<ref id="B14">
+<label>14</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Eady</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Cooper</surname>
+<given-names>W.</given-names>
+</name>
+</person-group>
+<article-title>Speech intonation and focus location in matched statements and questions</article-title>
+<source>Journal of the Acoustical Society of America</source>
+<year iso-8601-date="1986">1986</year>
+<volume>80</volume>
+<fpage>402</fpage>
+<lpage>415</lpage>
+<pub-id pub-id-type="doi">10.1121/1.394091</pub-id>
+</element-citation>
+</ref>
+<ref id="B15">
+<label>15</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Eady</surname>
+<given-names>S. J.</given-names>
+</name>
+<name>
+<surname>Cooper</surname>
+<given-names>W. E.</given-names>
+</name>
+<name>
+<surname>Klouda</surname>
+<given-names>G. V.</given-names>
+</name>
+<name>
+<surname>Mueller</surname>
+<given-names>P. R.</given-names>
+</name>
+<name>
+<surname>Lotts</surname>
+<given-names>D. W.</given-names>
+</name>
+</person-group>
+<article-title>Acoustical characteristics of sentential focus: Narrow vs. broad and single vs. dual focus environments</article-title>
+<source>Language and Speech</source>
+<year iso-8601-date="1986">1986</year>
+<volume>29</volume>
+<fpage>233</fpage>
+<lpage>251</lpage>
+<pub-id pub-id-type="doi">10.1177/002383098602900304</pub-id>
+</element-citation>
+</ref>
+<ref id="B16">
+<label>16</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>F&#233;ry</surname>
+<given-names>C.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>F&#233;ry</surname>
+<given-names>C.</given-names>
+</name>
+<name>
+<surname>Sternefeld</surname>
+<given-names>W.</given-names>
+</name>
+</person-group>
+<chapter-title>Focus and phrasing in French</chapter-title>
+<source>Audiatur vox Sapientiae: A Festschrift for Arnim von Stechow</source>
+<year iso-8601-date="2001">2001</year>
+<publisher-loc>Berlin</publisher-loc>
+<publisher-name>Akademie Verlag</publisher-name>
+<fpage>153</fpage>
+<lpage>181</lpage>
+<pub-id pub-id-type="doi">10.1515/9783050080116.153</pub-id>
+</element-citation>
+</ref>
+<ref id="B17">
+<label>17</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>F&#233;ry</surname>
+<given-names>C.</given-names>
+</name>
+</person-group>
+<article-title>Focus as prosodic alignment</article-title>
+<source>Natural Language and Linguistic Theory</source>
+<year iso-8601-date="2013">2013</year>
+<volume>31</volume>
+<fpage>683</fpage>
+<lpage>734</lpage>
+<pub-id pub-id-type="doi">10.1007/s11049-013-9195-7</pub-id>
+</element-citation>
+</ref>
+<ref id="B18">
+<label>18</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>F&#233;ry</surname>
+<given-names>C.</given-names>
+</name>
+<name>
+<surname>K&#252;gler</surname>
+<given-names>F.</given-names>
+</name>
+</person-group>
+<article-title>Pitch accent scaling on given, new and focused constituents in German</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2008">2008</year>
+<volume>36</volume>
+<fpage>680</fpage>
+<lpage>703</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2008.05.001</pub-id>
+</element-citation>
+</ref>
+<ref id="B19">
+<label>19</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Gussenhoven</surname>
+<given-names>C.</given-names>
+</name>
+</person-group>
+<article-title>Intonation and interpretation: Phonetics and phonology</article-title>
+<conf-name>Proceedings of Speech Prosody 2002</conf-name>
+<conf-date>11&#8211;13 April</conf-date>
+<year iso-8601-date="2002">2002</year>
+<conf-loc>Aix-en-Provence, France</conf-loc>
+<fpage>47</fpage>
+<lpage>57</lpage>
+</element-citation>
+</ref>
+<ref id="B20">
+<label>20</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Gussenhoven</surname>
+<given-names>C.</given-names>
+</name>
+</person-group>
+<source>The Phonology of Tone and Intonation</source>
+<year iso-8601-date="2004">2004</year>
+<publisher-loc>Cambridge, UK</publisher-loc>
+<publisher-name>Cambridge University Press</publisher-name>
+<pub-id pub-id-type="doi">10.1017/CBO9780511616983</pub-id>
+</element-citation>
+</ref>
+<ref id="B21">
+<label>21</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Gussenhoven</surname>
+<given-names>C.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Lee</surname>
+<given-names>C. M.</given-names>
+</name>
+<name>
+<surname>Gordon</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>B&#252;ring</surname>
+<given-names>D.</given-names>
+</name>
+</person-group>
+<chapter-title>Types of focus in English</chapter-title>
+<source>Topic and Focus: Cross-linguistic Perspectives on Meaning and Intonation</source>
+<year iso-8601-date="2007">2007</year>
+<publisher-loc>Dordrecht</publisher-loc>
+<publisher-name>Springer</publisher-name>
+<fpage>83</fpage>
+<lpage>100</lpage>
+<pub-id pub-id-type="doi">10.1007/978-1-4020-4796-1_5</pub-id>
+</element-citation>
+</ref>
+<ref id="B22">
+<label>22</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Hanssen</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Peters</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Gussenhoven</surname>
+<given-names>C.</given-names>
+</name>
+</person-group>
+<article-title>Prosodic effects of focus in Dutch declaratives</article-title>
+<conf-name>Proceedings of Speech Prosody 2008</conf-name>
+<conf-date>6&#8211;9 May</conf-date>
+<year iso-8601-date="2008">2008</year>
+<conf-loc>Campinas, Brazil</conf-loc>
+<fpage>609</fpage>
+<lpage>612</lpage>
+</element-citation>
+</ref>
+<ref id="B23">
+<label>23</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Hothorn</surname>
+<given-names>T.</given-names>
+</name>
+<name>
+<surname>Frank Bretz</surname>
+<given-names>F.</given-names>
+</name>
+<name>
+<surname>Peter Westfall</surname>
+<given-names>P.</given-names>
+</name>
+</person-group>
+<article-title>Simultaneous inference in general parametric models</article-title>
+<source>Biometrical Journal</source>
+<year iso-8601-date="2008">2008</year>
+<volume>50</volume>
+<issue>3</issue>
+<fpage>346</fpage>
+<lpage>363</lpage>
+<pub-id pub-id-type="doi">10.1002/bimj.200810425</pub-id>
+</element-citation>
+</ref>
+<ref id="B24">
+<label>24</label>
+<element-citation publication-type="thesis">
+<person-group person-group-type="author">
+<name>
+<surname>Jeon</surname>
+<given-names>H.-S.</given-names>
+</name>
+</person-group>
+<source>Prosodic phrasing in Seoul Korean: The role of pitch and timing cues (Doctoral dissertation)</source>
+<year iso-8601-date="2011">2011</year>
+<publisher-name>Department of Theoretical and Applied Linguistics, University of Cambridge</publisher-name>
+</element-citation>
+</ref>
+<ref id="B25">
+<label>25</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Jeon</surname>
+<given-names>H.-S.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Brown</surname>
+<given-names>L.</given-names>
+</name>
+<name>
+<surname>Yeon</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<chapter-title>Prosody</chapter-title>
+<source>Handbook of Korean Linguistics</source>
+<year iso-8601-date="2015">2015</year>
+<publisher-loc>Chichester, UK</publisher-loc>
+<publisher-name>Wiley-Blackwell</publisher-name>
+<fpage>41</fpage>
+<lpage>58</lpage>
+</element-citation>
+</ref>
+<ref id="B26">
+<label>26</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+</person-group>
+<source>The phonetics and phonology of Korean prosody: Intonational phonology and prosodic structure</source>
+<year iso-8601-date="1996a">1996a</year>
+<publisher-loc>New York, NY</publisher-loc>
+<publisher-name>Garland Publishing Inc.</publisher-name>
+</element-citation>
+</ref>
+<ref id="B27">
+<label>27</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+</person-group>
+<article-title>Influence of microprosody on macroprosody: A case of phrase initial strengthening</article-title>
+<source>UCLA Working Papers in Phonetics</source>
+<year iso-8601-date="1996b">1996b</year>
+<volume>92</volume>
+<fpage>97</fpage>
+<lpage>116</lpage>
+</element-citation>
+</ref>
+<ref id="B28">
+<label>28</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+</person-group>
+<article-title>The accentual phrase in the Korean prosodic hierarchy</article-title>
+<source>Phonology</source>
+<year iso-8601-date="1998">1998</year>
+<volume>15</volume>
+<fpage>189</fpage>
+<lpage>226</lpage>
+<pub-id pub-id-type="doi">10.1017/S0952675798003571</pub-id>
+</element-citation>
+</ref>
+<ref id="B29">
+<label>29</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+</person-group>
+<article-title>K-ToBI (Korean ToBI) labelling conventions (Ver. 3.1)</article-title>
+<source>UCLA Working Papers in Phonetics</source>
+<year iso-8601-date="2000">2000</year>
+<volume>99</volume>
+<fpage>149</fpage>
+<lpage>173</lpage>
+</element-citation>
+</ref>
+<ref id="B30">
+<label>30</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+</person-group>
+<chapter-title>Korean intonational phonology and prosodic transcription</chapter-title>
+<source>Prosodic Typology</source>
+<year iso-8601-date="2005">2005</year>
+<publisher-loc>Oxford</publisher-loc>
+<publisher-name>Oxford University Press</publisher-name>
+<fpage>201</fpage>
+<lpage>229</lpage>
+<pub-id pub-id-type="doi">10.1093/acprof:oso/9780199249633.003.0008</pub-id>
+</element-citation>
+</ref>
+<ref id="B31">
+<label>31</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+</person-group>
+<article-title>Intonational phonology of Seoul Korean revisited</article-title>
+<source>UCLA Working Papers in Phonetics</source>
+<year iso-8601-date="2006">2006</year>
+<volume>104</volume>
+<fpage>14</fpage>
+<lpage>25</lpage>
+</element-citation>
+</ref>
+<ref id="B32">
+<label>32</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Gussenhoven</surname>
+<given-names>C.</given-names>
+</name>
+<name>
+<surname>Riad</surname>
+<given-names>T.</given-names>
+</name>
+</person-group>
+<chapter-title>The intermediate phrase in Korean: Evidence from sentence processing</chapter-title>
+<source>Tones and tunes: Experimental studies in word and sentence prosody</source>
+<year iso-8601-date="2007">2007</year>
+<publisher-loc>Berlin, New York</publisher-loc>
+<publisher-name>Mouton de Gruyter</publisher-name>
+<fpage>143</fpage>
+<lpage>170</lpage>
+<pub-id pub-id-type="doi">10.1515/9783110207576.1.143</pub-id>
+</element-citation>
+</ref>
+<ref id="B33">
+<label>33</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+</person-group>
+<article-title>Prosodic typology revisited: Adding macro-rhythm</article-title>
+<conf-name>Proceedings of Speech Prosody 2012</conf-name>
+<conf-date>22&#8211;25 May</conf-date>
+<year iso-8601-date="2012">2012</year>
+<conf-loc>Shanghai, China</conf-loc>
+<fpage>535</fpage>
+<lpage>538</lpage>
+</element-citation>
+</ref>
+<ref id="B34">
+<label>34</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+<name>
+<surname>Cha</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<article-title>High-toned [il] in Seoul Korean intonation</article-title>
+<conf-name>Proceedings of the XVIIth International International Congress of Phonetic Sciences</conf-name>
+<conf-date>17&#8211;21 August</conf-date>
+<year iso-8601-date="2011">2011</year>
+<conf-loc>Hong Kong</conf-loc>
+<fpage>990</fpage>
+<lpage>993</lpage>
+</element-citation>
+</ref>
+<ref id="B35">
+<label>35</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+<name>
+<surname>Cha</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<article-title>High-toned [il] in Korean: Phonetics, intonational phonology, and sound change</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2015">2015</year>
+<volume>51</volume>
+<fpage>93</fpage>
+<lpage>108</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2015.05.002</pub-id>
+</element-citation>
+</ref>
+<ref id="B36">
+<label>36</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+<name>
+<surname>Fougeron</surname>
+<given-names>C.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Botinis</surname>
+<given-names>A.</given-names>
+</name>
+</person-group>
+<chapter-title>A phonological model of French intonation</chapter-title>
+<source>Intonation: Analysis, Modeling and Technology</source>
+<year iso-8601-date="2000">2000</year>
+<publisher-loc>Dordrecht, Boston</publisher-loc>
+<publisher-name>Kluwer Academic Publishers</publisher-name>
+<fpage>209</fpage>
+<lpage>242</lpage>
+<pub-id pub-id-type="doi">10.1007/978-94-011-4317-2_10</pub-id>
+</element-citation>
+</ref>
+<ref id="B37">
+<label>37</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+<name>
+<surname>Kim</surname>
+<given-names>H.-S.</given-names>
+</name>
+</person-group>
+<article-title>VP focus and narrow focus in Korean</article-title>
+<conf-name>Proceedings of the XVIth International Congress of Phonetic Sciences</conf-name>
+<conf-date>6&#8211;10 August</conf-date>
+<year iso-8601-date="2007">2007</year>
+<conf-loc>Saarbr&#252;cken, Germany</conf-loc>
+<fpage>1277</fpage>
+<lpage>1280</lpage>
+</element-citation>
+</ref>
+<ref id="B38">
+<label>38</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+<name>
+<surname>Kim</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<article-title>Default phrasing attachment preference in Korean</article-title>
+<conf-name>Proceedings of Interspeech 2004 &#8211; International Conference on Spoken Language Processing</conf-name>
+<conf-date>4&#8211;8 October</conf-date>
+<year iso-8601-date="2004">2004</year>
+<conf-loc>Jeju, Korea</conf-loc>
+<fpage>3009</fpage>
+<lpage>3012</lpage>
+</element-citation>
+</ref>
+<ref id="B39">
+<label>39</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+<name>
+<surname>Lee</surname>
+<given-names>H.-J.</given-names>
+</name>
+</person-group>
+<article-title>Phonetic and phonological markers of contrastive focus in Korean</article-title>
+<conf-name>Proceedings of the 5th International Conference on Spoken Language Processing</conf-name>
+<conf-date>30 November&#8211;4 December</conf-date>
+<year iso-8601-date="1998">1998</year>
+<conf-loc>Sydney, Australia</conf-loc>
+<fpage>1295</fpage>
+<lpage>1298</lpage>
+</element-citation>
+</ref>
+<ref id="B40">
+<label>40</label>
+<element-citation publication-type="thesis">
+<person-group person-group-type="author">
+<name>
+<surname>Kim</surname>
+<given-names>Sahyang</given-names>
+</name>
+</person-group>
+<source>The Role of Prosodic Phrasing in Korean Word Segmentation (Doctoral dissertation)</source>
+<year iso-8601-date="2004">2004</year>
+<publisher-name>Department of Linguistics, UCLA</publisher-name>
+</element-citation>
+</ref>
+<ref id="B41">
+<label>41</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Kim</surname>
+<given-names>Sunhee</given-names>
+</name>
+</person-group>
+<article-title>Intonation patterns of Korean spontaneous speech</article-title>
+<source>Malsoliwa Umsengkwahak [Journal of the Korean Society of Speech Sciences]</source>
+<year iso-8601-date="2009">2009</year>
+<volume>1</volume>
+<fpage>85</fpage>
+<lpage>96</lpage>
+</element-citation>
+</ref>
+<ref id="B42">
+<label>42</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Kim</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Yoo</surname>
+<given-names>H.</given-names>
+</name>
+<name>
+<surname>Hong</surname>
+<given-names>H.</given-names>
+</name>
+<name>
+<surname>Lee</surname>
+<given-names>H.-Y.</given-names>
+</name>
+</person-group>
+<article-title>Momelul iyonghan hankwukeuy ekyang yenkwu [A study on Korean intonation using Momel]</article-title>
+<source>Malsori [Journal of the Phonetic Society of Korea]</source>
+<year iso-8601-date="2007">2007</year>
+<volume>63</volume>
+<fpage>85</fpage>
+<lpage>100</lpage>
+</element-citation>
+</ref>
+<ref id="B43">
+<label>43</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>K&#252;gler</surname>
+<given-names>F.</given-names>
+</name>
+</person-group>
+<article-title>The role of duration as a phonetic correlate of focus</article-title>
+<conf-name>Proceedings of Speech Prosody 2008</conf-name>
+<conf-date>May 6&#8211;9</conf-date>
+<year iso-8601-date="2008">2008</year>
+<conf-loc>Campinas, Brazil</conf-loc>
+<fpage>591</fpage>
+<lpage>594</lpage>
+</element-citation>
+</ref>
+<ref id="B44">
+<label>44</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Ladd</surname>
+<given-names>D. R.</given-names>
+</name>
+</person-group>
+<source>Intonational Phonology</source>
+<year iso-8601-date="2008">2008</year>
+<edition>2nd ed.</edition>
+<publisher-loc>Cambridge, UK</publisher-loc>
+<publisher-name>Cambridge University Press</publisher-name>
+<pub-id pub-id-type="doi">10.1017/CBO9780511808814</pub-id>
+</element-citation>
+</ref>
+<ref id="B45">
+<label>45</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Lee</surname>
+<given-names>A.</given-names>
+</name>
+<name>
+<surname>Xu</surname>
+<given-names>Y.</given-names>
+</name>
+</person-group>
+<article-title>Revisiting focus prosody in Japanese</article-title>
+<conf-name>Proceedings of Speech Prosody 2012</conf-name>
+<conf-date>22&#8211;25 May</conf-date>
+<year iso-8601-date="2012">2012</year>
+<conf-loc>Shanghi, China</conf-loc>
+<fpage>274</fpage>
+<lpage>277</lpage>
+</element-citation>
+</ref>
+<ref id="B46">
+<label>46</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Lee</surname>
+<given-names>Y.</given-names>
+</name>
+<name>
+<surname>Xu</surname>
+<given-names>Y.</given-names>
+</name>
+</person-group>
+<article-title>Phonetic realization of contrastive focus in Korean</article-title>
+<conf-name>Proceedings of Speech Prosody 2010</conf-name>
+<conf-date>11&#8211;14 May</conf-date>
+<year iso-8601-date="2010">2010</year>
+<conf-loc>Chicago</conf-loc>
+<fpage>1</fpage>
+<lpage>4</lpage>
+<comment>100033</comment>
+</element-citation>
+</ref>
+<ref id="B47">
+<label>47</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Nespor</surname>
+<given-names>M.</given-names>
+</name>
+<name>
+<surname>Vogel</surname>
+<given-names>I.</given-names>
+</name>
+</person-group>
+<source>Prosodic Phonology</source>
+<year iso-8601-date="1986">1986</year>
+<publisher-loc>Dordrecht</publisher-loc>
+<publisher-name>Foris</publisher-name>
+</element-citation>
+</ref>
+<ref id="B48">
+<label>48</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Nolan</surname>
+<given-names>F.</given-names>
+</name>
+<name>
+<surname>Jeon</surname>
+<given-names>H.-S.</given-names>
+</name>
+</person-group>
+<article-title>Speech rhythm: a metaphor?</article-title>
+<source>Philosophical Transactions of the Royal Society B: Biological Sciences</source>
+<year iso-8601-date="2014">2014</year>
+<fpage>396</fpage>
+<pub-id pub-id-type="doi">10.1098/rstb.2013.0396</pub-id>
+<comment>20130396</comment>
+</element-citation>
+</ref>
+<ref id="B49">
+<label>49</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Park</surname>
+<given-names>M.-J.</given-names>
+</name>
+</person-group>
+<source>The Meaning of Korean Prosodic Boundary Tones</source>
+<year iso-8601-date="2012">2012</year>
+<publisher-loc>Leiden, the Netherlands</publisher-loc>
+<publisher-name>Brill</publisher-name>
+<pub-id pub-id-type="doi">10.1163/9789004243583</pub-id>
+</element-citation>
+</ref>
+<ref id="B50">
+<label>50</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Peters</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Hanssen</surname>
+<given-names>J.</given-names>
+</name>
+<name>
+<surname>Gussenhoven</surname>
+<given-names>C.</given-names>
+</name>
+</person-group>
+<article-title>The phonetic realization of focus in West Frisian, Dutch Low Saxon, German Low Saxon, High German, and three varieties of Dutch</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2014">2014</year>
+<volume>46</volume>
+<fpage>185</fpage>
+<lpage>209</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2014.07.004</pub-id>
+</element-citation>
+</ref>
+<ref id="B51">
+<label>51</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Peterson</surname>
+<given-names>G.</given-names>
+</name>
+<name>
+<surname>Lehiste</surname>
+<given-names>I.</given-names>
+</name>
+</person-group>
+<article-title>Duration of syllable nuclei in English</article-title>
+<source>Journal of the Acoustical Society of America</source>
+<year iso-8601-date="1960">1960</year>
+<volume>32</volume>
+<fpage>693</fpage>
+<lpage>703</lpage>
+<pub-id pub-id-type="doi">10.1121/1.1908183</pub-id>
+</element-citation>
+</ref>
+<ref id="B52">
+<label>52</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Pinheiro</surname>
+<given-names>J. C.</given-names>
+</name>
+<name>
+<surname>Bates</surname>
+<given-names>D. M.</given-names>
+</name>
+</person-group>
+<source>Mixed-effects models in S and S-PLUS</source>
+<year iso-8601-date="2000">2000</year>
+<publisher-loc>New York</publisher-loc>
+<publisher-name>Springer-Verlag</publisher-name>
+<pub-id pub-id-type="doi">10.1007/978-1-4419-0318-1</pub-id>
+</element-citation>
+</ref>
+<ref id="B53">
+<label>53</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<collab>R Development Team</collab>
+</person-group>
+<source>R: A language and environment for statistical computing, ver. 3.20</source>
+<year iso-8601-date="2015">2015</year>
+<comment>[computer software]</comment>
+</element-citation>
+</ref>
+<ref id="B54">
+<label>54</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Schafer</surname>
+<given-names>A.</given-names>
+</name>
+<name>
+<surname>Jun</surname>
+<given-names>S.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Nakayama</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<chapter-title>Effects of accentual phrasing on adjective interpretation in Korean</chapter-title>
+<source>East Asian Language Processing</source>
+<year iso-8601-date="2002">2002</year>
+<publisher-loc>Stanford</publisher-loc>
+<publisher-name>Center for the Study of Language and Information Publications</publisher-name>
+<fpage>223</fpage>
+<lpage>255</lpage>
+</element-citation>
+</ref>
+<ref id="B55">
+<label>55</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Selkirk</surname>
+<given-names>E. O.</given-names>
+</name>
+</person-group>
+<source>Phonology and syntax: The relation between sound and structure</source>
+<year iso-8601-date="1984">1984</year>
+<publisher-loc>Cambridge, MA, and London</publisher-loc>
+<publisher-name>MIT Press</publisher-name>
+</element-citation>
+</ref>
+<ref id="B56">
+<label>56</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Selkirk</surname>
+<given-names>E. O.</given-names>
+</name>
+</person-group>
+<article-title>On derived domains in sentence phonology</article-title>
+<source>Phonology Yearbook</source>
+<year iso-8601-date="1986">1986</year>
+<volume>3</volume>
+<fpage>371</fpage>
+<lpage>405</lpage>
+<pub-id pub-id-type="doi">10.1017/S0952675700000695</pub-id>
+</element-citation>
+</ref>
+<ref id="B57">
+<label>57</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Sohn</surname>
+<given-names>Ho-Min</given-names>
+</name>
+</person-group>
+<source>The Korean language</source>
+<year iso-8601-date="1999">1999</year>
+<publisher-loc>Cambridge, UK</publisher-loc>
+<publisher-name>Cambridge University Press</publisher-name>
+</element-citation>
+</ref>
+<ref id="B58">
+<label>58</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Shin</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Brown</surname>
+<given-names>L.</given-names>
+</name>
+<name>
+<surname>Yeon</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<chapter-title>Vowels and consonants</chapter-title>
+<source>The handbook of Korean linguistics</source>
+<year iso-8601-date="2015">2015</year>
+<publisher-loc>Chichester, UK</publisher-loc>
+<publisher-name>Wiley-Blackwell</publisher-name>
+<fpage>3</fpage>
+<lpage>21</lpage>
+<pub-id pub-id-type="doi">10.1002/9781118371008.ch1</pub-id>
+</element-citation>
+</ref>
+<ref id="B59">
+<label>59</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Turk</surname>
+<given-names>A.</given-names>
+</name>
+<name>
+<surname>Nakai</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Sugahara</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Sudhoff</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Lenertov&#225;</surname>
+<given-names>D.</given-names>
+</name>
+<name>
+<surname>Meyer</surname>
+<given-names>R.</given-names>
+</name>
+<name>
+<surname>Pappert</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Augurzky</surname>
+<given-names>P.</given-names>
+</name>
+<name>
+<surname>Mleinek</surname>
+<given-names>I.</given-names>
+</name>
+<name>
+<surname>Richter</surname>
+<given-names>N.</given-names>
+</name>
+<name>
+<surname>Schlie&#223;er</surname>
+<given-names>J.</given-names>
+</name>
+</person-group>
+<chapter-title>Acoustic segment durations in prosodic research: A practical guide</chapter-title>
+<source>Methods in Empirical Prosody Research</source>
+<year iso-8601-date="2006">2006</year>
+<publisher-loc>Berlin and New York</publisher-loc>
+<publisher-name>De Gruyter</publisher-name>
+<fpage>1</fpage>
+<lpage>28</lpage>
+<pub-id pub-id-type="doi">10.1515/9783110914641.1</pub-id>
+</element-citation>
+</ref>
+<ref id="B60">
+<label>60</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Turk</surname>
+<given-names>A. E.</given-names>
+</name>
+<name>
+<surname>White</surname>
+<given-names>L.</given-names>
+</name>
+</person-group>
+<article-title>Structural influences on accentual lengthening in English</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="1999">1999</year>
+<volume>27</volume>
+<fpage>171</fpage>
+<lpage>206</lpage>
+<pub-id pub-id-type="doi">10.1006/jpho.1999.0093</pub-id>
+</element-citation>
+</ref>
+<ref id="B61">
+<label>61</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Venditti</surname>
+<given-names>J. J.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Jun</surname>
+<given-names>S.-A.</given-names>
+</name>
+</person-group>
+<chapter-title>The J_ToBI model of Japanese intonation</chapter-title>
+<source>Prosodic Typology</source>
+<year iso-8601-date="2005">2005</year>
+<publisher-loc>Oxford</publisher-loc>
+<publisher-name>Oxford University Press</publisher-name>
+<fpage>172</fpage>
+<lpage>200</lpage>
+<pub-id pub-id-type="doi">10.1093/acprof:oso/9780199249633.003.0007</pub-id>
+</element-citation>
+</ref>
+<ref id="B62">
+<label>62</label>
+<element-citation publication-type="book">
+<person-group person-group-type="author">
+<name>
+<surname>Venditti</surname>
+<given-names>J. J.</given-names>
+</name>
+<name>
+<surname>Maekawa</surname>
+<given-names>K.</given-names>
+</name>
+<name>
+<surname>Beckman</surname>
+<given-names>M. E.</given-names>
+</name>
+</person-group>
+<person-group person-group-type="editor">
+<name>
+<surname>Miyagawa</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Saito</surname>
+<given-names>M.</given-names>
+</name>
+</person-group>
+<chapter-title>Prominence marking in the Japanese intonation system</chapter-title>
+<source>The Oxford Handbook of Japanese Linguistics</source>
+<year iso-8601-date="2008">2008</year>
+<publisher-loc>Oxford</publisher-loc>
+<publisher-name>Oxford University Press</publisher-name>
+<fpage>456</fpage>
+<lpage>512</lpage>
+<pub-id pub-id-type="doi">10.1093/oxfordhb/9780195307344.013.0017</pub-id>
+</element-citation>
+</ref>
+<ref id="B63">
+<label>63</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Wang</surname>
+<given-names>B.</given-names>
+</name>
+<name>
+<surname>Xu</surname>
+<given-names>Y.</given-names>
+</name>
+</person-group>
+<article-title>Differential prosodic encoding of topic and focus in sentence-initial position in Mandarin Chinese</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2011">2011</year>
+<volume>39</volume>
+<fpage>595</fpage>
+<lpage>611</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2011.03.006</pub-id>
+</element-citation>
+</ref>
+<ref id="B64">
+<label>64</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Welby</surname>
+<given-names>P.</given-names>
+</name>
+</person-group>
+<article-title>French intonational structure: Evidence from tonal alignment</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2006">2006</year>
+<volume>34</volume>
+<fpage>343</fpage>
+<lpage>371</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2005.09.001</pub-id>
+</element-citation>
+</ref>
+<ref id="B65">
+<label>65</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Xu</surname>
+<given-names>Y.</given-names>
+</name>
+</person-group>
+<article-title>Effects of tone and focus on the formation and alignment of f0 contours</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="1999">1999</year>
+<volume>27</volume>
+<fpage>55</fpage>
+<lpage>105</lpage>
+<pub-id pub-id-type="doi">10.1006/jpho.1999.0086</pub-id>
+</element-citation>
+</ref>
+<ref id="B66">
+<label>66</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Xu</surname>
+<given-names>Y.</given-names>
+</name>
+<name>
+<surname>Chen</surname>
+<given-names>S.-W.</given-names>
+</name>
+<name>
+<surname>Wang</surname>
+<given-names>B.</given-names>
+</name>
+</person-group>
+<article-title>Prosodic focus with and without post-focus compression (PFC): A typological divide within the same language family?</article-title>
+<source>The Linguistic Review</source>
+<year iso-8601-date="2012">2012</year>
+<volume>29</volume>
+<fpage>131</fpage>
+<lpage>147</lpage>
+<pub-id pub-id-type="doi">10.1515/tlr-2012-0006</pub-id>
+</element-citation>
+</ref>
+<ref id="B67">
+<label>67</label>
+<element-citation publication-type="journal">
+<person-group person-group-type="author">
+<name>
+<surname>Xu</surname>
+<given-names>Y.</given-names>
+</name>
+<name>
+<surname>Xu</surname>
+<given-names>C. X.</given-names>
+</name>
+</person-group>
+<article-title>Phonetic realization of focus in English declarative intonation</article-title>
+<source>Journal of Phonetics</source>
+<year iso-8601-date="2005">2005</year>
+<volume>33</volume>
+<fpage>159</fpage>
+<lpage>197</lpage>
+<pub-id pub-id-type="doi">10.1016/j.wocn.2004.11.001</pub-id>
+</element-citation>
+</ref>
+<ref id="B68">
+<label>68</label>
+<element-citation publication-type="confproc">
+<person-group person-group-type="author">
+<name>
+<surname>Yang</surname>
+<given-names>A.</given-names>
+</name>
+<name>
+<surname>Cho</surname>
+<given-names>T.</given-names>
+</name>
+<name>
+<surname>Kim</surname>
+<given-names>S.</given-names>
+</name>
+<name>
+<surname>Chen</surname>
+<given-names>A.</given-names>
+</name>
+</person-group>
+<article-title>Phonetic focus-marking in Korean-speaking 7- to 8-year olds and adults</article-title>
+<conf-name>Proceedings of the XVIIIth International Congress of Phonetic Sciences</conf-name>
+<conf-date>10&#8211;14 August</conf-date>
+<year iso-8601-date="2015">2015</year>
+<conf-loc>Glasgow, UK</conf-loc>
+<volume>673</volume>
+<fpage>1</fpage>
+<lpage>9</lpage>
+</element-citation>
+</ref>
+</ref-list>
+</back>
+</article>
