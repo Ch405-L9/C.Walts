@@ -1,0 +1,148 @@
+{
+  "checks": [
+    {
+      "check": "server initializes over stdio",
+      "passed": true,
+      "detail": "natural-flow-rag"
+    },
+    {
+      "check": "all seven tools advertised",
+      "passed": true,
+      "detail": [
+        "natural_flow_analyze",
+        "natural_flow_collection_health",
+        "natural_flow_feedback",
+        "natural_flow_reindex",
+        "natural_flow_rewrite",
+        "natural_flow_search",
+        "natural_flow_source_inspect"
+      ]
+    },
+    {
+      "check": "every tool advertises an input schema",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "reindex advertises dry_run defaulting to true",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "reindex advertises the delete_stale opt-in",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "collection_health reports OK",
+      "passed": true,
+      "detail": "OK"
+    },
+    {
+      "check": "health agrees with the lexical index",
+      "passed": true,
+      "detail": "101 vs 101"
+    },
+    {
+      "check": "writes are off in a fresh session",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "search returns ranked results",
+      "passed": true,
+      "detail": 5
+    },
+    {
+      "check": "every result carries a licence",
+      "passed": true,
+      "detail": []
+    },
+    {
+      "check": "the glossary answers a definitional probe",
+      "passed": true,
+      "detail": "C.Walts prosody glossary"
+    },
+    {
+      "check": "exact notation 'H*' survives the round trip",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "exact notation 'L-L%' survives the round trip",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "exact notation 'break index' survives the round trip",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "source_inspect returns provenance",
+      "passed": true,
+      "detail": {
+        "source_id": "cwalts_prosody_glossary",
+        "license": "Proprietary \u2014 BADGRTechnologies LLC"
+      }
+    },
+    {
+      "check": "analyze returns measurements",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "analyze fences retrieved guidance as untrusted",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "a weakened candidate is refused and the original returned",
+      "passed": true,
+      "detail": "candidate rejected: 2 preservation violation(s). The ORIGINAL text is returned unchanged."
+    },
+    {
+      "check": "natural_flow_feedback refuses without confirm",
+      "passed": true,
+      "detail": {
+        "code": "CONFIRMATION_REQUIRED",
+        "message": "natural_flow_feedback requires confirm=true"
+      }
+    },
+    {
+      "check": "natural_flow_feedback refuses while writes are disabled",
+      "passed": true,
+      "detail": {
+        "code": "WRITES_DISABLED",
+        "message": "natural_flow_feedback: writes are disabled. Set writes.allow_writes in config/rag.yaml or NFR_ALLOW_WRITES=true. This gate exists because Gate 3 (database-write approval) is owner-controlled."
+      }
+    },
+    {
+      "check": "natural_flow_reindex refuses without confirm",
+      "passed": true,
+      "detail": {
+        "code": "CONFIRMATION_REQUIRED",
+        "message": "natural_flow_reindex requires confirm=true"
+      }
+    },
+    {
+      "check": "natural_flow_reindex refuses while writes are disabled",
+      "passed": true,
+      "detail": {
+        "code": "WRITES_DISABLED",
+        "message": "natural_flow_reindex: writes are disabled. Set writes.allow_writes in config/rag.yaml or NFR_ALLOW_WRITES=true. This gate exists because Gate 3 (database-write approval) is owner-controlled."
+      }
+    },
+    {
+      "check": "an empty query is a caller error, not a crash",
+      "passed": true,
+      "detail": {
+        "code": "INVALID_PARAMS",
+        "message": "query must be non-empty"
+      }
+    }
+  ],
+  "passed": 23,
+  "total": 23,
+  "all_passed": true
+}

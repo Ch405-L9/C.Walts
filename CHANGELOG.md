@@ -5,6 +5,61 @@ is Semantic Versioning as required by Prompt C §4.3.
 
 ## [Unreleased]
 
+## [0.3.0-rc.2] — 2026-08-01 — release candidate `v0.3.0-rc.2`
+
+Corpus quality. The software surface is unchanged in shape; what changed is what
+the corpus can actually answer, and what it is licensed to say.
+
+### Added
+
+- `corpus/raw/glossary/prosody_glossary.md` — seventeen prosody terms, one chunk
+  each. Owner-authored, grounded in seven CC BY 4.0 works. Three entries
+  (`textual prosody`, `breath group`, `cadence`) are marked C.Walts production
+  terms and say so rather than borrowing authority they do not have.
+- `config/glossary_sources.yaml` — the licence audit. Title, publisher, URL,
+  access date, licence, commercial-ingestion status, checksum, and
+  approved/quarantined/refused status for every source considered.
+- `docs/evidence/source-snapshots/` — the retrieved artefacts, with a
+  `SHA256SUMS` manifest, plus a `.gitattributes` rule so git's line-ending
+  normalisation cannot invalidate the checksums.
+- 27 before/after pairs across the five registers, including two that
+  deliberately preserve a weaker claim rather than a stronger one.
+- Stale-chunk deletion in `natural_flow_reindex`, behind six gates including a
+  verified backup taken before any mutation. `VectorStore.delete` refuses an
+  empty id list, refuses ids that are absent, and re-reads to confirm.
+- `scripts/mcp_session_check.py` — 23 checks against a genuinely fresh server
+  process over the stdio protocol, complementing the in-process smoke suite.
+- EVAL-016 through EVAL-020 and `tests/test_glossary_retrieval.py`.
+
+### Changed
+
+- §7 of the delivery rules states Professional credibility as a measurable
+  criterion — a blind A/B against a human read — with explicit acceptance
+  criteria. Tightened, not weakened. This clears the one rc.1 lint warning.
+- `demote_doc_types` stops evaluation prompts leading a definitional lookup.
+- `maximum_chunks_per_document` is keyed on the document rather than the source.
+- New `glossary` chunk profile keeps a definition whole.
+- The smoke suite derives the expected chunk count from the corpus instead of
+  asserting a frozen 48, and checks the lexical index covers the same chunks.
+- `docs/rollback.md` §2 rebuilds the lexical index and verifies with a health
+  check; restoring Chroma alone left a silent half-restore.
+
+### Fixed
+
+- Incomplete MCP calls returned `INTERNAL_ERROR`; arguments are now bound
+  against the handler signature and return `INVALID_PARAMS`.
+
+### Known
+
+- The canonical ToBI guidelines (Ohio State University Research Foundation) are
+  non-commercial and are REFUSED, with a checksum recorded. No text from them
+  appears here; the ToBI entries are grounded in CC BY literature instead.
+- EVAL-005 regressed and was recovered partly by adding corpus material after
+  seeing the miss. `eval/expectations.yaml` and the owner report both say so.
+
+corpus lint 0/0 · evaluation 17/17 · preservation 10/10 · contamination 0 ·
+smoke 43/43 · fresh-session MCP 23/23 · 136 tests · 101 chunks.
+
 ### Verified after tagging
 
 - `natural_flow_feedback`'s successful write path executed once against a real
