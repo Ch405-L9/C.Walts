@@ -103,3 +103,60 @@ def test_empty_text_yields_nothing():
 
 def test_count_tokens_is_positive():
     assert count_tokens("hello world") > 0
+
+
+# ── glossary profile, against the real config and the real corpus file ───────
+#
+# MEASURED 2026-08-01: under the `approved_example` profile (target 256) the 19
+# glossary sections chunked into 34 pieces, splitting definitions mid-entry —
+# the `break index` entry lost its 0-to-4 scale across a chunk boundary. A
+# glossary entry that only half-arrives is a wrong answer to a lookup, so the
+# one-chunk-per-term property is pinned here rather than left to the config.
+
+GLOSSARY_TERMS = [
+    "prosody", "textual prosody", "acoustic prosody", "ToBI", "pitch accent",
+    "H*", "boundary tone", "L-L%", "break index", "intermediate phrase",
+    "intonational phrase", "prominence", "contrastive focus",
+    "information structure", "breath group", "cadence", "sentence rhythm",
+]
+
+
+def _glossary_chunks():
+    from natural_flow_rag.normalize import normalize
+    from natural_flow_rag.settings import load_settings
+
+    settings = load_settings()
+    path = settings.project_root / "corpus" / "raw" / "glossary" / "prosody_glossary.md"
+    if not path.is_file():
+        pytest.skip("glossary corpus file is not present")
+    return chunk_text(
+        normalize(path.read_text(encoding="utf-8")),
+        profile="glossary",
+        profiles=settings.chunking.get("profiles", {}),
+        tokenizer=settings.chunking.get("tokenizer", "cl100k_base"),
+        hard_maximum_tokens=int(settings.chunking.get("hard_maximum_tokens", 2048)),
+        safe_target_ceiling=int(settings.chunking.get("safe_target_ceiling", 1024)),
+    )
+
+
+def test_every_glossary_term_is_exactly_one_chunk():
+    chunks = _glossary_chunks()
+    for term in GLOSSARY_TERMS:
+        owning = [c for c in chunks if c.text.lstrip().startswith(f"## {term}\n")]
+        assert len(owning) == 1, (
+            f"term {term!r} produced {len(owning)} chunks; a definition split "
+            f"across chunks answers a lookup only half-way"
+        )
+
+
+def test_glossary_entries_are_substantive_and_cite_a_source():
+    chunks = _glossary_chunks()
+    entries = [c for c in chunks if c.text.lstrip().startswith("## ")]
+    assert len(entries) >= len(GLOSSARY_TERMS)
+    for chunk in entries:
+        if "**Grounded in:**" not in chunk.text:
+            continue  # the document preamble carries no grounding line
+        assert chunk.token_count >= 150, (
+            f"entry {chunk.heading!r} is {chunk.token_count} tokens; too thin to "
+            f"count as a substantive definition"
+        )

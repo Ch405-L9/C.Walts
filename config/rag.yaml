@@ -63,6 +63,17 @@ chunking:
                                    # into 23-token fragments (125 chunks from
                                    # one 1,512-word file). One example per H2
                                    # section or horizontal rule.
+    glossary:
+      # MEASURED 2026-08-01: the approved_example profile (target 256) split the
+      # 19 glossary sections into 34 chunks, cutting definitions in half — the
+      # `break index` entry lost its 0-to-4 scale to a chunk boundary. A glossary
+      # entry answers a lookup or it is useless, so the target is raised to hold
+      # the largest entry (`break index`, 414 tokens) whole, with margin.
+      target_tokens: 512
+      overlap_tokens: 0
+      maximum_tokens: 768            # refuses rather than splits a definition
+      never_merge_separate_examples: true
+      example_separator: heading     # one entry per H2 term
     pronunciation:                   # CMUdict entries — one record per line
       target_tokens: 256
       overlap_tokens: 0

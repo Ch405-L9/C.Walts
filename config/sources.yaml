@@ -82,6 +82,44 @@ sources:
       dimensions. Owner-authored; the third-party guidance it cites is
       paraphrased, and URLs live in docs/web-research-sources.md.
 
+  - id: cwalts_prosody_glossary
+    title: C.Walts prosody glossary
+    url: null
+    path: corpus/raw/glossary/
+    doc_type: glossary
+    chunk_profile: glossary           # one entry per H2; a definition is never split
+    license: Proprietary — BADGRTechnologies LLC
+    license_url: null
+    license_status: approved
+    license_verified_on: 2026-08-01
+    license_verified_by: owner-authored definitions; third-party sources cited, not copied
+    commercial_use: permitted
+    redistribution: prohibited
+    attribution_required: false
+    dialect: en-US
+    register: reference
+    notes: >
+      ADDED 2026-08-01 for rc.2. Seventeen terms — prosody, textual prosody,
+      acoustic prosody, ToBI, pitch accent, H*, boundary tone, L-L%, break index,
+      intermediate phrase, intonational phrase, prominence, contrastive focus,
+      information structure, breath group, cadence, sentence rhythm.
+
+      The TEXT is owner-authored, which is why it needs no third-party license
+      decision. The DEFINITIONS are grounded in seven CC BY 4.0 works whose
+      licenses were verified in-band and whose checksums are recorded in
+      config/glossary_sources.yaml; each entry names the source ids that ground
+      it. Attribution is in NOTICE.
+
+      The canonical ToBI labelling guidelines are restricted to non-commercial
+      use and are REFUSED — see the register. No text from them is used here, and
+      the ToBI entries are grounded in CC BY literature describing the system.
+
+      This source replaces cwalts_evaluation_cases as the answer to the exact
+      prosody probes. Retrieval for ToBI, H*, L-L% and break index must now rank
+      a glossary chunk above the evaluation prompts; that is asserted in
+      eval/expectations.yaml and in tests/test_glossary_retrieval.py rather than
+      left to inspection.
+
   - id: cwalts_evaluation_cases
     title: C.Walts evaluation prompts
     url: null

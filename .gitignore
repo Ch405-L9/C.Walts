@@ -33,6 +33,7 @@ corpus/quarantine/
 !corpus/raw/owner_examples/
 !corpus/raw/style_rules/
 !corpus/raw/evaluation/
+!corpus/raw/glossary/
 
 # Still excluded inside the re-included trees.
 corpus/raw/cmudict/
@@ -49,3 +50,7 @@ build/
 dist/
 *.egg-info/
 .ruff_cache/
+
+# Local authentication and machine-specific settings
+.env-local
+.claude/settings.local.json
