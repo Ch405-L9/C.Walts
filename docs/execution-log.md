@@ -419,4 +419,33 @@ All Prompt C §12 criteria are met except the two limitations recorded in
 `README.md` (no substantive prosody guidance in the corpus; 48 chunks is a small
 collection). Neither is a failed test — both are stated corpus limits.
 
-Version `0.3.0`; tag `v0.3.0-rc.1`.
+Version `0.3.0`; tag `v0.3.0-rc.1` on commit `b3588e8`.
+
+### Post-tag evidence: the feedback write path, executed once
+
+Up to the tag, every exercise of `natural_flow_feedback` had ended in a refusal
+(no `confirm`, writes disabled, or a malformed `chunk_id`), so its **successful**
+path had never run and `badgr_natural_flow_feedback_v1` did not exist. That met
+Prompt D §G4, which requires only the refusal, but it left one claim unmeasured
+in a build whose whole argument is that claims are measured.
+
+Executed with `NFR_ALLOW_WRITES=true` against a real chunk id:
+
+```
+{"recorded": true, "collection": "badgr_natural_flow_feedback_v1",
+ "about_chunk_id": "3feebd9110468721_4", "verdict": "useful",
+ "retrieval_corpus_modified": false}
+retrieval corpus count before/after: 48 48
+feedback collection count: 1
+collections on disk: ['badgr_natural_flow_v1', 'badgr_natural_flow_feedback_v1']
+```
+
+The judgement landed in the separate collection and the retrieval corpus was
+untouched, which is the property the two-collection design exists to guarantee.
+
+### Repository topology note
+
+`gh repo create --source=.` was run while on the feature branch, so
+`feat/natural-flow-rag-activation` is the remote's **default branch** and `main`
+does not exist remotely. Promoting to `main` is a repository decision for the
+owner after acceptance, not a build step, so it was deliberately not done here.

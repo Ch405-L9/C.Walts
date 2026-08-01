@@ -5,6 +5,14 @@ is Semantic Versioning as required by Prompt C §4.3.
 
 ## [Unreleased]
 
+### Verified after tagging
+
+- `natural_flow_feedback`'s successful write path executed once against a real
+  chunk id: the record landed in `badgr_natural_flow_feedback_v1` and the
+  retrieval corpus stayed at 48. Until then only its refusal paths had run.
+- Documented that the remote's default branch is the RC branch and that `main`
+  does not exist remotely; promotion is an owner decision.
+
 ## [0.3.0] — 2026-08-01 — release candidate `v0.3.0-rc.1`
 
 MCP registration and end-to-end capability operational.

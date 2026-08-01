@@ -93,7 +93,32 @@ unset NFR_ALLOW_WRITES
 grep -n 'allow_writes' config/rag.yaml      # must read false
 ```
 
-## 6. What rollback cannot lose
+## 6. Remove accumulated feedback
+
+`natural_flow_feedback` writes to `badgr_natural_flow_feedback_v1`, never to the
+retrieval corpus. Dropping it loses no corpus data:
+
+```bash
+.venv/bin/python -c "
+import sys; sys.path.insert(0,'src')
+from natural_flow_rag.vector_store import open_store
+s = open_store(); s.client.delete_collection('badgr_natural_flow_feedback_v1')
+print('feedback collection removed; retrieval corpus count =', s.count())"
+```
+
+## 7. Repository topology
+
+The remote's default branch is `feat/natural-flow-rag-activation` — the
+repository was created from that branch, and `main` does not exist remotely.
+Promoting the release candidate to `main` is an owner decision after acceptance:
+
+```bash
+git branch -m feat/natural-flow-rag-activation main   # or merge, whichever you prefer
+git push -u origin main
+gh repo edit Ch405-L9/C.Walts --default-branch main
+```
+
+## 8. What rollback cannot lose
 
 - The four approved MP3 references and the source bundle: never modified, held
   under `references/media/` and in the original handoff package.
