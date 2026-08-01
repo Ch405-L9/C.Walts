@@ -115,6 +115,16 @@ retrieval:
   # positive guidance. MEASURED: without this, EVAL-009 ("why does this sound
   # difficult when read aloud") pulled the negative chunk into a rewrite result.
   exclude_doc_types_by_default: [negative_pattern]
+
+  # Probe-shaped material must not outrank the material that answers it.
+  # MEASURED 2026-08-01: the query "ToBI" ranked the EVAL-004 chunk first and the
+  # glossary's ToBI definition second, because EVAL-004 is an evaluation prompt —
+  # short, and almost entirely composed of the probe terms, which is the shape
+  # BM25 scores highest. Demotion is a stable partition, not a filter: the
+  # evaluation cases stay in the result and keep their order among themselves,
+  # because they carry pass criteria that EVAL-005 through EVAL-007 legitimately
+  # need. They simply stop leading.
+  demote_doc_types: [evaluation_case]
   contrast_intent_patterns:
     - avoid
     - robotic

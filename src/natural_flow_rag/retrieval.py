@@ -126,16 +126,58 @@ class Retriever:
         return [i for i, d in zip(ids, distances, strict=False) if (1.0 - d) >= float(floor)]
 
     def _cap_per_document(self, chunks: list[RetrievedChunk]) -> list[RetrievedChunk]:
+        """Stop one document monopolising the result.
+
+        Keyed on `source_path` — the DOCUMENT — not on `source_id`, which names
+        the source *collection*.
+
+        MEASURED 2026-08-01: keying on source_id starved the corpus as it grew.
+        All 55 owner-example chunks share `source_id: owner_examples`, so the cap
+        of 3 was shared across every approved example in the project rather than
+        applied per file. On EVAL-005 ("preserve every number") the three slots
+        went to CW-007, CW-015 and CW-031, and CW-006 — the pair that actually
+        demonstrates preserving 250, 10, 25 and 80 — could not be returned at any
+        k. At 26 example chunks this was invisible; at 55 it silently cost a
+        correct answer, and it would have worsened with every example added.
+        """
         cap = int(self.cfg.get("maximum_chunks_per_document", 3))
         seen: dict[str, int] = {}
         out: list[RetrievedChunk] = []
         for chunk in chunks:
-            key = str(chunk.metadata.get("source_id", "?"))
+            key = str(
+                chunk.metadata.get("source_path")
+                or chunk.metadata.get("source_id")
+                or "?"
+            )
             if seen.get(key, 0) >= cap:
                 continue
             seen[key] = seen.get(key, 0) + 1
             out.append(chunk)
         return out
+
+    def _demote_doc_types(self, chunks: list[RetrievedChunk]) -> list[RetrievedChunk]:
+        """Push probe-shaped material below anything that answers it.
+
+        MEASURED 2026-08-01: the query ``ToBI`` ranked the EVAL-004 chunk first
+        and the glossary's ToBI definition second. EVAL-004 is an evaluation
+        prompt — "Explain the textual relevance of `ToBI`, `H*`, and `L-L%`" —
+        so it is short and almost entirely composed of the probe terms, which is
+        exactly the shape BM25 scores highest. A document whose purpose is to ASK
+        a question was outranking the documents that answer it.
+
+        This is a stable partition, not a filter and not a score penalty. Demoted
+        chunks keep their relative order and stay in the result, because the
+        evaluation cases carry the pass criteria that several other queries
+        legitimately need; they simply stop leading. Removing them instead would
+        break the EVAL-005 through EVAL-007 expectations, which is the wrong
+        trade — the problem was never that they were retrieved.
+        """
+        demoted = {str(d) for d in (self.cfg.get("demote_doc_types") or [])}
+        if not demoted:
+            return chunks
+        leading = [c for c in chunks if str(c.metadata.get("doc_type")) not in demoted]
+        trailing = [c for c in chunks if str(c.metadata.get("doc_type")) in demoted]
+        return leading + trailing
 
     def _deduplicate(self, chunks: list[RetrievedChunk]) -> list[RetrievedChunk]:
         if not self.cfg.get("deduplicate", True):
@@ -281,6 +323,7 @@ class Retriever:
 
         chunks = self._deduplicate(chunks)
         chunks = self._cap_per_document(chunks)
+        chunks = self._demote_doc_types(chunks)
         chunks = chunks[:final_k]
         chunks = self._expand_neighbors(chunks)
         if negatives_excluded:

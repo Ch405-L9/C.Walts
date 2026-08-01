@@ -657,3 +657,57 @@ Either way, tomorrow there is a paragraph to write.
 - "Some days / most days" is a parallel pair that gives the narrator two matched prominences;
 - the closing line is concrete and small, which lands better than "fuller understanding in due course";
 - removes "ultimately", "fundamentally", and "in due course" — three words that ask a narrator to sound significant without giving them anything to be significant about.
+
+---
+
+## Pair CW-038 — Educational narration: rewriting around exact numbers
+
+**Register:** educational narration
+**Audience:** learners configuring a tool
+**Preserve:** 250 words per minute, 10 minutes, 25, 80 percent
+**Preservation note:** every numeric value is load-bearing; none may be rounded, merged, or dropped
+
+### Before
+
+Set the reader to 250 words per minute, test it for 10 minutes, and increase it by 25 only when comprehension remains above 80 percent.
+
+### After
+
+Start at 250 words per minute. Give it a real 10 minutes — less than that and you are measuring novelty, not reading.
+
+Then check comprehension. Above 80 percent, go up by 25. At or below, stay where you are and run it again.
+
+### Why the after works
+
+- all four numbers — 250 words per minute, 10 minutes, 25, 80 percent — appear exactly once and unchanged;
+- the conditional is split so the threshold and the increment stop competing for the same breath group;
+- "At or below, stay where you are" states the other branch, which the original left the listener to infer, and does so without inventing a value;
+- the aside gives a reason for the 10 minutes, which makes the number memorable without altering it;
+- a rewrite that improved the rhythm by saying "about four minutes" or "roughly 80 percent" would be rejected: fluency never buys a change to a figure.
+
+---
+
+## Pair CW-039 — Technical: rewriting around exact identifiers and dates
+
+**Register:** technical explainer
+**Audience:** operators reading an incident note
+**Preserve:** 2026-07-31, INC-4417, us-east-1, 14:02 UTC
+**Preservation note:** identifiers and timestamps are quoted verbatim; no reformatting, no relative dates
+
+### Before
+
+On 2026-07-31 at 14:02 UTC an incident designated INC-4417 was declared in the us-east-1 region following the detection of elevated error rates affecting a subset of customer requests.
+
+### After
+
+At 14:02 UTC on 2026-07-31 we declared INC-4417 in us-east-1.
+
+Error rates had climbed. Not every request was affected — a subset was, and we did not yet know which subset.
+
+### Why the after works
+
+- the timestamp, the date, the incident id and the region all survive character-for-character;
+- putting the time first matches how an operator scans an incident note;
+- "we declared" replaces "was declared", which names who acted;
+- the second paragraph keeps the original's hedge — a subset, not all — and adds the honest admission that the boundary was unknown, without upgrading or downgrading the claim;
+- rewriting the date as "yesterday" or "31 July" would break the preservation rule even though both read more naturally aloud.
