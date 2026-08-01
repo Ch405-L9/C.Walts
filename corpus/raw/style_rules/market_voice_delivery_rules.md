@@ -177,12 +177,28 @@ Score each performance from 1 to 5:
 | Meaning-led phrasing | arbitrary | phrasing follows ideas |
 | Pace control | uniform or rushed | adaptive and clear |
 | Emphasis | random or flat | selective and meaningful |
-| Professional credibility | synthetic or amateur | production-ready |
+| Professional credibility | synthetic or amateur | passes a blind A/B against a human read |
 | Genre fit | mismatched | appropriate |
 | Preservation | changes meaning | exact meaning retained |
 | Listener effort | tiring | easy to follow |
 
-A release candidate should average at least 4.0 with no preservation score below 5.
+## Acceptance criteria
+
+These are the thresholds a take must MEET. They are measurements to be taken,
+not a statement about any take's current standing.
+
+1. Mean score across the eight dimensions is at least 4.0.
+2. Preservation scores 5. No other dimension may compensate for it — a take that
+   changes meaning is rejected at any average.
+3. No single dimension scores below 3.
+4. Professional credibility is scored by blind A/B: at least three listeners who
+   have not seen the script compare the take against a human read of the same
+   copy. A score of 5 requires that no listener identifies the take as synthetic
+   more often than chance.
+5. Every protected term listed for the script survives verbatim.
+
+A take that misses any one of these is re-recorded or rewritten. Passing them
+qualifies the take against this policy and nothing wider.
 
 ---
 
