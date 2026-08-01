@@ -68,8 +68,12 @@ def sqlite_schema(db_path: Path, collection_name: str) -> dict:
             c for c in ("id", "name", "dimension", "config_json_str", "schema_str")
             if c in columns
         ]
+        # S608: the column list is the intersection of a hardcoded tuple with
+        # PRAGMA output, so no caller-supplied text reaches the statement; the
+        # only value is bound. SQLite cannot parameterize column names.
         cursor.execute(
-            f"SELECT {', '.join(wanted)} FROM collections WHERE name = ?", (collection_name,)
+            f"SELECT {', '.join(wanted)} FROM collections WHERE name = ?",  # noqa: S608
+            (collection_name,),
         )
         row = cursor.fetchone()
         record = dict(zip(wanted, row, strict=False)) if row else {}
@@ -81,7 +85,7 @@ def sqlite_schema(db_path: Path, collection_name: str) -> dict:
             if "collection" in seg_cols and "id" in record:
                 pick = [c for c in ("scope", "type") if c in seg_cols]
                 cursor.execute(
-                    f"SELECT {', '.join(pick)} FROM segments WHERE collection = ?",
+                    f"SELECT {', '.join(pick)} FROM segments WHERE collection = ?",  # noqa: S608
                     (record["id"],),
                 )
                 segments = [dict(zip(pick, r, strict=False)) for r in cursor.fetchall()]

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-01T12:45:26.785426+00:00",
+  "generated": "2026-08-01T12:46:59.128325+00:00",
   "probe_collection": "nfr_contract_probe",
   "probe_persistence": "/home/t0n34781/projects/natural-language-flow-rag/var/tmp/contract-probe",
   "inside_project_root": true,
@@ -58,11 +58,11 @@
       "tenants"
     ],
     "collection_row": {
-      "id": "2003bd86-52cd-4143-b5b4-d889c710f215",
+      "id": "00659c7e-fd89-4fa9-ace5-60bc0af0e872",
       "name": "nfr_contract_probe",
       "dimension": 768,
       "config_json_str": "{}",
-      "schema_str": "{\"defaults\":{\"string\":{\"fts_index\":{\"enabled\":false,\"config\":{}},\"string_inverted_index\":{\"enabled\":true,\"config\":{}}},\"float_list\":{\"vector_index\":{\"enabled\":false,\"config\":{\"space\":\"cosine\",\"embedding_function\":{\"type\":\"known\",\"name\":\"ollama\",\"config\":{\"model_name\":\"nomic-embed-text\",\"timeout\":120,\"url\":\"http://127.0.0.1:11434\"}},\"hnsw\":{\"ef_construction\":100,\"max_neighbors\":16,\"ef_search\":100,\"num_threads\":12,\"batch_size\":100,\"sync_threshold\":1000,\"resize_factor\":1.2}}}},\"sparse_vector\":{\"sparse_vector_index\":{\"enabled\":false,\"config\":{\"embedding_function\":{\"type\":\"unknown\"},\"bm25\":false}}},\"int\":{\"int_inverted_index\":{\"enabled\":true,\"config\":{}}},\"float\":{\"float_inverted_index\":{\"enabled\":true,\"config\":{}}},\"bool\":{\"bool_inverted_index\":{\"enabled\":true,\"config\":{}}}},\"keys\":{\"#embedding\":{\"float_list\":{\"vector_index\":{\"enabled\":true,\"config\":{\"space\":\"cosine\",\"embedding_function\":{\"type\":\"known\",\"name\":\"ollama\",\"config\":{\"model_name\":\"nomic-embed-text\",\"timeout\":120,\"url\":\"http://127.0.0.1:11434\"}},\"source_key\":\"#document\",\"hnsw\":{\"ef_construction\":100,\"max_neighbors\":16,\"ef_search\":100,\"num_threads\":12,\"batch_size\":100,\"sync_threshold\":1000,\"resize_factor\":1.2}}}}},\"#document\":{\"string\":{\"fts_index\":{\"enabled\":true,\"config\":{}},\"string_inverted_index\":{\"enabled\":false,\"config\":{}}}},\"probe\":{\"bool\":{\"bool_inverted_index\":{\"enabled\":true,\"config\":{}}}}}}"
+      "schema_str": "{\"defaults\":{\"string\":{\"fts_index\":{\"enabled\":false,\"config\":{}},\"string_inverted_index\":{\"enabled\":true,\"config\":{}}},\"float_list\":{\"vector_index\":{\"enabled\":false,\"config\":{\"space\":\"cosine\",\"embedding_function\":{\"type\":\"known\",\"name\":\"ollama\",\"config\":{\"model_name\":\"nomic-embed-text\",\"timeout\":120,\"url\":\"http://127.0.0.1:11434\"}},\"hnsw\":{\"ef_construction\":100,\"max_neighbors\":16,\"ef_search\":100,\"num_threads\":12,\"batch_size\":100,\"sync_threshold\":1000,\"resize_factor\":1.2}}}},\"sparse_vector\":{\"sparse_vector_index\":{\"enabled\":false,\"config\":{\"embedding_function\":{\"type\":\"unknown\"},\"bm25\":false}}},\"int\":{\"int_inverted_index\":{\"enabled\":true,\"config\":{}}},\"float\":{\"float_inverted_index\":{\"enabled\":true,\"config\":{}}},\"bool\":{\"bool_inverted_index\":{\"enabled\":true,\"config\":{}}}},\"keys\":{\"probe\":{\"bool\":{\"bool_inverted_index\":{\"enabled\":true,\"config\":{}}}},\"#document\":{\"string\":{\"fts_index\":{\"enabled\":true,\"config\":{}},\"string_inverted_index\":{\"enabled\":false,\"config\":{}}}},\"#embedding\":{\"float_list\":{\"vector_index\":{\"enabled\":true,\"config\":{\"space\":\"cosine\",\"embedding_function\":{\"type\":\"known\",\"name\":\"ollama\",\"config\":{\"model_name\":\"nomic-embed-text\",\"timeout\":120,\"url\":\"http://127.0.0.1:11434\"}},\"source_key\":\"#document\",\"hnsw\":{\"ef_construction\":100,\"max_neighbors\":16,\"ef_search\":100,\"num_threads\":12,\"batch_size\":100,\"sync_threshold\":1000,\"resize_factor\":1.2}}}}}}}"
     },
     "segments": [
       {
