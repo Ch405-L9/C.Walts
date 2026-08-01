@@ -192,3 +192,88 @@ Verified backup: `var/backups/20260801T124553Z/chroma.sqlite3` (+ `.sha256`,
 `sha256sum -c` OK). Recreate path: delete `var/chroma/` and re-run
 `NFR_ALLOW_WRITES=true .venv/bin/python scripts/ingest.py --commit`; ingestion is
 idempotent because chunk ids are content-derived.
+
+Commits `59cd9ef` (contract + ingest) and `4cc6641` (lint fix). Both pushed.
+Version `0.2.0`.
+
+---
+
+## 2026-08-01 — Checkpoint 4: measured hybrid retrieval and evaluation
+
+### Defect found before measuring: the lexical arm was dead
+
+`var/bm25/index.json` held 48 chunk ids and **zero token lists**. Cause:
+`LexicalIndex.save()` read the tokenized corpus back off the `BM25Okapi` object
+via `hasattr(self._bm25, "corpus")`; `rank_bm25` keeps only `doc_freqs` and
+`doc_len`, so the attribute never existed and a class-level empty fallback was
+written instead. On load, `BM25Okapi([])` raised `ZeroDivisionError`, and
+`Retriever._lexical` caught the exception and returned `[]`.
+
+Consequence: hybrid retrieval had been running **dense-only**, and `H*` /
+`L-L%` — the exact notation BM25 exists to protect — could not be retrieved
+lexically at all. The health tool reported `lexical_index_chunks: 48` because it
+counted ids, so the failure was invisible from every reporting surface. No test
+covered the save/load round trip.
+
+Fixes, all narrow:
+
+- `LexicalIndex` keeps its own tokenized corpus; `save()` refuses to write an
+  index with no non-empty token lists; `load()` refuses to load one.
+- `Retriever._lexical` still degrades to dense-only, but records the failure in
+  `RetrievalResult.lexical_error` so the evaluation harness and health tool see
+  it.
+- Five new tests, including a save→load→search round trip that asserts `L-L%`,
+  `H*`, and `ToBI` retrieve after a reload.
+
+After rebuilding the index, all three probes retrieve the correct chunk
+(BM25 score 9.63). `break index` returns nothing — the term is genuinely absent
+from the approved corpus; recorded as a limitation, not a bug.
+
+### Preservation checker (Prompt C §10, §11.5)
+
+`src/natural_flow_rag/preservation.py` added: numbers, dates, backticked and
+caller-supplied protected terms, obligation strength, certainty hedging, and
+proper names. It detects; it never rewrites. Eleven unit tests plus the ten
+controlled cases in `eval/expectations.yaml`.
+
+### Contamination policy — measured, then enforced
+
+The first evaluation run showed **1 negative-pattern chunk** in EVAL-009's
+ranked results ("why does this sound difficult when read aloud, then rewrite
+it") — a rewrite request, where Prompt D forbids negative material.
+
+Enforced as a filter rather than as advice: `exclude_doc_types_by_default:
+[negative_pattern]` with `contrast_intent_patterns` in `config/rag.yaml`. A
+query without contrast intent gets `{"doc_type": {"$ne": "negative_pattern"}}`,
+and because BM25 knows nothing about metadata, the exclusion is re-applied to the
+fused list and again after neighbour expansion. An explicit caller filter is
+never overridden. Four tests cover the policy. Contamination is now **0**, and
+EVAL-011 (explicit contrast request) still retrieves the negative document.
+
+### Results — `docs/evidence/evaluation-report.json`
+
+| Metric | Result | Threshold (Prompt D) |
+|---|---|---|
+| Useful hit @5 | **12/12 (100%)** | ≥80% across EVAL-001…012 |
+| Exact-term retrieval (`ToBI`, `H*`, `L-L%`) | **PASS** — lexical hit and literal text in ranked results | must pass |
+| Negative-source contamination | **0** | zero |
+| Positive-source ratio | 62% | — |
+| Citation failures | **0/60** ranked chunks | — |
+| Lexical arm degraded | **false** | — |
+| Latency p50 / p95 | **83 ms / 103 ms** | — |
+| Preservation cases correct | **10/10** | all pass |
+| Prompt injection (EVAL-013) | detected, fenced, not executed | must pass |
+| Weak-evidence fallback (EVAL-014) | corpus refutation retrieved | must pass |
+
+Expectations were written into `eval/expectations.yaml` **before** the first run,
+naming per case which corpus material a correct retrieval must surface, so the
+hit rate is scored mechanically rather than judged after the fact.
+
+### similarity_floor: measured, left disabled, reason recorded
+
+Top-5 cosine distances across the 15 queries: min 0.114, median 0.328, max 0.426
+(similarity 0.574–0.886). Every result in that band was a useful hit, so no
+threshold separates signal from noise: below 0.574 a floor excludes nothing,
+above it a floor starts discarding correct answers. Fitting one to 15 queries
+against a 48-chunk single-topic collection would be overfitting. `similarity_floor`
+therefore stays `null`, with the revisit condition written into `config/rag.yaml`.

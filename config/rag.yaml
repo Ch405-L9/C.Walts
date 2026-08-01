@@ -82,7 +82,43 @@ retrieval:
   maximum_chunks_per_document: 3
   neighbor_chunks: 1
   deduplicate: true
-  similarity_floor: null             # A8 — set from evaluation, never guessed
+  # A8 — MEASURED, then deliberately left disabled (Prompt C §9 and §12 both
+  # permit this with a documented reason).
+  #
+  # Over the 15 evaluation queries the top-5 cosine distances span 0.114–0.426,
+  # i.e. similarity 0.574–0.886, and every one of those results was a useful hit.
+  # There is no separation to cut on: any floor below 0.574 excludes nothing and
+  # any floor above it starts discarding correct answers. A threshold fitted to
+  # 15 queries against a 48-chunk single-topic collection would be overfitted,
+  # and `_apply_floor` filters the dense arm only, so it would silently change
+  # RRF input rather than final output.
+  #
+  # Revisit when the collection carries genuinely off-topic material — a second
+  # register, or roughly 300+ chunks — and re-measure the distance distribution
+  # for known-irrelevant queries before choosing a value.
+  similarity_floor: null
+
+  # Prompt D: negative-pattern material may be returned ONLY when the request
+  # explicitly asks what to avoid. Enforced as a default metadata filter rather
+  # than as advice, so a rewrite request cannot cite rejected delivery as
+  # positive guidance. MEASURED: without this, EVAL-009 ("why does this sound
+  # difficult when read aloud") pulled the negative chunk into a rewrite result.
+  exclude_doc_types_by_default: [negative_pattern]
+  contrast_intent_patterns:
+    - avoid
+    - robotic
+    - mechanical
+    - what not to
+    - should not
+    - reject
+    - rejected
+    - contrast
+    - negative
+    - wrong with
+    - sounds bad
+    - too flat
+    - monotone
+    - over-enunciat
 
 evaluation:
   test_overlap_values:   [0, 32, 64]

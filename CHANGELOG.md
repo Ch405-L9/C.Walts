@@ -5,6 +5,35 @@ is Semantic Versioning as required by Prompt C §4.3.
 
 ## [Unreleased]
 
+### Added
+
+- `src/natural_flow_rag/preservation.py` — detects numbers, dates, protected
+  terms, obligation strength, certainty hedging, and proper names changed by a
+  candidate rewrite. Detects only; never rewrites.
+- `eval/expectations.yaml` and `eval/run_evaluation.py` — expectations written
+  before the first run so the useful-hit rate is scored mechanically. Results:
+  12/12 useful hit @5, exact-term PASS, 0 contamination, 0 citation failures,
+  10/10 preservation, 83 ms p50.
+- Negative-material retrieval policy: `exclude_doc_types_by_default` and
+  `contrast_intent_patterns`. Negative-pattern chunks are reachable only when a
+  request explicitly asks what to avoid.
+
+### Fixed
+
+- **The BM25 index persisted zero tokens**, so hybrid retrieval had been running
+  dense-only and `H*` / `L-L%` could not be retrieved lexically. `rank_bm25` does
+  not retain its corpus; `save()` was reading it back off the model and writing
+  an empty list. The index now carries its own tokens, refuses to save or load
+  empty, and a save→load→search round-trip test covers it.
+- `Retriever` records `lexical_error` instead of silently degrading to
+  dense-only.
+
+### Measured
+
+- `similarity_floor` stays `null`. Top-5 cosine distances span 0.114–0.426 and
+  every result in that band was a useful hit, so no threshold separates signal
+  from noise at 48 chunks. Revisit condition recorded in `config/rag.yaml`.
+
 ## [0.2.0] — 2026-08-01
 
 Isolated collection, ingestion, and the embedding contract are operational.

@@ -1,0 +1,619 @@
+{
+  "summary": {
+    "generated": "2026-08-01T12:53:31.047408+00:00",
+    "collection": "badgr_natural_flow_v1",
+    "collection_count": 48,
+    "embedding_model": "nomic-embed-text",
+    "dimension": 768,
+    "k": 5,
+    "retrieval_cases": 12,
+    "useful_hits": 12,
+    "useful_hit_rate": 1.0,
+    "exact_term_pass": true,
+    "positive_source_ratio": 0.617,
+    "negative_contamination": 0,
+    "citation_failures": 0,
+    "lexical_degraded": false,
+    "latency_ms_p50": 83,
+    "latency_ms_p95": 103,
+    "distance_min": 0.114202,
+    "distance_max": 0.425925,
+    "distance_median": 0.327895,
+    "similarity_min": 0.574075,
+    "similarity_max": 0.885798,
+    "preservation_correct": 10,
+    "preservation_total": 10,
+    "configured_similarity_floor": null
+  },
+  "cases": [
+    {
+      "id": "EVAL-001",
+      "mode": "retrieval",
+      "latency_ms": 119,
+      "ranked": 5,
+      "neighbours": 10,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": true,
+      "matched_marker": "Pair CW-001",
+      "doc_types": [
+        "evaluation_case",
+        "approved_example",
+        "approved_example",
+        "evaluation_case",
+        "approved_example"
+      ],
+      "positive_chunks": 3,
+      "negative_chunks": 0,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-001 \u2014 Conversational technical rewrite",
+        "Pair CW-001 \u2014 Technical security explainer",
+        "SCR-002 \u2014 Technical security explanation (matche",
+        "EVAL-010 \u2014 Negative contamination",
+        "Pair CW-005 \u2014 Technical warning"
+      ],
+      "min_distance": 0.114202,
+      "max_distance": 0.323862
+    },
+    {
+      "id": "EVAL-002",
+      "mode": "retrieval",
+      "latency_ms": 83,
+      "ranked": 5,
+      "neighbours": 5,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": true,
+      "matched_marker": "professional introduction",
+      "doc_types": [
+        "evaluation_case",
+        "approved_example",
+        "approved_example",
+        "style_rule",
+        "approved_example"
+      ],
+      "positive_chunks": 4,
+      "negative_chunks": 0,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-002 \u2014 Professional introduction",
+        "Pair CW-002 \u2014 Professional introduction",
+        "SCR-001 \u2014 Professional introduction (matches POS",
+        "Market Voice-Delivery Rules",
+        "Pair CW-004 \u2014 Product explainer opening"
+      ],
+      "min_distance": 0.159712,
+      "max_distance": 0.308842
+    },
+    {
+      "id": "EVAL-003",
+      "mode": "retrieval",
+      "latency_ms": 83,
+      "ranked": 5,
+      "neighbours": 5,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": true,
+      "matched_marker": "reflective",
+      "doc_types": [
+        "evaluation_case",
+        "approved_example",
+        "evaluation_case",
+        "style_rule",
+        "evaluation_case"
+      ],
+      "positive_chunks": 2,
+      "negative_chunks": 0,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-003 \u2014 Reflective narration",
+        "Pair CW-003 \u2014 Reflective scholarly narration",
+        "EVAL-007 \u2014 Certainty preservation",
+        "Market Voice-Delivery Rules",
+        "EVAL-006 \u2014 Obligation preservation"
+      ],
+      "min_distance": 0.116306,
+      "max_distance": 0.365605
+    },
+    {
+      "id": "EVAL-004",
+      "mode": "retrieval",
+      "latency_ms": 79,
+      "ranked": 5,
+      "neighbours": 4,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": true,
+      "matched_marker": "EVAL-004",
+      "doc_types": [
+        "evaluation_case",
+        "approved_example",
+        "style_rule",
+        "style_rule",
+        "approved_example"
+      ],
+      "positive_chunks": 4,
+      "negative_chunks": 0,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-004 \u2014 Exact term retrieval",
+        "Market-facing natural-language and voice-deliver",
+        "Market Voice-Delivery Rules",
+        "Market Voice-Delivery Rules",
+        "Approved Positive Voice References"
+      ],
+      "min_distance": 0.251633,
+      "max_distance": 0.396831,
+      "exact_terms": {
+        "ToBI": {
+          "lexical_hits": 1,
+          "present_in_ranked_text": true
+        },
+        "H*": {
+          "lexical_hits": 1,
+          "present_in_ranked_text": true
+        },
+        "L-L%": {
+          "lexical_hits": 1,
+          "present_in_ranked_text": true
+        }
+      },
+      "exact_term_pass": true
+    },
+    {
+      "id": "EVAL-005",
+      "mode": "retrieval",
+      "latency_ms": 84,
+      "ranked": 5,
+      "neighbours": 5,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": true,
+      "matched_marker": "EVAL-005",
+      "doc_types": [
+        "evaluation_case",
+        "approved_example",
+        "approved_example",
+        "style_rule",
+        "evaluation_case"
+      ],
+      "positive_chunks": 3,
+      "negative_chunks": 0,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-005 \u2014 Number preservation",
+        "Pair CW-007 \u2014 Feature explanation",
+        "Pair CW-004 \u2014 Product explainer opening",
+        "Market Voice-Delivery Rules",
+        "EVAL-014 \u2014 Weak evidence fallback"
+      ],
+      "min_distance": 0.174483,
+      "max_distance": 0.335773
+    },
+    {
+      "id": "EVAL-006",
+      "mode": "retrieval",
+      "latency_ms": 81,
+      "ranked": 5,
+      "neighbours": 8,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": true,
+      "matched_marker": "EVAL-006",
+      "doc_types": [
+        "evaluation_case",
+        "evaluation_case",
+        "evaluation_case",
+        "approved_example",
+        "approved_example"
+      ],
+      "positive_chunks": 2,
+      "negative_chunks": 0,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-006 \u2014 Obligation preservation",
+        "EVAL-001 \u2014 Conversational technical rewrite",
+        "EVAL-007 \u2014 Certainty preservation",
+        "Pair CW-001 \u2014 Technical security explainer",
+        "Pair CW-005 \u2014 Technical warning"
+      ],
+      "min_distance": 0.160112,
+      "max_distance": 0.39527
+    },
+    {
+      "id": "EVAL-007",
+      "mode": "retrieval",
+      "latency_ms": 80,
+      "ranked": 5,
+      "neighbours": 7,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": true,
+      "matched_marker": "EVAL-007",
+      "doc_types": [
+        "evaluation_case",
+        "evaluation_case",
+        "evaluation_case",
+        "style_rule",
+        "approved_example"
+      ],
+      "positive_chunks": 2,
+      "negative_chunks": 0,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-007 \u2014 Certainty preservation",
+        "EVAL-009 \u2014 Technical density",
+        "EVAL-006 \u2014 Obligation preservation",
+        "Market Voice-Delivery Rules",
+        "Pair CW-005 \u2014 Technical warning"
+      ],
+      "min_distance": 0.165933,
+      "max_distance": 0.392339
+    },
+    {
+      "id": "EVAL-008",
+      "mode": "retrieval",
+      "latency_ms": 86,
+      "ranked": 5,
+      "neighbours": 6,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": true,
+      "matched_marker": "commercial",
+      "doc_types": [
+        "evaluation_case",
+        "approved_example",
+        "approved_example",
+        "approved_example",
+        "style_rule"
+      ],
+      "positive_chunks": 4,
+      "negative_chunks": 0,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-008 \u2014 Commercial hook",
+        "Pair CW-004 \u2014 Product explainer opening",
+        "Pair CW-010 \u2014 Call to action",
+        "Pair CW-007 \u2014 Feature explanation",
+        "Market Voice-Delivery Rules"
+      ],
+      "min_distance": 0.147018,
+      "max_distance": 0.340105
+    },
+    {
+      "id": "EVAL-009",
+      "mode": "retrieval",
+      "latency_ms": 103,
+      "ranked": 5,
+      "neighbours": 9,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": true,
+      "matched_marker": "EVAL-009",
+      "doc_types": [
+        "evaluation_case",
+        "approved_example",
+        "evaluation_case",
+        "approved_example",
+        "approved_example"
+      ],
+      "positive_chunks": 3,
+      "negative_chunks": 0,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-009 \u2014 Technical density",
+        "Pair CW-005 \u2014 Technical warning",
+        "EVAL-007 \u2014 Certainty preservation",
+        "SCR-002 \u2014 Technical security explanation (matche",
+        "Pair CW-001 \u2014 Technical security explainer"
+      ],
+      "min_distance": 0.144602,
+      "max_distance": 0.382895
+    },
+    {
+      "id": "EVAL-010",
+      "mode": "retrieval",
+      "latency_ms": 83,
+      "ranked": 5,
+      "neighbours": 10,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": true,
+      "matched_marker": "EVAL-001",
+      "doc_types": [
+        "evaluation_case",
+        "evaluation_case",
+        "approved_example",
+        "approved_example",
+        "approved_example"
+      ],
+      "positive_chunks": 3,
+      "negative_chunks": 0,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-010 \u2014 Negative contamination",
+        "EVAL-001 \u2014 Conversational technical rewrite",
+        "Pair CW-001 \u2014 Technical security explainer",
+        "SCR-002 \u2014 Technical security explanation (matche",
+        "Pair CW-005 \u2014 Technical warning"
+      ],
+      "min_distance": 0.215479,
+      "max_distance": 0.396486
+    },
+    {
+      "id": "EVAL-011",
+      "mode": "retrieval",
+      "latency_ms": 84,
+      "ranked": 5,
+      "neighbours": 5,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": true,
+      "matched_marker": "Rejected and Contrast",
+      "doc_types": [
+        "evaluation_case",
+        "negative_pattern",
+        "approved_example",
+        "approved_example",
+        "style_rule"
+      ],
+      "positive_chunks": 3,
+      "negative_chunks": 1,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-011 \u2014 Contrastive analysis",
+        "Rejected and Contrast Voice References",
+        "Market-facing natural-language and voice-deliver",
+        "POS-004 \u2014 B. Lawson",
+        "Market Voice-Delivery Rules"
+      ],
+      "min_distance": 0.156232,
+      "max_distance": 0.357871
+    },
+    {
+      "id": "EVAL-012",
+      "mode": "retrieval",
+      "latency_ms": 81,
+      "ranked": 5,
+      "neighbours": 4,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": true,
+      "matched_marker": "Market Voice-Delivery Rules",
+      "doc_types": [
+        "evaluation_case",
+        "style_rule",
+        "approved_example",
+        "approved_example",
+        "style_rule"
+      ],
+      "positive_chunks": 4,
+      "negative_chunks": 0,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-012 \u2014 Voice-settings restraint",
+        "Market Voice-Delivery Rules",
+        "SCR-001 \u2014 Professional introduction (matches POS",
+        "Pair CW-002 \u2014 Professional introduction",
+        "Market Voice-Delivery Rules"
+      ],
+      "min_distance": 0.213608,
+      "max_distance": 0.340331
+    },
+    {
+      "id": "EVAL-013",
+      "mode": "behavioural",
+      "latency_ms": 79,
+      "ranked": 5,
+      "neighbours": 8,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": false,
+      "matched_marker": null,
+      "doc_types": [
+        "evaluation_case",
+        "approved_example",
+        "evaluation_case",
+        "approved_example",
+        "approved_example"
+      ],
+      "positive_chunks": 3,
+      "negative_chunks": 0,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-013 \u2014 Prompt-injection corpus test",
+        "Pair CW-006 \u2014 Setup instruction",
+        "EVAL-004 \u2014 Exact term retrieval",
+        "Pair CW-005 \u2014 Technical warning",
+        "Pair CW-009 \u2014 Educational explanation"
+      ],
+      "min_distance": 0.242521,
+      "max_distance": 0.425925,
+      "injection_detected": true,
+      "injection_summary": "1 suspicious span(s): shell_execution",
+      "corpus_context_clean": true
+    },
+    {
+      "id": "EVAL-014",
+      "mode": "behavioural",
+      "latency_ms": 84,
+      "ranked": 5,
+      "neighbours": 3,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": true,
+      "matched_marker": "Market Voice-Delivery Rules",
+      "doc_types": [
+        "evaluation_case",
+        "style_rule",
+        "style_rule",
+        "style_rule",
+        "approved_example"
+      ],
+      "positive_chunks": 4,
+      "negative_chunks": 0,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-014 \u2014 Weak evidence fallback",
+        "Market Voice-Delivery Rules",
+        "Market Voice-Delivery Rules",
+        "Market Voice-Delivery Rules",
+        "POS-002 \u2014 Jessica"
+      ],
+      "min_distance": 0.156673,
+      "max_distance": 0.338917,
+      "refutation_retrieved": true
+    },
+    {
+      "id": "EVAL-015",
+      "mode": "behavioural",
+      "latency_ms": 82,
+      "ranked": 5,
+      "neighbours": 5,
+      "dense_n": 24,
+      "lexical_n": 24,
+      "lexical_error": null,
+      "useful_hit": false,
+      "matched_marker": null,
+      "doc_types": [
+        "evaluation_case",
+        "style_rule",
+        "evaluation_case",
+        "evaluation_case",
+        "style_rule"
+      ],
+      "positive_chunks": 2,
+      "negative_chunks": 0,
+      "contamination": 0,
+      "bad_citations": [],
+      "top_headings": [
+        "EVAL-015 \u2014 Fresh-session MCP test",
+        "Market Voice-Delivery Rules",
+        "EVAL-001 \u2014 Conversational technical rewrite",
+        "Minimum release threshold",
+        "Market Voice-Delivery Rules"
+      ],
+      "min_distance": 0.154891,
+      "max_distance": 0.349123
+    }
+  ],
+  "preservation": [
+    {
+      "id": "PRES-01",
+      "expected_pass": true,
+      "actual_pass": true,
+      "correct": true,
+      "violations": []
+    },
+    {
+      "id": "PRES-02",
+      "expected_pass": false,
+      "actual_pass": false,
+      "correct": true,
+      "violations": [
+        "number",
+        "number"
+      ]
+    },
+    {
+      "id": "PRES-03",
+      "expected_pass": false,
+      "actual_pass": false,
+      "correct": true,
+      "violations": [
+        "number"
+      ]
+    },
+    {
+      "id": "PRES-04",
+      "expected_pass": true,
+      "actual_pass": true,
+      "correct": true,
+      "violations": []
+    },
+    {
+      "id": "PRES-05",
+      "expected_pass": false,
+      "actual_pass": false,
+      "correct": true,
+      "violations": [
+        "date",
+        "date"
+      ]
+    },
+    {
+      "id": "PRES-06",
+      "expected_pass": true,
+      "actual_pass": true,
+      "correct": true,
+      "violations": []
+    },
+    {
+      "id": "PRES-07",
+      "expected_pass": false,
+      "actual_pass": false,
+      "correct": true,
+      "violations": [
+        "protected_term",
+        "protected_term",
+        "name",
+        "name"
+      ]
+    },
+    {
+      "id": "PRES-08",
+      "expected_pass": false,
+      "actual_pass": false,
+      "correct": true,
+      "violations": [
+        "obligation"
+      ]
+    },
+    {
+      "id": "PRES-09",
+      "expected_pass": false,
+      "actual_pass": false,
+      "correct": true,
+      "violations": [
+        "certainty",
+        "certainty"
+      ]
+    },
+    {
+      "id": "PRES-10",
+      "expected_pass": true,
+      "actual_pass": true,
+      "correct": true,
+      "violations": []
+    }
+  ]
+}

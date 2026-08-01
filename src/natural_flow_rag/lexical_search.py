@@ -67,6 +67,7 @@ class LexicalIndex:
     def __init__(self, path: Path):
         self.path = path
         self.chunk_ids: list[str] = []
+        self._tokens: list[list[str]] = []
         self._bm25 = None
 
     # ── build / persist ───────────────────────────────────────────────────────
@@ -80,7 +81,11 @@ class LexicalIndex:
             raise LexicalIndexError("build(): refusing to build an empty index")
 
         self.chunk_ids = list(chunk_ids)
-        self._bm25 = BM25Okapi([tokenize(t) for t in texts])
+        # Keep the tokenized corpus ourselves. rank_bm25 does NOT retain it — it
+        # keeps only doc_freqs and doc_len — so reading it back off the model
+        # silently yields nothing, and an index saved that way loads as empty.
+        self._tokens = [tokenize(t) for t in texts]
+        self._bm25 = BM25Okapi(self._tokens)
 
     def save(self) -> None:
         """Persist the corpus, not the pickled model.
@@ -90,19 +95,22 @@ class LexicalIndex:
         """
         if self._bm25 is None:
             raise LexicalIndexError("save(): nothing built")
+        tokens = [list(doc) for doc in self._corpus_tokens]
+        if len(tokens) != len(self.chunk_ids) or not any(tokens):
+            raise LexicalIndexError(
+                f"save(): refusing to write an index with {len(self.chunk_ids)} ids and "
+                f"{sum(1 for t in tokens if t)} non-empty token lists. An index saved "
+                f"empty loads empty, and retrieval degrades to dense-only in silence."
+            )
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        payload = {
-            "version": 1,
-            "chunk_ids": self.chunk_ids,
-            "tokens": [list(doc) for doc in self._corpus_tokens],
-        }
+        payload = {"version": 1, "chunk_ids": self.chunk_ids, "tokens": tokens}
         self.path.write_text(json.dumps(payload), encoding="utf-8")
 
     @property
     def _corpus_tokens(self) -> list[list[str]]:
         if self._bm25 is None:
             raise LexicalIndexError("index not built")
-        return self._bm25.corpus if hasattr(self._bm25, "corpus") else self._tokens_fallback
+        return self._tokens
 
     def load(self) -> None:
         from rank_bm25 import BM25Okapi
@@ -114,7 +122,12 @@ class LexicalIndex:
         payload = json.loads(self.path.read_text(encoding="utf-8"))
         self.chunk_ids = payload["chunk_ids"]
         tokens = payload["tokens"]
-        self._tokens_fallback = tokens
+        if not tokens:
+            raise LexicalIndexError(
+                f"lexical index at {self.path} holds {len(self.chunk_ids)} ids but no "
+                f"tokens; rebuild with scripts/ingest.py --commit"
+            )
+        self._tokens = tokens
         self._bm25 = BM25Okapi(tokens)
 
     # ── search ────────────────────────────────────────────────────────────────
@@ -135,7 +148,3 @@ class LexicalIndex:
 
     def __len__(self) -> int:
         return len(self.chunk_ids)
-
-
-# Set when load() runs; keeps save() working after a load round-trip.
-LexicalIndex._tokens_fallback = []  # type: ignore[attr-defined]

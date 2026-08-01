@@ -50,6 +50,8 @@ class RetrievalResult:
     fused_n: int
     reranked: bool
     latency_ms: int
+    lexical_error: str | None = None
+    negative_material_excluded: bool = False
 
     def texts(self) -> list[str]:
         return [c.text for c in self.chunks]
@@ -68,6 +70,7 @@ class Retriever:
         self.embedder = embedder
         self.lexical = lexical
         self.cfg = settings.retrieval
+        self.lexical_error: str | None = None
 
     # ── stages ────────────────────────────────────────────────────────────────
 
@@ -76,14 +79,44 @@ class Retriever:
         return self.store.query(embedding=vector, n_results=k, where=where)
 
     def _lexical(self, query: str, k: int) -> list[str]:
+        """Lexical arm. Degrades to dense-only, but never silently.
+
+        A degraded arm used to be indistinguishable from a query with no lexical
+        matches — both produced ``lexical_n = 0``. The failure is now recorded on
+        the result so the evaluation harness and the health tool can see it.
+        """
+        self.lexical_error = None
         if self.lexical is None:
+            self.lexical_error = "no lexical index configured"
             return []
         try:
             return [hit.chunk_id for hit in self.lexical.search(query, k)]
-        except Exception:
-            # A missing lexical index degrades retrieval to dense-only rather than
-            # failing the request. Reported via dense_n/lexical_n in the result.
+        except Exception as exc:  # noqa: BLE001 — degrade, but report
+            self.lexical_error = f"{type(exc).__name__}: {exc}"
             return []
+
+    def has_contrast_intent(self, query: str) -> bool:
+        """True when the request explicitly asks what to avoid.
+
+        Prompt D permits negative-pattern material only for such requests. The
+        patterns live in config so the policy is auditable rather than buried.
+        """
+        lowered = query.lower()
+        return any(
+            str(marker).lower() in lowered
+            for marker in (self.cfg.get("contrast_intent_patterns") or [])
+        )
+
+    def _default_filter(
+        self, query: str, where: dict[str, Any] | None
+    ) -> tuple[dict[str, Any] | None, bool]:
+        """Apply the negative-material exclusion unless the caller filtered already."""
+        excluded = [str(d) for d in (self.cfg.get("exclude_doc_types_by_default") or [])]
+        if where or not excluded or self.has_contrast_intent(query):
+            return where, False
+        if len(excluded) == 1:
+            return {"doc_type": {"$ne": excluded[0]}}, True
+        return {"$and": [{"doc_type": {"$ne": d}} for d in excluded]}, True
 
     def _apply_floor(self, ids: list[str], distances: list[float]) -> list[str]:
         floor = self.cfg.get("similarity_floor")
@@ -187,6 +220,7 @@ class Retriever:
             raise ValueError("query exceeds 2000 characters")
 
         where = validate_filter(where)
+        where, negatives_excluded = self._default_filter(query, where)
         final_k = int(k or self.cfg.get("final_chunks", 5))
         dense_k = int(self.cfg.get("dense_candidates", 24))
         lexical_k = int(self.cfg.get("lexical_candidates", 24))
@@ -238,10 +272,19 @@ class Retriever:
             if hit.chunk_id in by_id
         ]
 
+        if negatives_excluded:
+            # The `where` clause constrains the dense arm only; BM25 knows nothing
+            # about metadata, so a lexical hit could still smuggle a negative
+            # chunk into the fused list.
+            excluded = {str(d) for d in (self.cfg.get("exclude_doc_types_by_default") or [])}
+            chunks = [c for c in chunks if str(c.metadata.get("doc_type")) not in excluded]
+
         chunks = self._deduplicate(chunks)
         chunks = self._cap_per_document(chunks)
         chunks = chunks[:final_k]
         chunks = self._expand_neighbors(chunks)
+        if negatives_excluded:
+            chunks = [c for c in chunks if str(c.metadata.get("doc_type")) not in excluded]
         chunks = self._trim_to_budget(chunks)
 
         return RetrievalResult(
@@ -252,4 +295,6 @@ class Retriever:
             fused_n=len(fused),
             reranked=False,
             latency_ms=int((time.perf_counter() - started) * 1000),
+            lexical_error=self.lexical_error,
+            negative_material_excluded=negatives_excluded,
         )
