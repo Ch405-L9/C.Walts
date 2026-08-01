@@ -1,0 +1,303 @@
+{
+  "generated": "2026-08-01T13:01:31.315232+00:00",
+  "total": 42,
+  "failed": 1,
+  "checks": [
+    {
+      "section": "11.1 environment",
+      "check": "virtualenv python in use",
+      "passed": true,
+      "detail": "/home/t0n34781/projects/natural-language-flow-rag/.venv/bin/python"
+    },
+    {
+      "section": "11.1 environment",
+      "check": "pip check clean",
+      "passed": true,
+      "detail": "No broken requirements found."
+    },
+    {
+      "section": "11.1 environment",
+      "check": "ollama reachable and model present",
+      "passed": true,
+      "detail": "nomic-embed-text"
+    },
+    {
+      "section": "11.1 environment",
+      "check": "embedding dimension is 768",
+      "passed": true,
+      "detail": 768
+    },
+    {
+      "section": "11.1 environment",
+      "check": "vectors are pre-normalized",
+      "passed": true,
+      "detail": 1.0
+    },
+    {
+      "section": "11.1 environment",
+      "check": "no unexpected ONNX model pulled by this project",
+      "passed": true,
+      "detail": "7 pre-existing files, unchanged by the contract probe"
+    },
+    {
+      "section": "11.2 static quality",
+      "check": "ruff passes",
+      "passed": false,
+      "detail": "Found 1 error."
+    },
+    {
+      "section": "11.2 static quality",
+      "check": "pytest passes",
+      "passed": true,
+      "detail": "..............................                                           [100%]"
+    },
+    {
+      "section": "11.2 static quality",
+      "check": "corpus lint passes",
+      "passed": true,
+      "detail": "0 failure(s), 1 warning(s)"
+    },
+    {
+      "section": "11.2 static quality",
+      "check": "git diff --check (advisory)",
+      "passed": true,
+      "detail": "clean"
+    },
+    {
+      "section": "11.4 collection",
+      "check": "collection exists after process restart",
+      "passed": true,
+      "detail": "badgr_natural_flow_v1"
+    },
+    {
+      "section": "11.4 collection",
+      "check": "count is 48",
+      "passed": true,
+      "detail": 48
+    },
+    {
+      "section": "11.4 collection",
+      "check": "declared dimension matches measured",
+      "passed": true,
+      "detail": "768 vs 768"
+    },
+    {
+      "section": "11.4 collection",
+      "check": "embedding model recorded on the collection",
+      "passed": true,
+      "detail": "nomic-embed-text"
+    },
+    {
+      "section": "11.4 collection",
+      "check": "persistence is inside the project",
+      "passed": true,
+      "detail": "/home/t0n34781/projects/natural-language-flow-rag/var/chroma"
+    },
+    {
+      "section": "11.4 collection",
+      "check": "exact prosody terms retrieve lexically",
+      "passed": true,
+      "detail": {
+        "ToBI": 1,
+        "H*": 1,
+        "L-L%": 1
+      }
+    },
+    {
+      "section": "11.4 collection",
+      "check": "semantic query returns ranked results",
+      "passed": true,
+      "detail": 10
+    },
+    {
+      "section": "11.4 collection",
+      "check": "lexical arm is live",
+      "passed": true,
+      "detail": "no error"
+    },
+    {
+      "section": "11.4 collection",
+      "check": "citations map to real source files",
+      "passed": true,
+      "detail": [
+        "corpus/raw/owner_examples/approved_before_after_pairs.md",
+        "corpus/raw/style_rules/market_voice_delivery_rules.md",
+        "corpus/raw/style_rules/market_voice_delivery_rules.md"
+      ]
+    },
+    {
+      "section": "11.4 collection",
+      "check": "negative material reachable on a contrast request",
+      "passed": true,
+      "detail": false
+    },
+    {
+      "section": "11.4 collection",
+      "check": "negative material excluded from a rewrite request",
+      "passed": true,
+      "detail": true
+    },
+    {
+      "section": "11.5 preservation",
+      "check": "controlled cases correct",
+      "passed": true,
+      "detail": "10/10"
+    },
+    {
+      "section": "11.5 preservation",
+      "check": "useful hit rate at or above 80%",
+      "passed": true,
+      "detail": 1.0
+    },
+    {
+      "section": "11.5 preservation",
+      "check": "zero negative contamination",
+      "passed": true,
+      "detail": 0
+    },
+    {
+      "section": "11.5 preservation",
+      "check": "zero citation failures",
+      "passed": true,
+      "detail": 0
+    },
+    {
+      "section": "11.5 preservation",
+      "check": "a weakened, embellished rewrite is rejected",
+      "passed": true,
+      "detail": [
+        "number",
+        "obligation"
+      ]
+    },
+    {
+      "section": "MCP surface",
+      "check": "all seven approved tools present",
+      "passed": true,
+      "detail": [
+        "natural_flow_analyze",
+        "natural_flow_collection_health",
+        "natural_flow_feedback",
+        "natural_flow_reindex",
+        "natural_flow_rewrite",
+        "natural_flow_search",
+        "natural_flow_source_inspect"
+      ]
+    },
+    {
+      "section": "MCP surface",
+      "check": "natural_flow_feedback refuses without confirm",
+      "passed": true,
+      "detail": {
+        "error": {
+          "code": "CONFIRMATION_REQUIRED",
+          "message": "natural_flow_feedback requires confirm=true"
+        }
+      }
+    },
+    {
+      "section": "MCP surface",
+      "check": "natural_flow_feedback refuses while writes are disabled",
+      "passed": true,
+      "detail": {
+        "error": {
+          "code": "WRITES_DISABLED",
+          "message": "natural_flow_feedback: writes are disabled. Set writes.allow_writes in config/rag.yaml or NFR_ALLOW_WRITES=true. This gate exists because Gate 3 (database-write approval) is owner-controlled."
+        }
+      }
+    },
+    {
+      "section": "MCP surface",
+      "check": "natural_flow_reindex refuses without confirm",
+      "passed": true,
+      "detail": {
+        "error": {
+          "code": "CONFIRMATION_REQUIRED",
+          "message": "natural_flow_reindex requires confirm=true"
+        }
+      }
+    },
+    {
+      "section": "MCP surface",
+      "check": "natural_flow_reindex refuses while writes are disabled",
+      "passed": true,
+      "detail": {
+        "error": {
+          "code": "WRITES_DISABLED",
+          "message": "natural_flow_reindex: writes are disabled. Set writes.allow_writes in config/rag.yaml or NFR_ALLOW_WRITES=true. This gate exists because Gate 3 (database-write approval) is owner-controlled."
+        }
+      }
+    },
+    {
+      "section": "MCP surface",
+      "check": "reindex defaults to dry run",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "section": "MCP surface",
+      "check": "collection_health reports OK",
+      "passed": true,
+      "detail": "OK"
+    },
+    {
+      "section": "MCP surface",
+      "check": "search returns cited results",
+      "passed": true,
+      "detail": 11
+    },
+    {
+      "section": "MCP surface",
+      "check": "analyze flags noun stacking",
+      "passed": true,
+      "detail": [
+        "16 words per breath group on average; the reader has nowhere to breathe without breaking a thought",
+        "3 nominalizations in a row (noun stacking); the rules prefer direct verbs"
+      ]
+    },
+    {
+      "section": "MCP surface",
+      "check": "rewrite returns the original when preservation fails",
+      "passed": true,
+      "detail": "2 preservation violation(s)"
+    },
+    {
+      "section": "MCP surface",
+      "check": "source_inspect returns provenance",
+      "passed": true,
+      "detail": "owner_examples"
+    },
+    {
+      "section": "11.7 rollback",
+      "check": "a verified backup exists",
+      "passed": true,
+      "detail": "20260801T124553Z"
+    },
+    {
+      "section": "11.7 rollback",
+      "check": "backup restores and holds the collection",
+      "passed": true,
+      "detail": [
+        "badgr_natural_flow_v1"
+      ]
+    },
+    {
+      "section": "11.7 rollback",
+      "check": "BADGR Harness production store unchanged",
+      "passed": true,
+      "detail": "bdcbe32b706c6ccce1f62e8e9f2d2c49"
+    },
+    {
+      "section": "11.7 rollback",
+      "check": "unrelated MCP registrations still listed",
+      "passed": true,
+      "detail": 4
+    },
+    {
+      "section": "11.7 rollback",
+      "check": "project MCP registration is removable",
+      "passed": true,
+      "detail": "claude mcp remove natural-flow-rag -s project"
+    }
+  ]
+}

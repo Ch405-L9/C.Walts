@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "natural-flow-rag": {
+      "type": "stdio",
+      "command": "/home/t0n34781/projects/natural-language-flow-rag/.venv/bin/python",
+      "args": [
+        "/home/t0n34781/projects/natural-language-flow-rag/mcp/server.py"
+      ],
+      "env": {}
+    }
+  }
+}
