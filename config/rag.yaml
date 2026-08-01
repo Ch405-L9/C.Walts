@@ -1,0 +1,107 @@
+# natural-language-flow-rag — runtime configuration
+#
+# Values marked VERIFIED were MEASURED on this host during the read-only audit
+# of 2026-07-31 (see /home/t0n34781/workspace/natural-flow-rag-audit.md).
+# Values marked DEFAULT are provisional and must be settled by measurement.
+
+project:
+  name: natural-language-flow-rag
+  owner: BADGRTechnologies LLC
+  root: /home/t0n34781/projects/natural-language-flow-rag   # A1 APPROVED
+
+collection:
+  name: badgr_natural_flow_v1        # VERIFIED collision-free across all 5 Chroma stores
+  backend: chroma
+  persistence_path: ./var/chroma     # A2 — deliberately NOT badgr_harness/rag_db
+  space: cosine                      # VERIFIED — matches existing 768-d collections
+  allowlisted_collections:
+    - badgr_natural_flow_v1
+    - badgr_natural_flow_feedback_v1
+
+embedding:
+  provider: ollama
+  endpoint: http://127.0.0.1:11434   # VERIFIED reachable
+  model: nomic-embed-text
+  model_tag: "nomic-embed-text:latest"
+  model_digest: "0a109f422b47"       # VERIFIED — asserted at startup
+  vector_dimension: 768              # VERIFIED — MEASURED, not quoted
+  model_context_tokens: 2048         # VERIFIED — hard truncation ceiling
+  normalize_vectors: false           # VERIFIED — Ollama returns L2 norm 1.000000
+  forbid_mixed_models: true
+  assert_dimension_on_startup: true
+  explicit_embeddings_only: true     # never pass query_texts= (audit hazard B2)
+  batch_size: 16
+  timeout_seconds: 120
+
+chunking:
+  # A4 UNANSWERED. cl100k_base is GPT tokenization, NOT nomic-bert's — counts are
+  # approximate. Recorded per-chunk so a later switch is detectable, and the caps
+  # below carry margin rather than trusting exactness.
+  tokenizer: cl100k_base
+  hard_maximum_tokens: 2048          # absolute refuse — model ceiling
+  safe_target_ceiling: 1024          # margin against tokenizer approximation
+  default:
+    strategy: recursive_token
+    target_tokens: 512
+    overlap_tokens: 64
+    minimum_tokens: 80
+    maximum_tokens: 640
+  profiles:
+    reference:
+      target_tokens: 512
+      overlap_tokens: 64
+    transcript:
+      target_tokens: 384
+      overlap_tokens: 48
+      preserve_speaker_turns: true
+    approved_example:
+      target_tokens: 256
+      overlap_tokens: 0
+      never_merge_separate_examples: true
+    pronunciation:                   # CMUdict entries — one record per line
+      target_tokens: 256
+      overlap_tokens: 0
+      never_merge_separate_examples: true
+
+retrieval:
+  dense_candidates: 24
+  lexical_candidates: 24
+  fusion:
+    method: reciprocal_rank_fusion
+    rrf_k: 60
+  rerank:
+    enabled: false                   # DEFERRED — ~3.98 GiB VRAM, 2.14 GB already held
+    candidates: 12
+  final_chunks: 5
+  maximum_context_tokens: 2048
+  maximum_chunks_per_document: 3
+  neighbor_chunks: 1
+  deduplicate: true
+  similarity_floor: null             # A8 — set from evaluation, never guessed
+
+evaluation:
+  test_overlap_values:   [0, 32, 64]
+  test_reference_sizes:  [384, 512, 768]
+  test_transcript_sizes: [256, 384, 512]
+  metrics: [recall_at_5, mrr, exact_term_recall, latency_p50, latency_p95]
+  exact_term_probes:
+    - "ToBI"
+    - "H*"
+    - "L-L%"
+    - "break index"
+    - "intonational phrase"
+    - "contrastive focus"
+
+security:
+  retrieved_text_is_untrusted: true
+  allow_retrieved_tool_instructions: false
+  require_verified_license: true
+  quarantine_unknown_sources: true
+  checksum_algorithm: sha256
+  forbid_paths_outside_project_root: true
+  log_document_text: false
+
+writes:
+  # Master switch. Every write-capable tool checks this AND requires confirm=true.
+  allow_writes: false
+  minimum_free_disk_gb: 20           # host is 91% full — refuse below this

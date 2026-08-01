@@ -1,0 +1,48 @@
+# Runtime state — never tracked
+var/
+*.sqlite3
+*.pyc
+__pycache__/
+.pytest_cache/
+
+# Secrets
+.env
+*.key
+
+# Media and archives — kept LOCAL ONLY (C.Walts PD §C / README §6).
+# Referenced by manifest + SHA-256, never committed. Git LFS is NOT enabled and
+# redistribution rights for the ElevenLabs renders were not established.
+references/media/
+*.mp3
+*.m4a
+*.mp4
+*.wav
+*.zip
+
+# Corpus: everything under raw/ is excluded by default because license terms
+# vary per source and committing them would redistribute them.
+corpus/raw/*
+corpus/quarantine/
+
+# Re-included: owner-authored C.Walts material. BADGRTechnologies LLC owns these
+# outright, the remote is PRIVATE, and README §6 requires approved text examples,
+# rules, and evaluation material to be committed.
+!corpus/raw/owner_examples/
+!corpus/raw/style_rules/
+!corpus/raw/evaluation/
+
+# Still excluded inside the re-included trees.
+corpus/raw/cmudict/
+corpus/raw/**/*.mp3
+corpus/raw/**/*.zip
+
+# Normalized text and manifests ARE tracked — they are the reproducible
+# build inputs and carry the license provenance.
+!corpus/normalized/
+!corpus/manifests/
+
+.venv/
+build/
+dist/
+*.egg-info/
+.ruff_cache/

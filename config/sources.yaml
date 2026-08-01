@@ -1,0 +1,101 @@
+# Source manifest. Ingestion REFUSES any source not listed here with a
+# license_status of "approved". Unlisted or unapproved material is quarantined.
+#
+# A7 decision (owner, 2026-07-31): CMUdict only, for externally licensed material.
+#
+# NOTE ON SCOPE: CMUdict is a pronunciation dictionary — ARPAbet phonemes and
+# 0/1/2 lexical stress digits. It answers "how is this word stressed". It contains
+# no prose about rhythm, cadence, information flow, or emphasis, and therefore
+# cannot on its own answer "make this sound natural". The owner_examples entry
+# below is the corpus that actually carries flow knowledge; it requires no license
+# decision because BADGRTechnologies LLC owns the material outright. It is enabled
+# but empty — ingestion picks it up as soon as files are placed in its path.
+
+version: 1
+updated: 2026-07-31
+
+sources:
+
+  - id: cmudict
+    title: CMU Pronouncing Dictionary
+    url: https://github.com/cmusphinx/cmudict
+    path: corpus/raw/cmudict/
+    doc_type: pronunciation
+    chunk_profile: pronunciation
+    license: BSD-2-Clause-like (CMU)
+    license_url: https://raw.githubusercontent.com/cmusphinx/cmudict/master/LICENSE
+    license_status: approved
+    license_verified_on: 2026-07-31
+    license_verified_by: read-only audit, official repository LICENSE fetched
+    commercial_use: permitted
+    redistribution: permitted with notice retention
+    attribution_required: true
+    notice_file: NOTICE
+    dialect: en-US
+    register: reference
+    notes: >
+      Verbatim license text is reproduced in NOTICE as required. Provides lexical
+      stress patterns only; not a source of discourse or prosodic prose.
+
+  - id: owner_examples
+    title: BADGR approved writing examples and preferred rewrites
+    url: null
+    path: corpus/raw/owner_examples/
+    doc_type: approved_example
+    chunk_profile: approved_example
+    license: Proprietary — BADGRTechnologies LLC
+    license_url: null
+    license_status: approved
+    license_verified_on: 2026-07-31
+    license_verified_by: owner-authored material; no third-party rights involved
+    commercial_use: permitted
+    redistribution: prohibited
+    attribution_required: false
+    dialect: en-US
+    register: mixed
+    notes: >
+      Currently EMPTY. This is the highest-value, zero-license-risk source for the
+      natural-flow capability. Place approved copy, preferred rewrites, and
+      before/after pairs in the path above; ingestion will pick them up with no
+      further approval needed.
+
+# ---------------------------------------------------------------------------
+# QUARANTINED — present for traceability. Ingestion will refuse all of these.
+# Each requires an explicit owner decision plus independent license verification
+# before its license_status may change.
+# ---------------------------------------------------------------------------
+quarantined:
+
+  - id: buckeye
+    title: Buckeye Corpus of Conversational Speech
+    license_status: refused
+    reason: Noncommercial use only; registration required. Incompatible with commercial use.
+
+  - id: santa_barbara
+    title: Santa Barbara Corpus of Spoken American English
+    license_status: quarantined
+    reason: >
+      CC BY-ND 3.0. Whether transformed retrieval output constitutes a prohibited
+      derivative is legally unresolved. Reference-only pending review.
+
+  - id: common_voice
+    title: Mozilla Common Voice
+    license_status: quarantined
+    reason: >
+      CC0 asserted by owner README but NOT independently verified in the audit.
+      Mozilla asks that datasets not be mirrored or redistributed. Not required
+      for a textual-prosody build.
+
+  - id: librispeech_libritts
+    title: LibriSpeech / LibriTTS
+    license_status: deferred
+    reason: >
+      CC BY 4.0 asserted but not independently verified. Read-audiobook speech is
+      weak evidence for spontaneous conversational flow. Not in the first corpus.
+
+  - id: opensmile
+    title: openSMILE acoustic feature extraction
+    license_status: refused
+    reason: >
+      Open-source distribution restricts commercial product use without a separate
+      commercial license. Excluded from the commercial path entirely.
