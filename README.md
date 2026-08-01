@@ -3,9 +3,14 @@
 Retrieval for natural English wording, conversational flow, and textual prosody.
 Part of the BADGR local AI stack. © 2026 BADGRTechnologies LLC — proprietary.
 
-**Status: Gate 2 complete. Gates 3 and 4 are NOT approved.** The code is written,
-installed, and tested. No collection exists, nothing has been ingested, and no MCP
-server is registered. `writes.allow_writes` is `false` and every write path refuses.
+**Status: activated, release candidate `v0.3.0-rc.1`.** The isolated collection
+`badgr_natural_flow_v1` holds 48 chunks of approved C.Walts corpus at 768
+dimensions, hybrid retrieval is measured, and the seven-tool MCP server is
+registered at project scope. `writes.allow_writes` remains `false`: ingestion is
+an explicit operator action and both write-capable MCP tools refuse by default.
+
+Repository: `Ch405-L9/C.Walts` (**private**). Branch
+`feat/natural-flow-rag-activation`.
 
 ---
 
@@ -44,9 +49,13 @@ config/     rag.yaml (runtime), sources.yaml (license manifest)
 corpus/     raw/ (gitignored) · normalized/ · manifests/ · quarantine/
 src/        the library
 mcp/        stdio server — NOT registered
-scripts/    ingest.py (dry-run by default), query.py, backup_chroma.sh
-tests/      52 tests, all passing
-var/        chroma/ · bm25/ · logs/ · backups/   (gitignored, currently empty)
+eval/       expectations.yaml (written before the first run), run_evaluation.py
+prompts/    Prompt C, Prompt D, and the C.Walts handoff README
+references/ media/ and transcripts/ — LOCAL ONLY, never committed
+scripts/    ingest.py (dry-run by default), corpus_lint.py,
+            verify_embedding_contract.py, smoke_test.py, query.py, backup_chroma.sh
+tests/      103 tests, all passing
+var/        chroma/ · bm25/ · logs/ · backups/   (gitignored)
 ```
 
 ## Setup
@@ -61,30 +70,45 @@ python3 -m venv .venv
 
 ```bash
 .venv/bin/python scripts/ingest.py            # dry run — reports, writes nothing
-.venv/bin/python scripts/ingest.py --commit   # refuses until Gate 3 is approved
+NFR_ALLOW_WRITES=true .venv/bin/python scripts/ingest.py --commit
 .venv/bin/python scripts/query.py "make this sound natural" --explain
-.venv/bin/python mcp/server.py                # manual stdio run; not registered
+.venv/bin/python scripts/corpus_lint.py       # licence, polarity, composition gate
+.venv/bin/python scripts/verify_embedding_contract.py
+.venv/bin/python eval/run_evaluation.py
+.venv/bin/python scripts/smoke_test.py        # 42 checks
+.venv/bin/python mcp/server.py                # manual stdio run
 ```
 
 ## Corpus status
 
-`config/sources.yaml` currently approves two sources, and both directories are
-**empty**:
+`badgr_natural_flow_v1` holds **48 chunks / 6,240 tokens**, all under a single
+licence (`Proprietary — BADGRTechnologies LLC`):
 
-- **cmudict** — BSD-style license, verified against the official repository on
-  2026-07-31. Commercial use permitted; the required notice is reproduced verbatim
-  in `NOTICE`. It supplies lexical stress patterns only.
-- **owner_examples** — BADGR-authored copy and preferred rewrites. No license
-  decision needed; BADGRTechnologies LLC owns the material.
+| Source | doc_type | Chunks | Share |
+|---|---|---:|---:|
+| `owner_examples` — before/after pairs, positive voice references, reference scripts | approved_example | 26 | 54.2% |
+| `cwalts_evaluation_cases` — EVAL-001…015 | evaluation_case | 17 | 35.4% |
+| `cwalts_style_rules` — market voice-delivery rules | style_rule | 4 | 8.3% |
+| `cwalts_negative_patterns` — delivery to avoid | negative_pattern | 1 | 2.1% |
 
-> **Read this before ingesting.** CMUdict is a pronunciation dictionary. It answers
-> *"how is this word stressed"*. It contains no prose about rhythm, cadence,
-> information flow, or emphasis, and **cannot on its own answer "make this sound
-> natural."** `owner_examples` is the source that carries flow knowledge. Until
-> files are placed there, this system will retrieve pronunciations, not phrasing.
+No auxiliary class exceeds the 40% cap (Prompt D §D). **cmudict** stays approved
+in the manifest but is deliberately un-ingested — it answers "how is this word
+stressed", not "make this sound natural". Everything else — Buckeye, Santa
+Barbara, Common Voice, LibriSpeech, openSMILE — is `quarantined` with a reason,
+and ingestion refuses all of it.
 
-Everything else — Buckeye, Santa Barbara, Common Voice, LibriSpeech, openSMILE — is
-listed under `quarantined` with the reason, and ingestion refuses all of it.
+### Media and negative material
+
+Audio, video, and archives are **never committed**. The four approved ElevenLabs
+references live under `references/media/positive/` and are identified by SHA-256
+in `corpus/raw/evaluation/audio_reference_manifest.yaml`. No audio bytes and no
+acoustic vectors enter the text collection; an acoustic sidecar, if ever built,
+must use a separate store.
+
+Negative-pattern text is retrievable **only** when a request explicitly asks what
+to avoid — enforced as a metadata filter
+(`exclude_doc_types_by_default: [negative_pattern]`), re-applied after fusion and
+after neighbour expansion because BM25 cannot see metadata.
 
 ## Safety properties, each pinned by a test
 
@@ -98,15 +122,44 @@ listed under `quarantined` with the reason, and ingestion refuses all of it.
 - Retrieved text is fenced as untrusted data and scanned for injection patterns.
 - Ingestion refuses any chunk with an empty `license` field.
 
+## Measured results
+
+`docs/evidence/` carries the raw JSON for all of this.
+
+| Metric | Result |
+|---|---|
+| Useful hit @5 (EVAL-001…012) | 12/12 (100%) |
+| Exact-term retrieval — `ToBI`, `H*`, `L-L%` | PASS (BM25 rank 1) |
+| Negative-source contamination | 0 |
+| Citation failures | 0 of 60 ranked chunks |
+| Preservation controlled cases | 10/10 |
+| Latency p50 / p95 | 83 ms / 103 ms |
+| Smoke suite | 41/42 → 42/42 after the lint fix |
+
 ## Known limitations
 
-1. **Tokenizer is approximate.** `cl100k_base` is GPT tokenization, not
-   nomic-bert's. Counts are recorded per chunk (`tokenizer` metadata) so a switch
-   is detectable, and the caps carry margin. Open decision A4.
-2. **`rank-bm25` is unmaintained** — pinned at 0.2.2, no release since 2022-02-16.
-   It sits behind `lexical_search.py` so replacing it is a one-file change.
-3. **Reranking is not implemented**, only interfaced. VRAM does not support a
+1. **No substantive prosody guidance in the corpus.** `ToBI`, `H*`, and `L-L%`
+   appear only inside `evaluation_prompts.md`, so retrieval returns the probe
+   case rather than a definition. `break index` returns nothing at all. Adding a
+   licensed prosody reference is the single highest-value corpus addition; the
+   build deliberately did not author one, because only owner-approved material
+   may be ingested.
+2. **The Hanna theological passage is evaluation-only.** Reconstructed from an
+   imperfect automated transcript with unestablished publication provenance. It
+   is excluded from the collection and from Git, and must not be treated as an
+   authoritative quotation.
+3. **Tokenizer is approximate.** `cl100k_base` is GPT tokenization, not
+   nomic-bert's. Recorded per chunk so a switch is detectable; caps carry margin.
+4. **`rank-bm25` is unmaintained** — pinned at 0.2.2. It sits behind
+   `lexical_search.py` so replacing it is a one-file change.
+5. **Reranking is interfaced, not implemented.** VRAM does not support a
    cross-encoder alongside the resident embedding model.
-4. **`similarity_floor` is `null`** deliberately. It must come from measurement.
-5. **Nothing has been executed end-to-end** against a real collection, because that
-   requires Gate 3. Tests cover units and refusal paths, not live retrieval quality.
+6. **`similarity_floor` is `null`, by measurement.** Top-5 distances span
+   0.114–0.426 and every result in that band was useful, so no threshold
+   separates signal from noise at 48 chunks. Revisit condition is written into
+   `config/rag.yaml`.
+7. **Corpus size.** 48 chunks is enough to prove the pipeline and to answer
+   market-delivery questions; it is not enough to claim broad coverage of English
+   flow. Retrieval quality figures should be re-measured as the corpus grows.
+8. **`natural_flow_reindex` reports stale chunks but does not delete them.**
+   Removal stays an operator action.

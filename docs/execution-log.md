@@ -277,3 +277,146 @@ threshold separates signal from noise: below 0.574 a floor excludes nothing,
 above it a floor starts discarding correct answers. Fitting one to 15 queries
 against a 48-chunk single-topic collection would be overfitting. `similarity_floor`
 therefore stays `null`, with the revisit condition written into `config/rag.yaml`.
+
+Commit `53f1c49` — `feat: add measured hybrid retrieval pipeline`. Pushed.
+Rollback point: `git revert 53f1c49` restores dense-only retrieval and removes
+the preservation checker; the collection is unaffected.
+
+---
+
+## 2026-08-01 — Checkpoint 5: MCP tools and project registration
+
+### Completed the approved seven-tool surface
+
+`mcp/server.py` had 4 of 7. Added:
+
+| Tool | Write? | Notes |
+|---|---|---|
+| `natural_flow_analyze` | no | Measures sentence length distribution, breath grouping, noun stacking, passive share, filler, and estimated spoken duration per register. Returns numbers and cited guidance; generates no prose, matching `natural_flow_rewrite`'s existing stance. |
+| `natural_flow_feedback` | **yes** | Writes to `badgr_natural_flow_feedback_v1`, a separate allowlisted collection. A judgement about a chunk can never modify the approved corpus. |
+| `natural_flow_reindex` | **yes** | `dry_run` defaults to `true`. The dry run reports which content-derived ids would be added and which are stale; it does not delete. |
+
+`natural_flow_rewrite` now accepts an optional `candidate` and preservation-checks
+it. On violation it returns the **original** text plus a warning, which is Prompt
+C §10's requirement made operative rather than documented.
+
+28 MCP tests added, including: the tool set is exactly the approved seven; both
+write tools refuse without `confirm` **and** independently refuse while writes
+are disabled; `reindex`'s schema defaults to dry-run; and no tool's schema
+exposes a filesystem path or a collection name.
+
+### Registration
+
+```
+claude mcp add natural-flow-rag --scope project -- \
+  <project>/.venv/bin/python <project>/mcp/server.py
+```
+
+`claude mcp get natural-flow-rag` → `Scope: Project config (shared via .mcp.json)`.
+Unrelated registrations (`ollama`, `filesystem`, `memory`, `plugin:vercel:vercel`)
+were not touched.
+
+`claude mcp list` shows `Pending approval` for the new server. That is Claude
+Code's normal handling of a `.mcp.json` server — the owner approves it once, on
+first interactive use in this directory. Approval was deliberately **not**
+auto-granted on the owner's behalf.
+
+### Defect found by the fresh-session test, not by a unit test
+
+The first headless MCP call returned `status: OK` alongside
+`lexical_index_chunks: 0`. `tool_collection_health` counted `len(LEXICAL)` on an
+**unloaded** index, so it reported 0 for a healthy index — and would have
+reported 48 for the tokenless index that had made retrieval dense-only. The
+field existed precisely to catch that failure and could not.
+
+Health now loads the index, reports `lexical_index_error`, and returns
+`DEGRADED` when the lexical count does not match the collection count. Verified:
+`lexical_index_chunks: 48`, `status: OK`.
+
+Environment note: `claude -p` initially failed with `401 API key is invalid`
+because an `ANTHROPIC_API_KEY` is exported in this environment and takes
+precedence over the CLI login. All headless runs therefore use
+`env -u ANTHROPIC_API_KEY claude -p …`. This affects the test harness only, not
+the built system.
+
+Commit `a3e0795` — `feat: expose natural-flow retrieval over project MCP`. Pushed.
+
+---
+
+## 2026-08-01 — Checkpoint 6: end-to-end smoke validation and release candidate
+
+### In-process suite — `scripts/smoke_test.py`
+
+**42/42 checks pass.** Evidence: `docs/evidence/smoke-test.json`. Sections
+11.1 environment, 11.2 static quality, 11.4 real collection after restart,
+11.5 preservation, MCP surface, and 11.7 rollback.
+
+### Fresh Claude Code processes (Prompt C §11.6)
+
+The MCP registration lives in the implementation project, and this session's
+working directory is the audit workspace, so the smoke test could not be run by
+calling the tools from here. It was run as three **separate headless Claude Code
+processes** with the implementation project as the working directory — which is
+the honest headless reading of "fresh process" and "restart Claude Code". Raw
+transcripts are committed under `docs/evidence/`.
+
+**Session 1** (`mcp-smoke-session-1.md`) — all seven tools, writes disabled.
+Health `OK` / count 48 / dim 768 / lexical 48; search returned cited results;
+analyze flagged noun stacking; rewrite **rejected** a weakened candidate and
+returned the original with a warning; source_inspect returned full provenance;
+both write tools refused.
+
+That session surfaced two real defects, neither of which any unit test caught:
+
+1. **`confirm` was in the write tools' `required` schema array.** A
+   schema-conforming client therefore *cannot* omit it, so the server's own
+   `CONFIRMATION_REQUIRED` refusal was unreachable — the gate was being enforced
+   by client-side validation, which is a weaker guarantee than the one Prompt C
+   §10 asks for. `confirm` is now optional in the schema and the server enforces
+   it. Two tests pin this.
+2. **`k` appeared not to cap results.** A request for `k=3` returned six
+   entries: three ranked plus three neighbours. Neighbour expansion is deliberate
+   and additional to `k`, but the payload gave the caller no way to tell. Results
+   now carry `is_neighbor`, and `strategy` reports `ranked_n`, `neighbor_n`, and
+   what `k` applies to.
+
+**Session 2** (`mcp-smoke-session-2-restart.md`) — a second, independent process
+after the fix, with `NFR_ALLOW_WRITES=true` supplied through a scratch MCP config
+so the write path could be exercised end to end rather than stopping at the
+config gate:
+
+| Step | Result |
+|---|---|
+| Health after restart | count **48**, dim 768, lexical 48, `status: OK`, `writes_allowed: true` |
+| `natural_flow_reindex` with no `confirm` | `CONFIRMATION_REQUIRED` — **from the server**, proving the fix |
+| `natural_flow_reindex` with `confirm: true`, no `dry_run` | `dry_run: true` unasked; `would_add_count: 0`, `stale_count: 0`, nothing written |
+| Health again | count **48** — unchanged |
+
+`would_add_count: 0` also demonstrates ingestion idempotence: content-derived
+chunk ids reproduce exactly, so a re-run adds nothing.
+
+**Session 3** (`mcp-smoke-session-3-final.md`) — final build, verifying the two
+session-1 fixes over the protocol.
+
+### Rollback (Prompt C §11.7) — executed, not described
+
+- Backup `var/backups/20260801T124553Z/` restores and lists
+  `badgr_natural_flow_v1` on a read-only open of the restored copy.
+- BADGR Harness store MD5 still `bdcbe32b706c6ccce1f62e8e9f2d2c49`.
+- `claude mcp list` still shows `ollama`, `filesystem`, `memory`, and the Vercel
+  plugin; only `natural-flow-rag` was added.
+- Removal command verified present and documented in `docs/rollback.md`.
+
+### Environment caveat, recorded rather than hidden
+
+`ANTHROPIC_API_KEY` is exported in this environment and is invalid; `claude -p`
+fails with `401` until it is unset. Every headless run above used
+`env -u ANTHROPIC_API_KEY`. This affects the test harness only.
+
+### Release candidate
+
+All Prompt C §12 criteria are met except the two limitations recorded in
+`README.md` (no substantive prosody guidance in the corpus; 48 chunks is a small
+collection). Neither is a failed test — both are stated corpus limits.
+
+Version `0.3.0`; tag `v0.3.0-rc.1`.

@@ -5,7 +5,32 @@ is Semantic Versioning as required by Prompt C §4.3.
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-08-01 — release candidate `v0.3.0-rc.1`
+
+MCP registration and end-to-end capability operational.
+
 ### Added
+
+- Completed the approved seven-tool MCP surface: `natural_flow_analyze`
+  (measurement only), `natural_flow_feedback` (write-gated, writes to the
+  separate `badgr_natural_flow_feedback_v1`), and `natural_flow_reindex`
+  (write-gated, dry-run by default). 28 MCP tests.
+- `natural_flow_rewrite` accepts a `candidate` rewrite and preservation-checks
+  it; a failing candidate is refused and the original text is returned.
+- `src/natural_flow_rag/analysis.py` — sentence rhythm, breath grouping, noun
+  stacking, passive share, filler, and estimated spoken duration per register.
+- `scripts/smoke_test.py` — 42 checks covering Prompt C §11.1–11.5 and §11.7.
+- `docs/rollback.md`, `docs/owner-test-sheet.md`, and `docs/evidence/`.
+- Project-scoped MCP registration in `.mcp.json`.
+
+### Fixed
+
+- `natural_flow_collection_health` counted chunk ids on an **unloaded** lexical
+  index, reporting 0 for a healthy index — and would have reported 48 for the
+  tokenless index that made retrieval dense-only. Health now loads the index,
+  reports `lexical_index_error`, and returns `DEGRADED` on a count mismatch.
+
+### Added earlier in this cycle
 
 - `src/natural_flow_rag/preservation.py` — detects numbers, dates, protected
   terms, obligation strength, certainty hedging, and proper names changed by a

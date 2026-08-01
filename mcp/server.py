@@ -72,6 +72,7 @@ def tool_search(query: str, k: int = 5, filters: dict | None = None) -> dict[str
                 "lexical_rank": c.lexical_rank,
                 "source_title": c.source_title,
                 "license": c.license,
+                "is_neighbor": c.is_neighbor,
             }
             for c in result.chunks
         ],
@@ -80,6 +81,15 @@ def tool_search(query: str, k: int = 5, filters: dict | None = None) -> dict[str
             "lexical_n": result.lexical_n,
             "fused_n": result.fused_n,
             "reranked": result.reranked,
+            "ranked_n": sum(1 for c in result.chunks if not c.is_neighbor),
+            "neighbor_n": sum(1 for c in result.chunks if c.is_neighbor),
+            # `k` caps the RANKED results. Neighbours are adjacent chunks added
+            # afterwards so a retrieved passage is not cut off mid-argument; they
+            # carry score 0.0 and is_neighbor=true, and they are additional to k
+            # rather than competing for it.
+            "k_applies_to": "ranked results only; neighbours are additional context",
+            "negative_material_excluded": result.negative_material_excluded,
+            "lexical_error": result.lexical_error,
         },
         "latency_ms": result.latency_ms,
     }
@@ -551,10 +561,14 @@ def _schema_for(name: str) -> dict[str, Any]:
                 "confirm": {
                     "type": "boolean",
                     "default": False,
-                    "description": "Required. Write-capable tools refuse without it.",
+                    "description": "Must be true for the write to proceed. Deliberately "
+                                   "NOT in `required`: leaving it optional keeps the "
+                                   "server-side CONFIRMATION_REQUIRED refusal reachable "
+                                   "from a schema-conforming client, so the gate is "
+                                   "enforced by the server rather than by the schema.",
                 },
             },
-            "required": ["chunk_id", "verdict", "confirm"],
+            "required": ["chunk_id", "verdict"],
         }
     if name == "natural_flow_reindex":
         return {
@@ -569,10 +583,12 @@ def _schema_for(name: str) -> dict[str, Any]:
                 "confirm": {
                     "type": "boolean",
                     "default": False,
-                    "description": "Required. Write-capable tools refuse without it.",
+                    "description": "Must be true for the write to proceed. Deliberately "
+                                   "NOT in `required`, so the server-side "
+                                   "CONFIRMATION_REQUIRED refusal stays reachable.",
                 },
             },
-            "required": ["confirm"],
+            "required": [],
         }
     return {"type": "object", "properties": {}}
 

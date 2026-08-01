@@ -62,7 +62,19 @@ def test_write_tools_refuse_while_writes_disabled(server, name):
 def test_reindex_schema_defaults_to_dry_run(server):
     schema = server._schema_for("natural_flow_reindex")
     assert schema["properties"]["dry_run"]["default"] is True
-    assert "confirm" in schema["required"]
+
+
+@pytest.mark.parametrize("name", WRITE_CAPABLE)
+def test_confirm_is_optional_in_schema_so_the_server_gate_is_reachable(server, name):
+    """`confirm` in `required` would make CONFIRMATION_REQUIRED unreachable.
+
+    A schema-conforming client could then never omit it, and the refusal would be
+    enforced by client-side validation instead of by this server — which is not
+    the same guarantee. Found by the fresh-session MCP acceptance run.
+    """
+    schema = server._schema_for(name)
+    assert "confirm" in schema["properties"]
+    assert "confirm" not in schema.get("required", [])
 
 
 @pytest.mark.parametrize("name", READ_ONLY + WRITE_CAPABLE)
@@ -124,6 +136,20 @@ def test_rewrite_accepts_a_faithful_candidate(server):
     payload = server.tool_rewrite(source, candidate=good)
     assert payload["preservation"]["passed"] is True
     assert payload["accepted_text"] == good
+
+
+def test_search_labels_neighbours_and_reports_that_k_caps_ranked_only(server):
+    """A caller asking for k=3 gets 3 RANKED results plus neighbour context.
+
+    The fresh-session run read 6 results for k=3 as the cap being ignored. The
+    counts and the label now make the distinction explicit in the payload.
+    """
+    payload = server.tool_search("breath group pacing for a technical warning", k=3)
+    assert payload["strategy"]["ranked_n"] <= 3
+    assert all("is_neighbor" in r for r in payload["results"])
+    neighbours = [r for r in payload["results"] if r["is_neighbor"]]
+    assert all(r["score"] == 0.0 for r in neighbours)
+    assert payload["strategy"]["neighbor_n"] == len(neighbours)
 
 
 def test_health_counts_a_loaded_lexical_index(server):

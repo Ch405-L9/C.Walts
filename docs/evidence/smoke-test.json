@@ -1,7 +1,7 @@
 {
-  "generated": "2026-08-01T13:01:31.315232+00:00",
+  "generated": "2026-08-01T13:09:12.235452+00:00",
   "total": 42,
-  "failed": 1,
+  "failed": 0,
   "checks": [
     {
       "section": "11.1 environment",
@@ -42,14 +42,14 @@
     {
       "section": "11.2 static quality",
       "check": "ruff passes",
-      "passed": false,
-      "detail": "Found 1 error."
+      "passed": true,
+      "detail": "All checks passed!"
     },
     {
       "section": "11.2 static quality",
       "check": "pytest passes",
       "passed": true,
-      "detail": "..............................                                           [100%]"
+      "detail": "..................................                                       [100%]"
     },
     {
       "section": "11.2 static quality",
