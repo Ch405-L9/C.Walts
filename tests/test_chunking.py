@@ -10,7 +10,28 @@ PROFILES = {
                          "maximum_tokens": 256, "never_merge_separate_examples": True},
     "transcript": {"target_tokens": 96, "overlap_tokens": 12,
                    "maximum_tokens": 256, "preserve_speaker_turns": True},
+    "heading_example": {"target_tokens": 256, "overlap_tokens": 0,
+                        "maximum_tokens": 512, "never_merge_separate_examples": True,
+                        "example_separator": "heading"},
 }
+
+STRUCTURED = """# Title
+
+Intro line.
+
+## EXAMPLE-001
+
+- first bullet
+- second bullet
+
+Explanatory paragraph for the first example.
+
+## EXAMPLE-002
+
+- another bullet
+
+Explanatory paragraph for the second example.
+"""
 
 
 def test_chunks_stay_within_profile_maximum():
@@ -22,6 +43,27 @@ def test_chunks_stay_within_profile_maximum():
 
 def test_examples_are_never_merged():
     text = "First approved example.\n\nSecond approved example.\n\nThird one."
+    chunks = chunk_text(text, profile="approved_example", profiles=PROFILES)
+    assert len(chunks) == 3
+
+
+def test_heading_mode_keeps_one_example_whole():
+    """A structured example must not shatter into its individual bullets."""
+    chunks = chunk_text(STRUCTURED, profile="heading_example", profiles=PROFILES)
+    assert len(chunks) == 3  # preamble + two examples
+    second = next(c for c in chunks if "EXAMPLE-002" in c.text)
+    assert "another bullet" in second.text
+    assert "Explanatory paragraph for the second example." in second.text
+
+
+def test_heading_mode_never_merges_two_examples():
+    chunks = chunk_text(STRUCTURED, profile="heading_example", profiles=PROFILES)
+    assert not any("EXAMPLE-001" in c.text and "EXAMPLE-002" in c.text for c in chunks)
+
+
+def test_blank_line_mode_is_unchanged_by_heading_support():
+    """CMUdict-style records still split per blank-line block and never re-merge."""
+    text = "AARDVARK  AA1 R D V AA0 R K\n\nAARON  EH1 R AH0 N\n\nABACUS  AE1 B AH0 K AH0 S"
     chunks = chunk_text(text, profile="approved_example", profiles=PROFILES)
     assert len(chunks) == 3
 

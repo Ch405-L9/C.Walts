@@ -1,0 +1,91 @@
+version: 1
+project: C.Walts
+policy:
+  text_collection: badgr_natural_flow_v1
+  embed_audio_binaries_in_text_collection: false
+  negative_media_positive_retrieval: false
+  git_commit_media_default: false
+
+positive_targets:
+  - id: POS-001
+    filename: "ElevenLabs_2026-07-31T18_46_39_Hanna - Calm & Conversational_pvc_sp108_s50_sb75_se4_b_m2(1).mp3"
+    sha256: "be099aa65751d604f48f28ebfa058713623a727a1ef23213fdbc66c51acc0048"
+    duration_seconds: 66.4555
+    classification: positive_target
+    register: reflective_narration
+    voice_label: "Hanna - Calm & Conversational"
+    settings:
+      speed: 1.08
+      stability: 0.50
+      similarity_boost: 0.75
+      style_exaggeration: 0.04
+    approximate_script_wpm: 106.5
+    approval: owner_approved
+
+  - id: POS-002
+    filename: "ElevenLabs_2026-07-31T18_29_53_Jessica_pvc_sp100_s40_sb65_se15_b_m2 (11)(1).mp3"
+    sha256: "82798da860d3784592c844437c3e4edf3a77706b94a21119eeff8c5ca7b8fb66"
+    duration_seconds: 84.42775
+    classification: positive_target
+    register: technical_explainer
+    voice_label: Jessica
+    settings:
+      speed: 1.00
+      stability: 0.40
+      similarity_boost: 0.65
+      style_exaggeration: 0.15
+    approximate_script_wpm: 76.0
+    approval: owner_approved
+
+  - id: POS-003
+    filename: "ElevenLabs_2026-07-31T18_28_40_Seán - Deep and Clear_pvc_sp100_s50_sb75_se0_b_m2(1).mp3"
+    sha256: "465e933aeace3ed0cbb3cee99e670495b190d53a565b636f09bc52b2d6462c12"
+    duration_seconds: 73.743625
+    classification: positive_target
+    register: technical_explainer
+    voice_label: "Seán - Deep and Clear"
+    settings:
+      speed: 1.00
+      stability: 0.50
+      similarity_boost: 0.75
+      style_exaggeration: 0.00
+    approximate_script_wpm: 91.9
+    approval: owner_approved
+
+  - id: POS-004
+    filename: "ElevenLabs_2026-07-23T11_09_04_B. Lawson_ivc_sp101_s47_sb72_se9_b_m2(1).mp3"
+    sha256: "a8588246e8e8d96601753d9f87e401968c4381b09a472c93e6a03499a4ee3c6d"
+    duration_seconds: 19.722438
+    classification: positive_target
+    register: professional_introduction
+    voice_label: "B. Lawson"
+    settings:
+      speed: 1.01
+      stability: 0.47
+      similarity_boost: 0.72
+      style_exaggeration: 0.09
+    approximate_script_wpm: 146.0
+    approval: owner_approved
+
+source_bundle:
+  filename: "elevenlabs_example|sample_bundle.zip"
+  sha256: "4145aa4415ad8ccf1bb7a4dc340d0f6879c72c3ab1709b4f836c8340b406cd10"
+  classification: mixed_reference_bundle
+  git_commit: false
+  contents:
+    - filename: "11labs_voxs_original.txt"
+      classification: transcript_source
+    - filename: "Theological.txt"
+      classification: context_summary
+    - filename: "11labs_voxs.m4a"
+      classification: mixed_positive_reference
+    - filename: "screen_recorder_07-30-26_18-26-39.mp4"
+      classification: negative_contrast
+    - filename: "screen_recorder_07-30-26_19-47-19.mp4"
+      classification: context_only
+    - filename: "screen_recorder_08-01-26_07-27-53.mp4"
+      classification: negative_contrast
+    - filename: "screen_recorder_08-01-26_07-36-40.mp4"
+      classification: excluded
+    - filename: "The Corpus Hermeticum_1.pdf"
+      classification: source_context_not_approved_for_ingestion

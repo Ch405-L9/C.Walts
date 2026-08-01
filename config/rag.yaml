@@ -57,7 +57,12 @@ chunking:
     approved_example:
       target_tokens: 256
       overlap_tokens: 0
+      maximum_tokens: 512          # a single approved example is never split
       never_merge_separate_examples: true
+      example_separator: heading   # MEASURED: blank_line split these documents
+                                   # into 23-token fragments (125 chunks from
+                                   # one 1,512-word file). One example per H2
+                                   # section or horizontal rule.
     pronunciation:                   # CMUdict entries — one record per line
       target_tokens: 256
       overlap_tokens: 0

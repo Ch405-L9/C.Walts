@@ -13,6 +13,9 @@ __pycache__/
 # Referenced by manifest + SHA-256, never committed. Git LFS is NOT enabled and
 # redistribution rights for the ElevenLabs renders were not established.
 references/media/
+# Transcripts with unverified or third-party provenance (Hanna theological
+# passage, raw screen-recording transcript). Local evaluation evidence only.
+references/transcripts/
 *.mp3
 *.m4a
 *.mp4

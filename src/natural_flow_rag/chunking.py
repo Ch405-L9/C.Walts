@@ -38,6 +38,11 @@ _SEPARATORS = [
 
 _SPEAKER_TURN = re.compile(r"^\s*(?:[A-Z][A-Za-z0-9_. -]{0,30}:|\[[^\]]{1,40}\])\s")
 
+# One approved example per H2 section, or per horizontal rule where the document
+# uses rules instead of headings. Used by profiles that set
+# ``example_separator: heading``.
+_EXAMPLE_SECTION = re.compile(r"(?m)^(?=##\s)|^-{3,}[ \t]*$")
+
 
 class ChunkingError(RuntimeError):
     """Text could not be chunked within the model's hard limits."""
@@ -143,8 +148,29 @@ def chunk_text(
         return []
 
     # Short-example and pronunciation profiles must never merge distinct records.
+    # What counts as a record boundary differs by document shape, so the profile
+    # says which one applies:
+    #
+    #   blank_line (default) — one record per blank-line-separated block, and no
+    #     re-merging afterwards. Correct for line-oriented records such as
+    #     CMUdict entries.
+    #   heading — one record per H2 section or horizontal rule. Correct for
+    #     structured markdown, where blank-line splitting shatters a single
+    #     example into its individual bullets (measured: 125 fragments averaging
+    #     23 tokens from one 1,512-word document).
+    #
+    # In both cases a record is never merged with its neighbour; only the
+    # paragraphs *inside* one record are packed back together, and only in
+    # heading mode.
+    separator_mode = str(settings.get("example_separator", "blank_line"))
+    merge_within_unit = True
+
     if settings.get("never_merge_separate_examples"):
-        units = [u.strip() for u in re.split(r"\n\s*\n", text) if u.strip()]
+        if separator_mode == "heading":
+            units = [u.strip() for u in _EXAMPLE_SECTION.split(text) if u and u.strip()]
+        else:
+            units = [u.strip() for u in re.split(r"\n\s*\n", text) if u.strip()]
+            merge_within_unit = False
     elif settings.get("preserve_speaker_turns"):
         units = _split_speaker_turns(text)
     else:
@@ -156,9 +182,13 @@ def chunk_text(
     for unit in units:
         heading = _current_heading(unit, heading)
         pieces = _recursive_split(unit, target, tokenizer)
-        merged = _merge_with_overlap(
-            pieces, target=target, overlap=overlap, minimum=minimum, tokenizer=tokenizer
-        ) if not settings.get("never_merge_separate_examples") else pieces
+        merged = (
+            _merge_with_overlap(
+                pieces, target=target, overlap=overlap, minimum=minimum, tokenizer=tokenizer
+            )
+            if merge_within_unit
+            else pieces
+        )
 
         for piece in merged:
             piece = piece.strip()

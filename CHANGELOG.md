@@ -5,6 +5,27 @@ is Semantic Versioning as required by Prompt C §4.3.
 
 ## [Unreleased]
 
+### Added
+
+- C.Walts approved corpus placed under `corpus/raw/`: 12 before/after rewrite
+  pairs, four positive voice-reference descriptions, two delivery-ready
+  reference scripts, the market voice-delivery rules, EVAL-001…015, and the
+  negative-pattern descriptions. 48 chunks, 6,240 tokens.
+- `scripts/corpus_lint.py` — Prompt D §G1 gate: manifest coverage, unique ids,
+  license labels and statuses, secret scan, binary exclusion, duplicate
+  detection, polarity (no negative material labelled positive), and the §D
+  composition report with its 40% auxiliary cap.
+- `example_separator` chunking-profile option with `heading` and `blank_line`
+  modes, plus three tests covering both.
+- Four approved MP3 references and the unverified transcripts placed locally
+  under `references/` and excluded from Git by policy.
+
+### Changed
+
+- `approved_example` chunk profile now splits on H2/rule boundaries rather than
+  blank lines. Measured: the old behaviour produced 262 chunks averaging 23
+  tokens; the new one produces 48 averaging 130.
+
 ## [0.1.0] — 2026-08-01
 
 ### Added

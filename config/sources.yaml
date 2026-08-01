@@ -54,10 +54,79 @@ sources:
     dialect: en-US
     register: mixed
     notes: >
-      Currently EMPTY. This is the highest-value, zero-license-risk source for the
-      natural-flow capability. Place approved copy, preferred rewrites, and
-      before/after pairs in the path above; ingestion will pick them up with no
-      further approval needed.
+      POPULATED 2026-08-01 from the C.Walts handoff package: 12 approved
+      before/after rewrite pairs, four approved positive voice-reference
+      descriptions, and two delivery-ready reference scripts. The Hanna
+      theological passage is deliberately absent — provenance unverified,
+      evaluation-only.
+
+  - id: cwalts_style_rules
+    title: C.Walts market voice-delivery rules
+    url: null
+    path: corpus/raw/style_rules/
+    doc_type: style_rule
+    chunk_profile: reference
+    license: Proprietary — BADGRTechnologies LLC
+    license_url: null
+    license_status: approved
+    license_verified_on: 2026-08-01
+    license_verified_by: owner-authored policy supplied in the C.Walts handoff package
+    commercial_use: permitted
+    redistribution: prohibited
+    attribution_required: false
+    dialect: en-US
+    register: mixed
+    notes: >
+      Market-facing delivery policy: breath grouping, pace ranges per register,
+      pause and emphasis rules, ElevenLabs baseline settings, and evaluation
+      dimensions. Owner-authored; the third-party guidance it cites is
+      paraphrased, and URLs live in docs/web-research-sources.md.
+
+  - id: cwalts_evaluation_cases
+    title: C.Walts evaluation prompts
+    url: null
+    path: corpus/raw/evaluation/cases/
+    doc_type: evaluation_case
+    chunk_profile: approved_example
+    license: Proprietary — BADGRTechnologies LLC
+    license_url: null
+    license_status: approved
+    license_verified_on: 2026-08-01
+    license_verified_by: owner-authored evaluation material
+    commercial_use: permitted
+    redistribution: prohibited
+    attribution_required: false
+    dialect: en-US
+    register: evaluation
+    notes: >
+      EVAL-001 through EVAL-015 with pass criteria. Ingested so that retrieval
+      can surface the controlling acceptance criteria alongside a rewrite. This
+      is also the only approved document containing the exact prosody probes
+      ToBI, H*, and L-L% — see the known limitation in docs/.
+
+  - id: cwalts_negative_patterns
+    title: C.Walts rejected and contrast delivery patterns
+    url: null
+    path: corpus/raw/evaluation/negative/
+    doc_type: negative_pattern
+    chunk_profile: reference
+    license: Proprietary — BADGRTechnologies LLC
+    license_url: null
+    license_status: approved
+    license_verified_on: 2026-08-01
+    license_verified_by: owner-authored classification of rejected delivery
+    commercial_use: permitted
+    redistribution: prohibited
+    attribution_required: false
+    dialect: en-US
+    register: contrast
+    notes: >
+      TEXTUAL DESCRIPTIONS of delivery to avoid. Prompt D §D requires
+      negative-pattern descriptions in the corpus and simultaneously prohibits
+      negative material from being used as positive evidence. Enforcement is
+      metadata-based: every chunk from this source carries
+      doc_type=negative_pattern, and contamination is measured per query in the
+      evaluation report. No negative RECORDING is ingested in any form.
 
 # ---------------------------------------------------------------------------
 # QUARANTINED — present for traceability. Ingestion will refuse all of these.
