@@ -55,6 +55,19 @@ rather than changing what Gate 1 decided.
 
 ### Added
 
+- `tests/test_gate1_1_requirements.py` — 34 tests, one named requirement per §5
+  clause, so the eleven required proofs can be walked directly. Nine restate
+  properties §2–§4 already established; **two were genuinely uncovered**. A
+  caller filter was proved unable to re-admit `evaluation_case` against the live
+  store but only proved for `negative_pattern` at the filter-composition level —
+  now measured end to end (a positive query carrying
+  `where={"doc_type": "negative_pattern"}` returns zero negative chunks). And
+  `verify_restore.py` had no behavioural test at all: a version that silently
+  stopped checking the lexical arm would have passed every existing test while
+  reintroducing the rc.2 failure. Five tests now call `verify()` directly and
+  assert it fails when the index is absent, when the arms hold different id sets,
+  and on a stale expected count. Both new tests were mutation-tested against a
+  deliberately broken verifier and caught it. Suite 287 → **321**.
 - `docs/known-limitations-v0.4.md` — tracked limitations register. Records
   **`CW-LIM-009-DENSE-COVERAGE`** as `deferred` / `severity: medium` /
   `blocks_gate2: false` / `blocks_threshold_calibration: true` /

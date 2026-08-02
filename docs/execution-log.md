@@ -1649,3 +1649,102 @@ sha256sum -c SHA256SUMS.current  re-run last, on the final tree
 ```
 
 Evidence: `docs/known-limitations-v0.4.md`, `docs/evidence/gate1_1-eval009-disposition.json`.
+
+---
+
+## 2026-08-02 — C.Walts v0.4 Gate 1.1 §5: tests
+
+Version held at `0.4.0-dev.2`. Tests only — no store mutation, no corpus, no
+config change.
+
+§5 lists eleven properties. Nine were already proved by §2–§4; two were not, and
+claiming otherwise would have been the easy and wrong answer. `§5` is recorded
+as `tests/test_gate1_1_requirements.py` (34 tests), one named requirement per
+clause, so a reviewer can walk the list without reverse-engineering which
+assertion in which file covers which property.
+
+### Conformance map
+
+| § | Requirement | Proved by |
+|---|---|---|
+| 5.1 | no production path contains `corpus/raw/evaluation/` | `test_r01_*` (live store metadata scan **and** source manifest) |
+| 5.2 | evaluation directories excluded from ingestion | `test_r02_*`, 7 parametrised paths |
+| 5.3 | negative-pattern material remains production corpus | `test_r03_*` — approved source **and** present in both arms |
+| 5.4 | default positive requests exclude negative patterns | `test_r04_*`, 3 live queries |
+| 5.5 | caller filters cannot bypass mandatory exclusions | `test_r05_*` — **new**, see below |
+| 5.6 | contrast requests can retrieve negative patterns | `test_r06_*`, live, asserts the new path |
+| 5.7 | `evaluation_case` remains zero | `test_r07_*` — Chroma two ways, BM25 |
+| 5.8 | active rollback instructions carry no frozen count | `test_r08_*` |
+| 5.9 | restore verification checks both Chroma and BM25 | `test_r09_*` — **new**, see below |
+| 5.10 | historical rollback evidence preserved | `test_r10_*` |
+| 5.11 | EVAL-009 registered, blocks calibration not Gate 2 | `test_r11_*` |
+
+### The two clauses that were not actually covered
+
+**§5.5 — caller filters and negative material.** The bypass was proved for
+`evaluation_case` against the live store, but for `negative_pattern` only at the
+filter-composition level. A composed filter that looks correct and a retrieval
+that actually withholds the material are different claims. Measured directly:
+a positive rewrite query carrying `where={"doc_type": "negative_pattern"}`
+returns 8 chunks — `approved_example` and `style_rule` — and **zero**
+`negative_pattern`. The dense arm's filter becomes an empty intersection, but
+BM25 cannot read metadata and neighbour expansion runs afterwards, so material
+does reach the fused list and is stripped by the post-fusion exclusion. The test
+asserts the outcome rather than the mechanism.
+
+**§5.9 — restore verification covering both stores.** This had no test at all.
+`test_rollback_docs.py` asserts the *document* mentions BM25 and that the *tool*
+hard-codes no count; neither exercises the tool's behaviour. A `verify_restore.py`
+that silently stopped checking the lexical arm would have passed every existing
+test while reintroducing exactly the rc.2 failure it exists to catch.
+
+Now covered by five tests that call `verify_restore.verify()` directly:
+the report covers both stores and passes on the live store; verification **fails**
+when the lexical index is absent; **fails** when the two arms hold different id
+sets; **fails** on a stale expected count; and the remaining required checks
+(`evaluation_case` zero, feedback by name, exact-term, retrieval probe, harness
+MD5) are all present in the report.
+
+The failure cases redirect the module's `PROJECT_ROOT` at a temporary directory
+so the real `var/bm25/index.json` is never touched. The expectation is derived
+*before* the patch, because `expected_from_sources()` also resolves through
+`PROJECT_ROOT` — the first draft patched first and failed with a
+`FileNotFoundError` looking for `scripts/ingest.py` under the temp path.
+
+### The new tests were mutation-tested
+
+A test that asserts a failure path is worthless if the failure path is
+unreachable. `scripts/verify_restore.py` was deliberately mutated — the
+"BM25 index missing" failure replaced with `pass`, and the parity check guarded
+by `if False` — and both §5.9 tests failed as intended:
+
+```text
+FAILED test_r09_verification_fails_when_the_lexical_index_is_absent
+FAILED test_r09_verification_fails_when_the_two_arms_disagree
+```
+
+The file was then restored with `git checkout --` and confirmed byte-identical to
+a pre-mutation copy, with the tests passing again. The mutation was never
+committed.
+
+### Not weakened to pass
+
+No existing assertion was loosened. `test_r11_the_registered_limitation_matches_
+the_live_evaluation_result` deliberately asserts EVAL-009 has **exactly one**
+supporting `approved_example` chunk, so if the case is ever retuned or the corpus
+gains a second dense example, the test fails and
+`CW-LIM-009-DENSE-COVERAGE` must be re-measured or closed rather than left
+asserting a condition that no longer holds.
+
+### Verification
+
+```text
+pytest tests/                    321 collected, exit 0, 0 failed (287 before)
+ruff check .                     All checks passed!
+git diff --check                 clean
+verify_restore.py                PASS — 84/84, id set 0 absent / 0 unexpected
+verify_gate0_integrity.py --verify  re-run last, on the final tree
+sha256sum -c SHA256SUMS.current  re-run last, on the final tree
+```
+
+Evidence: `docs/evidence/gate1_1-test-conformance.json`.

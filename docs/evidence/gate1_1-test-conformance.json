@@ -1,0 +1,142 @@
+{
+  "generated": "2026-08-02T04:51:40.574149+00:00",
+  "phase": "C.Walts v0.4 Gate 1.1 \u00a75 \u2014 tests",
+  "version": "0.4.0-dev.2",
+  "new_file": "tests/test_gate1_1_requirements.py",
+  "new_tests": 34,
+  "suite": {
+    "before": 287,
+    "after": 321,
+    "exit_code": 0
+  },
+  "conformance_map": {
+    "5.1 no production path contains corpus/raw/evaluation/": [
+      "test_r01_no_stored_chunk_declares_a_path_under_the_evaluation_tree",
+      "test_r01_no_configured_source_declares_a_path_under_the_evaluation_tree"
+    ],
+    "5.2 evaluation directories excluded from ingestion": [
+      "test_r02_ingestion_refuses_every_evaluation_directory (7 params)"
+    ],
+    "5.3 negative-pattern material remains production corpus": [
+      "test_r03_the_negative_source_is_still_an_approved_production_source",
+      "test_r03_the_negative_chunk_is_present_in_both_arms"
+    ],
+    "5.4 default positive requests exclude negative patterns": [
+      "test_r04_a_default_positive_request_returns_no_negative_material (3 params)"
+    ],
+    "5.5 caller filters cannot bypass mandatory exclusions": [
+      "test_r05_an_explicit_negative_filter_on_a_positive_request_returns_none (NEW)",
+      "test_r05_an_explicit_evaluation_filter_returns_none",
+      "test_r05_the_composed_filter_intersects_rather_than_replaces"
+    ],
+    "5.6 contrast requests can retrieve negative patterns": [
+      "test_r06_a_contrast_request_reaches_the_negative_material (2 params)"
+    ],
+    "5.7 evaluation_case remains zero": [
+      "test_r07_evaluation_case_is_zero_in_chroma_by_two_independent_surfaces",
+      "test_r07_evaluation_case_is_zero_in_bm25"
+    ],
+    "5.8 active rollback instructions contain no frozen count": [
+      "test_r08_the_active_rollback_document_states_no_collection_count",
+      "test_r08_the_active_document_derives_its_expectation_instead"
+    ],
+    "5.9 restore verification checks both Chroma and BM25": [
+      "test_r09_the_verification_report_covers_both_stores (NEW)",
+      "test_r09_verification_fails_when_the_lexical_index_is_absent (NEW)",
+      "test_r09_verification_fails_when_the_two_arms_disagree (NEW)",
+      "test_r09_verification_fails_on_a_stale_expected_count (NEW)",
+      "test_r09_the_verification_also_covers_the_other_required_checks (NEW)"
+    ],
+    "5.10 historical rollback evidence remains preserved": [
+      "test_r10_the_historical_document_exists_and_is_marked_historical",
+      "test_r10_the_measured_failure_evidence_survives_verbatim",
+      "test_r10_the_historical_evidence_is_classified_in_the_register"
+    ],
+    "5.11 EVAL-009 registered, blocks calibration not Gate 2": [
+      "test_r11_eval_009_blocks_calibration_but_not_gate_2",
+      "test_r11_eval_009_is_registered_as_a_deferred_medium_release_blocker",
+      "test_r11_the_registered_limitation_matches_the_live_evaluation_result"
+    ]
+  },
+  "genuine_gaps_found_and_filled": {
+    "5.5": "negative_pattern bypass was proved only at filter-composition level, not against the live store",
+    "5.9": "verify_restore.py had no behavioural test at all; only the document and the absence of baked counts were asserted"
+  },
+  "measured_bypass_probe": {
+    "query": "Rewrite this for a calm technical voice-over.",
+    "where": {
+      "doc_type": "negative_pattern"
+    },
+    "chunks_returned": 8,
+    "doc_types_returned": [
+      "approved_example",
+      "approved_example",
+      "style_rule",
+      "approved_example",
+      "style_rule",
+      "approved_example",
+      "approved_example",
+      "style_rule"
+    ],
+    "negative_pattern_returned": 0,
+    "note": "dense filter intersects to empty; BM25 cannot read metadata and neighbour expansion runs after, so the post-fusion exclusion is what withholds the material"
+  },
+  "mutation_test": {
+    "target": "scripts/verify_restore.py",
+    "mutations": [
+      "BM25-missing failure replaced with pass",
+      "parity check guarded by if False"
+    ],
+    "tests_that_failed": [
+      "test_r09_verification_fails_when_the_lexical_index_is_absent",
+      "test_r09_verification_fails_when_the_two_arms_disagree"
+    ],
+    "reverted_by": "git checkout --",
+    "byte_identical_after_revert": true,
+    "mutation_committed": false
+  },
+  "no_existing_assertion_weakened": true,
+  "store_after": {
+    "expected_count": 84,
+    "expected_count_derived_from": "source discovery over config/sources.yaml",
+    "expected_id_set_checked": true,
+    "ids_expected_but_absent": [],
+    "ids_present_but_unexpected": [],
+    "production_count": 84,
+    "bm25_chunk_ids": 84,
+    "chroma_bm25_parity": true,
+    "ids_only_in_chroma": [],
+    "ids_only_in_bm25": [],
+    "evaluation_case_by_metadata": 0,
+    "evaluation_case_by_where_filter": 0,
+    "feedback_collection": "badgr_natural_flow_feedback_v1",
+    "feedback_count": 2,
+    "exact_term_probe": "ToBI",
+    "exact_term_hits": 3,
+    "retrieval_probe_hits": 12,
+    "retrieval_doc_types": [
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example"
+    ],
+    "badgr_harness_store_md5": "bdcbe32b706c6ccce1f62e8e9f2d2c49",
+    "verified": true,
+    "failures": []
+  },
+  "checksum_gates_rerun_last": {
+    "note": "re-run after every writing command; describes the final tree",
+    "verify_gate0_integrity.py --verify": "PASS \u2014 delivery record immutable, current tree matches, raw data excluded",
+    "sha256sum -c SHA256SUMS.current": "all files OK, 0 failures",
+    "SHA256SUMS.package self_digest": "0e7e87d2721cafdfe9bdc41fc057dad601374a0ac21be99dd09de03b480cf091",
+    "tripwire_fired": false
+  }
+}
