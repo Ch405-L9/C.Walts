@@ -549,3 +549,64 @@ repository), their destinations under `var/eval_sources/`, the 2.00 GiB cap, the
 20 GiB free-disk requirement against 69.33 GiB free, and every allowlisted member
 with its resolved on-disk target. No Hugging Face mirror or third-party copy
 appears anywhere in the configuration. Reviewed and approved before `--execute`.
+
+### Failure 3 — CLINC150 is CC BY 3.0, not CC BY 4.0
+
+The first `--execute` refused CLINC150:
+
+```
+ERROR: license marker verification failed for
+var/eval_sources/extracted/clinc150/clinc150_uci/LICENSE:
+['Attribution 4.0 International']
+```
+
+The gate worked. The archive was downloaded, extracted, and then rejected before
+anything else happened. Reading the licence that UCI actually ships:
+
+```
+Creative Commons Legal Code
+
+Attribution 3.0 Unported
+```
+
+The approved-source configuration declared `CC-BY-4.0` for all three datasets.
+For CLINC150 that declaration was wrong. Root cause: the licence was taken from
+the dataset's reputation rather than from the file inside the archive — the same
+class of error rc.2 corrected by reading the JATS `<license>` element instead of
+a publisher page.
+
+Correction: `config/approved_eval_datasets.json` now declares `CC-BY-3.0` for
+CLINC150 and requires two markers, `Creative Commons Legal Code` **and**
+`Attribution 3.0 Unported`. The check was made stricter, not looser; the declared
+licence was moved to match the verified evidence. `clinc150_uci/meta.txt` was
+added to the extract allowlist because it carries the citation that CC BY
+attribution requires (Larson et al., EMNLP-IJCNLP 2019).
+
+**Owner decision recorded, not assumed.** CC BY 3.0 permits commercial use and
+adaptation with attribution, so it supports the intended use — evaluation-query
+candidates, never redistributed, never ingested. It is nonetheless a different
+licence from the one the phase plan assumed, and the attribution obligation
+attaches to CLINC150-derived queries. Flagged for the reviewer.
+
+MASSIVE 1.0 and Banking77 both verified `Attribution 4.0 International` in-band
+on the first attempt.
+
+### Failure 4 — Banking77 ships a header row
+
+`parse_banking()` counted `text,category` as a record and then raised
+`InventoryError: Banking77 categories absent from categories.json: ['category']`.
+Root cause: the delivered inventory tool assumed headerless CSVs.
+
+Correction: the header is now **asserted** to equal `["text", "category"]` and
+skipped. It is asserted rather than skipped blindly because a silently absent
+header would cost one real record from each split, and the record counts are the
+whole point of this phase.
+
+### Correction 5 — the candidate annotation flagged two unrelated labels
+
+The near-domain candidate rule first matched substrings, which flagged CLINC150's
+`spending_history` (through "story") and `sync_device` (through a "syn" stem).
+Neither has anything to do with narration. The rule now matches on
+underscore-separated token prefixes, and the stem is `synonym`. CLINC150
+near-domain candidates fell from 11 to 9. The rule is printed in full in the
+report so a reviewer can reject it outright; it annotates, it does not select.

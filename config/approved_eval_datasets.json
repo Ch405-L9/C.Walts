@@ -14,14 +14,16 @@
       "archive_url": "https://archive.ics.uci.edu/static/public/570/clinc150.zip",
       "archive_type": "zip",
       "official_page": "https://archive.ics.uci.edu/dataset/570/clinc150",
-      "license": "CC-BY-4.0",
+      "license": "CC-BY-3.0",
       "license_source": "embedded:clinc150_uci/LICENSE",
       "members": [
         "clinc150_uci/data_full.json",
+        "clinc150_uci/meta.txt",
         "clinc150_uci/LICENSE"
       ],
       "license_markers": [
-        "Attribution 4.0 International"
+        "Creative Commons Legal Code",
+        "Attribution 3.0 Unported"
       ]
     },
     "massive_1_0_en_us": {
