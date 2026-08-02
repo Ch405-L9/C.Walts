@@ -1,0 +1,355 @@
+version: 1
+sources:
+- source_id: labphon-11-ipra
+  title: Towards an International Prosodic Alphabet (IPrA)
+  authors:
+  - José I. Hualde
+  - Pilar Prieto
+  publisher: Ubiquity Press
+  journal: 'Laboratory Phonology: Journal of the Association for Laboratory Phonology'
+  publication_year: 2016
+  doi: 10.5334/labphon.11
+  pmcid: ''
+  pmid: ''
+  official_url: https://doi.org/10.5334/labphon.11
+  first_party_source_location: https://www.journal-labphon.org/article/6173/galley/14561/download/
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  local_snapshot_path: docs/evidence/source-snapshots/labphon-11-ipra.jats.xml
+  checksum_algorithm: sha256
+  checksum: 3e6331f4fc140d41637328bd94970999d3ea8ddab6e2529dc55397a465193678
+  source_format: jats_xml
+  extraction_locator_capability: section title + paragraph ordinal + sentence ordinal
+  attribution_text: 'José I. Hualde; Pilar Prieto, Towards an International Prosodic
+    Alphabet (IPrA), Laboratory Phonology: Journal of the Association for Laboratory
+    Phonology, CC BY 4.0.'
+  access_date: '2026-08-01'
+  permission_basis: article-level JATS license evidence
+  transformation_permission: before_after_rewrite
+  commercial_transformation_and_redistribution: permitted_with_attribution
+  figures_excluded: true
+  tables_excluded: true
+  captions_excluded: true
+  references_excluded: true
+  supplementary_files_excluded: true
+  embedded_third_party_quotations_excluded: true
+- source_id: labphon-29-new-methods
+  title: 'New Methods for Prosodic Transcription: Capturing Variability as a Source
+    of Information'
+  authors:
+  - Jennifer Cole
+  - Stefanie Shattuck-Hufnagel
+  publisher: Ubiquity Press
+  journal: 'Laboratory Phonology: Journal of the Association for Laboratory Phonology'
+  publication_year: 2016
+  doi: 10.5334/labphon.29
+  pmcid: ''
+  pmid: ''
+  official_url: https://doi.org/10.5334/labphon.29
+  first_party_source_location: https://www.journal-labphon.org/article/6176/galley/14567/download/
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  local_snapshot_path: docs/evidence/source-snapshots/labphon-29-new-methods.jats.xml
+  checksum_algorithm: sha256
+  checksum: e62046745328726ad36e5d1c31679bb6507d7672372f1792d1efdba435d6646c
+  source_format: jats_xml
+  extraction_locator_capability: section title + paragraph ordinal + sentence ordinal
+  attribution_text: 'Jennifer Cole; Stefanie Shattuck-Hufnagel, New Methods for Prosodic
+    Transcription: Capturing Variability as a Source of Information, Laboratory Phonology:
+    Journal of the Association for Laboratory Phonology, CC BY 4.0.'
+  access_date: '2026-08-01'
+  permission_basis: article-level JATS license evidence
+  transformation_permission: before_after_rewrite
+  commercial_transformation_and_redistribution: permitted_with_attribution
+  figures_excluded: true
+  tables_excluded: true
+  captions_excluded: true
+  references_excluded: true
+  supplementary_files_excluded: true
+  embedded_third_party_quotations_excluded: true
+- source_id: labphon-32-introducing-apt
+  title: Introducing Advancing Prosodic Transcription
+  authors:
+  - Mariapaola D’Imperio
+  - Francesco Cangemi
+  - Martine Grice
+  publisher: Ubiquity Press
+  journal: Laboratory Phonology
+  publication_year: 2016
+  doi: 10.5334/labphon.32
+  pmcid: ''
+  pmid: ''
+  official_url: https://doi.org/10.5334/labphon.32
+  first_party_source_location: https://www.journal-labphon.org/article/6172/galley/14555/download/
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  local_snapshot_path: docs/evidence/source-snapshots/labphon-32-introducing-apt.jats.xml
+  checksum_algorithm: sha256
+  checksum: 2c7be283805665c19c69ec6e67b89344e5851fcd13f50e293b91152107b9e4fe
+  source_format: jats_xml
+  extraction_locator_capability: section title + paragraph ordinal + sentence ordinal
+  attribution_text: Mariapaola D’Imperio; Francesco Cangemi; Martine Grice, Introducing
+    Advancing Prosodic Transcription, Laboratory Phonology, CC BY 4.0.
+  access_date: '2026-08-01'
+  permission_basis: article-level JATS license evidence
+  transformation_permission: before_after_rewrite
+  commercial_transformation_and_redistribution: permitted_with_attribution
+  figures_excluded: true
+  tables_excluded: true
+  captions_excluded: true
+  references_excluded: true
+  supplementary_files_excluded: true
+  embedded_third_party_quotations_excluded: true
+- source_id: labphon-48-seoul-korean-focus
+  title: Prosodic Marking of Narrow Focus in Seoul Korean
+  authors:
+  - Hae-Sung Jeon
+  - Francis Nolan
+  publisher: Ubiquity Press
+  journal: Laboratory Phonology
+  publication_year: 2017
+  doi: 10.5334/labphon.48
+  pmcid: ''
+  pmid: ''
+  official_url: https://doi.org/10.5334/labphon.48
+  first_party_source_location: https://www.journal-labphon.org/article/6189/galley/14593/download/
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  local_snapshot_path: docs/evidence/source-snapshots/labphon-48-seoul-korean-focus.jats.xml
+  checksum_algorithm: sha256
+  checksum: 0f59063e689ece6671faaa8bba8525526ffbdad90df3851cc66820c93d332860
+  source_format: jats_xml
+  extraction_locator_capability: section title + paragraph ordinal + sentence ordinal
+  attribution_text: Hae-Sung Jeon; Francis Nolan, Prosodic Marking of Narrow Focus
+    in Seoul Korean, Laboratory Phonology, CC BY 4.0.
+  access_date: '2026-08-01'
+  permission_basis: article-level JATS license evidence
+  transformation_permission: before_after_rewrite
+  commercial_transformation_and_redistribution: permitted_with_attribution
+  figures_excluded: true
+  tables_excluded: true
+  captions_excluded: true
+  references_excluded: true
+  supplementary_files_excluded: true
+  embedded_third_party_quotations_excluded: true
+- source_id: pmc11592126-silent-reading-rhythm
+  title: Examining the Neural Markers of Speech Rhythm in Silent Reading Using Mass
+    Univariate Statistics of EEG Single Trials
+  authors:
+  - Stephanie J. Powell
+  - Srishti Nayak
+  - Cyrille L. Magne
+  publisher: Multidisciplinary Digital Publishing Institute (MDPI)
+  journal: Brain Sciences
+  publication_year: 2024
+  doi: 10.3390/brainsci14111142
+  pmcid: PMC11592126
+  pmid: '39595905'
+  official_url: https://doi.org/10.3390/brainsci14111142
+  first_party_source_location: https://www.ebi.ac.uk/europepmc/webservices/rest/PMC11592126/fullTextXML
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  local_snapshot_path: docs/evidence/source-snapshots/PMC11592126.jats.xml
+  checksum_algorithm: sha256
+  checksum: 052c4658021f0d2facfcd869e17d2bd36d441a1b269e710d58486dcda076d79f
+  source_format: jats_xml
+  extraction_locator_capability: section title + paragraph ordinal + sentence ordinal
+  attribution_text: Stephanie J. Powell; Srishti Nayak; Cyrille L. Magne, Examining
+    the Neural Markers of Speech Rhythm in Silent Reading Using Mass Univariate Statistics
+    of EEG Single Trials, Brain Sciences, CC BY 4.0.
+  access_date: '2026-08-01'
+  permission_basis: article-level JATS license evidence
+  transformation_permission: before_after_rewrite
+  commercial_transformation_and_redistribution: permitted_with_attribution
+  figures_excluded: true
+  tables_excluded: true
+  captions_excluded: true
+  references_excluded: true
+  supplementary_files_excluded: true
+  embedded_third_party_quotations_excluded: true
+- source_id: pmc12452892-prosodic-meaning
+  title: 'Disentanglement of prosodic meaning: Toward a framework for the analysis
+    of nonverbal information in speech'
+  authors:
+  - Tirza Biron
+  - Moshe Barboy
+  - Eran Ben-Artzy
+  - Alona Golubchik
+  - Yanir Marmor
+  - Assaf Marron
+  - Smadar Szekely
+  - Yaron Winter
+  - David Harel
+  publisher: National Academy of Sciences
+  journal: Proceedings of the National Academy of Sciences of the United States of
+    America
+  publication_year: 2025
+  doi: 10.1073/pnas.2500510122
+  pmcid: PMC12452892
+  pmid: '40938709'
+  official_url: https://doi.org/10.1073/pnas.2500510122
+  first_party_source_location: https://www.ebi.ac.uk/europepmc/webservices/rest/PMC12452892/fullTextXML
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  local_snapshot_path: docs/evidence/source-snapshots/PMC12452892.jats.xml
+  checksum_algorithm: sha256
+  checksum: a7cdf2534af6139a1c3ceceebf6655acc8b9b6c9482d120e8e0f760ec994157f
+  source_format: jats_xml
+  extraction_locator_capability: section title + paragraph ordinal + sentence ordinal
+  attribution_text: 'Tirza Biron; Moshe Barboy; Eran Ben-Artzy; Alona Golubchik; Yanir
+    Marmor; Assaf Marron; Smadar Szekely; Yaron Winter; David Harel, Disentanglement
+    of prosodic meaning: Toward a framework for the analysis of nonverbal information
+    in speech, Proceedings of the National Academy of Sciences of the United States
+    of America, CC BY 4.0.'
+  access_date: '2026-08-02'
+  permission_basis: article-level JATS license evidence
+  transformation_permission: before_after_rewrite
+  commercial_transformation_and_redistribution: permitted_with_attribution
+  figures_excluded: true
+  tables_excluded: true
+  captions_excluded: true
+  references_excluded: true
+  supplementary_files_excluded: true
+  embedded_third_party_quotations_excluded: true
+- source_id: pmc12468771-l2-prosody-perception
+  title: 'Cross-Linguistic Influences on L2 Prosody Perception: Evidence from English
+    Interrogative Focus Perception by Mandarin Listeners'
+  authors:
+  - Xing Liu
+  - Xiaoxiang Chen
+  - Chen Kuang
+  - Fei Chen
+  publisher: Multidisciplinary Digital Publishing Institute (MDPI)
+  journal: Brain Sciences
+  publication_year: 2025
+  doi: 10.3390/brainsci15091000
+  pmcid: PMC12468771
+  pmid: '41008359'
+  official_url: https://doi.org/10.3390/brainsci15091000
+  first_party_source_location: https://www.ebi.ac.uk/europepmc/webservices/rest/PMC12468771/fullTextXML
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  local_snapshot_path: docs/evidence/source-snapshots/PMC12468771.jats.xml
+  checksum_algorithm: sha256
+  checksum: f088e825d5321185909386f0ac179d3705f41d2e253ce554dc65102175b4c3f0
+  source_format: jats_xml
+  extraction_locator_capability: section title + paragraph ordinal + sentence ordinal
+  attribution_text: 'Xing Liu; Xiaoxiang Chen; Chen Kuang; Fei Chen, Cross-Linguistic
+    Influences on L2 Prosody Perception: Evidence from English Interrogative Focus
+    Perception by Mandarin Listeners, Brain Sciences, CC BY 4.0.'
+  access_date: '2026-08-01'
+  permission_basis: article-level JATS license evidence
+  transformation_permission: before_after_rewrite
+  commercial_transformation_and_redistribution: permitted_with_attribution
+  figures_excluded: true
+  tables_excluded: true
+  captions_excluded: true
+  references_excluded: true
+  supplementary_files_excluded: true
+  embedded_third_party_quotations_excluded: true
+- source_id: pmc8092678-prosodic-boundaries
+  title: Automatic detection of prosodic boundaries in spontaneous speech
+  authors:
+  - Tirza Biron
+  - Daniel Baum
+  - Dominik Freche
+  - Nadav Matalon
+  - Netanel Ehrmann
+  - Eyal Weinreb
+  - David Biron
+  - Elisha Moses
+  publisher: Public Library of Science (PLOS)
+  journal: PLOS ONE
+  publication_year: 2021
+  doi: 10.1371/journal.pone.0250969
+  pmcid: PMC8092678
+  pmid: '33939754'
+  official_url: https://doi.org/10.1371/journal.pone.0250969
+  first_party_source_location: https://www.ebi.ac.uk/europepmc/webservices/rest/PMC8092678/fullTextXML
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  local_snapshot_path: docs/evidence/source-snapshots/PMC8092678.jats.xml
+  checksum_algorithm: sha256
+  checksum: f8dc3977f054f4b57a4e49e5a3052dd899e61378da10bed5225589007067f634
+  source_format: jats_xml
+  extraction_locator_capability: section title + paragraph ordinal + sentence ordinal
+  attribution_text: Tirza Biron; Daniel Baum; Dominik Freche; Nadav Matalon; Netanel
+    Ehrmann; Eyal Weinreb; David Biron; Elisha Moses, Automatic detection of prosodic
+    boundaries in spontaneous speech, PLOS ONE, CC BY 4.0.
+  access_date: '2026-08-01'
+  permission_basis: article-level JATS license evidence
+  transformation_permission: before_after_rewrite
+  commercial_transformation_and_redistribution: permitted_with_attribution
+  figures_excluded: true
+  tables_excluded: true
+  captions_excluded: true
+  references_excluded: true
+  supplementary_files_excluded: true
+  embedded_third_party_quotations_excluded: true
+- source_id: pmc9887997-intonational-categories
+  title: 'Internal structure of intonational categories: The (dis)appearance of a
+    perceptual magnet effect'
+  authors:
+  - Joe Rodd
+  - Aoju Chen
+  publisher: Frontiers Media SA
+  journal: Frontiers in Psychology
+  publication_year: 2023
+  doi: 10.3389/fpsyg.2022.911349
+  pmcid: PMC9887997
+  pmid: '36733875'
+  official_url: https://doi.org/10.3389/fpsyg.2022.911349
+  first_party_source_location: https://www.ebi.ac.uk/europepmc/webservices/rest/PMC9887997/fullTextXML
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  local_snapshot_path: docs/evidence/source-snapshots/PMC9887997.jats.xml
+  checksum_algorithm: sha256
+  checksum: d4a44a49bb17d3ae28ae1ceac223bfd27cb272d6d66a11b969e4de0ee6886628
+  source_format: jats_xml
+  extraction_locator_capability: section title + paragraph ordinal + sentence ordinal
+  attribution_text: 'Joe Rodd; Aoju Chen, Internal structure of intonational categories:
+    The (dis)appearance of a perceptual magnet effect, Frontiers in Psychology, CC
+    BY 4.0.'
+  access_date: '2026-08-02'
+  permission_basis: article-level JATS license evidence
+  transformation_permission: before_after_rewrite
+  commercial_transformation_and_redistribution: permitted_with_attribution
+  figures_excluded: true
+  tables_excluded: true
+  captions_excluded: true
+  references_excluded: true
+  supplementary_files_excluded: true
+  embedded_third_party_quotations_excluded: true
+- source_id: pmc12641984-ci-auditory-environment
+  title: Everyday Auditory Environment Among Elderly Cochlear Implant Users
+  authors:
+  - Ulrika Larsson
+  - Ulrika Löfkvist
+  - Karin Hallin
+  publisher: Multidisciplinary Digital Publishing Institute (MDPI)
+  journal: Audiology Research
+  publication_year: 2025
+  doi: 10.3390/audiolres15060144
+  pmcid: PMC12641984
+  pmid: '41283487'
+  official_url: https://doi.org/10.3390/audiolres15060144
+  first_party_source_location: https://www.ebi.ac.uk/europepmc/webservices/rest/PMC12641984/fullTextXML
+  license: CC BY 4.0
+  license_url: https://creativecommons.org/licenses/by/4.0/
+  local_snapshot_path: docs/evidence/source-snapshots/PMC12641984.jats.xml
+  checksum_algorithm: sha256
+  checksum: 582455ffdf439f5c521b05114fb82dc07597cefdd442703fe259505537d4e349
+  source_format: jats_xml
+  extraction_locator_capability: section title + paragraph ordinal + sentence ordinal
+  attribution_text: Ulrika Larsson; Ulrika Löfkvist; Karin Hallin, Everyday Auditory
+    Environment Among Elderly Cochlear Implant Users, Audiology Research, CC BY 4.0.
+  access_date: '2026-08-02'
+  permission_basis: article-level JATS license evidence
+  transformation_permission: before_after_rewrite
+  commercial_transformation_and_redistribution: permitted_with_attribution
+  figures_excluded: true
+  tables_excluded: true
+  captions_excluded: true
+  references_excluded: true
+  supplementary_files_excluded: true
+  embedded_third_party_quotations_excluded: true

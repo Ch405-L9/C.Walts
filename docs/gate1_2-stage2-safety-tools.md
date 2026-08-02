@@ -66,7 +66,7 @@ ambiguous stale-ID ownership. `mutation_performed` must always be `false`.
 
 ```bash
 .venv/bin/python scripts/validate_stage2_sources.py \
-  --manifest <path-to-stage2_public_sources.yaml> \
+  --manifest config/stage2_public_sources.yaml \
   --output-json <path>
 ```
 
@@ -103,6 +103,44 @@ third-party exclusions, duplicate source IDs, duplicate stable article IDs,
 conflicting licenses or checksums for the same article, inconsistent snapshot
 reuse, and evidence paths that escape approved roots.
 
+`config/stage2_public_sources.yaml` is a Stage 2 source-audit manifest only. It
+is not the production ingestion manifest; `config/sources.yaml` remains the
+authority for production corpus ingestion.
+
+## Stage 2 candidate/source exactness validation
+
+```bash
+.venv/bin/python scripts/validate_stage2_candidates.py \
+  --candidates var/stage2_candidate_review/stage2_candidates.jsonl \
+  --manifest config/stage2_public_sources.yaml \
+  --output-json var/stage2_candidate_review/candidate_source_validation.json
+```
+
+Exit codes:
+
+- `0`: candidate validation passed with no errors.
+- `1`: validation completed and found at least one error.
+- `2` or Python exception: command input or repository state could not be
+  verified; treat as fail-closed.
+
+The candidate validator checks the JSONL collection against the tracked Stage 2
+audit manifest and preserved JATS snapshots. The per-record
+`stage2_candidates.schema.json` shape check remains object-level only; collection
+constraints are enforced by `validate_stage2_candidates.py`.
+
+The collection-level checks enforce exactly twelve records, IDs
+`ST2-CAND-001` through `ST2-CAND-012`, unique IDs, allocation `4/2/2/2/2`,
+known `source_id` values, snapshot existence, snapshot checksum matches,
+deterministic locator resolution, exact passage text after the declared
+`jats_body_text_without_bibr_xrefs_whitespace_collapse` normalization, passage
+SHA-256, project tokenizer count, false safety flags, array protected fields,
+nonempty source text, and absence of final rewrite text.
+
+The command fails closed on unresolved locators, exact-text mismatches, checksum
+mismatches, duplicate IDs, allocation mismatch, missing sources, undeclared text
+normalization, passage hash mismatch, token-count mismatch, EVAL-009 or holdout
+references, and final rewrite fields.
+
 ## Stage 2.2B gate
 
 Before any production corpus mutation, Stage 2.2B must show:
@@ -113,6 +151,7 @@ Before any production corpus mutation, Stage 2.2B must show:
 - would-add, stale, unchanged, duplicate, content-changed, and metadata-changed
   IDs;
 - source/license/provenance validation JSON;
+- candidate/source exactness validation JSON;
 - a verified backup and rollback checkpoint.
 
 These tools do not authorize mutation by themselves. They are preconditions for

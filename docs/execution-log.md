@@ -2312,3 +2312,99 @@ git diff --check
   evaluation_case 0, feedback 2, ToBI 3 hits, retrieval probe 12 chunks,
   BADGR Harness MD5 bdcbe32b706c6ccce1f62e8e9f2d2c49
 ```
+
+---
+
+## 2026-08-02 - C.Walts v0.4 Gate 1.2 Stage 2.2B-1D: source-evidence promotion
+
+Version held at `0.4.0-dev.2`. This task promoted approved source evidence and
+hardened candidate exactness validation only. No final before/after rewrites were
+authored, no production corpus files were created, `config/sources.yaml` was not
+modified, Chroma/BM25 were not mutated, holdout/EVAL-009 material was not
+inspected, thresholds were not fit, and Gate 2/Stage 3 work did not begin.
+
+### State
+
+Initial verification measured branch `feat/narration-generalization-v0.4`,
+HEAD/upstream `04f928d0995ea599e464f97e18c2c0fb763a0b08`, no tracked or staged
+diff, version `0.4.0-dev.2`, production Chroma count 84, BM25 count 84, exact
+production parity, `evaluation_case` 0, feedback collection 2, embedding
+`nomic-embed-text` dimension 768, BADGR Harness MD5
+`bdcbe32b706c6ccce1f62e8e9f2d2c49`, and 8 tracked `corpus/raw` files. The only
+visible untracked files were owner-provided Stage 2.2B-1C directive files.
+
+### Input Bundle
+
+Accepted B1C review bundle:
+
+```text
+c5f03b3a8e3aea5d696989b2073dcd32f0f8830709b2ae2aa6528396465a2511  var/stage2_candidate_review/stage2_b1c_review_bundle.zip
+sha256sum -c SHA256SUMS
+  all 8 listed review artifacts OK
+```
+
+### Source Evidence
+
+Promoted exactly three approved local-only snapshots byte-for-byte into
+`docs/evidence/source-snapshots/`:
+
+```text
+a7cdf2534af6139a1c3ceceebf6655acc8b9b6c9482d120e8e0f760ec994157f  PMC12452892.jats.xml
+d4a44a49bb17d3ae28ae1ceac223bfd27cb272d6d66a11b969e4de0ee6886628  PMC9887997.jats.xml
+582455ffdf439f5c521b05114fb82dc07597cefdd442703fe259505537d4e349  PMC12641984.jats.xml
+```
+
+`config/stage2_public_sources.yaml` was created as a tracked Stage 2 source-audit
+manifest for the ten qualified public sources. It is not a production ingestion
+manifest and does not alter `config/sources.yaml`.
+
+### Candidate Exactness
+
+Added `scripts/validate_stage2_candidates.py`, which validates the 12 candidate
+records against the tracked source audit manifest and preserved JATS snapshots.
+The per-record JSON Schema remains object-level; the script enforces collection
+count, ID uniqueness, allocation, source membership, source checksums, locator
+resolution, exact passage text, passage hash, tokenizer count, safety flags, and
+absence of final rewrite text.
+
+`ST2-CAND-004` was corrected to exact JATS text from
+`docs/evidence/source-snapshots/PMC12468771.jats.xml`. The same exactness pass
+also corrected `ST2-CAND-001` and `ST2-CAND-003`, which were detected as
+paraphrased by the new validator.
+
+### Validation
+
+```text
+.venv/bin/python -m pytest tests/test_stage2_candidate_validator.py -q
+  14 passed
+
+.venv/bin/python -m pytest tests/ --tb=short
+  391 passed in 11.68s
+
+.venv/bin/ruff check .
+  All checks passed!
+
+git diff --check
+  clean
+
+.venv/bin/python scripts/corpus_lint.py
+  PASS - 84 chunks, no findings
+
+.venv/bin/python scripts/verify_restore.py --expect-from-sources
+  PASS - expected 84, production 84, BM25 84, id set 0 absent / 0 unexpected,
+  evaluation_case 0, feedback 2, ToBI 3 hits, retrieval probe 12 chunks,
+  BADGR Harness MD5 bdcbe32b706c6ccce1f62e8e9f2d2c49
+
+sha256sum -c docs/evidence/source-snapshots/SHA256SUMS
+  all 10 source snapshots OK
+
+.venv/bin/python scripts/validate_stage2_sources.py --manifest config/stage2_public_sources.yaml
+  verdict=pass, sources=10, errors=0, warnings=0
+
+.venv/bin/python scripts/validate_stage2_candidates.py --manifest config/stage2_public_sources.yaml
+  verdict=pass, records=12, errors=0, warnings=0
+
+stage2_candidate_duplicates.json
+  verdict=pass, production_records=84, bm25_ids=84, exact_parity=true,
+  blank_source_ids=0, feedback_records_included=0
+```

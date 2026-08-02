@@ -3,6 +3,62 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.2 Stage 2.2B-1D, source-evidence promotion
+
+Version stays at `0.4.0-dev.2`. This is source-evidence and validation
+hardening only: no final before/after rewrites, no production corpus records, no
+`config/sources.yaml` change, no Chroma/BM25 mutation, no holdout inspection, no
+threshold fitting, and no Gate 2 work.
+
+### Added
+
+- `config/stage2_public_sources.yaml` — tracked Stage 2 source-audit manifest
+  for the ten qualified public sources. It is not the production ingestion
+  manifest.
+- `scripts/validate_stage2_candidates.py` — collection-level and source-exactness
+  validator for Stage 2 candidate JSONL records. It enforces 12 records,
+  `ST2-CAND-001` through `ST2-CAND-012`, allocation `4/2/2/2/2`, promoted source
+  membership, source snapshot checksums, locator resolution, exact passage text,
+  passage hashes, project tokenizer counts, safety flags, protected-field array
+  types, and absence of final rewrite text.
+- Focused candidate-validator regression tests covering valid input, missing or
+  extra records, duplicate IDs, allocation mismatch, passage mismatch, unresolved
+  locator, checksum mismatch, passage hash mismatch, token-count mismatch, true
+  safety flags, undeclared normalization, missing source, and final rewrite text.
+
+### Changed
+
+- Promoted `PMC12452892.jats.xml`, `PMC9887997.jats.xml`, and
+  `PMC12641984.jats.xml` into `docs/evidence/source-snapshots/` byte-for-byte
+  from the approved local snapshots, and added their SHA-256 entries.
+- Regenerated the ignored Stage 2.2B-1D review bundle with exact source passages,
+  candidate-source validation evidence, and tracked-manifest source paths.
+- Corrected `ST2-CAND-004` to the exact preserved JATS sentence beginning
+  “However, English focus in interrogative environments is distinctive...”.
+  Exactness hardening also corrected `ST2-CAND-001` and `ST2-CAND-003`, which
+  were detected as paraphrases by the new validator.
+
+### Validation
+
+```text
+pytest tests/test_stage2_candidate_validator.py -q
+                                 14 passed
+pytest tests/ --tb=short         391 passed in 11.68s
+ruff check .                     All checks passed!
+git diff --check                 clean
+corpus_lint.py                   PASS - 84 chunks, no findings
+verify_restore.py                PASS - 84/84, BM25 84, exact parity,
+                                 evaluation_case 0, feedback 2,
+                                 BADGR Harness MD5 unchanged
+sha256sum -c docs/evidence/source-snapshots/SHA256SUMS
+                                 all 10 source snapshots OK
+validate_stage2_sources.py       verdict=pass, sources=10, errors=0, warnings=0
+validate_stage2_candidates.py    verdict=pass, records=12, errors=0, warnings=0
+duplicate report                 verdict=pass, production=84, BM25=84,
+                                 exact parity=true, blank source IDs=0,
+                                 feedback records included=0
+```
+
 ## [Unreleased] — Gate 1.2 Stage 2.2A follow-up, independent BM25 plan parity
 
 Version stays at `0.4.0-dev.2`. This follow-up is safety-tooling only: no Stage
