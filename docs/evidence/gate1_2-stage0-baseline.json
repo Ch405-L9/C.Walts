@@ -1,0 +1,85 @@
+{
+  "generated": "2026-08-02T12:54:34Z",
+  "phase": "C.Walts v0.4 Gate 1.2 Stage 0 - freeze and baseline",
+  "version": "0.4.0-dev.2",
+  "canonical_directive": {
+    "path": "README_compass_artificat.md",
+    "local_only": true,
+    "tracked": false,
+    "owner_confirmed_typo": {
+      "line": "README_compass_artificat.md:4",
+      "stated": "feat/natural-flow-rag-activation @ ce4c2b3",
+      "corrected_target": "feat/narration-generalization-v0.4 @ ce4c2b300a3bea940abc69e0acff3f9895d5012f",
+      "do_not_switch_branch": true
+    },
+    "otherwise_controlling": true
+  },
+  "owner_provided_local_only_context": [
+    "FULL_c.walts_project_outside-eyes-ovrvw_context.txt",
+    "README_compass_artificat.md"
+  ],
+  "local_exclude": {
+    "path": ".git/info/exclude",
+    "entries_added": [
+      "/FULL_c.walts_project_outside-eyes-ovrvw_context.txt",
+      "/README_compass_artificat.md"
+    ],
+    "tracked": false,
+    "duplicate_entries_avoided": true
+  },
+  "repository_identity": {
+    "git_status_short": "",
+    "branch": "feat/narration-generalization-v0.4",
+    "head": "ce4c2b300a3bea940abc69e0acff3f9895d5012f",
+    "upstream_head": "ce4c2b300a3bea940abc69e0acff3f9895d5012f",
+    "fetch_origin_quiet": {
+      "exit_code": 0,
+      "output": ""
+    },
+    "head_matches_upstream": true
+  },
+  "handoff_current_state": {
+    "path": "docs/C.Walts-v0.4-complete-handoff-report.md",
+    "commit": "ce4c2b300a3bea940abc69e0acff3f9895d5012f",
+    "authoritative_current_state_confirmed": true,
+    "architecture_changed_in_stage0": false
+  },
+  "validation": {
+    "pytest": {
+      "command": ".venv/bin/python -m pytest tests/ -q",
+      "exit_code": 0,
+      "observed_progress_dots": 321
+    },
+    "verify_restore": {
+      "command": ".venv/bin/python scripts/verify_restore.py --expect-from-sources",
+      "exit_code": 0,
+      "expected_count": 84,
+      "production_count": 84,
+      "ids_absent": 0,
+      "ids_unexpected": 0,
+      "bm25_chunk_ids": 84,
+      "id_set_parity": true,
+      "evaluation_case": 0,
+      "feedback_count": 2,
+      "exact_term_probe": "ToBI",
+      "exact_term_hits": 3,
+      "retrieval_probe_chunks": 12,
+      "badgr_harness_store_md5": "bdcbe32b706c6ccce1f62e8e9f2d2c49",
+      "result": "PASS - the restored store is complete and usable"
+    }
+  },
+  "prohibited_during_stage0": {
+    "corpus_changed": false,
+    "chroma_mutated": false,
+    "bm25_mutated": false,
+    "gate2_begun": false,
+    "thresholds_fit": false,
+    "holdout_content_inspected": false,
+    "context_files_committed": false
+  },
+  "exit": {
+    "baseline_recorded": true,
+    "nothing_in_flight": true,
+    "ready_for_stage1": true
+  }
+}

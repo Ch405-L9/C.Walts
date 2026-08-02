@@ -1948,3 +1948,60 @@ of the 17 covered paths changed. `SHA256SUMS.package` untouched.
 
 Evidence: `docs/C.Walts-v0.4-complete-handoff-report.md`,
 `docs/evidence/gate1_1-handoff.json`.
+
+---
+
+## 2026-08-02 - C.Walts v0.4 Gate 1.2 Stage 0: freeze and baseline
+
+Version held at `0.4.0-dev.2`. Stage 0 only: no corpus change, no ChromaDB or
+BM25 mutation, no threshold fitting, no holdout inspection, no Gate 2 work, and
+no gate renumbering.
+
+### Owner clarification
+
+The canonical directive is the owner-provided local-only file
+`README_compass_artificat.md`. Its line 4 says it applies to
+`feat/natural-flow-rag-activation @ ce4c2b3`; the owner confirmed this is a
+typo. The correct target is
+`feat/narration-generalization-v0.4 @ ce4c2b300a3bea940abc69e0acff3f9895d5012f`.
+The directive otherwise remains controlling.
+
+Two root files are owner-provided local-only context and must not be committed:
+`FULL_c.walts_project_outside-eyes-ovrvw_context.txt` and
+`README_compass_artificat.md`. To satisfy Stage 0's clean visible tree
+requirement without tracking them, their exact root-relative paths were added to
+`.git/info/exclude`, avoiding duplicate entries:
+
+```text
+/FULL_c.walts_project_outside-eyes-ovrvw_context.txt
+/README_compass_artificat.md
+```
+
+### Baseline
+
+`git fetch origin --quiet` completed with exit 0. After fetch:
+
+| Fact | Value |
+|---|---|
+| `git status --short` | empty |
+| Branch | `feat/narration-generalization-v0.4` |
+| HEAD | `ce4c2b300a3bea940abc69e0acff3f9895d5012f` |
+| Upstream | `ce4c2b300a3bea940abc69e0acff3f9895d5012f` |
+
+The complete handoff report at `ce4c2b3` remains the authoritative
+CURRENT_STATE. Stage 0 changed no architecture, so no handoff architecture update
+was required.
+
+### Validation
+
+```text
+.venv/bin/python -m pytest tests/ -q
+  exit 0, 321 observed progress dots
+
+.venv/bin/python scripts/verify_restore.py --expect-from-sources
+  PASS - expected 84, production 84, BM25 84, id set 0 absent / 0 unexpected,
+  evaluation_case 0, feedback 2, ToBI 3 hits, retrieval probe 12 chunks,
+  BADGR Harness MD5 bdcbe32b706c6ccce1f62e8e9f2d2c49
+```
+
+Evidence: `docs/evidence/gate1_2-stage0-baseline.json`.
