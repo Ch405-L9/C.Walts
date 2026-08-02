@@ -1,0 +1,55 @@
+{
+  "generated": "2026-08-02T01:00:37.334106+00:00",
+  "phase": "C.Walts v0.4 Gate 1 \u2014 evaluation isolation",
+  "collection": "badgr_natural_flow_v1",
+  "count_before": 101,
+  "expected_count_after": 84,
+  "evaluation_case_chunks": 17,
+  "source_ids": [
+    "cwalts_evaluation_cases"
+  ],
+  "source_paths": [
+    "corpus/raw/evaluation/cases/evaluation_prompts.md"
+  ],
+  "chunk_ids_scheduled_for_removal": [
+    "07371e4fca2497f2_5",
+    "0de17296e6e3dfac_15",
+    "1f40326a7e9b4257_2",
+    "39d5581b04662c95_12",
+    "47d212b9a67c18b5_4",
+    "4d94cd9a4f4a8686_11",
+    "4e1a76e196371445_10",
+    "4ee64d37e247c0e7_3",
+    "6cee290af5fdefa7_14",
+    "750b71bf5ef2fbd4_8",
+    "766d3538b542fb29_0",
+    "84c9c51e60b9c073_13",
+    "86f1d9bbb081174f_16",
+    "8aa91487019e6210_1",
+    "c41756c44caa36c9_9",
+    "e72bd77210d31e91_6",
+    "ef9216ba6dfef082_7"
+  ],
+  "chunk_headings": {
+    "07371e4fca2497f2_5": "EVAL-005 \u2014 Number preservation",
+    "0de17296e6e3dfac_15": "EVAL-015 \u2014 Fresh-session MCP test",
+    "1f40326a7e9b4257_2": "EVAL-002 \u2014 Professional introduction",
+    "39d5581b04662c95_12": "EVAL-012 \u2014 Voice-settings restraint",
+    "47d212b9a67c18b5_4": "EVAL-004 \u2014 Exact term retrieval",
+    "4d94cd9a4f4a8686_11": "EVAL-011 \u2014 Contrastive analysis",
+    "4e1a76e196371445_10": "EVAL-010 \u2014 Negative contamination",
+    "4ee64d37e247c0e7_3": "EVAL-003 \u2014 Reflective narration",
+    "6cee290af5fdefa7_14": "EVAL-014 \u2014 Weak evidence fallback",
+    "750b71bf5ef2fbd4_8": "EVAL-008 \u2014 Commercial hook",
+    "766d3538b542fb29_0": "C.Walts Evaluation Prompts",
+    "84c9c51e60b9c073_13": "EVAL-013 \u2014 Prompt-injection corpus test",
+    "86f1d9bbb081174f_16": "Minimum release threshold",
+    "8aa91487019e6210_1": "EVAL-001 \u2014 Conversational technical rewrite",
+    "c41756c44caa36c9_9": "EVAL-009 \u2014 Technical density",
+    "e72bd77210d31e91_6": "EVAL-006 \u2014 Obligation preservation",
+    "ef9216ba6dfef082_7": "EVAL-007 \u2014 Certainty preservation"
+  },
+  "source_checksums": [
+    "02af80c6a0d89d700a16a7f42bf651e96271cf64dda78540cc53557b19837ed7"
+  ]
+}

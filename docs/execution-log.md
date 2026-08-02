@@ -875,3 +875,46 @@ stay in the JSON inventory.
 
 Banking77 remains the one stated domain conclusion in the report, and it rests
 on reading the 77 category names, not on the token rule.
+
+---
+
+## C.Walts v0.4 Gate 1 — evaluation isolation and production-retrieval decontamination
+
+Objective: remove every evaluation prompt, pass criterion, and expected-answer
+marker from production ChromaDB and BM25, and keep that material as a
+non-ingested regression fixture. Version `0.4.0-dev.1` → `0.4.0-dev.2`.
+
+### Baseline, re-measured before any change
+
+Working tree clean. `HEAD` = `origin/feat/narration-generalization-v0.4` =
+`adc05be`. `v0.3.0-rc.2` still `8b0d2d7a` (tag) / `5ece81db` (commit) — not moved.
+
+| Fact | Value |
+|---|---|
+| Chroma `badgr_natural_flow_v1` | 101 |
+| Chroma `badgr_natural_flow_feedback_v1` | 2 |
+| BM25 chunk_ids / token rows | 101 / 101 |
+| BADGR Harness store MD5 | `bdcbe32b706c6ccce1f62e8e9f2d2c49` |
+| Free disk | 70 GiB |
+| `doc_type=evaluation_case` chunks | **17** |
+| Their `source_id` | `cwalts_evaluation_cases` (one only) |
+| Their `source_path` | `corpus/raw/evaluation/cases/evaluation_prompts.md` (one only) |
+| Expected count after removal | **84** |
+
+All ten baseline gates passed: 177 tests, ruff clean, `git diff --check` clean,
+corpus lint PASS, evaluation 17/17 with exact-term PASS and contamination 0 and
+citation failures 0 and preservation 10/10, smoke 43/43, MCP 23/23, acquisition
+verify, inventory verify, Gate 0 integrity verify.
+
+The 17 chunk IDs scheduled for removal are recorded in full, with their
+headings and source checksum, in `docs/evidence/gate1-removal-plan.json`,
+captured **before** any mutation so the removal set cannot be rationalised
+afterwards.
+
+### Scope note: `corpus/raw/evaluation/negative/` stays
+
+One production source has "evaluation" in its path and is **not** evaluation
+material: `cwalts_negative_patterns` at `corpus/raw/evaluation/negative/`,
+`doc_type=negative_pattern`, one chunk. It is a corpus description of delivery to
+avoid, required by Prompt D §D, and it is governed by the contamination rule
+rather than by this gate. It is not moved and not deleted.

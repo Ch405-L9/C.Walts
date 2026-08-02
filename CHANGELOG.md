@@ -3,6 +3,15 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [0.4.0-dev.2] — Gate 1, evaluation isolation and retrieval decontamination
+
+In progress. Baseline recorded before any mutation: Chroma 101 (17 of them
+`doc_type=evaluation_case`, all from
+`corpus/raw/evaluation/cases/evaluation_prompts.md`), BM25 101, feedback 2,
+Harness store MD5 `bdcbe32b706c6ccce1f62e8e9f2d2c49`, 70 GiB free. All ten
+baseline gates passed. The 17 chunk IDs scheduled for removal are listed in
+`docs/evidence/gate1-removal-plan.json`, captured before the first change.
+
 ## [0.4.0-dev.1]
 
 Two gates share this development version. Gate 0.1 changed no behaviour and no
