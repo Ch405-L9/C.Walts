@@ -53,8 +53,18 @@ rather than changing what Gate 1 decided.
   rc.2 failure), and states that historical reports are not current-state
   manifests.
 
-### Added
-
+- `docs/C.Walts-v0.4-complete-handoff-report.md` — self-contained project handoff
+  covering the original baseline through Gate 1.1: repository state and immutable
+  tags (distinguishing annotated tag objects from their commits), every commit in
+  chronological order with objective and result, the full architecture, corpus
+  history and current state, the complete dataset acquisition record including
+  the CLINC150 3.0/4.0 discrepancy and its conservative resolution, thirteen
+  defects each with symptom / root cause / correction / regression test / commit /
+  residual risk, current validation totals, the four remaining gates with their
+  mandatory rigor, exact operator commands, a classified evidence index
+  (active / historical / tracked / local-only), and the six unresolved items with
+  explicit blocking classifications. Written to be usable with no access to the
+  conversation that produced the work.
 - `tests/test_gate1_1_requirements.py` — 34 tests, one named requirement per §5
   clause, so the eleven required proofs can be walked directly. Nine restate
   properties §2–§4 already established; **two were genuinely uncovered**. A

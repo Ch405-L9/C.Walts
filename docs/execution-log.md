@@ -1861,3 +1861,90 @@ re-run after every writing command, so the PASS recorded describes the tree as
 committed, not a pre-churn one.
 
 Evidence: `docs/evidence/gate1_1-validation.json`.
+
+---
+
+## 2026-08-02 — C.Walts v0.4 handoff-only closeout
+
+Version held at `0.4.0-dev.2`. Documentation only — no store mutation, no corpus,
+no config change, no test change. Gate 2 not begun.
+
+Created `docs/C.Walts-v0.4-complete-handoff-report.md`, self-contained and usable
+with no access to the conversation that produced the work. Covers the original
+baseline through rc.1, rc.2, the post-tag correction, Gate 0, Gate 0.1, Gate 1
+and Gate 1.1.
+
+### Facts corrected while writing it
+
+**Annotated tags are not commits.** Every prior report in this log quoted
+`v0.3.0-rc.2` as `8b0d2d7a…`. That is the **tag object**; the commit it points to
+is `5ece81db…`. Both are correct answers to different questions, and
+`git rev-parse v0.3.0-rc.2` returns the former. The handoff report gives both,
+with the disambiguating commands. Same for rc.1: tag object `4c6a54ec…`, commit
+`b3588e84…`.
+
+**MASSIVE partition counts were stated incompletely.** A first draft wrote
+"train 11,514 · test 2,974 (+ dev, balance)". The dev partition is a known
+number, 2,033, and 11,514 + 2,033 + 2,974 = 16,521 exactly. Corrected before
+commit.
+
+### Verified rather than recalled
+
+The report was written from repository facts, not from memory. Spot-checks
+performed against the tree before commit: the EVAL-009 supporting chunk id
+(`26e57adf05186f83_11`), `STALE_DELETE_LIMIT = 200`, the rollback section
+anchors emitted by `mcp/server.py` (`§2`, `§3`) against the active document's
+headings, the existence of `schemas/eval_query.schema.json`,
+`src/natural_flow_rag/preservation.py` and
+`scripts/verify_embedding_contract.py`, all three dataset archive SHA-256 values
+and extracted-member hashes, duplicate counts (CLINC150 5, MASSIVE 89,
+Banking77 11), and the live store state.
+
+### Unresolved items classified
+
+Six, with explicit blocking fields: **A** `CW-LIM-009-DENSE-COVERAGE` (deferred;
+blocks calibration and RC, not Gate 2); **B** ANN/fused-score measurement (open;
+blocks calibration — the current `min_distance`/`max_distance` come from a
+separate raw ANN query and must not be used for calibration; Gate 5 must
+instrument the same dense, lexical and fused run that produced each verdict);
+**C** dedicated secret scanning (open engineering gap; a deterministic
+repository secret-scanning command is required before Gate 2 selection commits
+or as the first Gate 2 prerequisite — the existing pattern scan is **not**
+equivalent to a dedicated tool and is not described as one); **D** reporting
+sharp edges (corrected in the handoff report, historical evidence unmodified);
+**E** the residual audio manifest path (informational, non-ingestible);
+**F** historical files (preserved unchanged, explicitly labelled historical).
+
+Two forward-looking observations are recorded in the report rather than acted on,
+because acting would exceed this closeout: the holdout rules in
+`config/query_allocation.yaml` are prose with no enforcement, and the number of
+distinct delivery structures with three or more independent examples — which
+governs both `supported_in_domain` and `near_domain_unsupported` — is not
+currently known.
+
+### Validation
+
+```text
+pytest tests/                    321 passed, exit 0
+ruff check .                     All checks passed!
+git diff --check                 clean
+corpus_lint.py                   PASS — no findings
+eval/run_evaluation.py           17/17 useful, exact-term PASS, contamination 0,
+                                 evaluation-case returned 0, assertions failed 0,
+                                 citations 0, preservation 10/10
+smoke_test.py                    43/43
+mcp_session_check.py             23/23
+acquire_eval_sources.py --verify all files and embedded licences verified
+inventory_eval_sources.py --verify  inventory reproduces
+verify_gate0_integrity.py --verify  PASS
+Gate 1 boundary                  75 tests pass
+verify_restore.py                PASS — 84/84, id set 0 absent / 0 unexpected,
+                                 evaluation_case 0, feedback 2, harness MD5 unchanged
+secret pattern scan              no matches
+```
+
+`SHA256SUMS.current` was not affected — the handoff report is a new file and none
+of the 17 covered paths changed. `SHA256SUMS.package` untouched.
+
+Evidence: `docs/C.Walts-v0.4-complete-handoff-report.md`,
+`docs/evidence/gate1_1-handoff.json`.

@@ -1,0 +1,134 @@
+{
+  "generated": "2026-08-02T05:32:22.178733+00:00",
+  "phase": "C.Walts v0.4 \u2014 handoff-only closeout",
+  "version": "0.4.0-dev.2",
+  "report_path": "docs/C.Walts-v0.4-complete-handoff-report.md",
+  "report_sha256": "0613978b03b402b698b5357a4a9f4b31ef569f20c17f4b1713caa0dd090d3975",
+  "report_bytes": 52245,
+  "gate2_begun": false,
+  "coverage": [
+    "baseline",
+    "v0.3.0-rc.1",
+    "v0.3.0-rc.2",
+    "post-tag correction",
+    "Gate 0",
+    "Gate 0.1",
+    "Gate 1",
+    "Gate 1.1"
+  ],
+  "facts_corrected_while_writing": {
+    "annotated_tags": "prior reports quoted v0.3.0-rc.2 as 8b0d2d7a (the tag OBJECT); the commit is 5ece81db. Both now given.",
+    "massive_partitions": "first draft said 'train 11514 / test 2974 (+dev, balance)'; dev is 2033 and the three sum to 16521 exactly."
+  },
+  "tags": {
+    "v0.3.0-rc.1": {
+      "tag_object": "4c6a54ec484a09820aa99dc2457f25bf84d713fb",
+      "commit": "b3588e84e2d40681d8638e2e9706f6f81c0582bc"
+    },
+    "v0.3.0-rc.2": {
+      "tag_object": "8b0d2d7a85a9b9e905db761fbaa5ddb370244eae",
+      "commit": "5ece81db9ab9334246f8e58781627a159d036a68"
+    }
+  },
+  "unresolved_classifications": {
+    "A_CW-LIM-009-DENSE-COVERAGE": {
+      "status": "deferred",
+      "blocks_gate2": false,
+      "blocks_threshold_calibration": true,
+      "blocks_release_candidate": true
+    },
+    "B_ANN_FUSED_SCORE_MEASUREMENT": {
+      "status": "open",
+      "blocks_gate2": false,
+      "blocks_threshold_calibration": true,
+      "blocks_release_candidate": false,
+      "note": "min_distance/max_distance come from a separate raw ANN query and must not be used for calibration; Gate 5 must instrument the same dense, lexical and fused run that produced each verdict"
+    },
+    "C_SECRET_SCANNING": {
+      "status": "open_engineering_gap",
+      "required_before": "gate2_selection_commits",
+      "note": "the existing pattern scan is not equivalent to a dedicated tool and must not be claimed as such"
+    },
+    "D_REPORTING_SHARP_EDGES": {
+      "status": "open",
+      "scope": "reporting_only",
+      "note": "top_headings equality does not prove identical chunk identity; reports must carry chunk or source ids; evaluation reports must distinguish raw ANN diagnostic queries from fused verdict-producing retrieval; corrected in the handoff report without changing historical evidence"
+    },
+    "E_RESIDUAL_AUDIO_MANIFEST": {
+      "status": "informational",
+      "blocks_gate2": false,
+      "note": "not loader-supported, not declared as an ingestible source, covered by boundary tests, no immediate move required"
+    },
+    "F_HISTORICAL_FILES": {
+      "status": "intentional",
+      "note": "rc.2 owner report, historical rollback evidence and historical checksums preserved unchanged and explicitly labelled historical"
+    }
+  },
+  "validation": {
+    "pytest": {
+      "result": "321 passed",
+      "exit_code": 0
+    },
+    "ruff": "All checks passed!",
+    "git_diff_check": "clean",
+    "corpus_lint": "PASS \u2014 no findings",
+    "evaluation": {
+      "useful_hit_at_5": "17/17",
+      "exact_term": "PASS",
+      "contamination": 0,
+      "evaluation_case_returned": 0,
+      "declared_assertions_failed": 0,
+      "citation_failures": 0,
+      "preservation": "10/10"
+    },
+    "smoke": "43/43",
+    "fresh_session_mcp": "23/23",
+    "acquisition_verify": "all files and embedded licences verified",
+    "inventory_verify": "inventory reproduces",
+    "gate0_integrity": "PASS",
+    "gate1_boundary": "75 tests pass",
+    "secret_pattern_scan": "no matches"
+  },
+  "sha256sums": {
+    "current_affected": false,
+    "current_regenerated": false,
+    "package_touched": false,
+    "package_digest": "0e7e87d2721cafdfe9bdc41fc057dad601374a0ac21be99dd09de03b480cf091"
+  },
+  "store_after": {
+    "expected_count": 84,
+    "expected_count_derived_from": "source discovery over config/sources.yaml",
+    "expected_id_set_checked": true,
+    "ids_expected_but_absent": [],
+    "ids_present_but_unexpected": [],
+    "production_count": 84,
+    "bm25_chunk_ids": 84,
+    "chroma_bm25_parity": true,
+    "ids_only_in_chroma": [],
+    "ids_only_in_bm25": [],
+    "evaluation_case_by_metadata": 0,
+    "evaluation_case_by_where_filter": 0,
+    "feedback_collection": "badgr_natural_flow_feedback_v1",
+    "feedback_count": 2,
+    "exact_term_probe": "ToBI",
+    "exact_term_hits": 3,
+    "retrieval_probe_hits": 12,
+    "retrieval_doc_types": [
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example"
+    ],
+    "badgr_harness_store_md5": "bdcbe32b706c6ccce1f62e8e9f2d2c49",
+    "verified": true,
+    "failures": []
+  }
+}
