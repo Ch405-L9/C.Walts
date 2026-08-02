@@ -5,12 +5,64 @@ is Semantic Versioning as required by Prompt C §4.3.
 
 ## [0.4.0-dev.2] — Gate 1, evaluation isolation and retrieval decontamination
 
-In progress. Baseline recorded before any mutation: Chroma 101 (17 of them
-`doc_type=evaluation_case`, all from
-`corpus/raw/evaluation/cases/evaluation_prompts.md`), BM25 101, feedback 2,
-Harness store MD5 `bdcbe32b706c6ccce1f62e8e9f2d2c49`, 70 GiB free. All ten
-baseline gates passed. The 17 chunk IDs scheduled for removal are listed in
-`docs/evidence/gate1-removal-plan.json`, captured before the first change.
+The evaluation prompts were an ingested source, and an evaluation prompt states
+its own pass criterion — so retrieval could answer an evaluation query by
+returning the query. Five cases did exactly that. That material is now a
+regression fixture and cannot come back.
+
+### Removed
+
+- 17 `doc_type=evaluation_case` chunks from `badgr_natural_flow_v1` and from the
+  BM25 index. Chroma 101 → **84**, BM25 101 → **84**, id-set parity exact,
+  feedback collection unchanged at 2. Every removed ID is listed in
+  `docs/evidence/gate1-removal-plan.json` (captured before the first change) and
+  `docs/evidence/gate1-removal-result.json`.
+- `cwalts_evaluation_cases` as a source in `config/sources.yaml`, replaced by a
+  WITHDRAWN FROM PRODUCTION record.
+- Contaminated expectation markers: EVAL-005, EVAL-006, EVAL-007 and EVAL-009
+  each accepted their own prompt; EVAL-010 accepted EVAL-001's.
+
+### Changed
+
+- `corpus/raw/evaluation/cases/evaluation_prompts.md` →
+  `eval/regression/source_documents/evaluation_prompts.md` (`git mv`,
+  byte-identical). Text, EVAL ids, pass criteria and prior failure disclosures
+  preserved; no ingestible copy left behind.
+- `demote_doc_types` no longer lists `evaluation_case` — it is `[]`. The hard
+  exclusion `forbid_doc_types_always: [evaluation_case]` supersedes it, applied
+  to the dense filter, the fused list, and again after neighbour expansion.
+- EVAL-009's `Pair CW-0` marker → `Pair CW-021`, `dense architecture`. A
+  tightening: the prefix matched every approved pair CW-001…CW-039.
+- `eval/expectations.yaml` is version 2 and carries
+  `global_forbid_primary_doc_types` / `global_forbid_doc_types_anywhere`, applied
+  to every retrieval case and unioned with any per-case list.
+
+### Fixed
+
+- **A caller-supplied filter disabled the project's own exclusions.**
+  `_default_filter` returned the caller's `where` untouched, so passing any
+  filter silently re-admitted negative material — and would have re-admitted
+  evaluation material. Clauses are now intersected: a filter narrows a search, it
+  cannot widen one.
+- Declared assertions (`primary_doc_type_pass`, `primary_source_pass`,
+  `definition_pass`) were computed and never scored. The summary now prints
+  `declared assertions failed` and `evaluation-case chunks returned`.
+
+### Added
+
+- `scripts/store_snapshot.py` — whole-store snapshot of Chroma, its HNSW
+  directories, BM25 and the source manifest together, verified by reopening and
+  interrogating the copy rather than by hashing it.
+- `tests/test_evaluation_boundary.py` — 41 tests, one per lock. Suite 177 → 219.
+
+### Verified
+
+Evaluation after decontamination: 17/17 useful hits on production material,
+exact-term PASS, contamination 0, evaluation chunks returned 0, assertion
+failures 0, citations 0, preservation 10/10. Corpus lint PASS at 84. Smoke 43/43,
+MCP 23/23. Rollback rehearsed against the real snapshot — 101 and all 17
+evaluation chunks came back, exact-term retrieval intact — then restored forward.
+Harness store MD5 `bdcbe32b706c6ccce1f62e8e9f2d2c49` unchanged throughout.
 
 ## [0.4.0-dev.1]
 

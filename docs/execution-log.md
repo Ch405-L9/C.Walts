@@ -1114,3 +1114,72 @@ un-decontaminated collection, so 17/17 was not discovered after the fact.
 Positive-source ratio moved 74% → 74% and latency p50 79 ms → 78 ms. The distance
 distribution shifted slightly (min 0.114 → 0.144) because the removed chunks were
 short and probe-shaped and had been supplying some of the closest matches.
+
+### Rollback rehearsal
+
+Rehearsed with the real snapshots, not simulated. The decontaminated state was
+snapshotted first (`var/snapshots/20260802T011137Z`, verified) so the rehearsal
+could not become a one-way trip.
+
+**Rolled back** to the pre-Gate-1 snapshot `var/snapshots/20260802T010230Z`:
+
+| Proof | Result |
+|---|---|
+| Chroma count restored | 101 |
+| doc_types restored | approved_example 59, glossary 19, **evaluation_case 17**, style_rule 5, negative_pattern 1 |
+| Collection available | yes, opens through the project's own client |
+| BM25 count restored | 101, id-set parity with Chroma exact |
+| Lexical retrieval | working |
+| Exact-term retrieval | `ToBI` 3 hits, `L-L%` 3 hits, `break index` 3 hits |
+
+The 17 evaluation chunks came back, which is the point: the rollback path is
+real, and a bad Gate 1 would have been recoverable.
+
+**Restored forward** to the Gate 1 state and re-verified: Chroma 84,
+evaluation_case 0, BM25 84 with exact parity, `ToBI` still 3 lexical hits.
+
+The final state is the decontaminated Gate 1 state, not the rollback state.
+
+### Full validation at handoff
+
+```
+pytest tests/                    219 passed   (177 at Gate 1 baseline)
+ruff check .                     All checks passed
+git diff --check                 clean
+scripts/corpus_lint.py           PASS — 84 chunks, no findings
+eval/run_evaluation.py           17/17 useful, exact-term PASS,
+                                 contamination 0, evaluation chunks returned 0,
+                                 declared assertions failed 0, citations 0,
+                                 preservation 10/10
+scripts/smoke_test.py            43/43
+scripts/mcp_session_check.py     23/23
+acquire_eval_sources.py --verify all files and embedded licences verified
+inventory_eval_sources.py --verify  inventory reproduces byte-for-byte
+verify_gate0_integrity.py --verify  delivery record immutable, tree matches
+```
+
+Also confirmed: zero `evaluation_case` chunks in Chroma, zero in BM25, exact
+Chroma/BM25 id-set parity, feedback collection unchanged at 2, BADGR Harness
+store MD5 `bdcbe32b706c6ccce1f62e8e9f2d2c49` unchanged, no secrets, no raw public
+dataset staged, nothing tracked under `var/`.
+
+The `SHA256SUMS.current` tripwire did **not** fire this phase: Gate 1 touched no
+file it covers. `SHA256SUMS.package` was not altered.
+
+### Unresolved and disclosed
+
+1. **`Pair CW-021` now carries EVAL-009 largely alone.** The other two markers
+   are `dense architecture` (same chunk) and `Market Voice-Delivery Rules`, which
+   does not currently rank for this query. The case is honest but thin, and it is
+   thin because the corpus has exactly one worked example of rewriting a dense
+   architecture paragraph. That is a corpus-coverage observation for a later
+   phase, not a Gate 1 defect, and Gate 1 is explicitly forbidden from adding
+   corpus material to fix it.
+2. **`corpus/raw/evaluation/negative/` keeps "evaluation" in a production path.**
+   It is negative-pattern corpus text, not evaluation material. A reviewer
+   scanning paths will flag it; the distinction is recorded in `sources.yaml`
+   and asserted in `test_production_source_paths_are_still_reachable`.
+3. **The rc.2 owner report and `docs/rollback.md` still describe a 101-chunk
+   collection.** They are historical records of rc.2 and were deliberately not
+   rewritten; the current count lives in this log, the CHANGELOG and the
+   evaluation report.

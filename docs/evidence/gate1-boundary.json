@@ -1,0 +1,56 @@
+{
+  "generated": "2026-08-02T01:13:33.863473+00:00",
+  "phase": "C.Walts v0.4 Gate 1 \u2014 evaluation isolation, final state",
+  "version": "0.4.0-dev.2",
+  "before": {
+    "chroma_badgr_natural_flow_v1": 101,
+    "chroma_feedback": 2,
+    "bm25_chunk_ids": 101,
+    "bm25_token_rows": 101,
+    "evaluation_case_chunks": 17,
+    "badgr_harness_store_md5": "bdcbe32b706c6ccce1f62e8e9f2d2c49",
+    "free_disk_gib": 70
+  },
+  "after": {
+    "chroma_badgr_natural_flow_v1": 84,
+    "chroma_feedback": 2,
+    "bm25_chunk_ids": 84,
+    "bm25_token_rows": 84,
+    "evaluation_case_chunks": 0,
+    "badgr_harness_store_md5": "bdcbe32b706c6ccce1f62e8e9f2d2c49",
+    "free_disk_gib": 70
+  },
+  "chroma_bm25_id_set_parity": true,
+  "doc_type_composition_after": {
+    "approved_example": 59,
+    "style_rule": 5,
+    "negative_pattern": 1,
+    "glossary": 19
+  },
+  "source_paths_after": [
+    "corpus/raw/evaluation/negative/rejected_audio_contrast.md",
+    "corpus/raw/glossary/prosody_glossary.md",
+    "corpus/raw/owner_examples/approved_before_after_pairs.md",
+    "corpus/raw/owner_examples/approved_before_after_pairs_v2.md",
+    "corpus/raw/owner_examples/approved_positive_voice_references.md",
+    "corpus/raw/owner_examples/approved_reference_scripts.md",
+    "corpus/raw/style_rules/market_voice_delivery_rules.md"
+  ],
+  "snapshots": {
+    "pre_gate1": "var/snapshots/20260802T010230Z",
+    "post_gate1": "var/snapshots/20260802T011137Z",
+    "tool_backup_before_delete": "var/backups/20260802T010613Z/chroma.sqlite3"
+  },
+  "rollback_rehearsal": {
+    "restored_pre_gate1_count": 101,
+    "evaluation_chunks_returned_on_rollback": 17,
+    "bm25_on_rollback": 101,
+    "exact_term_hits_on_rollback": {
+      "ToBI": 3,
+      "L-L%": 3,
+      "break index": 3
+    },
+    "restored_forward_count": 84,
+    "final_state": "decontaminated"
+  }
+}
