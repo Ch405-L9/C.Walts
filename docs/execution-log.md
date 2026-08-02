@@ -1748,3 +1748,116 @@ sha256sum -c SHA256SUMS.current  re-run last, on the final tree
 ```
 
 Evidence: `docs/evidence/gate1_1-test-conformance.json`.
+
+---
+
+## 2026-08-02 — C.Walts v0.4 Gate 1.1 §6: validation
+
+Version held at `0.4.0-dev.2`. All seventeen required checks run. All pass.
+
+| # | Check | Result |
+|---|---|---|
+| 1 | full pytest | **321 passed**, exit 0 |
+| 2 | Ruff | `All checks passed!` |
+| 3 | `git diff --check` | clean |
+| 4 | corpus lint | `PASS — no findings` |
+| 5 | retrieval evaluation | 17/17 useful, exact-term PASS, positive ratio 74%, contamination 0, evaluation-case returned 0, assertions failed 0, citations 0, lexical arm degraded False, preservation 10/10 |
+| 6 | smoke | 43/43 |
+| 7 | fresh-session MCP | 23/23 (`scripts/mcp_session_check.py`, separate process, stdio) |
+| 8 | acquisition verification | all files and embedded licences verified |
+| 9 | inventory verification | inventory reproduces |
+| 10 | Gate 0 integrity | PASS — delivery record immutable, tree matches, raw data excluded |
+| 11 | Gate 1 boundary | 75 boundary tests pass (`test_evaluation_boundary.py` + `test_gate1_1_requirements.py`) |
+| 12 | Chroma/BM25 parity | exact — 84/84, id set 0 absent / 0 unexpected |
+| 13 | `evaluation_case` zero | 0 by metadata scan and by `where` filter; 0 in BM25 |
+| 14 | negative-pattern behavioural | 29 tests pass; positive requests exclude, contrast retrieves |
+| 15 | safe isolated restore | snapshot `var/snapshots/20260802T045559Z` created, verified by reopening, restored, re-verified |
+| 16 | BADGR Harness checksum | `bdcbe32b706c6ccce1f62e8e9f2d2c49` unchanged |
+| 17 | secret scan | no credential patterns in tracked content |
+
+### The tripwire did not fire, and here is why rather than merely that
+
+Two tracked files changed during the run — `docs/evidence/evaluation-report.json`
+and `docs/evidence/smoke-test.json` — because `run_evaluation.py` and
+`smoke_test.py` rewrite their own evidence on every execution.
+
+Neither is covered by `SHA256SUMS.current`. Confirmed by grepping the manifest
+rather than assuming: it lists 17 paths, and those two are not among them. So the
+tripwire staying silent is correct behaviour, not a missed detection. No
+regeneration was required and `SHA256SUMS.current` was not rewritten.
+`SHA256SUMS.package` was not touched; its self-digest is still
+`0e7e87d2721cafdfe9bdc41fc057dad601374a0ac21be99dd09de03b480cf091`.
+
+### One real finding, investigated rather than waved through
+
+The churn diff showed two keys beyond the usual timestamps and latency:
+`detail` and `max_distance`.
+
+`detail` is the pytest progress string captured inside `smoke-test.json`. It
+changed because the suite grew from 287 to 321 tests in §5. Benign.
+
+`max_distance` was not obviously benign and was chased down. **EVAL-008 only**,
+`0.327895 → 0.322228`. Every other case is byte-identical, and within EVAL-008
+the markers, headings, doc types, `useful_hit`, ranked count, neighbour count and
+all pass flags are unchanged. Re-running the evaluation three times returned
+`0.322228` every time, so the new value is stable rather than noisy.
+
+Cause, established by querying the collection directly:
+
+`min_distance` and `max_distance` are **not** computed over the fused retrieval
+that produces the verdicts. `eval/run_evaluation.py` issues a *separate raw
+dense query* — unfiltered, `n_results=5` — purely for similarity-floor analysis.
+That query runs against Chroma's HNSW index, which is **approximate**. The
+relevant candidates sit within 0.01 of one another:
+
+```text
+0.317977  approved_example  Pair CW-013
+0.322228  style_rule        Market Voice-Delivery Rules   <- current raw top-5 max
+0.327895  approved_example  Pair CW-010                   <- previous value
+```
+
+A 0.0057 gap is well inside the recall boundary of an approximate index, so which
+of these lands in the raw top-5 can shift when the index is rebuilt or restored —
+and this section performed a restore. The fused retrieval is unaffected: CW-010
+still appears in the reported headings for both runs.
+
+Two things made this harder to see than it should have been, and both are worth
+recording. The five `style_rule` chunks all carry the heading *Market
+Voice-Delivery Rules*, so a swap among them is invisible in `top_headings` — an
+identical heading list is not proof of an identical chunk set. And `max_distance`
+being sourced from a different query than the verdicts is not stated anywhere in
+the report itself.
+
+**No verdict changed and nothing is currently calibrated against these numbers:**
+`similarity_floor` is `null`, and the aggregate `distance_min/median/max` came
+back identical at `0.1439 / 0.336552 / 0.463614`.
+
+It does, however, sharpen an existing entry. `CW-LIM-009-DENSE-COVERAGE` is
+recorded with `blocks_threshold_calibration: true`. This is independent evidence
+for that field: a similarity floor fitted to raw per-case distances would be
+fitted to values that move by ~0.006 across an index restore, with no change in
+retrieval quality. Threshold calibration will need to account for ANN
+approximation, not just corpus coverage. Recorded here as an observation for that
+phase; §6 fits nothing.
+
+### Secret scan
+
+No dedicated secret-scanning tool exists in this repository — worth stating
+plainly rather than implying a mature gate. The scan run here was pattern-based
+over all tracked content: private-key headers, `sk-`/`ghp_`/`gho_`/`xox*` tokens,
+AWS key ids and secret-access-key assignments, and quoted assignments to
+`api_key`/`secret`/`password`. **No matches.** An initial broader pattern
+returned only the word "token" in tokenizer and `token_count` contexts.
+
+`.env` is untracked and gitignored (`.gitignore:17`). `.env.example` is tracked
+and contains variable names with empty values only, under an explicit warning
+never to commit `.env`. High-entropy strings in tracked files are SHA-256 digests
+and git commit shas in evidence records, which is what those files are for.
+
+### Verification of the final tree
+
+`verify_gate0_integrity.py --verify` and `sha256sum -c SHA256SUMS.current` were
+re-run after every writing command, so the PASS recorded describes the tree as
+committed, not a pre-churn one.
+
+Evidence: `docs/evidence/gate1_1-validation.json`.

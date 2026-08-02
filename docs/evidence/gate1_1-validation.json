@@ -1,0 +1,136 @@
+{
+  "generated": "2026-08-02T05:00:11.694242+00:00",
+  "phase": "C.Walts v0.4 Gate 1.1 \u00a76 \u2014 validation",
+  "version": "0.4.0-dev.2",
+  "all_checks_passed": true,
+  "checks": {
+    "1_pytest": {
+      "result": "321 passed",
+      "exit_code": 0
+    },
+    "2_ruff": "All checks passed!",
+    "3_git_diff_check": "clean",
+    "4_corpus_lint": "PASS \u2014 no findings",
+    "5_retrieval_evaluation": {
+      "useful_hit_at_5": "17/17",
+      "exact_term": "PASS",
+      "positive_source_ratio": "74%",
+      "negative_contamination": 0,
+      "evaluation_case_returned": 0,
+      "declared_assertions_failed": 0,
+      "citation_failures": 0,
+      "lexical_arm_degraded": false,
+      "preservation": "10/10"
+    },
+    "6_smoke": "43/43",
+    "7_fresh_session_mcp": "23/23 (scripts/mcp_session_check.py, separate process, stdio)",
+    "8_acquisition_verification": "all files and embedded licences verified",
+    "9_inventory_verification": "inventory reproduces",
+    "10_gate0_integrity": "PASS \u2014 delivery record immutable, tree matches, raw data excluded",
+    "11_gate1_boundary": "75 boundary tests pass",
+    "12_chroma_bm25_parity": "exact, 84/84, id set 0 absent / 0 unexpected",
+    "13_evaluation_case_zero": "0 by metadata scan, 0 by where filter, 0 in BM25",
+    "14_negative_pattern_behavioural": "29 tests pass",
+    "15_safe_isolated_restore": {
+      "snapshot": "var/snapshots/20260802T045559Z",
+      "created": true,
+      "verified_by_reopening": true,
+      "restored": true,
+      "post_restore_verified": true
+    },
+    "16_badgr_harness_checksum": "bdcbe32b706c6ccce1f62e8e9f2d2c49 unchanged",
+    "17_secret_scan": "no credential patterns in tracked content"
+  },
+  "sha256sums_current": {
+    "tripwire_fired": false,
+    "files_changed_during_run": [
+      "docs/evidence/evaluation-report.json",
+      "docs/evidence/smoke-test.json"
+    ],
+    "why_no_fire": "neither file is among the 17 paths listed in SHA256SUMS.current; confirmed by grepping the manifest, not assumed",
+    "regeneration_required": false,
+    "sha256sums_package_touched": false,
+    "sha256sums_package_digest": "0e7e87d2721cafdfe9bdc41fc057dad601374a0ac21be99dd09de03b480cf091"
+  },
+  "finding_investigated": {
+    "observation": "evidence churn included two keys beyond timestamps and latency: detail and max_distance",
+    "detail": "pytest progress string inside smoke-test.json; changed because the suite grew 287 -> 321 in section 5. Benign.",
+    "max_distance": {
+      "case": "EVAL-008 only",
+      "from": 0.327895,
+      "to": 0.322228,
+      "stable_across_reruns": 3,
+      "verdicts_changed": false,
+      "markers_headings_doctypes_passflags_changed": false,
+      "root_cause": "min/max_distance come from a SEPARATE raw unfiltered dense query (n_results=5) used only for similarity-floor analysis, not from the fused retrieval that produces verdicts. That query hits Chroma HNSW, which is approximate.",
+      "near_tied_candidates": {
+        "0.317977": "approved_example Pair CW-013",
+        "0.322228": "style_rule Market Voice-Delivery Rules (current)",
+        "0.327895": "approved_example Pair CW-010 (previous)"
+      },
+      "gap": 0.005667,
+      "why_invisible_in_top_headings": "the five style_rule chunks share the heading 'Market Voice-Delivery Rules', so an identical heading list is not proof of an identical chunk set",
+      "similarity_floor_configured": null,
+      "aggregate_distances_unchanged": [
+        0.1439,
+        0.336552,
+        0.463614
+      ],
+      "implication": "independent evidence for CW-LIM-009-DENSE-COVERAGE blocks_threshold_calibration: true \u2014 a floor fitted to raw per-case distances would be fitted to values that move ~0.006 across an index restore with no change in retrieval quality",
+      "action_taken": "recorded as an observation; section 6 fits no thresholds"
+    }
+  },
+  "secret_scan_detail": {
+    "dedicated_tool_exists": false,
+    "note": "no secret-scanning tool is present in this repository; the scan was pattern-based over tracked content",
+    "patterns": [
+      "BEGIN * PRIVATE KEY",
+      "sk-/ghp_/gho_/xox*",
+      "AKIA[0-9A-Z]{16}",
+      "aws_secret_access_key=",
+      "quoted assignments to api_key/secret/password"
+    ],
+    "matches": 0,
+    "env_tracked": false,
+    "env_ignored_at": ".gitignore:17",
+    "env_example_tracked": true,
+    "env_example_contents": "variable names with empty values only, under an explicit do-not-commit warning",
+    "high_entropy_strings": "SHA-256 digests and git commit shas in evidence records"
+  },
+  "store_after": {
+    "expected_count": 84,
+    "expected_count_derived_from": "source discovery over config/sources.yaml",
+    "expected_id_set_checked": true,
+    "ids_expected_but_absent": [],
+    "ids_present_but_unexpected": [],
+    "production_count": 84,
+    "bm25_chunk_ids": 84,
+    "chroma_bm25_parity": true,
+    "ids_only_in_chroma": [],
+    "ids_only_in_bm25": [],
+    "evaluation_case_by_metadata": 0,
+    "evaluation_case_by_where_filter": 0,
+    "feedback_collection": "badgr_natural_flow_feedback_v1",
+    "feedback_count": 2,
+    "exact_term_probe": "ToBI",
+    "exact_term_hits": 3,
+    "retrieval_probe_hits": 12,
+    "retrieval_doc_types": [
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example"
+    ],
+    "badgr_harness_store_md5": "bdcbe32b706c6ccce1f62e8e9f2d2c49",
+    "verified": true,
+    "failures": []
+  }
+}
