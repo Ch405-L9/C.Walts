@@ -40,6 +40,10 @@ corpus/quarantine/
 # rules, and evaluation material to be committed.
 !corpus/raw/owner_examples/
 !corpus/raw/style_rules/
+!corpus/raw/negative_patterns/
+# Retains only audio_reference_manifest.yaml. The negative-pattern corpus text
+# moved out to corpus/raw/negative_patterns/ at v0.4.0-dev.2, Gate 1.1 §2, so
+# that no production-ingestible path is named "evaluation".
 !corpus/raw/evaluation/
 !corpus/raw/glossary/
 

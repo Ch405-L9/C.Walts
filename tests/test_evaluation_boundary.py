@@ -71,15 +71,20 @@ def test_ingestion_refuses_every_evaluation_directory(candidate: str) -> None:
 
 
 def test_production_source_paths_are_still_reachable() -> None:
-    """The ban must be narrow: real corpus paths still resolve."""
+    """The ban must be narrow: real corpus paths still resolve.
+
+    CHANGED at Gate 1.1 §2. The negative-pattern source used to sit at
+    corpus/raw/evaluation/negative/, which meant a production-ingestible path was
+    named "evaluation" — the exact confusion Gate 1 had to undo. It now lives at
+    corpus/raw/negative_patterns/. The material is byte-identical; only the path
+    moved. See test_negative_pattern_path.py for the rename's own proofs.
+    """
     settings = load_settings()
     for path in [
         "corpus/raw/owner_examples/",
         "corpus/raw/glossary/",
         "corpus/raw/style_rules/",
-        # Lives under corpus/raw/evaluation/ and is NOT evaluation material: it
-        # is corpus text describing delivery to avoid, required by Prompt D.
-        "corpus/raw/evaluation/negative/",
+        "corpus/raw/negative_patterns/",
     ]:
         assert settings.resolve_ingest_path(path).is_relative_to(settings.project_root)
 

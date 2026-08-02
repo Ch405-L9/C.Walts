@@ -1254,3 +1254,136 @@ and the rc.2 owner report and `docs/rollback.md` describing 101 chunks as
 historical records — are unchanged and remain open.
 
 Evidence: `docs/evidence/gate1_1-baseline.json`.
+
+---
+
+## 2026-08-02 — C.Walts v0.4 Gate 1.1 §2: rename the production negative-pattern path
+
+Version held at `0.4.0-dev.2`. No query selection, no threshold fitting, no new
+corpus material, no change to `main`, no tag.
+
+`corpus/raw/evaluation/negative/` → `corpus/raw/negative_patterns/` via `git mv`,
+detected by git as a rename (`R`), file sha256 `959d9b63…884ed` identical before
+and after. This closes item 2 of the three unresolved items disclosed at the
+Gate 1 close: it was the last production-ingestible directory named
+"evaluation".
+
+### The seven-step branch did not trigger, and that was measured
+
+§2 makes the id-migration procedure conditional on source-path-derived chunk ids
+changing. They do not: `schemas.chunk_id` is
+`sha256(f"{source_id}:{content_hash}")[:16]_{index}` — the file path is not an
+input, only `source_path` metadata is. Rather than skip the branch on a code
+reading, the claim was tested. With the `git mv` and the `sources.yaml` path edit
+both done — so discovery saw a consistent world — a dry-run ingest was diffed
+against the live collection:
+
+```text
+wanted    84
+existing  84
+STALE     (existing - wanted): []
+WOULD ADD (wanted - existing): []
+identical id sets: True
+```
+
+`stale 0` is the number that decided it. A verified snapshot was taken first
+regardless (`var/snapshots/20260802T041356Z`, re-opened and interrogated: 84/2,
+BM25 84, parity, ToBI 3 hits), because the write to production was real even
+though the id set was not moving.
+
+The reindex ran with `NFR_ALLOW_WRITES=true` for that one invocation;
+`config/rag.yaml` still reads `allow_writes: false`.
+
+### What the write actually changed
+
+Exactly one metadata field, diffed field-by-field against a pre-move capture:
+
+| Field | Before | After |
+|---|---|---|
+| `source_path` | `corpus/raw/evaluation/negative/rejected_audio_contrast.md` | `corpus/raw/negative_patterns/rejected_audio_contrast.md` |
+
+Unchanged: `id` `9c1e63263b4b8373_0`, `source_id` `cwalts_negative_patterns`,
+`doc_type` `negative_pattern`, licence, `source_checksum` `d32911ca…3aae3`,
+register `contrast`, dialect `en-US`, `chunk_index` 0, `chunk_total` 1,
+`token_count` 379, `section_heading`, `chunk_profile` `reference`.
+
+Chroma 84 → 84, BM25 84 → 84, id-set parity exact (both differences empty),
+composition unchanged (approved_example 59 / glossary 19 / style_rule 5 /
+negative_pattern 1), feedback 2, BADGR Harness MD5
+`bdcbe32b706c6ccce1f62e8e9f2d2c49`. No production `source_path` contains
+"evaluation". The evaluation report's cosine min/median/max came back
+byte-identical (0.1439 / 0.336552 / 0.463614), which is the strongest available
+evidence that the re-embed was inert.
+
+### The five proofs
+
+Written as `tests/test_negative_pattern_path.py` (24 tests), not asserted in
+prose:
+
+| §2 requirement | How it is proved |
+|---|---|
+| old path no longer exists | filesystem check plus a git-detected rename |
+| new path production-ingestible | `resolve_ingest_path` resolves it; the source manifest declares it; ingest discovered 1 chunk there |
+| excluded from ordinary positive retrieval | live retrieval, three rewrite queries, zero `negative_pattern` returned; evaluation report contamination 0 |
+| available for explicit contrast requests | live retrieval, two "what to avoid" queries, the chunk returned **from the new path** |
+| evaluation directories still non-ingestible | the `eval/` and `var/eval_sources/` refusals re-asserted here as well as in the Gate 1 file |
+
+The contrast proof matters most: had the rename broken discovery, the chunk would
+simply have stopped appearing and every exclusion test would still have passed.
+
+### Failures and corrections during this checkpoint
+
+1. **`.gitignore` would have swallowed the moved file.** `corpus/raw/*` is
+   ignored and the tree was re-included by name; `corpus/raw/negative_patterns/`
+   had no such entry. Caught before ingest by `git check-ignore`. Added the
+   re-include, kept `!corpus/raw/evaluation/` for the surviving audio manifest,
+   and asserted both in tests.
+2. **The first "no stale references" test was too blunt.** A plain grep flagged
+   `config/sources.yaml` and `tests/test_evaluation_boundary.py` — both of which
+   name the old path only in prose explaining the rename. Banning that prose
+   would delete the record of why the move happened. Replaced with an `ast` scan
+   for the old path in string constants excluding docstrings, so a revived
+   functional reference fails but a sentence does not. Verified non-vacuous with
+   a deliberate offender file, which the detector caught, and which passed again
+   once removed.
+3. **Ruff S603/S607** on the new `git check-ignore` subprocess call. Fixed with
+   per-call `# noqa`, matching the existing convention in
+   `test_evaluation_boundary.py` — not by widening the project ignore list.
+4. **`README.md` was stale from before Gate 1.** Its corpus table described a
+   48-chunk collection in which `evaluation_case` was 35.4% of production. After
+   Gate 1 that is not merely out of date, it is false. Corrected to the current
+   84-chunk composition. This was a Gate 1 leftover found while doing §2's
+   "update documentation", and is called out rather than folded in silently.
+
+### Deliberately not done
+
+`corpus/raw/evaluation/` still exists, holding only
+`audio_reference_manifest.yaml`. §2 named one directory. The manifest carries
+hashes with no audio bytes, YAML is not a loader-supported type, and no source
+declares it, so it is not production-ingestible. Moving it would be scope creep;
+a test asserts what is left so that "the old path is gone" is not misread as "the
+evaluation tree is gone".
+
+`prompts/checksums.sha256` line 7 names an even older path
+(`corpus/raw/evaluation/rejected_audio_contrast.md`). It is a delivery record of
+the incoming package, in the same category as `SHA256SUMS.package`, and was not
+altered.
+
+### Verification
+
+```text
+pytest tests/                    243 collected, exit 0, 0 failed (219 before)
+ruff check .                     All checks passed!
+git diff --check                 clean
+corpus_lint.py                   PASS — 84 chunks, negative_pattern 1.2% auxiliary
+eval/run_evaluation.py           17/17 useful, exact-term PASS, contamination 0,
+                                 evaluation-case chunks returned 0,
+                                 declared assertions failed 0, citations 0,
+                                 preservation 10/10
+smoke_test.py                    43/43
+mcp_session_check.py             23/23
+verify_gate0_integrity.py --verify  re-run last, on the final tree
+sha256sum -c SHA256SUMS.current  re-run last, on the final tree
+```
+
+Evidence: `docs/evidence/gate1_1-negative-path-rename.json`.

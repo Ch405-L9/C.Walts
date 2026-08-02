@@ -129,7 +129,7 @@ sources:
   - id: cwalts_negative_patterns
     title: C.Walts rejected and contrast delivery patterns
     url: null
-    path: corpus/raw/evaluation/negative/
+    path: corpus/raw/negative_patterns/
     doc_type: negative_pattern
     chunk_profile: reference
     license: Proprietary — BADGRTechnologies LLC
@@ -150,9 +150,18 @@ sources:
       doc_type=negative_pattern, and contamination is measured per query in the
       evaluation report. No negative RECORDING is ingested in any form.
 
-      NOT evaluation material, despite living under corpus/raw/evaluation/. This
-      is corpus text describing delivery to avoid. Gate 1 removed the evaluation
-      PROMPTS; it deliberately did not touch this source.
+      NOT evaluation material. This is corpus text describing delivery to avoid.
+      Gate 1 removed the evaluation PROMPTS; it deliberately did not touch this
+      source.
+
+      PATH RENAMED at v0.4.0-dev.2, Gate 1.1 §2: this source used to live at
+      corpus/raw/evaluation/negative/. Nothing about the material changed — same
+      bytes (sha256 959d9b63…884ed), same source_id, same doc_type, same licence,
+      same provenance, same contrast register, and the same single chunk id
+      9c1e63263b4b8373_0, because chunk ids derive from source_id and content, not
+      from the file path. Only the source_path metadata moved. The rename exists
+      so that no production-ingestible directory is named "evaluation", which
+      previously invited exactly the confusion Gate 1 had to undo.
 
 # ---------------------------------------------------------------------------
 # WITHDRAWN FROM PRODUCTION — v0.4.0-dev.2, Gate 1

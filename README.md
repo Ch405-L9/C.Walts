@@ -86,10 +86,16 @@ licence (`Proprietary — BADGRTechnologies LLC`):
 
 | Source | doc_type | Chunks | Share |
 |---|---|---:|---:|
-| `owner_examples` — before/after pairs, positive voice references, reference scripts | approved_example | 26 | 54.2% |
-| `cwalts_evaluation_cases` — EVAL-001…015 | evaluation_case | 17 | 35.4% |
-| `cwalts_style_rules` — market voice-delivery rules | style_rule | 4 | 8.3% |
-| `cwalts_negative_patterns` — delivery to avoid | negative_pattern | 1 | 2.1% |
+| `owner_examples` — before/after pairs, positive voice references, reference scripts | approved_example | 59 | 70.2% |
+| `cwalts_prosody_glossary` — prosody terms | glossary | 19 | 22.6% |
+| `cwalts_style_rules` — market voice-delivery rules | style_rule | 5 | 6.0% |
+| `cwalts_negative_patterns` — delivery to avoid | negative_pattern | 1 | 1.2% |
+
+84 chunks. `cwalts_evaluation_cases` was an ingested source until **Gate 1**
+(v0.4.0-dev.2), where it was removed from production and kept as a non-ingested
+regression fixture under `eval/regression/`: an evaluation prompt states its own
+pass criterion, so ingesting it let retrieval answer an evaluation query by
+returning the query.
 
 No auxiliary class exceeds the 40% cap (Prompt D §D). **cmudict** stays approved
 in the manifest but is deliberately un-ingested — it answers "how is this word
@@ -104,6 +110,13 @@ references live under `references/media/positive/` and are identified by SHA-256
 in `corpus/raw/evaluation/audio_reference_manifest.yaml`. No audio bytes and no
 acoustic vectors enter the text collection; an acoustic sidecar, if ever built,
 must use a separate store.
+
+Negative-pattern text lives at `corpus/raw/negative_patterns/`. It moved there
+from `corpus/raw/evaluation/negative/` at **Gate 1.1** (v0.4.0-dev.2): the
+material was never evaluation material, but a production-ingestible directory
+named "evaluation" invited exactly the confusion Gate 1 had to undo. The bytes,
+the `source_id`, the licence and the chunk id are unchanged — chunk ids derive
+from source and content, not from the path.
 
 Negative-pattern text is retrievable **only** when a request explicitly asks what
 to avoid — enforced as a metadata filter

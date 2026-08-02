@@ -1,6 +1,6 @@
 {
   "summary": {
-    "generated": "2026-08-02T04:02:18.518280+00:00",
+    "generated": "2026-08-02T04:19:52.082672+00:00",
     "collection": "badgr_natural_flow_v1",
     "collection_count": 84,
     "embedding_model": "nomic-embed-text",
@@ -14,8 +14,8 @@
     "negative_contamination": 0,
     "citation_failures": 0,
     "lexical_degraded": false,
-    "latency_ms_p50": 91,
-    "latency_ms_p95": 119,
+    "latency_ms_p50": 92,
+    "latency_ms_p95": 127,
     "distance_min": 0.1439,
     "distance_max": 0.463614,
     "distance_median": 0.336552,
@@ -32,7 +32,7 @@
     {
       "id": "EVAL-001",
       "mode": "retrieval",
-      "latency_ms": 132,
+      "latency_ms": 127,
       "ranked": 5,
       "neighbours": 7,
       "dense_n": 24,
@@ -68,7 +68,7 @@
     {
       "id": "EVAL-002",
       "mode": "retrieval",
-      "latency_ms": 90,
+      "latency_ms": 102,
       "ranked": 5,
       "neighbours": 5,
       "dense_n": 24,
@@ -104,7 +104,7 @@
     {
       "id": "EVAL-003",
       "mode": "retrieval",
-      "latency_ms": 95,
+      "latency_ms": 97,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -140,7 +140,7 @@
     {
       "id": "EVAL-004",
       "mode": "retrieval",
-      "latency_ms": 91,
+      "latency_ms": 88,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -193,7 +193,7 @@
     {
       "id": "EVAL-005",
       "mode": "retrieval",
-      "latency_ms": 117,
+      "latency_ms": 95,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -229,7 +229,7 @@
     {
       "id": "EVAL-006",
       "mode": "retrieval",
-      "latency_ms": 92,
+      "latency_ms": 95,
       "ranked": 5,
       "neighbours": 6,
       "dense_n": 24,
@@ -265,7 +265,7 @@
     {
       "id": "EVAL-007",
       "mode": "retrieval",
-      "latency_ms": 91,
+      "latency_ms": 88,
       "ranked": 5,
       "neighbours": 1,
       "dense_n": 24,
@@ -301,7 +301,7 @@
     {
       "id": "EVAL-008",
       "mode": "retrieval",
-      "latency_ms": 87,
+      "latency_ms": 92,
       "ranked": 5,
       "neighbours": 6,
       "dense_n": 24,
@@ -337,7 +337,7 @@
     {
       "id": "EVAL-009",
       "mode": "retrieval",
-      "latency_ms": 97,
+      "latency_ms": 93,
       "ranked": 5,
       "neighbours": 6,
       "dense_n": 24,
@@ -373,7 +373,7 @@
     {
       "id": "EVAL-010",
       "mode": "retrieval",
-      "latency_ms": 102,
+      "latency_ms": 92,
       "ranked": 5,
       "neighbours": 7,
       "dense_n": 24,
@@ -409,7 +409,7 @@
     {
       "id": "EVAL-011",
       "mode": "retrieval",
-      "latency_ms": 91,
+      "latency_ms": 142,
       "ranked": 5,
       "neighbours": 4,
       "dense_n": 24,
@@ -445,7 +445,7 @@
     {
       "id": "EVAL-012",
       "mode": "retrieval",
-      "latency_ms": 91,
+      "latency_ms": 94,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -481,7 +481,7 @@
     {
       "id": "EVAL-016",
       "mode": "retrieval",
-      "latency_ms": 119,
+      "latency_ms": 87,
       "ranked": 5,
       "neighbours": 4,
       "dense_n": 24,
@@ -523,7 +523,7 @@
     {
       "id": "EVAL-017",
       "mode": "retrieval",
-      "latency_ms": 81,
+      "latency_ms": 90,
       "ranked": 5,
       "neighbours": 1,
       "dense_n": 24,
@@ -563,7 +563,7 @@
     {
       "id": "EVAL-018",
       "mode": "retrieval",
-      "latency_ms": 85,
+      "latency_ms": 93,
       "ranked": 5,
       "neighbours": 4,
       "dense_n": 24,
@@ -605,7 +605,7 @@
     {
       "id": "EVAL-019",
       "mode": "retrieval",
-      "latency_ms": 88,
+      "latency_ms": 92,
       "ranked": 5,
       "neighbours": 4,
       "dense_n": 24,
@@ -647,7 +647,7 @@
     {
       "id": "EVAL-020",
       "mode": "retrieval",
-      "latency_ms": 88,
+      "latency_ms": 89,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -726,7 +726,7 @@
     {
       "id": "EVAL-014",
       "mode": "behavioural",
-      "latency_ms": 92,
+      "latency_ms": 88,
       "ranked": 5,
       "neighbours": 1,
       "dense_n": 24,
@@ -763,7 +763,7 @@
     {
       "id": "EVAL-015",
       "mode": "behavioural",
-      "latency_ms": 92,
+      "latency_ms": 89,
       "ranked": 5,
       "neighbours": 2,
       "dense_n": 24,

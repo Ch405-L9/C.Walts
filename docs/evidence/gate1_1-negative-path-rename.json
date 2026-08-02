@@ -1,0 +1,131 @@
+{
+  "generated": "2026-08-02T04:21:38.546426+00:00",
+  "phase": "C.Walts v0.4 Gate 1.1 \u00a72 \u2014 rename the production negative-pattern path",
+  "version": "0.4.0-dev.2",
+  "rename": {
+    "from": "corpus/raw/evaluation/negative/",
+    "to": "corpus/raw/negative_patterns/",
+    "method": "git mv",
+    "git_rename_detected": true,
+    "document": "rejected_audio_contrast.md",
+    "document_sha256_before": "959d9b63039041289cf7435457d4b0ca13465935f73b43449cea23de8be884ed",
+    "document_sha256_after": "959d9b63039041289cf7435457d4b0ca13465935f73b43449cea23de8be884ed"
+  },
+  "seven_step_branch": {
+    "triggered": false,
+    "why": "chunk_id = sha256(f\"{source_id}:{content_hash}\")[:16]_{index}; the file path is not an input",
+    "measured_not_assumed": true,
+    "dry_run": {
+      "wanted": 84,
+      "existing": 84,
+      "stale": [],
+      "would_add": [],
+      "identical_id_sets": true
+    },
+    "backup_taken_anyway": "var/snapshots/20260802T041356Z",
+    "backup_verified_by": "reopening the snapshot: 84/2, BM25 84, parity true, ToBI exact-term hits 3",
+    "write_authorisation": "NFR_ALLOW_WRITES=true for one invocation; config/rag.yaml still allow_writes: false"
+  },
+  "chunk_identity": {
+    "chunk_id": "9c1e63263b4b8373_0",
+    "id_changed": false,
+    "fields_changed": [
+      "source_path"
+    ],
+    "before": {
+      "id": "9c1e63263b4b8373_0",
+      "source_id": "cwalts_negative_patterns",
+      "source_path": "corpus/raw/evaluation/negative/rejected_audio_contrast.md",
+      "doc_type": "negative_pattern",
+      "license": "Proprietary \u2014 BADGRTechnologies LLC",
+      "register": "contrast",
+      "dialect": "en-US",
+      "source_checksum": "d32911cafd168f92d2c5ff2dd4c5f30ee65a92209e9b875f8544e1a909d3aae3",
+      "chunk_index": 0,
+      "chunk_total": 1,
+      "token_count": 379,
+      "section_heading": "Rejected and Contrast Voice References",
+      "chunk_profile": "reference"
+    },
+    "after_source_path": "corpus/raw/negative_patterns/rejected_audio_contrast.md",
+    "preserved": [
+      "source_id",
+      "doc_type",
+      "license",
+      "source_checksum",
+      "register",
+      "dialect",
+      "chunk_index",
+      "chunk_total",
+      "token_count",
+      "section_heading",
+      "chunk_profile"
+    ]
+  },
+  "store_before": {
+    "chroma": 84,
+    "bm25": 84,
+    "feedback": 2,
+    "negative_pattern": 1
+  },
+  "store_after": {
+    "chroma_badgr_natural_flow_v1": 84,
+    "chroma_feedback": 2,
+    "bm25_chunk_ids": 84,
+    "bm25_token_rows": 84,
+    "evaluation_case_chunks_by_metadata": 0,
+    "evaluation_case_chunks_by_where_filter": 0,
+    "chroma_bm25_id_set_parity": true,
+    "chroma_only_ids": [],
+    "bm25_only_ids": [],
+    "doc_type_composition": {
+      "approved_example": 59,
+      "glossary": 19,
+      "negative_pattern": 1,
+      "style_rule": 5
+    },
+    "badgr_harness_store_md5": "bdcbe32b706c6ccce1f62e8e9f2d2c49",
+    "free_disk_gib": 69
+  },
+  "no_production_path_contains_evaluation": true,
+  "evaluation_unchanged": {
+    "useful_hit_at_5": "17/17",
+    "exact_term": "PASS",
+    "negative_contamination": 0,
+    "evaluation_case_chunks_returned": 0,
+    "declared_assertions_failed": 0,
+    "preservation": "10/10",
+    "cosine_min_med_max": [
+      0.1439,
+      0.336552,
+      0.463614
+    ],
+    "cosine_identical_to_pre_move_run": true
+  },
+  "behavioural_proofs": {
+    "positive_rewrite_returns_no_negative_material": true,
+    "contrast_request_returns_negative_material_from_new_path": true,
+    "contrast_probe_source_path": "corpus/raw/negative_patterns/rejected_audio_contrast.md"
+  },
+  "tests": {
+    "before": 219,
+    "after": 243,
+    "new_file": "tests/test_negative_pattern_path.py",
+    "new_tests": 24,
+    "exit_code": 0
+  },
+  "scope_note": "corpus/raw/evaluation/ still holds audio_reference_manifest.yaml only: not loader-supported, not declared by any source, not ingestible. Out of \u00a72 scope.",
+  "historical_records_not_rewritten": [
+    "prompts/checksums.sha256",
+    "docs/execution-log.md (prior entries)",
+    "docs/evidence/gate1-*.json",
+    "CHANGELOG.md Gate 1 entry"
+  ],
+  "checksum_gates_rerun_last": {
+    "note": "re-run after every writing command, so the PASS describes the final tree",
+    "verify_gate0_integrity.py --verify": "PASS \u2014 delivery record immutable, current tree matches, raw data excluded",
+    "sha256sum -c SHA256SUMS.current": "all files OK, 0 failures",
+    "tripwire_fired": false,
+    "tripwire_note": "section 2 touched no file covered by CURRENT_FILES; SHA256SUMS.package untouched"
+  }
+}

@@ -3,6 +3,58 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.1, operational closeout of Gate 1
+
+Version stays at `0.4.0-dev.2`. Gate 1.1 resolves ambiguities Gate 1 disclosed
+rather than changing what Gate 1 decided.
+
+### Changed
+
+- `corpus/raw/evaluation/negative/` → `corpus/raw/negative_patterns/` (`git mv`,
+  byte-identical, sha256 `959d9b63…884ed`). This was the last
+  production-ingestible path named "evaluation" — item 2 of the three Gate 1 left
+  open. The material was never evaluation material; only the directory name
+  invited that reading.
+
+  The rename is provably inert. Chunk ids derive from `source_id` and chunk
+  content, never from the file path, so the single chunk kept its id
+  `9c1e63263b4b8373_0`. A dry run before the write reported **stale 0, would-add
+  0, identical id sets**, which is what made the seven-step id-migration branch
+  inapplicable — measured, not assumed. A metadata-refreshing reindex then
+  changed exactly one field, `source_path`. `source_id`, `doc_type`, licence,
+  `source_checksum`, register, dialect, chunk index/total, token count, heading
+  and profile are unchanged, and the evaluation report's cosine
+  min/median/max are byte-identical to the pre-move run.
+
+  Chroma 84 → **84**, BM25 84 → **84**, id-set parity exact, feedback unchanged
+  at 2, BADGR Harness store MD5 unchanged. No production `source_path` contains
+  "evaluation".
+- `README.md` corpus table refreshed. It still described a pre-Gate-1,
+  48-chunk collection in which `evaluation_case` was 35.4% of production — stale
+  and, after Gate 1, false. Now 84 chunks: approved_example 59, glossary 19,
+  style_rule 5, negative_pattern 1.
+
+### Added
+
+- `tests/test_negative_pattern_path.py` — 24 tests, one per §2 proof: old path
+  gone, new path ingestible, byte-identical material, identity preserved, chunk
+  id path-independent, count still 84, no production path names "evaluation",
+  negative material excluded from live positive rewrite retrieval, negative
+  material still reachable for an explicit "what to avoid" request, evaluation
+  directories still refused, and the `.gitignore` re-include that the move
+  needed. Suite 219 → **243**.
+
+### Notes
+
+- `corpus/raw/evaluation/` still exists, holding only
+  `audio_reference_manifest.yaml` — hashes with no audio bytes, and YAML is not a
+  loader-supported type, so it is not ingestible. Moving it was outside §2's
+  scope. Asserted so "the old path is gone" is never read as "the tree is gone".
+- Historical records that name the old path — `prompts/checksums.sha256`, the
+  execution log, prior evidence JSONs, the Gate 1 changelog entry below — are
+  deliberately not rewritten. Rewriting a delivery record to match the present
+  falsifies it.
+
 ## [0.4.0-dev.2] — Gate 1, evaluation isolation and retrieval decontamination
 
 The evaluation prompts were an ingested source, and an evaluation prompt states
