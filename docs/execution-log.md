@@ -1539,3 +1539,113 @@ Chroma 84, BM25 84, id-set parity exact, feedback 2, BADGR Harness MD5
 `bdcbe32b706c6ccce1f62e8e9f2d2c49` unchanged.
 
 Evidence: `docs/evidence/gate1_1-rollback-repair.json`.
+
+---
+
+## 2026-08-02 — C.Walts v0.4 Gate 1.1 §4: formal disposition of EVAL-009
+
+Version held at `0.4.0-dev.2`. Documentation and tests only — no store
+mutation, no corpus material, no change to `eval/expectations.yaml`, no
+threshold work. Store re-verified unchanged afterwards.
+
+Created `docs/known-limitations-v0.4.md`, a tracked register with four entries:
+one deferred limitation and three classifications.
+
+### CW-LIM-009-DENSE-COVERAGE — recorded as specified
+
+```yaml
+id: CW-LIM-009-DENSE-COVERAGE
+status: deferred
+severity: medium
+blocks_gate2: false
+blocks_threshold_calibration: true
+blocks_release_candidate: true
+```
+
+All five required statements are recorded verbatim in intent: the single-example
+dependency; the prohibition on deriving any corpus example from EVAL-009's
+wording; the requirement that the corpus-expansion phase add multiple
+independently designed dense technical rewrite examples; that those cover
+different technical structures rather than paraphrasing one regression prompt;
+and that the entry closes only after retrieval diversity and regression tests
+demonstrate more than one substantive source.
+
+### The gap was measured, not restated
+
+Gate 1 disclosed EVAL-009 as "thin". §4 quantified it, and the measurement is
+sharper than the disclosure.
+
+EVAL-009 declares three acceptable markers. **Two of them resolve to the same
+single chunk:**
+
+| Marker | Chunks | Note |
+|---|---|---|
+| `Pair CW-021` | 1 | `26e57adf05186f83_11` |
+| `dense architecture` | 1 | the same chunk |
+| `Market Voice-Delivery Rules` | 5 | all `doc_type: style_rule` |
+
+The measured run matched `Pair CW-021` and returned five chunks, all
+`approved_example`, none `style_rule`. The third marker cannot carry the case,
+because the case asserts a `style_rule` primary would be wrong. So EVAL-009
+passes on exactly one chunk.
+
+**And the gap is narrower than "few technical examples".** The corpus holds nine
+technical `approved_example` headings — CW-001, CW-005, CW-018, CW-019, CW-020,
+CW-021, CW-022, CW-039 and SCR-002. Technical coverage is not thin. What is
+singular is the **dense nominalization chain**, the structure EVAL-009's query
+exercises; CW-021 is the only production example of it, and the other eight
+demonstrate different structures that do not stand in for it.
+
+This matters for the fix: the corpus-expansion phase should not add "more
+technical examples". It should add several genuinely different dense structures
+— nominalization chains, stacked prepositional qualifiers, embedded conditional
+clauses, passive agentless constructions — each authored independently.
+
+### Three classifications
+
+| Entry | Status | Classification |
+|---|---|---|
+| `CW-LIM-RC2-COUNT` | `accepted` | accepted historical record — `docs/owner-test-report-rc2.md` lines 30 and 295 state 101 |
+| `CW-LIM-ROLLBACK-COUNTS` | `accepted` | accepted historical evidence — `docs/history/rollback-rc2.md` records 48 and 97 |
+| `CW-LIM-EVAL-PATH` | `resolved` | resolved by the Gate 1.1 §2 rename, `resolved_by: cdb670d` |
+
+The two historical-count entries are kept **separate**, because they live in
+different documents and describe different numbers. Recording them as one item
+is the exact conflation corrected in §3; merging them here would have
+reintroduced it.
+
+### The register is queryable, which is the only reason it works
+
+`tests/test_known_limitations.py` (22 tests) parses the fenced YAML blocks rather
+than grepping prose, and asserts each of the six required fields with its
+required value. The load-bearing assertion is `blocks_release_candidate: true`:
+it is the register's only enforcement mechanism, so a future release gate can ask
+for open blockers and get an answer without a human interpreting paragraphs.
+Confirmed working — the query returns exactly
+`['CW-LIM-009-DENSE-COVERAGE']`.
+
+Two further tests guard against the register drifting away from reality: the
+`resolved_by` sha is verified to be a real commit with `git cat-file`, and every
+marker EVAL-009 declares in `eval/expectations.yaml` must be accounted for in the
+register, so retuning the case forces the evidence to be revisited.
+
+### Scope held
+
+§4 says record and classify. It does not authorize adding corpus material,
+authoring evaluation queries, retuning EVAL-009's markers, or fitting thresholds.
+The measurements above exist as the register's evidence and were not used as a
+reason to change the case.
+
+### Verification
+
+```text
+pytest tests/                    287 collected, exit 0, 0 failed (265 before)
+ruff check .                     All checks passed!
+git diff --check                 clean
+verify_restore.py                PASS — 84/84, id set 0 absent / 0 unexpected,
+                                 evaluation_case 0, feedback 2, harness MD5 unchanged
+verify_gate0_integrity.py --verify  re-run last, on the final tree
+sha256sum -c SHA256SUMS.current  re-run last, on the final tree
+```
+
+Evidence: `docs/known-limitations-v0.4.md`, `docs/evidence/gate1_1-eval009-disposition.json`.

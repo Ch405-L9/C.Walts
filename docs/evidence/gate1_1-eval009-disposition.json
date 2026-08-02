@@ -1,0 +1,184 @@
+{
+  "generated": "2026-08-02T04:44:49.144419+00:00",
+  "phase": "C.Walts v0.4 Gate 1.1 \u00a74 \u2014 formal disposition of EVAL-009",
+  "version": "0.4.0-dev.2",
+  "register": "docs/known-limitations-v0.4.md",
+  "entries": {
+    "CW-LIM-009-DENSE-COVERAGE": {
+      "id": "CW-LIM-009-DENSE-COVERAGE",
+      "status": "deferred",
+      "severity": "medium",
+      "blocks_gate2": false,
+      "blocks_threshold_calibration": true,
+      "blocks_release_candidate": true
+    },
+    "CW-LIM-RC2-COUNT": {
+      "id": "CW-LIM-RC2-COUNT",
+      "status": "accepted",
+      "classification": "accepted historical record",
+      "severity": "informational",
+      "blocks_gate2": false,
+      "blocks_threshold_calibration": false,
+      "blocks_release_candidate": false
+    },
+    "CW-LIM-ROLLBACK-COUNTS": {
+      "id": "CW-LIM-ROLLBACK-COUNTS",
+      "status": "accepted",
+      "classification": "accepted historical evidence",
+      "severity": "informational",
+      "blocks_gate2": false,
+      "blocks_threshold_calibration": false,
+      "blocks_release_candidate": false
+    },
+    "CW-LIM-EVAL-PATH": {
+      "id": "CW-LIM-EVAL-PATH",
+      "status": "resolved",
+      "classification": "resolved by the Gate 1.1 rename",
+      "severity": "low",
+      "resolved_at": "0.4.0-dev.2",
+      "resolved_by": "cdb670d",
+      "blocks_gate2": false,
+      "blocks_threshold_calibration": false,
+      "blocks_release_candidate": false
+    }
+  },
+  "open_release_blockers": [
+    "CW-LIM-009-DENSE-COVERAGE"
+  ],
+  "eval009_measurement": {
+    "measured_at_chunks": 84,
+    "declared_markers": [
+      "Pair CW-021",
+      "dense architecture",
+      "Market Voice-Delivery Rules"
+    ],
+    "marker_resolution": {
+      "Pair CW-021": {
+        "chunks": 1,
+        "ids": [
+          "26e57adf05186f83_11"
+        ],
+        "doc_type": "approved_example"
+      },
+      "dense architecture": {
+        "chunks": 1,
+        "ids": [
+          "26e57adf05186f83_11"
+        ],
+        "note": "the same chunk as Pair CW-021"
+      },
+      "Market Voice-Delivery Rules": {
+        "chunks": 5,
+        "doc_type": "style_rule",
+        "note": "cannot carry the case: it asserts an approved_example primary"
+      }
+    },
+    "effective_supporting_chunks": 1,
+    "measured_run": {
+      "matched_marker": "Pair CW-021",
+      "useful_hit": true,
+      "doc_types_returned": [
+        "approved_example",
+        "approved_example",
+        "approved_example",
+        "approved_example",
+        "approved_example"
+      ],
+      "contamination": 0
+    },
+    "technical_approved_example_headings": 9,
+    "technical_headings": [
+      "CW-001 Technical security explainer",
+      "CW-005 Technical warning",
+      "CW-018 Technical: retry and backoff behaviour",
+      "CW-019 Technical: what a feature does not do",
+      "CW-020 Technical: migration warning",
+      "CW-021 Technical: dense architecture paragraph",
+      "CW-022 Technical: permission boundary",
+      "CW-039 Technical: rewriting around exact identifiers and dates",
+      "SCR-002 Technical security explanation"
+    ],
+    "precise_gap": "not a shortage of technical examples; CW-021 is the only dense nominalization chain, which is the structure EVAL-009 exercises"
+  },
+  "closure_condition": "retrieval diversity plus regression tests demonstrating more than one substantive source; a count of corpus files is not evidence",
+  "prohibition": "no corpus example may be derived from EVAL-009 wording \u2014 that would let the benchmark retrieve its own answer, the defect Gate 1 removed 17 chunks to eliminate",
+  "classifications": {
+    "rc2_owner_report_101": {
+      "entry": "CW-LIM-RC2-COUNT",
+      "status": "accepted",
+      "classification": "accepted historical record",
+      "location": "docs/owner-test-report-rc2.md lines 30 and 295"
+    },
+    "rollback_rehearsal_48_97": {
+      "entry": "CW-LIM-ROLLBACK-COUNTS",
+      "status": "accepted",
+      "classification": "accepted historical evidence",
+      "location": "docs/history/rollback-rc2.md"
+    },
+    "production_path_ambiguity": {
+      "entry": "CW-LIM-EVAL-PATH",
+      "status": "resolved",
+      "classification": "resolved by the Gate 1.1 rename",
+      "resolved_by": "cdb670d",
+      "resolved_at": "0.4.0-dev.2"
+    }
+  },
+  "kept_separate": "the 101 figure and the 48/97 figures are different documents and different entries; merging them would reintroduce the conflation corrected in \u00a73",
+  "tests": {
+    "before": 265,
+    "after": 287,
+    "new_file": "tests/test_known_limitations.py",
+    "new_tests": 22,
+    "exit_code": 0
+  },
+  "scope_held": [
+    "no corpus material added",
+    "eval/expectations.yaml unchanged",
+    "EVAL-009 markers unchanged",
+    "no thresholds fitted",
+    "no store mutation"
+  ],
+  "store_after": {
+    "expected_count": 84,
+    "expected_count_derived_from": "source discovery over config/sources.yaml",
+    "expected_id_set_checked": true,
+    "ids_expected_but_absent": [],
+    "ids_present_but_unexpected": [],
+    "production_count": 84,
+    "bm25_chunk_ids": 84,
+    "chroma_bm25_parity": true,
+    "ids_only_in_chroma": [],
+    "ids_only_in_bm25": [],
+    "evaluation_case_by_metadata": 0,
+    "evaluation_case_by_where_filter": 0,
+    "feedback_collection": "badgr_natural_flow_feedback_v1",
+    "feedback_count": 2,
+    "exact_term_probe": "ToBI",
+    "exact_term_hits": 3,
+    "retrieval_probe_hits": 12,
+    "retrieval_doc_types": [
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example",
+      "approved_example"
+    ],
+    "badgr_harness_store_md5": "bdcbe32b706c6ccce1f62e8e9f2d2c49",
+    "verified": true,
+    "failures": []
+  },
+  "checksum_gates_rerun_last": {
+    "note": "re-run after every writing command; describes the final tree",
+    "verify_gate0_integrity.py --verify": "PASS \u2014 delivery record immutable, current tree matches, raw data excluded",
+    "sha256sum -c SHA256SUMS.current": "all files OK, 0 failures",
+    "SHA256SUMS.package self_digest": "0e7e87d2721cafdfe9bdc41fc057dad601374a0ac21be99dd09de03b480cf091",
+    "tripwire_fired": false
+  }
+}

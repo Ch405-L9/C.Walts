@@ -55,6 +55,26 @@ rather than changing what Gate 1 decided.
 
 ### Added
 
+- `docs/known-limitations-v0.4.md` — tracked limitations register. Records
+  **`CW-LIM-009-DENSE-COVERAGE`** as `deferred` / `severity: medium` /
+  `blocks_gate2: false` / `blocks_threshold_calibration: true` /
+  `blocks_release_candidate: true`, with the measurement behind it: EVAL-009
+  declares three markers, two of which resolve to the *same single chunk*
+  (`26e57adf05186f83_11`), and the third matches only `style_rule` chunks the
+  case cannot accept. The corpus holds nine technical examples — coverage is not
+  thin — but CW-021 is the only **dense nominalization chain**, which is the
+  structure the query exercises. No corpus example may ever be derived from
+  EVAL-009's wording; the fix belongs to the corpus-expansion phase and must add
+  several independently designed dense structures. Also classifies the rc.2
+  101-chunk report as accepted historical record, the 48/97 rollback rehearsal as
+  accepted historical evidence, and the production path ambiguity as resolved by
+  the Gate 1.1 rename (`cdb670d`).
+- `tests/test_known_limitations.py` — 22 tests. Parses the register's fenced YAML
+  rather than grepping prose, asserts all six required fields with their required
+  values, and makes open release blockers discoverable by query — the register's
+  only enforcement mechanism. Also verifies `resolved_by` is a real commit and
+  that every marker EVAL-009 declares is accounted for, so retuning the case
+  forces the evidence to be revisited. Suite 265 → **287**.
 - `scripts/verify_restore.py` — post-restore verification. Derives the expected
   **id set** from source discovery, or a count from a snapshot's own manifest,
   then interrogates the live store: both collections reopen, Chroma/BM25 id-set
