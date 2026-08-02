@@ -1,0 +1,26 @@
+version: 1
+sources:
+  - source_id: stage2_fixture_article
+    title: Stage 2 Fixture Article
+    authors:
+      - A. Author
+    publisher: PLOS
+    doi: 10.1000/stage2-fixture
+    official_url: https://doi.org/10.1000/stage2-fixture
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    local_snapshot_path: snapshots/source.xml
+    checksum_algorithm: sha256
+    checksum: 57530e21be8cd19d49ce997dbffc34cf83acb6e35bba3bd2a14f36a090d40d73
+    source_format: jats_xml
+    extraction_locator_capability: section and paragraph
+    attribution_text: A. Author, Stage 2 Fixture Article, CC BY 4.0.
+    access_date: 2026-08-02
+    permission_basis: article
+    transformation_permission: before_after_rewrite
+    figures_excluded: true
+    tables_excluded: true
+    captions_excluded: true
+    references_excluded: true
+    supplementary_files_excluded: true
+    embedded_third_party_quotations_excluded: true

@@ -3,6 +3,55 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.2 Stage 2.2A, pre-mutation safety tooling
+
+Version stays at `0.4.0-dev.2`. This is tooling only: no Stage 2 remediation
+examples, no public-source corpus records, no Chroma/BM25 mutation, no holdout
+inspection, no threshold fitting, and no Gate 2 work.
+
+### Added
+
+- `scripts/compare_reindex_plan.py` — read-only comparison of a proposed source
+  build against current production Chroma/BM25 IDs. It reuses the production
+  chunk builder and reports would-add, stale, unchanged, duplicate ID,
+  duplicate-content, content-changed, metadata-changed, source-scope, parity, and
+  evaluation-leakage fields.
+- `scripts/validate_stage2_sources.py` — offline Stage 2 public-source
+  license/provenance validator with article-level license checks, local snapshot
+  checksum verification, path containment, duplicate/conflict detection, and
+  third-party-content exclusion enforcement.
+- `schemas/stage2_reindex_comparison.schema.json` and
+  `schemas/stage2_source_validation.schema.json` for the two JSON evidence
+  outputs.
+- Focused regression coverage in `tests/test_stage2_reindex_compare.py` and
+  `tests/test_stage2_source_validator.py`, plus small CLI fixtures under
+  `tests/fixtures/`.
+- `docs/gate1_2-stage2-safety-tools.md` with usage, read-only guarantees, exit
+  codes, schema summaries, source-scope behavior, stale-ID definition, duplicate
+  behavior, accepted licenses, and the Stage 2.2B gate.
+
+### Validation
+
+```text
+pytest tests/test_stage2_reindex_compare.py
+                                 16 passed
+pytest tests/test_stage2_source_validator.py
+                                 18 passed
+pytest tests/                    366 observed progress dots, exit 0
+ruff check .                     All checks passed!
+git diff --check                 clean
+corpus_lint.py                   PASS - 84 chunks, no findings
+verify_restore.py                PASS - 84/84, BM25 84, exact parity,
+                                 evaluation_case 0, feedback 2,
+                                 BADGR Harness MD5 unchanged
+
+valid comparison fixture          verdict=pass, would_add=1, stale=0,
+                                  unchanged=0, mutation_performed=false
+duplicate comparison fixture      verdict=fail, duplicate canonical content
+valid source fixture              verdict=pass, checksum match=true
+bad-license source fixture        verdict=fail, rejected_license
+```
+
 ## [Unreleased] — Gate 1.2 Stage 1, determinism instrumentation
 
 Version stays at `0.4.0-dev.2`. Stage 1 resolves the ANN/fused-score wobble

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "C.Walts Gate 1.2 Stage 2 Source Validation",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generated_at",
+    "repository_commit",
+    "manifest_path",
+    "source_record_count",
+    "validated_source_ids",
+    "accepted_license_allowlist",
+    "errors",
+    "warnings",
+    "checksum_results",
+    "duplicate_checks",
+    "evidence_path_checks",
+    "verdict"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "generated_at": {"type": "string"},
+    "repository_commit": {"type": "string"},
+    "manifest_path": {"type": "string"},
+    "source_record_count": {"type": "integer", "minimum": 0},
+    "validated_source_ids": {"type": "array", "items": {"type": "string"}},
+    "accepted_license_allowlist": {"type": "array", "items": {"type": "string"}},
+    "errors": {"type": "array"},
+    "warnings": {"type": "array"},
+    "checksum_results": {"type": "array"},
+    "duplicate_checks": {"type": "object"},
+    "evidence_path_checks": {"type": "array"},
+    "verdict": {"type": "string", "enum": ["pass", "fail"]}
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,13 @@
+version: 1
+sources:
+  - id: stage2_fixture_valid
+    title: Stage 2 valid comparison fixture
+    url: https://example.org/stage2-fixture
+    path: tests/fixtures/stage2_compare/valid_source/
+    doc_type: approved_example
+    chunk_profile: approved_example
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_status: approved
+    dialect: en-US
+    register: technical explainer

@@ -2098,6 +2098,82 @@ Evidence: `docs/evidence/gate1_2-determinism.json`.
 
 ---
 
+## 2026-08-02 - C.Walts v0.4 Gate 1.2 Stage 2.2A: pre-mutation safety tooling
+
+Version held at `0.4.0-dev.2`. Scope is safety tooling only: no corpus
+remediation examples authored, no Stage 2 public-source corpus records added, no
+production ChromaDB or BM25 mutation, no threshold fitting, no holdout
+inspection, no Stage 3 work, no Gate 2 work, and `CW-LIM-009-DENSE-COVERAGE`
+remains open.
+
+Owner clarification carried forward into Stage 0 evidence: local-only context
+files `FULL_c.walts_project_outside-eyes-ovrvw_context.txt`,
+`README_compass_artificat.md`, `README_REMEDIATION PROPOSAL.md`, and
+`convo_context_for_json_build.txt` are excluded via `.git/info/exclude` and must
+remain untracked/uncommitted.
+
+### State verification
+
+Initial verification before edits measured branch
+`feat/narration-generalization-v0.4`, HEAD/upstream
+`35f59d4f8f3aca71d410182b56873aa32caf419a`, version `0.4.0-dev.2`, and a clean
+visible working tree after excluding owner-provided local-only context files.
+`verify_restore.py --expect-from-sources` passed at 84 production Chroma chunks,
+84 BM25 chunks, exact ID parity, `evaluation_case` 0, feedback collection 2, and
+BADGR Harness MD5 `bdcbe32b706c6ccce1f62e8e9f2d2c49`.
+
+### Tooling
+
+Added `scripts/compare_reindex_plan.py`, a read-only proposed-build comparator
+that reuses `scripts/ingest.py::build_records` and emits
+`schemas/stage2_reindex_comparison.schema.json`.
+
+Added `scripts/validate_stage2_sources.py`, an offline Stage 2
+license/provenance validator for local source snapshots and license evidence,
+emitting `schemas/stage2_source_validation.schema.json`.
+
+### Validation
+
+```text
+.venv/bin/python -m pytest tests/test_stage2_reindex_compare.py -q
+  16 passed
+
+.venv/bin/python -m pytest tests/test_stage2_source_validator.py -q
+  18 passed
+
+.venv/bin/python -m pytest tests/ -q
+  exit 0, 366 observed progress dots
+
+.venv/bin/ruff check .
+  All checks passed!
+
+git diff --check
+  clean
+
+.venv/bin/python scripts/corpus_lint.py
+  PASS - 84 chunks, no findings
+
+.venv/bin/python scripts/verify_restore.py --expect-from-sources
+  PASS - expected 84, production 84, BM25 84, id set 0 absent / 0 unexpected,
+  evaluation_case 0, feedback 2, ToBI 3 hits, retrieval probe 12 chunks,
+  BADGR Harness MD5 bdcbe32b706c6ccce1f62e8e9f2d2c49
+
+valid comparison fixture
+  verdict=pass, would_add=1, stale=0, unchanged=0, duplicate_ids=0,
+  proposed_id_parity=true, evaluation_case_count=0, mutation_performed=false
+
+duplicate comparison fixture
+  verdict=fail, duplicate canonical content reported, mutation_performed=false
+
+valid license/provenance fixture
+  verdict=pass, checksum match=true, errors=0, warnings=0
+
+bad-license provenance fixture
+  verdict=fail, rejected_license
+```
+
+---
+
 ## 2026-08-02 - C.Walts v0.4 Gate 1.2 Stage 1 follow-up: disposition hardening
 
 Version held at `0.4.0-dev.2`. Follow-up hardening only: no corpus change, no
