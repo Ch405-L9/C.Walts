@@ -613,14 +613,16 @@ report so a reviewer can reject it outright; it annotates, it does not select.
 
 ### Acquisition executed
 
-Three archives, all HTTPS, all first-party, 40 MB raw and 7.3 MB extracted
-(48 MB total under `var/eval_sources/`, Git-ignored):
+Three archives, all HTTPS, all first-party. 41,749,543 bytes of archives and
+7,539,821 bytes of extracted allowlisted files, 48 MB on disk under
+`var/eval_sources/`, Git-ignored. Byte counts are the manifest's own
+`download.bytes` values, not a rounded `du`:
 
-| Dataset | Bytes | Archive SHA-256 |
+| Dataset | Archive bytes | Archive SHA-256 |
 |---|---:|---|
-| clinc150 | 1,048,003 | `0d8ecc3e1edd7b25cabde0177544ce536ddf773844bc80ef1a75f36e7f030ea2` |
-| massive_1_0_en_us | (tar.gz) | `7df623fd2d300a4d235d6ee5bd396c9a28258d3a0ccb29abdb054506eba153f8` |
-| banking77 | (zip) | `b8c2ba23bc1ab7b182230c378f07417c8aef735260a2fd3546faef54ecbbfa91` |
+| clinc150 | 1,053,960 | `0d8ecc3e1edd7b25cabde0177544ce536ddf773844bc80ef1a75f36e7f030ea2` |
+| massive_1_0_en_us | 39,500,415 | `7df623fd2d300a4d235d6ee5bd396c9a28258d3a0ccb29abdb054506eba153f8` |
+| banking77 | 1,195,168 | `b8c2ba23bc1ab7b182230c378f07417c8aef735260a2fd3546faef54ecbbfa91` |
 
 Per-file hashes, exact byte counts, and the licence markers verified inside each
 archive are in `docs/dataset-acquisition-report-gate0.md`. Only the allowlisted
@@ -682,3 +684,14 @@ e77080245cd45ff21088809a69bd137cd38cd18d741d3f40ff055e05a0376dbb  scripts/acquir
 Gate 0 ends here. No query was selected, no 600-query set built, no calibration
 or holdout file created, no threshold fitted, no MCP evidence status changed, no
 audiobook corpus acquired, `main` not promoted, and no release candidate tagged.
+
+### Correction 6 — the report now carries §11's return values
+
+Review of the handoff artefact found that `docs/dataset-acquisition-report-gate0.md`
+asserted the production boundary without showing it, and omitted disk use, while
+`docs/owner_actions.md` sends exactly that file to the reviewer. Both are now
+generated into the report rather than hand-typed: disk figures are summed from
+the acquisition manifest, and the before/after store measurements come from
+`docs/evidence/gate0-boundary.json`, which records the commands used. The
+execution log's archive byte counts were also corrected — one was transcribed
+from a rounded `du` reading rather than the manifest.

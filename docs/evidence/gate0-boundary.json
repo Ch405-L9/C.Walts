@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "note": "Production-store and disk measurements taken by hand around the Gate 0 acquisition, before the first download and after the final verification run. Recorded here so scripts/inventory_eval_sources.py can render them into the report without importing a store client.",
+  "commands": {
+    "chroma": "chromadb.PersistentClient(path='var/chroma'); [(c.name, c.count()) for c in client.list_collections()]",
+    "bm25": "len(json.load(open('var/bm25/index.json'))['chunk_ids'])",
+    "harness": "md5sum /home/t0n34781/projects/badgr_harness/rag_db/chroma.sqlite3",
+    "disk": "df -BG /home/t0n34781/projects/natural-language-flow-rag"
+  },
+  "before": {
+    "chroma_badgr_natural_flow_v1": 101,
+    "chroma_badgr_natural_flow_feedback_v1": 2,
+    "bm25_chunk_ids": 101,
+    "bm25_token_rows": 101,
+    "badgr_harness_store_md5": "bdcbe32b706c6ccce1f62e8e9f2d2c49",
+    "free_disk_gib": 70
+  },
+  "after": {
+    "chroma_badgr_natural_flow_v1": 101,
+    "chroma_badgr_natural_flow_feedback_v1": 2,
+    "bm25_chunk_ids": 101,
+    "bm25_token_rows": 101,
+    "badgr_harness_store_md5": "bdcbe32b706c6ccce1f62e8e9f2d2c49",
+    "free_disk_gib": 70
+  },
+  "ingestion_or_reindex_tool_called": false
+}

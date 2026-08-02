@@ -17,6 +17,7 @@ EXTRACTED = PROJECT_ROOT / "var" / "eval_sources" / "extracted"
 MANIFEST = (
     PROJECT_ROOT / "var" / "eval_sources" / "manifests" / "acquisition-manifest.json"
 )
+BOUNDARY = PROJECT_ROOT / "docs" / "evidence" / "gate0-boundary.json"
 REPORT_JSON = PROJECT_ROOT / "docs" / "evidence" / "dataset-inventory-gate0.json"
 REPORT_MD = PROJECT_ROOT / "docs" / "dataset-acquisition-report-gate0.md"
 
@@ -239,7 +240,26 @@ def acquisition_provenance() -> dict[str, object]:
             "extracted_files": entry["extracted_files"],
             "license_verification": entry["license_verification"],
         }
-    return {"config_sha256": manifest["config_sha256"], "datasets": datasets}
+    archive_bytes = sum(
+        entry["download"]["bytes"] for entry in manifest["datasets"].values()
+    )
+    extracted_bytes = sum(
+        record["bytes"]
+        for entry in manifest["datasets"].values()
+        for record in entry["extracted_files"]
+    )
+    return {
+        "config_sha256": manifest["config_sha256"],
+        "archive_bytes_total": archive_bytes,
+        "extracted_bytes_total": extracted_bytes,
+        "datasets": datasets,
+    }
+
+
+def production_boundary() -> dict[str, object]:
+    if not BOUNDARY.exists():
+        raise InventoryError(f"boundary measurements are missing: {BOUNDARY}")
+    return json.loads(BOUNDARY.read_text(encoding="utf-8"))
 
 
 def build_inventory() -> dict[str, object]:
@@ -255,6 +275,7 @@ def build_inventory() -> dict[str, object]:
         "selection_performed": False,
         "production_ingestion_performed": False,
         "acquisition": acquisition_provenance(),
+        "production_boundary": production_boundary(),
         "datasets": {
             "clinc150": parse_clinc(clinc_root / "data_full.json"),
             "massive_1_0_en_us": parse_massive(
@@ -422,11 +443,57 @@ def write_reports(inventory: dict[str, object]) -> None:
         "",
         "No near-domain candidates. All 77 categories are far out-of-domain.",
         "",
+        "## Production boundary, measured before and after",
+        "",
+        "| Item | Before | After |",
+        "|---|---|---|",
+    ]
+    boundary = inventory["production_boundary"]
+    labels = [
+        ("chroma_badgr_natural_flow_v1", "Chroma `badgr_natural_flow_v1`"),
+        (
+            "chroma_badgr_natural_flow_feedback_v1",
+            "Chroma `badgr_natural_flow_feedback_v1`",
+        ),
+        ("bm25_chunk_ids", "BM25 chunk_ids"),
+        ("bm25_token_rows", "BM25 token rows"),
+        ("badgr_harness_store_md5", "BADGR Harness store MD5"),
+        ("free_disk_gib", "Free disk (GiB)"),
+    ]
+    for key, label in labels:
+        lines.append(
+            f"| {label} | {boundary['before'][key]} | {boundary['after'][key]} |"
+        )
+    lines += [
+        "",
+        "No ingestion or reindex tool was called. Nothing was chunked or embedded.",
+        "The measurement commands are recorded in "
+        "`docs/evidence/gate0-boundary.json`.",
+        "",
+        "## Disk use",
+        "",
+        f"Archives: {acquisition['archive_bytes_total']:,} bytes. "
+        f"Extracted allowlisted files: {acquisition['extracted_bytes_total']:,} bytes. "
+        f"Both live under `var/eval_sources/`, which is Git-ignored.",
+        "",
+        "| Dataset | Archive bytes |",
+        "|---|---:|",
+    ]
+    for name, entry in acquisition["datasets"].items():
+        lines.append(f"| {name} | {entry['archive_bytes']:,} |")
+    lines += [
+        "",
         "## Boundary",
         "",
         "Full aggregate inventory: `docs/evidence/dataset-inventory-gate0.json`.",
         "Raw archives and extracted files stay under `var/eval_sources/`, which is",
         "Git-ignored and never committed.",
+        "",
+        "The root `SHA256SUMS` records the Gate 0 package as delivered. Three of its",
+        "twelve files — both acquisition scripts and the test module — were edited",
+        "during this phase for lint compliance, two hardening changes, and the",
+        "adversarial suite, so those three entries no longer match by design. The",
+        "reasons and the post-edit hashes are in `docs/execution-log.md`.",
     ]
     REPORT_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

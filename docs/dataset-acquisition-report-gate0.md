@@ -111,8 +111,38 @@ audio_volume_down, audio_volume_mute, audio_volume_other, audio_volume_up, gener
 
 No near-domain candidates. All 77 categories are far out-of-domain.
 
+## Production boundary, measured before and after
+
+| Item | Before | After |
+|---|---|---|
+| Chroma `badgr_natural_flow_v1` | 101 | 101 |
+| Chroma `badgr_natural_flow_feedback_v1` | 2 | 2 |
+| BM25 chunk_ids | 101 | 101 |
+| BM25 token rows | 101 | 101 |
+| BADGR Harness store MD5 | bdcbe32b706c6ccce1f62e8e9f2d2c49 | bdcbe32b706c6ccce1f62e8e9f2d2c49 |
+| Free disk (GiB) | 70 | 70 |
+
+No ingestion or reindex tool was called. Nothing was chunked or embedded.
+The measurement commands are recorded in `docs/evidence/gate0-boundary.json`.
+
+## Disk use
+
+Archives: 41,749,543 bytes. Extracted allowlisted files: 7,539,821 bytes. Both live under `var/eval_sources/`, which is Git-ignored.
+
+| Dataset | Archive bytes |
+|---|---:|
+| clinc150 | 1,053,960 |
+| massive_1_0_en_us | 39,500,415 |
+| banking77 | 1,195,168 |
+
 ## Boundary
 
 Full aggregate inventory: `docs/evidence/dataset-inventory-gate0.json`.
 Raw archives and extracted files stay under `var/eval_sources/`, which is
 Git-ignored and never committed.
+
+The root `SHA256SUMS` records the Gate 0 package as delivered. Three of its
+twelve files — both acquisition scripts and the test module — were edited
+during this phase for lint compliance, two hardening changes, and the
+adversarial suite, so those three entries no longer match by design. The
+reasons and the post-edit hashes are in `docs/execution-log.md`.
