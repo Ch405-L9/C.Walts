@@ -1,8 +1,8 @@
 # Gate 1.2 Stage 2 Safety Tools
 
-Stage 2.2A adds two pre-mutation guards. They are read-only by default and do not
-write Chroma, BM25, corpus sources, backups, or evidence unless the operator
-explicitly chooses an output JSON path.
+Stage 2.2A adds two pre-mutation guards. They are read-only and do not write
+Chroma, BM25, corpus sources, backups, or evidence unless the operator explicitly
+chooses an output JSON path.
 
 ## Read-only reindex comparison
 
@@ -25,13 +25,22 @@ Exit codes:
 
 - `0`: comparison passed.
 - `1`: comparison completed and found an error condition.
-- `2` or Python exception: command input or repository state could not be
-  verified; treat as fail-closed.
+- `2` or Python exception: `--dry-run` is missing, command input is invalid, or
+  repository state could not be verified; treat as fail-closed.
 
 The comparison reuses `scripts/ingest.py::build_records`, so proposed chunks use
 the same chunking, normalization, metadata, and deterministic ID generation as a
-production ingest. It reads the current Chroma collection and BM25 index, then
-emits JSON matching `schemas/stage2_reindex_comparison.schema.json`.
+production ingest. The `--dry-run` flag is required; omitting it exits before
+production state is loaded, and the command has no mutation mode.
+
+The current production Chroma records are read directly from `chroma.sqlite3`
+using SQLite read-only mode. Current BM25 is read only for production parity. For
+the proposed plan, the tool derives the predicted Chroma ID set from the final
+in-memory record plan and separately builds a temporary BM25 index with
+`LexicalIndex.build()`, `save()`, and `load()` in an isolated temp directory. It
+never writes the live BM25 index or opens live Chroma through the Chroma client
+during comparison. Output JSON matches
+`schemas/stage2_reindex_comparison.schema.json`.
 
 Important fields:
 

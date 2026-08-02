@@ -2098,6 +2098,87 @@ Evidence: `docs/evidence/gate1_2-determinism.json`.
 
 ---
 
+## 2026-08-02 - C.Walts v0.4 Gate 1.2 Stage 2.2A follow-up: independent BM25 plan parity
+
+Version held at `0.4.0-dev.2`. Scope is the narrow parity hardening follow-up
+only: no corpus remediation examples authored, no Stage 2 public-source corpus
+records added, no production ChromaDB or BM25 mutation, no threshold fitting, no
+holdout inspection, no Stage 3 work, no Gate 2 work, and
+`CW-LIM-009-DENSE-COVERAGE` remains open.
+
+### State verification
+
+Before edits, branch was `feat/narration-generalization-v0.4`, HEAD/upstream
+were both `e8b3a72e26d7b2327b85aea8a61813b2d6eac00b`, version was
+`0.4.0-dev.2`, and the visible working tree was clean. `verify_restore.py
+--expect-from-sources` passed at 84 production Chroma chunks, 84 BM25 chunks,
+exact ID parity, `evaluation_case` 0, feedback collection 2, and BADGR Harness
+MD5 `bdcbe32b706c6ccce1f62e8e9f2d2c49`. Initial BM25 SHA256 was
+`9917cf2a20387e0a8917b5746ed8647c03b8c72bb7121b6094420bd309ab18f8`; Chroma
+identity for this follow-up is tracked by read-only semantic digest because
+opening the existing Chroma client can rewrite SQLite internals even for reads.
+
+### Correction
+
+`compare_reindex_plan.py` no longer assigns the proposed BM25 ID set from the
+predicted Chroma ID set. It now derives the proposed Chroma IDs from the final
+in-memory plan and separately builds a proposed BM25 index in an isolated temp
+directory through `LexicalIndex.build()`, `save()`, and `load()`.
+
+The production Chroma read path now uses SQLite `mode=ro` against
+`chroma.sqlite3`; this avoids the Chroma client's read-side file churn during
+comparison. The comparison command requires `--dry-run` and has no mutation
+mode.
+
+### Validation
+
+```text
+.venv/bin/python -m pytest tests/test_stage2_reindex_compare.py -q
+  27 passed
+
+.venv/bin/python -m pytest tests/test_stage2_source_validator.py -q
+  18 passed
+
+.venv/bin/python -m pytest tests/ -q
+  exit 0, 377 observed progress dots
+
+.venv/bin/python -m pytest tests/ --tb=short
+  377 passed in 12.17s
+
+.venv/bin/ruff check .
+  All checks passed!
+
+git diff --check
+  clean
+
+.venv/bin/python scripts/corpus_lint.py
+  PASS - 84 chunks, no findings
+
+.venv/bin/python scripts/verify_restore.py --expect-from-sources
+  PASS - expected 84, production 84, BM25 84, id set 0 absent / 0 unexpected,
+  evaluation_case 0, feedback 2, ToBI 3 hits, retrieval probe 12 chunks,
+  BADGR Harness MD5 bdcbe32b706c6ccce1f62e8e9f2d2c49
+
+valid CLI comparison fixture
+  schema=pass, verdict=pass, proposed_id_parity=true,
+  proposed Chroma/BM25 85/85, mutation_performed=false
+
+missing-BM25 CLI comparison fixture
+  schema=pass, verdict=fail, proposed_id_parity=false,
+  proposed Chroma/BM25 85/84, mutation_performed=false
+
+extra-BM25 CLI comparison fixture
+  schema=pass, verdict=fail, proposed_id_parity=false,
+  proposed Chroma/BM25 85/86, mutation_performed=false
+
+final production identities
+  Chroma semantic SHA256 367b3eeb3e9e47c7219d99f0f087d2a8b6d79c2a5aa6ffcc88e1228bab356323
+  Chroma metadata rows 1666
+  BM25 SHA256 9917cf2a20387e0a8917b5746ed8647c03b8c72bb7121b6094420bd309ab18f8
+```
+
+---
+
 ## 2026-08-02 - C.Walts v0.4 Gate 1.2 Stage 2.2A: pre-mutation safety tooling
 
 Version held at `0.4.0-dev.2`. Scope is safety tooling only: no corpus

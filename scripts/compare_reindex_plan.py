@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import sqlite3
 import subprocess
 import sys
+import tempfile
 from collections import Counter, defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -24,7 +26,6 @@ from natural_flow_rag.settings import (  # noqa: E402
     load_settings,
     load_sources,
 )
-from natural_flow_rag.vector_store import VectorStore  # noqa: E402
 from scripts.ingest import build_records  # noqa: E402
 
 SCHEMA_VERSION = 1
@@ -170,20 +171,64 @@ def load_proposed_records(
     return records, sorted(set(source_ids)), errors
 
 
+def chroma_metadata_value(row: sqlite3.Row) -> object:
+    if row["string_value"] is not None:
+        return row["string_value"]
+    if row["int_value"] is not None:
+        return row["int_value"]
+    if row["float_value"] is not None:
+        return row["float_value"]
+    if row["bool_value"] is not None:
+        return bool(row["bool_value"])
+    return ""
+
+
 def load_current_records(settings: Settings) -> tuple[list[dict[str, Any]], int]:
-    store = VectorStore(settings)
-    collection = store.get()
-    payload = collection.get(include=["documents", "metadatas"])
-    records = [
-        {
-            "id": chunk_id,
-            "text": document or "",
-            "metadata": metadata or {},
-        }
-        for chunk_id, document, metadata in zip(
-            payload["ids"], payload["documents"], payload["metadatas"], strict=True
+    db_path = (
+        settings.resolve_inside_project(settings.collection.persistence_path)
+        / "chroma.sqlite3"
+    )
+    if not db_path.is_file():
+        raise ConfigError(f"Chroma sqlite store not found at {db_path}")
+
+    uri = f"file:{db_path.resolve()}?mode=ro"
+    connection = sqlite3.connect(uri, uri=True)
+    connection.row_factory = sqlite3.Row
+    try:
+        rows = connection.execute(
+            """
+            SELECT e.id AS row_id,
+                   e.embedding_id AS chunk_id,
+                   m.key,
+                   m.string_value,
+                   m.int_value,
+                   m.float_value,
+                   m.bool_value
+            FROM collections c
+            JOIN segments s ON s.collection = c.id AND s.scope = 'METADATA'
+            JOIN embeddings e ON e.segment_id = s.id
+            LEFT JOIN embedding_metadata m ON m.id = e.id
+            WHERE c.name = ?
+            ORDER BY e.embedding_id, m.key
+            """,
+            (settings.collection.name,),
+        ).fetchall()
+    finally:
+        connection.close()
+
+    records_by_row: dict[int, dict[str, Any]] = {}
+    for row in rows:
+        record = records_by_row.setdefault(
+            int(row["row_id"]),
+            {"id": str(row["chunk_id"]), "text": "", "metadata": {}},
         )
-    ]
+        key = row["key"]
+        if key == "chroma:document":
+            record["text"] = str(row["string_value"] or "")
+        elif key:
+            record["metadata"][str(key)] = chroma_metadata_value(row)
+
+    records = sorted(records_by_row.values(), key=lambda record: str(record["id"]))
     return records, len(records)
 
 
@@ -191,6 +236,67 @@ def load_bm25_ids(settings: Settings) -> list[str]:
     lexical = LexicalIndex(settings.project_root / "var" / "bm25" / "index.json")
     lexical.load()
     return list(lexical.chunk_ids)
+
+
+def source_id_for(record: dict[str, Any]) -> str:
+    return str((record.get("metadata") or {}).get("source_id", ""))
+
+
+def final_plan_records(
+    *,
+    current_records: list[dict[str, Any]],
+    proposed_records: list[dict[str, Any]],
+    source_scope: set[str],
+) -> list[dict[str, Any]]:
+    return sorted(
+        [
+            record
+            for record in current_records
+            if source_id_for(record) not in source_scope
+        ]
+        + list(proposed_records),
+        key=lambda record: str(record["id"]),
+    )
+
+
+def proposed_chroma_ids_from_records(records: list[dict[str, Any]]) -> list[str]:
+    return sorted({str(record["id"]) for record in records})
+
+
+def build_isolated_bm25_ids(
+    records: list[dict[str, Any]],
+    *,
+    temp_root: Path | None = None,
+    omit_ids: set[str] | None = None,
+    extra_ids: set[str] | None = None,
+    force_failure: bool = False,
+) -> list[str]:
+    if force_failure:
+        raise RuntimeError("simulated proposed BM25 build failure")
+
+    with tempfile.TemporaryDirectory(
+        prefix="cwalts-stage2-bm25-",
+        dir=temp_root,
+    ) as tmp_dir:
+        index_path = Path(tmp_dir) / "index.json"
+        build_records = [
+            record
+            for record in records
+            if str(record["id"]) not in set(omit_ids or set())
+        ]
+        chunk_ids = [str(record["id"]) for record in build_records]
+        texts = [str(record.get("text", "")) for record in build_records]
+        for extra_id in sorted(extra_ids or set()):
+            chunk_ids.append(extra_id)
+            texts.append(f"validation-only extra BM25 fixture {extra_id}")
+
+        index = LexicalIndex(index_path)
+        index.build(chunk_ids, texts)
+        index.save()
+
+        reloaded = LexicalIndex(index_path)
+        reloaded.load()
+        return sorted(reloaded.chunk_ids)
 
 
 def compare_records(
@@ -204,7 +310,7 @@ def compare_records(
     production_store_identity: dict[str, object],
     proposed_source_identity: dict[str, object],
     allowlisted_source_ids: list[str] | None = None,
-    proposed_bm25_ids: list[str] | None = None,
+    proposed_bm25_ids: list[str],
     preload_findings: list[dict[str, object]] | None = None,
 ) -> dict[str, Any]:
     findings = list(preload_findings or [])
@@ -228,8 +334,7 @@ def compare_records(
     outside_collision_ids = sorted(
         chunk_id
         for chunk_id in proposed_by_id
-        if chunk_id in current_by_id
-        and current_by_id[chunk_id].get("metadata", {}).get("source_id") not in scope
+        if chunk_id in current_by_id and source_id_for(current_by_id[chunk_id]) not in scope
     )
 
     proposed_content_by_digest: dict[str, list[str]] = defaultdict(list)
@@ -266,8 +371,7 @@ def compare_records(
     ambiguous_scope_ids: list[str] = []
     for record in current_records:
         metadata = record.get("metadata", {}) or {}
-        source_id = metadata.get("source_id")
-        if source_id in scope:
+        if source_id_for(record) in scope:
             current_scope_ids.append(str(record["id"]))
             if not metadata.get("source_path") or not metadata.get("source_checksum"):
                 ambiguous_scope_ids.append(str(record["id"]))
@@ -292,9 +396,7 @@ def compare_records(
             )
         )
 
-    proposed_source_ids = {
-        str((record.get("metadata") or {}).get("source_id")) for record in proposed_records
-    }
+    proposed_source_ids = {source_id_for(record) for record in proposed_records}
     non_allowlisted_sources = sorted(proposed_source_ids - allowlist)
     non_allowlisted_changes = [
         {"source_id": source_id, "reason": "not in allowlisted source scope"}
@@ -315,7 +417,7 @@ def compare_records(
     proposed_scope_ids = {
         str(record["id"])
         for record in proposed_records
-        if (record.get("metadata") or {}).get("source_id") in scope
+        if source_id_for(record) in scope
     }
     would_add_ids = sorted(proposed_ids - set(current_by_id))
     stale_ids = sorted(current_scope - proposed_scope_ids)
@@ -374,11 +476,13 @@ def compare_records(
             )
         )
 
-    predicted_ids = (set(current_by_id) - current_scope) | proposed_ids
-    proposed_chroma_ids = sorted(predicted_ids)
-    proposed_bm25_ids = sorted(
-        proposed_bm25_ids if proposed_bm25_ids is not None else predicted_ids
+    final_records = final_plan_records(
+        current_records=current_records,
+        proposed_records=proposed_records,
+        source_scope=scope,
     )
+    proposed_chroma_ids = proposed_chroma_ids_from_records(final_records)
+    proposed_bm25_ids = sorted(proposed_bm25_ids)
     proposed_id_parity = proposed_chroma_ids == proposed_bm25_ids
     if not proposed_id_parity:
         findings.append(
@@ -411,7 +515,7 @@ def compare_records(
         "mutation_performed": False,
         "current_production_count": len(current_records),
         "proposed_chunk_count": len(proposed_records),
-        "predicted_production_count": len(predicted_ids),
+        "predicted_production_count": len(proposed_chroma_ids),
         "would_add_ids": would_add_ids,
         "stale_ids": stale_ids,
         "unchanged_ids": unchanged_ids,
@@ -442,6 +546,28 @@ def run_comparison(args: argparse.Namespace) -> dict[str, Any]:
     current_records, current_count = load_current_records(settings)
     bm25_ids = load_bm25_ids(settings)
     allowlisted = list(args.allow_source or source_scope)
+    lexical_findings: list[dict[str, object]] = []
+    final_records = final_plan_records(
+        current_records=current_records,
+        proposed_records=proposed_records,
+        source_scope=set(source_scope),
+    )
+    try:
+        proposed_bm25_ids = build_isolated_bm25_ids(
+            final_records,
+            omit_ids=set(args.simulate_bm25_omit_id or []),
+            extra_ids=set(args.simulate_bm25_extra_id or []),
+            force_failure=args.simulate_bm25_build_failure,
+        )
+    except Exception as exc:
+        lexical_findings.append(
+            finding(
+                "proposed_bm25_build_failed",
+                "ERROR",
+                f"isolated proposed BM25 index could not be built: {exc}",
+            )
+        )
+        proposed_bm25_ids = []
     return compare_records(
         current_records=current_records,
         proposed_records=proposed_records,
@@ -461,7 +587,8 @@ def run_comparison(args: argparse.Namespace) -> dict[str, Any]:
             "source_ids": source_scope,
         },
         allowlisted_source_ids=allowlisted,
-        preload_findings=errors,
+        proposed_bm25_ids=proposed_bm25_ids,
+        preload_findings=errors + lexical_findings,
     )
 
 
@@ -470,10 +597,31 @@ def main() -> int:
     parser.add_argument("--proposed-source-config", required=True)
     parser.add_argument("--production-store", default="config")
     parser.add_argument("--output-json", required=True)
-    parser.add_argument("--dry-run", action="store_true", default=True)
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="required; this command has no mutation mode",
+    )
     parser.add_argument("--source", action="append", help="restrict to one proposed source id")
     parser.add_argument("--allow-source", action="append", help="allowlisted source id")
+    parser.add_argument(
+        "--simulate-bm25-omit-id",
+        action="append",
+        help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        "--simulate-bm25-extra-id",
+        action="append",
+        help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        "--simulate-bm25-build-failure",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
     args = parser.parse_args()
+    if not args.dry_run:
+        parser.error("--dry-run is required; compare_reindex_plan.py has no mutation mode")
     if args.production_store != "config":
         raise SystemExit("--production-store currently supports only 'config'")
     report = run_comparison(args)

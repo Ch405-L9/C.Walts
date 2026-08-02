@@ -3,6 +3,53 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.2 Stage 2.2A follow-up, independent BM25 plan parity
+
+Version stays at `0.4.0-dev.2`. This follow-up is safety-tooling only: no Stage
+2 remediation examples, no public-source corpus records, no production
+Chroma/BM25 mutation, no holdout inspection, no threshold fitting, and no Gate 2
+work.
+
+### Fixed
+
+- `scripts/compare_reindex_plan.py` no longer defaults proposed BM25 IDs to a
+  copy of the predicted Chroma IDs. The CLI now reads production Chroma via
+  SQLite read-only mode, derives the proposed Chroma plan from final records, and
+  independently builds a temporary BM25 plan through `LexicalIndex.build()`,
+  `save()`, and `load()`.
+- `--dry-run` is now required for the comparison command. Omitting it exits
+  before loading production state; the command has no mutation mode.
+
+### Added
+
+- Regression and integration coverage for normal CLI BM25 simulation, valid
+  isolated parity, missing/extra BM25 IDs, CLI mismatch detection, lexical build
+  failure, live BM25 immutability, live Chroma immutability, repeated valid CLI
+  equivalence, required `--dry-run`, and `mutation_performed=false`.
+
+### Validation
+
+```text
+pytest tests/test_stage2_reindex_compare.py
+                                 27 passed
+pytest tests/test_stage2_source_validator.py
+                                 18 passed
+pytest tests/                    377 passed in 12.17s
+ruff check .                     All checks passed!
+git diff --check                 clean
+corpus_lint.py                   PASS - 84 chunks, no findings
+verify_restore.py                PASS - 84/84, BM25 84, exact parity,
+                                 evaluation_case 0, feedback 2,
+                                 BADGR Harness MD5 unchanged
+
+valid comparison fixture          schema=pass, verdict=pass,
+                                  proposed Chroma/BM25 85/85
+missing-BM25 fixture              schema=pass, verdict=fail,
+                                  proposed Chroma/BM25 85/84
+extra-BM25 fixture                schema=pass, verdict=fail,
+                                  proposed Chroma/BM25 85/86
+```
+
 ## [Unreleased] — Gate 1.2 Stage 2.2A, pre-mutation safety tooling
 
 Version stays at `0.4.0-dev.2`. This is tooling only: no Stage 2 remediation
