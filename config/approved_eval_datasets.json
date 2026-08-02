@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "policy": {
+    "https_only": true,
+    "raw_root": "var/eval_sources",
+    "production_ingestion_forbidden": true,
+    "minimum_free_disk_gib": 20,
+    "download_cap_bytes": 2147483648
+  },
+  "datasets": {
+    "clinc150": {
+      "approved": true,
+      "version": "UCI-570-data_full",
+      "archive_url": "https://archive.ics.uci.edu/static/public/570/clinc150.zip",
+      "archive_type": "zip",
+      "official_page": "https://archive.ics.uci.edu/dataset/570/clinc150",
+      "license": "CC-BY-4.0",
+      "license_source": "embedded:clinc150_uci/LICENSE",
+      "members": [
+        "clinc150_uci/data_full.json",
+        "clinc150_uci/LICENSE"
+      ],
+      "license_markers": [
+        "Attribution 4.0 International"
+      ]
+    },
+    "massive_1_0_en_us": {
+      "approved": true,
+      "version": "1.0",
+      "archive_url": "https://amazon-massive-nlu-dataset.s3.amazonaws.com/amazon-massive-dataset-1.0.tar.gz",
+      "archive_type": "tar.gz",
+      "official_page": "https://github.com/alexa/massive",
+      "license": "CC-BY-4.0",
+      "license_source": "embedded:1.0/LICENSE",
+      "members": [
+        "1.0/data/en-US.jsonl",
+        "1.0/LICENSE"
+      ],
+      "license_markers": [
+        "Attribution 4.0 International"
+      ]
+    },
+    "banking77": {
+      "approved": true,
+      "version": "PolyAI-master-snapshot",
+      "archive_url": "https://github.com/PolyAI-LDN/task-specific-datasets/archive/refs/heads/master.zip",
+      "archive_type": "zip",
+      "official_page": "https://github.com/PolyAI-LDN/task-specific-datasets",
+      "license": "CC-BY-4.0",
+      "license_source": "embedded:task-specific-datasets-master/LICENSE",
+      "members": [
+        "task-specific-datasets-master/banking_data/train.csv",
+        "task-specific-datasets-master/banking_data/test.csv",
+        "task-specific-datasets-master/banking_data/categories.json",
+        "task-specific-datasets-master/LICENSE"
+      ],
+      "license_markers": [
+        "Attribution 4.0 International"
+      ]
+    }
+  }
+}

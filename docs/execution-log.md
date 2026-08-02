@@ -540,3 +540,12 @@ destination, the archive and extraction destinations per dataset, the licence
 markers, the approval flag, and the resolved on-disk target of every allowlisted
 member.
 
+
+### Dry run reviewed before any network access
+
+`scripts/acquire_eval_sources.py --dry-run` printed the three official
+first-party URLs (UCI archive, the Amazon MASSIVE S3 bucket, the PolyAI GitHub
+repository), their destinations under `var/eval_sources/`, the 2.00 GiB cap, the
+20 GiB free-disk requirement against 69.33 GiB free, and every allowlisted member
+with its resolved on-disk target. No Hugging Face mirror or third-party copy
+appears anywhere in the configuration. Reviewed and approved before `--execute`.
