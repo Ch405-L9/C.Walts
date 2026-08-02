@@ -128,4 +128,9 @@ claude mcp remove natural-flow-rag -s project
 rm -rf var/chroma var/bm25
 .venv/bin/python scripts/ingest.py                       # dry run
 NFR_ALLOW_WRITES=true .venv/bin/python scripts/ingest.py --commit
+.venv/bin/python scripts/verify_restore.py --expect-from-sources
 ```
+
+The last line is what proves the rebuild worked. It derives the expected chunk
+ids from the corpus rather than comparing against a number written down here, so
+it stays correct as the corpus changes.

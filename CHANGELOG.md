@@ -44,8 +44,44 @@ rather than changing what Gate 1 decided.
   directories still refused, and the `.gitignore` re-include that the move
   needed. Suite 219 → **243**.
 
+- `docs/rollback.md` split. The rc.2 rehearsal evidence — including the measured
+  48/97 desynchronisation — is frozen in `docs/history/rollback-rc2.md` under a
+  header stating it must not be followed. The active `docs/rollback.md` is
+  rewritten and contains **no production count at all**: every expected value is
+  derived when the procedure runs. It distinguishes `var/snapshots/` (complete
+  restore point) from `var/backups/` (Chroma only — restoring one alone is the
+  rc.2 failure), and states that historical reports are not current-state
+  manifests.
+
+### Added
+
+- `scripts/verify_restore.py` — post-restore verification. Derives the expected
+  **id set** from source discovery, or a count from a snapshot's own manifest,
+  then interrogates the live store: both collections reopen, Chroma/BM25 id-set
+  parity, `evaluation_case` zero checked two ways, live exact-term query, live
+  production retrieval, the feedback collection separately by name, and the BADGR
+  Harness checksum. Exit 0 pass / 1 mismatch / 2 unusable input.
+- `tests/test_rollback_docs.py` — 22 tests. Asserts the active document holds no
+  count the collection has ever had, derives its expectations, distinguishes the
+  two backup kinds, and — the one that matters operationally — that every
+  `docs/rollback.md §N` anchor emitted by `mcp/server.py` at runtime still
+  resolves and still means what the error message claims. Suite 243 → **265**.
+
+### Fixed
+
+- A false statement in this project's own execution log. The Gate 1 close claimed
+  `docs/rollback.md` described a 101-chunk collection; it never contained that
+  number. Only `docs/owner-test-report-rc2.md` does. Corrected by a dated note
+  against the original entry rather than by rewriting it.
+
 ### Notes
 
+- The documented restore path was executed end to end, not just written:
+  `--create`, `--verify`, `--restore`, then `verify_restore.py` — id set 0 absent
+  / 0 unexpected. Refusal was tested with a snapshot missing its BM25 index and
+  with a corrupted database; both refused with exit 2, and the live store was
+  verified untouched afterwards, because `--restore` verifies before it writes.
+- Historical owner reports were not rewritten to display the current count.
 - `corpus/raw/evaluation/` still exists, holding only
   `audio_reference_manifest.yaml` — hashes with no audio bytes, and YAML is not a
   loader-supported type, so it is not ingestible. Moving it was outside §2's

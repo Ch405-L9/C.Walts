@@ -1,0 +1,155 @@
+{
+  "generated": "2026-08-02T04:32:18.500527+00:00",
+  "phase": "C.Walts v0.4 Gate 1.1 \u00a73 \u2014 repair rollback documentation",
+  "version": "0.4.0-dev.2",
+  "split": {
+    "historical": "docs/history/rollback-rc2.md",
+    "historical_method": "git mv from docs/rollback.md; content unchanged apart from a frozen-record header",
+    "historical_evidence_preserved": [
+      "48-chunk restore",
+      "97-chunk lexical index",
+      "DEGRADED health finding"
+    ],
+    "active": "docs/rollback.md",
+    "active_rewritten": true,
+    "active_contains_no_production_count": true
+  },
+  "correction_to_prior_record": {
+    "claim": "Gate 1 close: \"the rc.2 owner report and docs/rollback.md still describe a 101-chunk collection\"",
+    "finding": "docs/rollback.md never contained 101; it described 48 and 97",
+    "only_document_describing_101": "docs/owner-test-report-rc2.md lines 30 and 295",
+    "handled_by": "dated correction noted against the original entry, not a rewrite"
+  },
+  "new_tool": {
+    "path": "scripts/verify_restore.py",
+    "derivation_modes": {
+      "--expect-from-sources": "runs discovery over config/sources.yaml and reproduces the full id set",
+      "--expect-from-snapshot": "reads the snapshot manifest; counts only, weaker, correct when the corpus was rolled back too"
+    },
+    "checks": [
+      "derived count",
+      "derived id set",
+      "both collections reopen",
+      "chroma/bm25 id-set parity",
+      "evaluation_case zero (two ways)",
+      "live exact-term query",
+      "live production retrieval",
+      "feedback collection separately by name",
+      "BADGR Harness MD5"
+    ],
+    "exit_codes": {
+      "0": "pass",
+      "1": "verification mismatch",
+      "2": "unusable input"
+    }
+  },
+  "rehearsal_executed": {
+    "snapshot": "var/snapshots/20260802T042956Z",
+    "create": {
+      "collections": {
+        "badgr_natural_flow_v1": 84,
+        "badgr_natural_flow_feedback_v1": 2
+      },
+      "bm25": 84,
+      "verified": true
+    },
+    "verify": {
+      "verified": true,
+      "failures": []
+    },
+    "restore": {
+      "collections": {
+        "badgr_natural_flow_v1": 84,
+        "badgr_natural_flow_feedback_v1": 2
+      },
+      "bm25": 84
+    },
+    "post_restore_verification": {
+      "expected_count": 84,
+      "expected_count_derived_from": "source discovery over config/sources.yaml",
+      "expected_id_set_checked": true,
+      "ids_expected_but_absent": [],
+      "ids_present_but_unexpected": [],
+      "production_count": 84,
+      "bm25_chunk_ids": 84,
+      "chroma_bm25_parity": true,
+      "ids_only_in_chroma": [],
+      "ids_only_in_bm25": [],
+      "evaluation_case_by_metadata": 0,
+      "evaluation_case_by_where_filter": 0,
+      "feedback_collection": "badgr_natural_flow_feedback_v1",
+      "feedback_count": 2,
+      "exact_term_probe": "ToBI",
+      "exact_term_hits": 3,
+      "retrieval_probe_hits": 12,
+      "retrieval_doc_types": [
+        "approved_example",
+        "approved_example",
+        "approved_example",
+        "approved_example",
+        "approved_example",
+        "approved_example",
+        "approved_example",
+        "approved_example",
+        "approved_example",
+        "approved_example",
+        "approved_example",
+        "approved_example"
+      ],
+      "badgr_harness_store_md5": "bdcbe32b706c6ccce1f62e8e9f2d2c49",
+      "verified": true,
+      "failures": []
+    }
+  },
+  "refusal_tests": [
+    {
+      "damage": "bm25-index.json removed",
+      "exit": 2,
+      "failure": "snapshot carries no BM25 index",
+      "live_store_untouched": true
+    },
+    {
+      "damage": "chroma.sqlite3 corrupted after snapshotting",
+      "exit": 2,
+      "failure": "chroma tree digest does not match the snapshot manifest",
+      "live_store_untouched": true
+    },
+    {
+      "damage": "snapshot path outside the project root",
+      "exit": 2,
+      "failure": "not in the subpath of the project",
+      "live_store_untouched": true
+    },
+    {
+      "damage": "stale expectation: pre-Gate-1 snapshot manifest says 101 vs live 84",
+      "exit": 1,
+      "failure": "count mismatch reported",
+      "live_store_untouched": true
+    }
+  ],
+  "live_constraint_preserved": {
+    "source": "mcp/server.py lines 423 and 476 emit docs/rollback.md \u00a72 and \u00a73 in runtime errors",
+    "constraint": "\u00a72 must remain restore-from-backup, \u00a73 rebuild-from-source",
+    "asserted_by": "tests/test_rollback_docs.py"
+  },
+  "tests": {
+    "before": 243,
+    "after": 265,
+    "new_file": "tests/test_rollback_docs.py",
+    "new_tests": 22,
+    "exit_code": 0
+  },
+  "historical_reports_not_rewritten": [
+    "docs/owner-test-report-rc2.md",
+    "docs/history/rollback-rc2.md (content)",
+    "docs/evidence/*",
+    "prompts/checksums.sha256"
+  ],
+  "checksum_gates_rerun_last": {
+    "note": "re-run after every writing command; describes the final tree",
+    "verify_gate0_integrity.py --verify": "PASS \u2014 delivery record immutable, current tree matches, raw data excluded",
+    "sha256sum -c SHA256SUMS.current": "all files OK, 0 failures",
+    "SHA256SUMS.package self_digest": "0e7e87d2721cafdfe9bdc41fc057dad601374a0ac21be99dd09de03b480cf091",
+    "tripwire_fired": false
+  }
+}

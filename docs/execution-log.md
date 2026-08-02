@@ -1184,6 +1184,17 @@ file it covers. `SHA256SUMS.package` was not altered.
    rewritten; the current count lives in this log, the CHANGELOG and the
    evaluation report.
 
+   > **Correction, 2026-08-02 (Gate 1.1 §3).** The second half of that sentence
+   > was wrong. `docs/rollback.md` never contained the number 101 — it described
+   > the rc.2 rehearsal at **48 and 97** chunks. Only
+   > `docs/owner-test-report-rc2.md` describes 101 (lines 30 and 295), and it is
+   > correctly historical. The claim is left standing above rather than edited
+   > away, because a record that quietly repairs itself is not a record; this
+   > note is the repair. The substance of the item — stale counts sitting in
+   > documents a reader might take as current — was real, and Gate 1.1 §3
+   > resolves it by splitting `docs/rollback.md` into a frozen historical record
+   > and an active procedure that derives counts instead of stating them.
+
 ---
 
 ## 2026-08-02 — C.Walts v0.4 Gate 1.1 §1: baseline verification
@@ -1250,8 +1261,10 @@ above the 20 GiB floor.
 
 The three items disclosed at the Gate 1 close — thin EVAL-009 coverage,
 `corpus/raw/evaluation/negative/` retaining "evaluation" in a production path,
-and the rc.2 owner report and `docs/rollback.md` describing 101 chunks as
-historical records — are unchanged and remain open.
+and stale counts in documents a reader might mistake for current state — are
+unchanged and remain open. (Item 3 as originally worded named
+`docs/rollback.md` as describing 101 chunks; it never did. See the correction
+noted against that item above. Item 2 was closed by §2 and item 3 by §3.)
 
 Evidence: `docs/evidence/gate1_1-baseline.json`.
 
@@ -1387,3 +1400,142 @@ sha256sum -c SHA256SUMS.current  re-run last, on the final tree
 ```
 
 Evidence: `docs/evidence/gate1_1-negative-path-rename.json`.
+
+---
+
+## 2026-08-02 — C.Walts v0.4 Gate 1.1 §3: repair rollback documentation
+
+Version held at `0.4.0-dev.2`. No store mutation of substance: the only writes
+were a snapshot and a rehearsal restore that returned the store to the state it
+was already in.
+
+`docs/rollback.md` mixed rc.2 rehearsal evidence with live instructions, so a
+reader could not tell which numbers described 2026-08-01 and which described the
+store in front of them. Split:
+
+| Document | Role |
+|---|---|
+| `docs/history/rollback-rc2.md` | frozen rc.2 record, `git mv` from the old file, unchanged apart from a header stating it must not be followed |
+| `docs/rollback.md` | active procedure, rewritten, no production count anywhere |
+
+### A correction to this log
+
+The Gate 1 close listed as unresolved item 3: "the rc.2 owner report **and
+`docs/rollback.md`** still describe a 101-chunk collection." The second half was
+false. `docs/rollback.md` never contained the number 101 — it described the rc.2
+rehearsal at 48 and 97 chunks. Only `docs/owner-test-report-rc2.md` describes
+101, at lines 30 and 295, and it is correctly historical. A dated correction is
+recorded against the original item rather than replacing it; a record that
+quietly repairs itself is not a record. The underlying concern was real and §3
+resolves it.
+
+So §3's phrase "the historical 48/97 and 101-count evidence" spans two
+documents, not one. The 48/97 evidence moved to `docs/history/rollback-rc2.md`.
+The 101 evidence was already in an explicitly historical owner report and was not
+touched, per the instruction not to rewrite historical owner reports.
+
+### Counts are derived, never written down
+
+`scripts/verify_restore.py` (new) derives the expected state instead of asserting
+it. With `--expect-from-sources` it runs discovery over `config/sources.yaml` and
+reproduces the **id set**, not merely a count — two stores can hold the same
+number of the wrong chunks. With `--expect-from-snapshot` it reads the restoring
+snapshot's own manifest, which is weaker (counts only) but correct when the
+corpus itself has been rolled back.
+
+It then interrogates the live store: both collections reopen, Chroma/BM25 id-set
+parity, `evaluation_case` zero checked two ways, a live exact-term query, a live
+production retrieval, the feedback collection **separately and by its own name**
+`badgr_natural_flow_feedback_v1`, and the BADGR Harness store MD5.
+
+### Executed, not merely written down
+
+The historical document earned its authority by being executed. The replacement
+was held to the same standard — the documented §2 path was run end to end:
+
+```text
+--create   var/snapshots/20260802T042956Z, verified 84/2, BM25 84, ToBI 3 hits
+--verify   verified true, failures []
+--restore  restored both stores, 84/2, BM25 84
+verify_restore.py --expect-from-sources
+           expected 84 (derived), live 84, id set 0 absent / 0 unexpected,
+           parity true, evaluation_case 0, feedback 2, ToBI 3 hits,
+           retrieval probe 12 chunks, harness MD5 unchanged — PASS
+```
+
+The refusal claims were tested rather than asserted:
+
+| Damaged snapshot | Result |
+|---|---|
+| BM25 index removed | refused, exit 2, `snapshot carries no BM25 index` |
+| database corrupted after snapshotting | refused, exit 2, `chroma tree digest does not match the snapshot manifest` |
+| path outside the project root | refused, exit 2 |
+
+In every case the live store was re-verified afterwards and was untouched:
+`--restore` verifies before it writes, so a refused restore cannot leave a
+half-restored store. The active document's claim that no flag forces an
+unverified snapshot into production is therefore measured, not aspirational.
+
+Exit codes were checked directly rather than through a pipe: 0 on a good
+verification, 1 on a count mismatch, 2 on an unusable snapshot. The mismatch case
+used a real artefact — the pre-Gate-1 snapshot, whose manifest says 101 against a
+live 84 — so the failure path is exercised by data that actually exists.
+
+### A live constraint found before it broke
+
+`mcp/server.py` emits `docs/rollback.md §2` and `docs/rollback.md §3` inside
+runtime error messages (lines 423 and 476). Renumbering the active document would
+have silently broken an error message no test exercises by hand. §2 remains
+"restore from backup" and §3 "rebuild from source"; a comment in the document
+says why, and `tests/test_rollback_docs.py` asserts both that every cited section
+exists and that it still means what the server claims.
+
+### The two backup kinds are now distinguished
+
+`var/snapshots/` is a complete restore point. `var/backups/` holds
+`chroma.sqlite3` only — the automatic pre-delete backups taken by the write
+tools. Restoring one of those alone is exactly the rc.2 failure: the lexical
+index keeps describing the old collection and retrieval keeps answering. The
+active document tabulates the difference and gives the `var/backups/` path its
+own procedure ending in a mandatory rebuild and verification.
+
+### Failures and corrections during this checkpoint
+
+1. **`build_records` was guessed wrong.** The first draft of
+   `verify_restore.py` called `module.build_records(settings)`. The real
+   signature is `build_records(settings, source, root)`, per-source, driven by
+   `approved_sources(manifest)`. Checked against `scripts/ingest.py` before
+   running rather than after it failed.
+2. **Discovery narrates to stdout**, which would have corrupted `--json` output.
+   Wrapped in `contextlib.redirect_stdout`.
+3. **A test asserted a phrase the document did not contain** — the document read
+   `Chroma/BM25 **id-set** parity`, and the bold markers split the literal.
+   Reworded the document rather than loosening the assertion.
+4. **Ruff E501** on a long line in the new test. Split the expression.
+5. **An early refusal test proved the wrong thing.** Placing the damaged snapshot
+   in the scratchpad made it fail on project-root containment, not on
+   verification. Moved it inside `var/snapshots/` so the intended guard was the
+   one exercised, then removed it.
+
+### Verification
+
+```text
+pytest tests/                    265 collected, exit 0, 0 failed (243 before)
+ruff check .                     All checks passed!
+git diff --check                 clean
+corpus_lint.py                   PASS — no findings
+eval/run_evaluation.py           17/17 useful, exact-term PASS, contamination 0,
+                                 evaluation-case chunks returned 0,
+                                 declared assertions failed 0, citations 0,
+                                 preservation 10/10
+smoke_test.py                    43/43
+mcp_session_check.py             23/23
+verify_restore.py                PASS, expectation derived from source discovery
+verify_gate0_integrity.py --verify  re-run last, on the final tree
+sha256sum -c SHA256SUMS.current  re-run last, on the final tree
+```
+
+Chroma 84, BM25 84, id-set parity exact, feedback 2, BADGR Harness MD5
+`bdcbe32b706c6ccce1f62e8e9f2d2c49` unchanged.
+
+Evidence: `docs/evidence/gate1_1-rollback-repair.json`.

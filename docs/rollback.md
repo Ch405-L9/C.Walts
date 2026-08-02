@@ -1,13 +1,36 @@
 # Rollback — C.Walts natural-flow RAG
 
-Every step below was executed and verified on 2026-08-01, not merely written
-down. Evidence: `docs/evidence/smoke-test.json`, section `11.7 rollback`.
+Active operational procedure. Follow this document.
+
+**No production count appears anywhere below.** Every count in this procedure is
+*derived* at the moment you run it — from source discovery, or from the manifest
+inside the snapshot you are restoring. This is deliberate. The corpus has changed
+size more than once, and a number typed into a procedure is a number that will
+eventually be wrong while still looking authoritative.
+
+> ### Historical reports are not current-state manifests
+>
+> `docs/history/rollback-rc2.md`, `docs/owner-test-report-rc2.md`, the entries in
+> `docs/execution-log.md`, and every file under `docs/evidence/` record what was
+> true on the date they were written. They are evidence, not configuration.
+>
+> **Never take an expected count, id list, commit sha, or backup stamp from one
+> of them.** They are correct about the past and silently wrong about the
+> present. If you need to know what the store should hold right now, derive it —
+> §2.3 shows how.
 
 Nothing here touches the BADGR Harness. Its store
 (`/home/t0n34781/projects/badgr_harness/rag_db/chroma.sqlite3`) is outside this
-project root and structurally unreachable from this code — `resolve_inside_project()`
-refuses any path outside the project, and `assert_allowed()` refuses any
-collection name outside the allowlist.
+project root and structurally unreachable from this code:
+`resolve_inside_project()` refuses any path outside the project, and
+`assert_allowed()` refuses any collection name outside the allowlist.
+`scripts/verify_restore.py` checks its checksum anyway, because a structural
+guarantee you never measure is a belief.
+
+<!-- Section numbering note: mcp/server.py emits "docs/rollback.md §2" and
+     "docs/rollback.md §3" in live error messages. §2 must stay "restore from
+     backup" and §3 must stay "rebuild from source". tests/test_rollback_docs.py
+     asserts both anchors resolve. Renumber only with that test. -->
 
 ---
 
@@ -28,107 +51,175 @@ claude mcp add natural-flow-rag --scope project -- \
 ```
 
 Registration lives in `.mcp.json` in the project. Removing it changes no other
-MCP server; `ollama`, `filesystem`, and `memory` were confirmed still registered
-after the removal rehearsal.
+MCP server.
 
-## 2. Restore the collection from backup
+## 2. Restore the store from backup
+
+### 2.1 Choose a backup, and know which kind you have
+
+Two kinds exist, and **they are not interchangeable**:
+
+| Location | Contains | Safe to restore alone? |
+|---|---|---|
+| `var/snapshots/<STAMP>/` | Chroma database **and** its HNSW directories, `var/bm25/index.json`, `config/sources.yaml`, plus `snapshot.json` | **Yes** — this is a complete restore point |
+| `var/backups/<STAMP>/` | `chroma.sqlite3` and its `.sha256` only | **No** — vector store only, no lexical index |
+
+`var/backups/` entries are the automatic pre-delete backups taken by the write
+tools. They are a real safety net for the vector store and nothing more.
+Restoring one **without rebuilding the lexical index leaves the two arms
+describing different collections**, and retrieval keeps answering from the stale
+one. That is not hypothetical — it was measured during the rc.2 rehearsal and is
+recorded in `docs/history/rollback-rc2.md`. If a `var/backups/` entry is all you
+have, follow §2.5.
+
+List and inspect candidates:
 
 ```bash
-ls -1 var/backups/                       # newest snapshot last
-sqlite3 "file:var/backups/<STAMP>/chroma.sqlite3?mode=ro" "SELECT name FROM collections;"
-sha256sum -c var/backups/<STAMP>/chroma.sqlite3.sha256
+ls -1 var/snapshots/         # complete restore points, newest last
+ls -1 var/backups/           # vector-store-only backups, newest last
+```
 
-# restore
+### 2.2 Verify before you restore — and refuse what will not verify
+
+```bash
+.venv/bin/python scripts/store_snapshot.py --verify var/snapshots/<STAMP>
+```
+
+This does not check a hash and stop. **A damaged database still hashes.** It
+opens the snapshot and interrogates it: the collection is present with the count
+its own manifest claims, the snapshot's BM25 index covers exactly the snapshot's
+chunks, and an exact-term query returns hits from the restored index.
+
+**If this command fails, that snapshot is not a restore point. Do not restore
+it.** `--restore` re-runs the same verification and refuses on any failure, so
+there is no flag that forces an unverified snapshot into production — this is by
+design, not an omission. A snapshot that will not verify is missing its BM25
+index, has a digest that no longer matches its manifest, holds a collection whose
+row count disagrees with its manifest, or cannot answer a lexical query. In every
+one of those cases restoring it produces a store that looks alive and is wrong.
+
+If no snapshot verifies, go to §3 and rebuild from source. A rebuild from an
+intact corpus is always safer than a restore from a backup you cannot trust.
+
+### 2.3 Restore
+
+```bash
+.venv/bin/python scripts/store_snapshot.py --restore var/snapshots/<STAMP>
+```
+
+Restores **both** stores together — the Chroma database with its HNSW
+directories, and `var/bm25/index.json`. Restoring them together is the whole
+point; see §2.1.
+
+### 2.4 Verify the restored store — all of it
+
+```bash
+.venv/bin/python scripts/verify_restore.py --expect-from-sources
+```
+
+Exit status 0 means every one of these passed:
+
+| Check | Why it is here |
+|---|---|
+| **expected count derived from source discovery** | chunk ids are content- and source-derived, so discovery reproduces exactly the id set a correct store holds. No number is read from any document. |
+| **expected *id set* matches, not just the count** | two stores can hold the same number of the wrong chunks |
+| both collections reopen | a store that cannot be opened has not been restored |
+| Chroma/BM25 id-set parity (not just equal counts) | equal counts are not enough; the rc.2 failure passed a count check before it was caught |
+| `evaluation_case` count is zero, checked two ways | restoring a pre-Gate-1 backup is the one operation that can silently undo Gate 1 and re-contaminate the benchmark |
+| exact lexical retrieval returns hits | proves the lexical arm is live, not merely present |
+| production retrieval returns chunks | proves the dense arm and fusion work end to end |
+| feedback collection, separately and by name | a different collection with a different lifecycle; it must not be assumed healthy because the corpus is |
+| BADGR Harness store MD5 unchanged | this project must never touch it |
+
+If the corpus on disk is itself untrusted or was rolled back with the code, derive
+the expectation from the snapshot instead:
+
+```bash
+.venv/bin/python scripts/verify_restore.py --expect-from-snapshot var/snapshots/<STAMP>
+```
+
+That path is weaker — a snapshot manifest records counts, not an id list — so
+prefer `--expect-from-sources` whenever the corpus is intact.
+
+Then confirm the two arms agree from the server's own point of view:
+
+```bash
+.venv/bin/python scripts/mcp_session_check.py
+.venv/bin/python scripts/smoke_test.py
+```
+
+### 2.5 If all you have is a `var/backups/` entry
+
+Vector store only. The lexical index must be rebuilt or the restore is
+incomplete:
+
+```bash
+sha256sum -c var/backups/<STAMP>/chroma.sqlite3.sha256
+sqlite3 "file:var/backups/<STAMP>/chroma.sqlite3?mode=ro" "SELECT name FROM collections;"
+
 mv var/chroma var/chroma.broken.$(date -u +%Y%m%dT%H%M%SZ)
 mkdir -p var/chroma
 cp var/backups/<STAMP>/chroma.sqlite3 var/chroma/chroma.sqlite3
 
-# REQUIRED: the lexical index is not in the snapshot — see below
+# NOT OPTIONAL — without this the lexical index still describes the old collection
 NFR_ALLOW_WRITES=true .venv/bin/python scripts/ingest.py --commit
+
+.venv/bin/python scripts/verify_restore.py --expect-from-sources
 ```
 
-Verified snapshot: `var/backups/20260801T124553Z/` — checksum verified, and a
-read-only open of the restored copy lists `badgr_natural_flow_v1`.
+The `--commit` step rebuilds `var/bm25/index.json` from the restored corpus. The
+verification step is what proves it worked; do not skip it because the restore
+"looked fine". In the rc.2 rehearsal it looked fine.
 
-### The lexical index must be rebuilt too
+## 3. Or rebuild the store from source
 
-**Measured during the rc.2 rollback rehearsal on 2026-08-01, and the reason the
-last command above is not optional.** Restoring `chroma.sqlite3` alone rolled
-the vector store back from 97 chunks to 48 and left `var/bm25/index.json` still
-holding all 97. Retrieval still returned results, so the failure was silent from
-the caller's side.
-
-`natural_flow_collection_health` caught it and reported `DEGRADED` with
-`count: 48` against `lexical_index_chunks: 97`, which is exactly what that field
-exists for. Check it after any restore:
-
-```bash
-.venv/bin/python -c "
-import sys; sys.path.insert(0,'src'); sys.path.insert(0,'.')
-import importlib.util
-spec = importlib.util.spec_from_file_location('s','mcp/server.py')
-m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
-h = m.tool_collection_health()
-print(h['status'], h['count'], h['lexical_index_chunks'])"
-```
-
-`OK` with the two counts equal means the restore is complete. `DEGRADED` with
-them unequal means the lexical index is still describing a collection that no
-longer exists.
-
-### rc.2 rollback rehearsal — executed, not described
-
-| Step | Result |
-|---|---|
-| Reindex with `delete_stale=true` | 97 written, 1 stale deleted, backup verified |
-| Backup checksum re-checked from the shell | `OK` |
-| Backup opened read-only | lists both collections, 48 + 1 rows |
-| Restore performed | collection returned to exactly 48 |
-| Query against the restored store | 6 hits, retrieval functional |
-| Health after restore | `DEGRADED` — caught the stale lexical index |
-| Re-applied reindex | 97 chunks, health `OK`, lexical 97 |
-| Harness store MD5 throughout | `bdcbe32b706c6ccce1f62e8e9f2d2c49`, unchanged |
-
-## 3. Or recreate the collection from source
-
-Chunk ids are content-derived, so a rebuild reproduces the same 48 ids from the
-same corpus. This is the preferred path when the corpus itself is intact:
+Chunk ids are derived from source id and chunk content, never from file paths, so
+a rebuild from an intact corpus reproduces exactly the same ids. **This is the
+preferred path whenever `corpus/raw/` is intact** — it depends on the corpus and
+the configuration rather than on a backup being trustworthy.
 
 ```bash
 rm -rf var/chroma var/bm25
-.venv/bin/python scripts/ingest.py                       # dry run first
+.venv/bin/python scripts/ingest.py                       # dry run first — read the counts
 NFR_ALLOW_WRITES=true .venv/bin/python scripts/ingest.py --commit
+.venv/bin/python scripts/verify_restore.py --expect-from-sources
 .venv/bin/python scripts/smoke_test.py
 ```
+
+Read the dry-run output before committing. It reports the chunk count per source
+and writes the full id list to `corpus/manifests/dryrun-<STAMP>.json`. That
+manifest is the current-state record — not any document under `docs/`.
 
 ## 4. Roll back the code
 
 ```bash
-git log --oneline --decorate                 # find the checkpoint to return to
-git checkout de3bd88                         # verified baseline, empty corpus
-# or drop just the last checkpoint, keeping history:
-git revert <sha>
+git log --oneline --decorate         # find the checkpoint to return to
+git revert <sha>                     # drop one change, keeping history
+git checkout <sha>                   # or return to a specific checkpoint
 ```
 
-Checkpoint commits on `feat/natural-flow-rag-activation`:
+Derive checkpoints from the log rather than from a table here; a hard-coded
+commit list goes stale exactly like a hard-coded count. Tagged releases are the
+stable anchors:
 
-| Commit | Checkpoint |
-|---|---|
-| `de3bd88` | verified baseline |
-| `235a4d0` | corpus schema and deterministic ingestion |
-| `59cd9ef` | explicit nomic embedding contract, real collection |
-| `53f1c49` | measured hybrid retrieval and evaluation |
-| `a3e0795` | MCP tools and project registration |
+```bash
+git tag --list -n1
+```
 
-`main` has never been used as a working branch, so the feature branch can be
-abandoned without touching it.
+`v0.3.0-rc.2` is immutable and must never be retagged or moved.
+
+**Code and store roll back independently.** Returning the code to an earlier
+commit does not change `var/chroma` or `var/bm25`, and restoring an old store
+does not change the code. If you roll the code back across an ingestion change,
+re-run §2.4 — and if the corpus itself moved with the code, derive the
+expectation from the snapshot rather than from source discovery.
 
 ## 5. Disable writes entirely
 
-Writes are already off by default: `writes.allow_writes: false` in
-`config/rag.yaml`, and every write path additionally requires `confirm=true`.
-The ingestion commits in this build ran with `NFR_ALLOW_WRITES=true` scoped to a
-single process. To be certain no environment override is in play:
+Writes are off by default: `writes.allow_writes: false` in `config/rag.yaml`, and
+every write path additionally requires `confirm=true`. Ingestion commits run with
+`NFR_ALLOW_WRITES=true` scoped to a single process. To be certain no environment
+override is in play:
 
 ```bash
 unset NFR_ALLOW_WRITES
@@ -148,22 +239,35 @@ s = open_store(); s.client.delete_collection('badgr_natural_flow_feedback_v1')
 print('feedback collection removed; retrieval corpus count =', s.count())"
 ```
 
+Note that `verify_restore.py` will then report the feedback collection as failing
+to reopen. That is correct: it is checked separately precisely so its absence is
+visible rather than assumed.
+
 ## 7. Repository topology
 
-The remote's default branch is `feat/natural-flow-rag-activation` — the
-repository was created from that branch, and `main` does not exist remotely.
-Promoting the release candidate to `main` is an owner decision after acceptance:
+Promoting a release candidate to `main` is an owner decision after acceptance.
+Check the current topology rather than assuming it:
 
 ```bash
-git branch -m feat/natural-flow-rag-activation main   # or merge, whichever you prefer
-git push -u origin main
-gh repo edit Ch405-L9/C.Walts --default-branch main
+git branch --show-current
+git branch -r
+gh repo view --json defaultBranchRef
 ```
 
 ## 8. What rollback cannot lose
 
-- The four approved MP3 references and the source bundle: never modified, held
+- The approved media references and the source bundle: never modified, held
   under `references/media/` and in the original handoff package.
 - The approved corpus text: committed to the private remote.
-- The Harness production store: MD5 `bdcbe32b706c6ccce1f62e8e9f2d2c49` before
-  ingestion and after the full smoke suite.
+- The evaluation regression fixtures under `eval/regression/`: never ingested, so
+  no store operation can affect them.
+- The BADGR Harness production store: outside this project root, checksum
+  asserted unchanged by `scripts/verify_restore.py` and `scripts/smoke_test.py`.
+
+## 9. Historical record
+
+The rc.2 rollback rehearsal — including the measured 48/97 desynchronisation that
+this procedure exists to prevent — is preserved verbatim in
+**`docs/history/rollback-rc2.md`**. Read it to understand *why* §2 restores both
+stores and refuses unverified backups. Do not follow its commands or reuse its
+counts.
