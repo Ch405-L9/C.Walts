@@ -1183,3 +1183,74 @@ file it covers. `SHA256SUMS.package` was not altered.
    collection.** They are historical records of rc.2 and were deliberately not
    rewritten; the current count lives in this log, the CHANGELOG and the
    evaluation report.
+
+---
+
+## 2026-08-02 — C.Walts v0.4 Gate 1.1 §1: baseline verification
+
+Version held at `0.4.0-dev.2`. No query selection, no threshold fitting, no
+corpus addition, no change to `main`, no tag.
+
+Baseline HEAD `bac37064d24570a1ba13715f00722055556396e3`, equal to
+`origin/feat/narration-generalization-v0.4`. Working tree clean before any
+verification command ran. `v0.3.0-rc.2` still `8b0d2d7a85a9b9e905db761fbaa5ddb370244eae`.
+
+```text
+pytest tests/                    219 collected, exit 0, 0 failed
+ruff check .                     All checks passed!
+corpus_lint.py                   PASS — 84 chunks, no findings
+eval/run_evaluation.py           17/17 useful, exact-term PASS, contamination 0,
+                                 evaluation-case chunks returned 0,
+                                 declared assertions failed 0, citations 0,
+                                 preservation 10/10
+smoke_test.py                    43/43
+mcp_session_check.py             23/23
+acquire_eval_sources.py --verify all files and embedded licences verified
+inventory_eval_sources.py --verify  inventory reproduces byte-for-byte
+store_snapshot.py --verify       post-Gate-1 snapshot verified: 84/2, parity,
+                                 ToBI exact-term hits 3
+verify_gate0_integrity.py --verify  PASS (re-run last, on the final tree)
+sha256sum -c SHA256SUMS.current  all OK, 0 failures (re-run last)
+```
+
+Store re-measured live rather than read from the Gate 1 record: Chroma
+`badgr_natural_flow_v1` 84, feedback 2, BM25 84 chunk_ids / 84 token rows, exact
+id-set parity (empty both-way differences), composition approved_example 59 /
+glossary 19 / style_rule 5 / negative_pattern 1. `evaluation_case` is zero by two
+independent surfaces — a full metadata scan and a Chroma `where` filter. BADGR
+Harness store MD5 `bdcbe32b706c6ccce1f62e8e9f2d2c49` unchanged.
+`SHA256SUMS.package` self-digest still `0e7e87d2…0cf091`; not altered.
+
+Test totals by gate: Gate 0 / 0.1 `test_gate0_dataset_tools.py` 41, Gate 1
+`test_evaluation_boundary.py` 41, pre-existing rc.2 suites 137. This
+environment swallows pytest's summary line, so 219 is the sum of
+`--collect-only` per-file counts and "0 failed" rests on exit code 0.
+
+### Correction made during this checkpoint
+
+The first draft of `docs/evidence/gate1_1-baseline.json` asserted a clean
+working tree as a literal. That was wrong by the time it was written:
+`eval/run_evaluation.py` and `scripts/smoke_test.py` rewrite their own tracked
+evidence JSONs on every run, so the verification sweep dirtied the tree it was
+describing. The record now computes the git facts instead of asserting them and
+carries the post-run `git status` verbatim. A mechanical diff of the changed JSON
+keys yields exactly `generated`, `latency_ms`, `latency_ms_p50`,
+`latency_ms_p95` — wall-clock and timing only; no count, pass flag, retrieval
+result or assertion outcome moved.
+
+`verify_gate0_integrity.py --verify` and `sha256sum -c SHA256SUMS.current` were
+consequently re-run *after* every writing command, so the PASS recorded describes
+the final tree rather than a pre-churn one. The tripwire did not fire: the
+regenerated evidence JSONs are not among the files it covers.
+
+Free disk 69 GiB, down from 70 at the Gate 1 close. Not a store metric and well
+above the 20 GiB floor.
+
+### Still unresolved (carried forward unchanged from Gate 1)
+
+The three items disclosed at the Gate 1 close — thin EVAL-009 coverage,
+`corpus/raw/evaluation/negative/` retaining "evaluation" in a production path,
+and the rc.2 owner report and `docs/rollback.md` describing 101 chunks as
+historical records — are unchanged and remain open.
+
+Evidence: `docs/evidence/gate1_1-baseline.json`.

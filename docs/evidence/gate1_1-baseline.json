@@ -1,0 +1,109 @@
+{
+  "generated": "2026-08-02T04:05:04.362563+00:00",
+  "phase": "C.Walts v0.4 Gate 1.1 \u00a71 \u2014 baseline verification",
+  "version": "0.4.0-dev.2",
+  "git": {
+    "branch": "feat/narration-generalization-v0.4",
+    "head": "bac37064d24570a1ba13715f00722055556396e3",
+    "origin_head": "bac37064d24570a1ba13715f00722055556396e3",
+    "local_equals_origin": true,
+    "working_tree_clean_at_baseline": true,
+    "working_tree_clean_at_baseline_evidence": "git status --porcelain returned empty before any verification command ran",
+    "working_tree_state_after_verification_run": [
+      "M docs/evidence/evaluation-report.json",
+      " M docs/evidence/smoke-test.json",
+      "?? docs/evidence/gate1_1-baseline.json"
+    ],
+    "tree_churn_note": "eval/run_evaluation.py and scripts/smoke_test.py rewrite their own tracked evidence JSONs on every run, so the tree is no longer clean after the verification sweep. Mechanical diff of the changed JSON keys yields exactly ['generated', 'latency_ms', 'latency_ms_p50', 'latency_ms_p95'] \u2014 wall-clock timestamps and per-query timing. No retrieval result, count, pass flag, or assertion outcome changed. This is expected script behaviour, not drift.",
+    "changed_evidence_keys_only": [
+      "generated",
+      "latency_ms",
+      "latency_ms_p50",
+      "latency_ms_p95"
+    ],
+    "v0_3_0_rc_2": "8b0d2d7a85a9b9e905db761fbaa5ddb370244eae",
+    "rc2_unmoved": true
+  },
+  "store": {
+    "chroma_badgr_natural_flow_v1": 84,
+    "chroma_feedback": 2,
+    "bm25_chunk_ids": 84,
+    "bm25_token_rows": 84,
+    "evaluation_case_chunks_by_metadata": 0,
+    "evaluation_case_chunks_by_where_filter": 0,
+    "chroma_bm25_id_set_parity": true,
+    "chroma_only_ids": [],
+    "bm25_only_ids": [],
+    "doc_type_composition": {
+      "approved_example": 59,
+      "glossary": 19,
+      "negative_pattern": 1,
+      "style_rule": 5
+    },
+    "badgr_harness_store_md5": "bdcbe32b706c6ccce1f62e8e9f2d2c49",
+    "free_disk_gib": 69
+  },
+  "store_note": "evaluation_case measured twice by independent surfaces: a full metadata scan and a Chroma where-filter. Both zero.",
+  "tests": {
+    "total": 219,
+    "failed": 0,
+    "exit_code": 0,
+    "count_provenance": "pytest's summary line is swallowed in this environment. 219 is the sum of pytest --collect-only -q per-file counts; 'failed 0' is established by exit code 0 on the full run.",
+    "gate0_and_gate0_1": {
+      "tests/test_gate0_dataset_tools.py": 41
+    },
+    "gate1": {
+      "tests/test_evaluation_boundary.py": 41
+    },
+    "pre_existing_rc2_total": 137,
+    "per_file": {
+      "tests/test_backup.py": 8,
+      "tests/test_chunking.py": 14,
+      "tests/test_evaluation_boundary.py": 41,
+      "tests/test_fusion.py": 4,
+      "tests/test_gate0_dataset_tools.py": 41,
+      "tests/test_glossary_retrieval.py": 15,
+      "tests/test_lexical.py": 15,
+      "tests/test_mcp_tools.py": 34,
+      "tests/test_negative_policy.py": 5,
+      "tests/test_preservation.py": 11,
+      "tests/test_schemas.py": 6,
+      "tests/test_security.py": 10,
+      "tests/test_settings.py": 5,
+      "tests/test_write_gates.py": 10
+    }
+  },
+  "gates": {
+    "ruff check .": "All checks passed!",
+    "corpus_lint.py": "PASS \u2014 no findings (84 chunks)",
+    "smoke_test.py": "43/43 passed",
+    "mcp_session_check.py": "23/23 passed",
+    "store_snapshot.py --verify var/snapshots/20260802T011137Z": "verified true, 84/2, chroma_bm25_parity true, ToBI exact-term hits 3",
+    "acquire_eval_sources.py --verify": "All acquisition files and embedded licenses verified.",
+    "inventory_eval_sources.py --verify": "Dataset inventory verified."
+  },
+  "checksum_gates_rerun_last": {
+    "note": "verify_gate0_integrity.py and sha256sum -c were re-run AFTER every command that writes, so the reported PASS describes the final tree, not a pre-churn one.",
+    "verify_gate0_integrity.py --verify": "PASS \u2014 delivery record immutable, current tree matches, raw data excluded (17 files checked, 8/12 delivered unchanged, 4 modified with recorded reasons)",
+    "sha256sum -c SHA256SUMS.current": "all files OK, 0 failures",
+    "SHA256SUMS.package self_digest": "0e7e87d2721cafdfe9bdc41fc057dad601374a0ac21be99dd09de03b480cf091",
+    "SHA256SUMS.package matches_pin": true,
+    "tripwire_fired": false,
+    "tripwire_note": "the regenerated evidence JSONs are not in CURRENT_FILES, so the tripwire correctly did not fire"
+  },
+  "evaluation": {
+    "useful_hit_at_5": "17/17 (100%)",
+    "exact_term_retrieval": "PASS",
+    "positive_source_ratio": "74%",
+    "negative_contamination": 0,
+    "evaluation_case_chunks_returned": 0,
+    "declared_assertions_failed": 0,
+    "citation_failures": 0,
+    "lexical_arm_degraded": false,
+    "preservation_correct": "10/10"
+  },
+  "deltas_vs_gate1_final_state": {
+    "free_disk_gib": "70 -> 69 (not a store metric; floor is 20 GiB)",
+    "all_store_metrics": "identical"
+  }
+}
