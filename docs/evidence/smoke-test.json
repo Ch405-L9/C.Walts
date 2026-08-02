@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-02T01:00:15.567967+00:00",
+  "generated": "2026-08-02T01:09:33.013083+00:00",
   "total": 43,
   "failed": 0,
   "checks": [
@@ -49,7 +49,7 @@
       "section": "11.2 static quality",
       "check": "pytest passes",
       "passed": true,
-      "detail": ".................................                                        [100%]"
+      "detail": "...                                                                      [100%]"
     },
     {
       "section": "11.2 static quality",
@@ -73,13 +73,13 @@
       "section": "11.4 collection",
       "check": "count matches the corpus on disk",
       "passed": true,
-      "detail": "collection=101 corpus=101"
+      "detail": "collection=84 corpus=84"
     },
     {
       "section": "11.4 collection",
       "check": "lexical index covers the same chunks",
       "passed": true,
-      "detail": "lexical=101 collection=101"
+      "detail": "lexical=84 collection=84"
     },
     {
       "section": "11.4 collection",
@@ -277,7 +277,7 @@
       "section": "11.7 rollback",
       "check": "a verified backup exists",
       "passed": true,
-      "detail": "20260801T203546Z"
+      "detail": "20260802T010613Z"
     },
     {
       "section": "11.7 rollback",

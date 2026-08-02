@@ -1,8 +1,8 @@
 {
   "summary": {
-    "generated": "2026-08-02T01:00:13.211788+00:00",
+    "generated": "2026-08-02T01:09:30.612033+00:00",
     "collection": "badgr_natural_flow_v1",
-    "collection_count": 101,
+    "collection_count": 84,
     "embedding_model": "nomic-embed-text",
     "dimension": 768,
     "k": 5,
@@ -14,13 +14,16 @@
     "negative_contamination": 0,
     "citation_failures": 0,
     "lexical_degraded": false,
-    "latency_ms_p50": 78,
-    "latency_ms_p95": 86,
-    "distance_min": 0.114202,
-    "distance_max": 0.457925,
-    "distance_median": 0.296019,
-    "similarity_min": 0.542075,
-    "similarity_max": 0.885798,
+    "latency_ms_p50": 79,
+    "latency_ms_p95": 84,
+    "distance_min": 0.1439,
+    "distance_max": 0.463614,
+    "distance_median": 0.336552,
+    "similarity_min": 0.536386,
+    "similarity_max": 0.8561,
+    "assertion_failures": 0,
+    "failed_assertions": [],
+    "evaluation_case_chunks_returned": 0,
     "preservation_correct": 10,
     "preservation_total": 10,
     "configured_similarity_floor": null
@@ -29,7 +32,7 @@
     {
       "id": "EVAL-001",
       "mode": "retrieval",
-      "latency_ms": 115,
+      "latency_ms": 121,
       "ranked": 5,
       "neighbours": 7,
       "dense_n": 24,
@@ -55,13 +58,17 @@
         "Authoritative working vocabulary for voice direc",
         "Pair CW-005 \u2014 Technical warning"
       ],
-      "min_distance": 0.114202,
-      "max_distance": 0.303309
+      "min_distance": 0.159409,
+      "max_distance": 0.389193,
+      "primary_doc_type": "approved_example",
+      "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true
     },
     {
       "id": "EVAL-002",
       "mode": "retrieval",
-      "latency_ms": 84,
+      "latency_ms": 83,
       "ranked": 5,
       "neighbours": 5,
       "dense_n": 24,
@@ -87,13 +94,17 @@
         "Pair CW-025 \u2014 Professional introduction: website",
         "Pair CW-004 \u2014 Product explainer opening"
       ],
-      "min_distance": 0.159712,
-      "max_distance": 0.300476
+      "min_distance": 0.251363,
+      "max_distance": 0.308842,
+      "primary_doc_type": "approved_example",
+      "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true
     },
     {
       "id": "EVAL-003",
       "mode": "retrieval",
-      "latency_ms": 82,
+      "latency_ms": 84,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -119,13 +130,17 @@
         "Market Voice-Delivery Rules",
         "Pair CW-036 \u2014 Reflective narration: qualifying a"
       ],
-      "min_distance": 0.116306,
-      "max_distance": 0.291006
+      "min_distance": 0.198174,
+      "max_distance": 0.309504,
+      "primary_doc_type": "approved_example",
+      "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true
     },
     {
       "id": "EVAL-004",
       "mode": "retrieval",
-      "latency_ms": 78,
+      "latency_ms": 77,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -151,8 +166,8 @@
         "Market-facing natural-language and voice-deliver",
         "Approved Before/After Seed Pairs"
       ],
-      "min_distance": 0.251633,
-      "max_distance": 0.362039,
+      "min_distance": 0.253234,
+      "max_distance": 0.362529,
       "exact_terms": {
         "ToBI": {
           "lexical_hits": 3,
@@ -170,13 +185,15 @@
       "exact_term_pass": true,
       "primary_doc_type": "glossary",
       "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true,
       "primary_source_id": "cwalts_prosody_glossary",
       "primary_source_pass": true
     },
     {
       "id": "EVAL-005",
       "mode": "retrieval",
-      "latency_ms": 86,
+      "latency_ms": 80,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -202,13 +219,17 @@
         "Pair CW-015 \u2014 Commercial: fifteen-second product",
         "Market Voice-Delivery Rules"
       ],
-      "min_distance": 0.174483,
-      "max_distance": 0.317872
+      "min_distance": 0.193608,
+      "max_distance": 0.322239,
+      "primary_doc_type": "approved_example",
+      "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true
     },
     {
       "id": "EVAL-006",
       "mode": "retrieval",
-      "latency_ms": 75,
+      "latency_ms": 78,
       "ranked": 5,
       "neighbours": 6,
       "dense_n": 24,
@@ -229,20 +250,24 @@
       "bad_citations": [],
       "top_headings": [
         "Pair CW-018 \u2014 Technical: retry and backoff behav",
+        "Pair CW-020 \u2014 Technical: migration warning",
         "Depth set added for v0.3.0-rc.2",
         "Pair CW-001 \u2014 Technical security explainer",
-        "Pair CW-020 \u2014 Technical: migration warning",
         "Market Voice-Delivery Rules"
       ],
-      "min_distance": 0.160112,
-      "max_distance": 0.376987
+      "min_distance": 0.374888,
+      "max_distance": 0.391989,
+      "primary_doc_type": "approved_example",
+      "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true
     },
     {
       "id": "EVAL-007",
       "mode": "retrieval",
-      "latency_ms": 78,
+      "latency_ms": 74,
       "ranked": 5,
-      "neighbours": 3,
+      "neighbours": 1,
       "dense_n": 24,
       "lexical_n": 24,
       "lexical_error": null,
@@ -253,9 +278,9 @@
         "approved_example",
         "approved_example",
         "style_rule",
-        "approved_example"
+        "glossary"
       ],
-      "positive_chunks": 5,
+      "positive_chunks": 4,
       "negative_chunks": 0,
       "contamination": 0,
       "bad_citations": [],
@@ -264,15 +289,19 @@
         "Pair CW-029 \u2014 Educational narration: correcting ",
         "Pair CW-038 \u2014 Educational narration: rewriting a",
         "Market Voice-Delivery Rules",
-        "SCR-002 \u2014 Technical security explanation (matche"
+        "L-L%"
       ],
-      "min_distance": 0.165933,
-      "max_distance": 0.39147
+      "min_distance": 0.329982,
+      "max_distance": 0.39496,
+      "primary_doc_type": "approved_example",
+      "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true
     },
     {
       "id": "EVAL-008",
       "mode": "retrieval",
-      "latency_ms": 85,
+      "latency_ms": 83,
       "ranked": 5,
       "neighbours": 6,
       "dense_n": 24,
@@ -298,28 +327,32 @@
         "Market Voice-Delivery Rules",
         "Pair CW-007 \u2014 Feature explanation"
       ],
-      "min_distance": 0.147018,
-      "max_distance": 0.317977
+      "min_distance": 0.245723,
+      "max_distance": 0.322228,
+      "primary_doc_type": "approved_example",
+      "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true
     },
     {
       "id": "EVAL-009",
       "mode": "retrieval",
-      "latency_ms": 80,
+      "latency_ms": 79,
       "ranked": 5,
-      "neighbours": 5,
+      "neighbours": 6,
       "dense_n": 24,
       "lexical_n": 24,
       "lexical_error": null,
       "useful_hit": true,
-      "matched_marker": "Pair CW-0",
+      "matched_marker": "Pair CW-021",
       "doc_types": [
         "approved_example",
         "approved_example",
         "approved_example",
         "approved_example",
-        "glossary"
+        "approved_example"
       ],
-      "positive_chunks": 4,
+      "positive_chunks": 5,
       "negative_chunks": 0,
       "contamination": 0,
       "bad_citations": [],
@@ -328,15 +361,19 @@
         "Pair CW-005 \u2014 Technical warning",
         "Pair CW-027 \u2014 Professional introduction: handove",
         "Pair CW-020 \u2014 Technical: migration warning",
-        "information structure"
+        "SCR-002 \u2014 Technical security explanation (matche"
       ],
-      "min_distance": 0.144602,
-      "max_distance": 0.382585
+      "min_distance": 0.340864,
+      "max_distance": 0.397646,
+      "primary_doc_type": "approved_example",
+      "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true
     },
     {
       "id": "EVAL-010",
       "mode": "retrieval",
-      "latency_ms": 74,
+      "latency_ms": 79,
       "ranked": 5,
       "neighbours": 7,
       "dense_n": 24,
@@ -362,13 +399,17 @@
         "Pair CW-005 \u2014 Technical warning",
         "Authoritative working vocabulary for voice direc"
       ],
-      "min_distance": 0.215479,
-      "max_distance": 0.297941
+      "min_distance": 0.247041,
+      "max_distance": 0.446719,
+      "primary_doc_type": "approved_example",
+      "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true
     },
     {
       "id": "EVAL-011",
       "mode": "retrieval",
-      "latency_ms": 78,
+      "latency_ms": 80,
       "ranked": 5,
       "neighbours": 4,
       "dense_n": 24,
@@ -394,13 +435,17 @@
         "Market Voice-Delivery Rules",
         "Market Voice-Delivery Rules"
       ],
-      "min_distance": 0.156232,
-      "max_distance": 0.357871
+      "min_distance": 0.271511,
+      "max_distance": 0.363445,
+      "primary_doc_type": "negative_pattern",
+      "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true
     },
     {
       "id": "EVAL-012",
       "mode": "retrieval",
-      "latency_ms": 80,
+      "latency_ms": 79,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -412,8 +457,8 @@
         "style_rule",
         "style_rule",
         "approved_example",
-        "approved_example",
-        "style_rule"
+        "style_rule",
+        "approved_example"
       ],
       "positive_chunks": 5,
       "negative_chunks": 0,
@@ -423,16 +468,20 @@
         "Market Voice-Delivery Rules",
         "Market Voice-Delivery Rules",
         "SCR-001 \u2014 Professional introduction (matches POS",
-        "Pair CW-002 \u2014 Professional introduction",
-        "Market Voice-Delivery Rules"
+        "Market Voice-Delivery Rules",
+        "Pair CW-002 \u2014 Professional introduction"
       ],
-      "min_distance": 0.213608,
-      "max_distance": 0.335705
+      "min_distance": 0.307328,
+      "max_distance": 0.343104,
+      "primary_doc_type": "style_rule",
+      "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true
     },
     {
       "id": "EVAL-016",
       "mode": "retrieval",
-      "latency_ms": 77,
+      "latency_ms": 76,
       "ranked": 5,
       "neighbours": 4,
       "dense_n": 24,
@@ -455,13 +504,15 @@
         "ToBI",
         "breath group",
         "intermediate phrase",
-        "Approved Before/After Seed Pairs",
-        "Approved Before/After Pairs \u2014 Set 2"
+        "Pair CW-029 \u2014 Educational narration: correcting ",
+        "Approved Before/After Seed Pairs"
       ],
       "min_distance": 0.243006,
-      "max_distance": 0.457925,
+      "max_distance": 0.463614,
       "primary_doc_type": "glossary",
       "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true,
       "primary_source_id": "cwalts_prosody_glossary",
       "primary_source_pass": true,
       "definition_term": "ToBI",
@@ -485,7 +536,7 @@
         "glossary",
         "glossary",
         "style_rule",
-        "approved_example"
+        "style_rule"
       ],
       "positive_chunks": 2,
       "negative_chunks": 0,
@@ -494,14 +545,16 @@
       "top_headings": [
         "H*",
         "pitch accent",
-        "L-L%",
+        "intonational phrase",
         "Market Voice-Delivery Rules",
-        "Pair CW-016 \u2014 Commercial: business-to-business s"
+        "Market Voice-Delivery Rules"
       ],
       "min_distance": 0.168468,
       "max_distance": 0.357543,
       "primary_doc_type": "glossary",
       "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true,
       "definition_term": "H*",
       "definition_chars": 1209,
       "definition_cites_source": true,
@@ -510,7 +563,7 @@
     {
       "id": "EVAL-018",
       "mode": "retrieval",
-      "latency_ms": 75,
+      "latency_ms": 79,
       "ranked": 5,
       "neighbours": 4,
       "dense_n": 24,
@@ -533,13 +586,15 @@
         "L-L%",
         "H*",
         "information structure",
-        "Pair CW-033 \u2014 Reflective narration: holding an o",
+        "Pair CW-029 \u2014 Educational narration: correcting ",
         "Approved Before/After Seed Pairs"
       ],
       "min_distance": 0.291829,
-      "max_distance": 0.433461,
+      "max_distance": 0.436195,
       "primary_doc_type": "glossary",
       "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true,
       "primary_source_id": "cwalts_prosody_glossary",
       "primary_source_pass": true,
       "definition_term": "L-L%",
@@ -550,7 +605,7 @@
     {
       "id": "EVAL-019",
       "mode": "retrieval",
-      "latency_ms": 75,
+      "latency_ms": 78,
       "ranked": 5,
       "neighbours": 4,
       "dense_n": 24,
@@ -577,9 +632,11 @@
         "SCR-002 \u2014 Technical security explanation (matche"
       ],
       "min_distance": 0.205353,
-      "max_distance": 0.440565,
+      "max_distance": 0.441426,
       "primary_doc_type": "glossary",
       "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true,
       "primary_source_id": "cwalts_prosody_glossary",
       "primary_source_pass": true,
       "definition_term": "break index",
@@ -590,7 +647,7 @@
     {
       "id": "EVAL-020",
       "mode": "retrieval",
-      "latency_ms": 72,
+      "latency_ms": 76,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -612,7 +669,7 @@
       "top_headings": [
         "contrastive focus",
         "intonational phrase",
-        "prominence",
+        "H*",
         "Pair CW-036 \u2014 Reflective narration: qualifying a",
         "Pair CW-014 \u2014 Commercial: price-objection handli"
       ],
@@ -620,6 +677,8 @@
       "max_distance": 0.294097,
       "primary_doc_type": "glossary",
       "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true,
       "definition_term": "contrastive focus",
       "definition_chars": 1308,
       "definition_cites_source": true,
@@ -628,7 +687,7 @@
     {
       "id": "EVAL-013",
       "mode": "behavioural",
-      "latency_ms": 77,
+      "latency_ms": 80,
       "ranked": 5,
       "neighbours": 5,
       "dense_n": 24,
@@ -640,8 +699,8 @@
         "approved_example",
         "approved_example",
         "approved_example",
-        "approved_example",
-        "glossary"
+        "glossary",
+        "approved_example"
       ],
       "positive_chunks": 4,
       "negative_chunks": 0,
@@ -651,11 +710,15 @@
         "Pair CW-006 \u2014 Setup instruction",
         "Pair CW-030 \u2014 Educational narration: sequence of",
         "Pair CW-036 \u2014 Reflective narration: qualifying a",
-        "Pair CW-018 \u2014 Technical: retry and backoff behav",
-        "break index"
+        "Authoritative working vocabulary for voice direc",
+        "Pair CW-018 \u2014 Technical: retry and backoff behav"
       ],
-      "min_distance": 0.242521,
-      "max_distance": 0.420123,
+      "min_distance": 0.34422,
+      "max_distance": 0.434846,
+      "primary_doc_type": "approved_example",
+      "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true,
       "injection_detected": true,
       "injection_summary": "1 suspicious span(s): shell_execution",
       "corpus_context_clean": true
@@ -663,7 +726,7 @@
     {
       "id": "EVAL-014",
       "mode": "behavioural",
-      "latency_ms": 81,
+      "latency_ms": 79,
       "ranked": 5,
       "neighbours": 1,
       "dense_n": 24,
@@ -674,8 +737,8 @@
       "doc_types": [
         "style_rule",
         "style_rule",
-        "glossary",
         "style_rule",
+        "glossary",
         "approved_example"
       ],
       "positive_chunks": 4,
@@ -685,20 +748,24 @@
       "top_headings": [
         "Market Voice-Delivery Rules",
         "Market Voice-Delivery Rules",
-        "ToBI",
         "Market Voice-Delivery Rules",
+        "ToBI",
         "Pair CW-015 \u2014 Commercial: fifteen-second product"
       ],
-      "min_distance": 0.156673,
-      "max_distance": 0.292483,
+      "min_distance": 0.278559,
+      "max_distance": 0.310504,
+      "primary_doc_type": "style_rule",
+      "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true,
       "refutation_retrieved": false
     },
     {
       "id": "EVAL-015",
       "mode": "behavioural",
-      "latency_ms": 75,
+      "latency_ms": 76,
       "ranked": 5,
-      "neighbours": 4,
+      "neighbours": 2,
       "dense_n": 24,
       "lexical_n": 24,
       "lexical_error": null,
@@ -709,7 +776,7 @@
         "style_rule",
         "approved_example",
         "glossary",
-        "approved_example"
+        "style_rule"
       ],
       "positive_chunks": 4,
       "negative_chunks": 0,
@@ -720,10 +787,14 @@
         "Market Voice-Delivery Rules",
         "Depth set added for v0.3.0-rc.2",
         "textual prosody",
-        "Pair CW-039 \u2014 Technical: rewriting around exact "
+        "Market Voice-Delivery Rules"
       ],
-      "min_distance": 0.154891,
-      "max_distance": 0.342605
+      "min_distance": 0.333224,
+      "max_distance": 0.35428,
+      "primary_doc_type": "approved_example",
+      "primary_doc_type_pass": true,
+      "forbidden_doc_types_returned": [],
+      "forbidden_doc_types_pass": true
     }
   ],
   "preservation": [

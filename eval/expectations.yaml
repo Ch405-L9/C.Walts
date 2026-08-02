@@ -13,9 +13,25 @@
 # than retrieval ranking, so they carry `mode: behavioural` and are scored
 # separately — never silently counted as retrieval passes.
 
-version: 1
+version: 2
 collection: badgr_natural_flow_v1
 k: 5
+
+# GATE 1 (v0.4.0-dev.2). Applied to EVERY retrieval case, so a new case cannot
+# be added without it and an existing one cannot quietly drop it. A production
+# answer may not be an evaluation prompt: those documents state the question and
+# its own pass criterion, so returning one lets a case pass by retrieving itself.
+#
+# Five cases used to do exactly that. EVAL-005, EVAL-006, EVAL-007 and EVAL-009
+# each listed their own prompt id as an acceptable marker, and EVAL-010 listed
+# EVAL-001's. Those markers are gone, and the material is gone from the
+# collection — this assertion is the third lock, and the one that will catch a
+# regression if either of the other two is ever loosened.
+#
+# Violations are counted in the report summary as `assertion_failures`, not
+# buried in the JSON.
+global_forbid_primary_doc_types: [evaluation_case]
+global_forbid_doc_types_anywhere: [evaluation_case]
 
 cases:
 
@@ -84,8 +100,11 @@ cases:
     # this miss, which is worth stating plainly. It qualifies on merit: it takes
     # the same source sentence and preserves 250 words per minute, 10 minutes,
     # 25 and 80 percent unchanged, which is exactly what the case asks for.
-    expect_any: ["EVAL-005", "Number preservation", "Pair CW-006", "Pair CW-038",
-                 "rewriting around exact numbers", "Preservation"]
+    # GATE 1: "EVAL-005", "Number preservation" and "Preservation" all matched
+    # only the EVAL-005/006/007 prompt headings — this case could pass by
+    # retrieving its own question. Removed. What remains names production
+    # material: the two approved pairs that actually preserve the numbers.
+    expect_any: ["Pair CW-006", "Pair CW-038", "rewriting around exact numbers"]
     forbid_doc_types: [negative_pattern]
 
   - id: EVAL-006
@@ -97,8 +116,9 @@ cases:
     # warning" is the same category as the declared CW-005 "Technical warning",
     # and its whole subject is restoring a "must" that the original had softened
     # to "it is recommended that" — which is precisely what this case asks for.
-    expect_any: ["EVAL-006", "Pair CW-005", "Pair CW-020", "Technical warning",
-                 "migration warning", "Obligation"]
+    # GATE 1: "EVAL-006" and "Obligation" matched only the evaluation prompt.
+    expect_any: ["Pair CW-005", "Pair CW-020", "Technical warning",
+                 "migration warning"]
     forbid_doc_types: [negative_pattern]
 
   - id: EVAL-007
@@ -110,8 +130,9 @@ cases:
     # preserves "may" and "has not been shown" verbatim and spends a sentence on
     # why the difference matters. That is a more exact answer to this case than
     # the declared CW-005, not merely a different one.
-    expect_any: ["EVAL-007", "Certainty preservation", "Pair CW-005",
-                 "Pair CW-036", "qualifying a claim", "Preservation"]
+    # GATE 1: "EVAL-007", "Certainty preservation" and "Preservation" matched
+    # only the evaluation prompts.
+    expect_any: ["Pair CW-005", "Pair CW-036", "qualifying a claim"]
     forbid_doc_types: [negative_pattern]
 
   - id: EVAL-008
@@ -129,7 +150,14 @@ cases:
       Analyze why this sounds difficult when read aloud, then rewrite it: The
       implementation configuration initialization process requires validation of all
       environment-specific dependency resolution conditions prior to execution.
-    expect_any: ["EVAL-009", "Technical density", "Market Voice-Delivery Rules", "Pair CW-0"]
+    # GATE 1: "EVAL-009" and "Technical density" matched only the evaluation
+    # prompt. "Pair CW-0" was also removed, and this is a TIGHTENING, not a
+    # relaxation: it is a prefix that matches every approved pair CW-001..CW-039,
+    # so with the evaluation markers gone it would have become an almost
+    # unfalsifiable marker carrying the whole case. It is replaced by the pair
+    # that actually answers the query — CW-021 is the dense-architecture-paragraph
+    # rewrite, and it ranks first.
+    expect_any: ["Pair CW-021", "dense architecture", "Market Voice-Delivery Rules"]
     forbid_doc_types: [negative_pattern]
 
   - id: EVAL-010
@@ -137,7 +165,8 @@ cases:
     query: >-
       Make this sound more natural: The service account access is constrained by the
       user's permissions and the approved OAuth scopes.
-    expect_any: ["Pair CW-001", "SCR-002", "Market Voice-Delivery Rules", "EVAL-001"]
+    # GATE 1: "EVAL-001" matched the evaluation prompt for a different case.
+    expect_any: ["Pair CW-001", "SCR-002", "Market Voice-Delivery Rules"]
     forbid_doc_types: [negative_pattern]
 
   - id: EVAL-011

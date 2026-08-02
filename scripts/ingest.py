@@ -44,8 +44,18 @@ from natural_flow_rag.vector_store import VectorStore  # noqa: E402
 
 
 def approved_sources(manifest: dict) -> list[dict]:
+    """Sources ingestion may read. Approval is necessary, not sufficient.
+
+    Gate 1 added the evaluation refusals. They raise rather than skip: a source
+    manifest that declares evaluation material ingestible is a configuration
+    error the operator must see, not a line of output they might miss.
+    """
+    settings = load_settings()
     out = []
     for source in manifest.get("sources", []) or []:
+        where = f"source {source.get('id')!r}"
+        settings.assert_ingestible_doc_type(source.get("doc_type"), where)
+        settings.resolve_ingest_path(source["path"])
         if source.get("license_status") != "approved":
             print(f"  QUARANTINED  {source.get('id')}: license_status="
                   f"{source.get('license_status')!r}")
@@ -63,7 +73,8 @@ def build_records(settings, source: dict, root: Path) -> list[ChunkRecord]:
     hard_max = int(settings.chunking.get("hard_maximum_tokens", 2048))
     ceiling = int(settings.chunking.get("safe_target_ceiling", 1024))
 
-    source_path = settings.resolve_inside_project(source["path"])
+    settings.assert_ingestible_doc_type(source.get("doc_type"), f"source {source['id']!r}")
+    source_path = settings.resolve_ingest_path(source["path"])
     files = discover(source_path)
     if not files:
         print(f"  (empty)      {source['id']}: no files under {source['path']}")

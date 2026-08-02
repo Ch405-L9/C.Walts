@@ -41,7 +41,7 @@
     {
       "check": "health agrees with the lexical index",
       "passed": true,
-      "detail": "101 vs 101"
+      "detail": "84 vs 84"
     },
     {
       "check": "writes are off in a fresh session",

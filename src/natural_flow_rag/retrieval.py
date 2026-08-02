@@ -107,16 +107,58 @@ class Retriever:
             for marker in (self.cfg.get("contrast_intent_patterns") or [])
         )
 
+    def forbidden_doc_types(self) -> set[str]:
+        """Material that must never be returned, whatever the caller asked for.
+
+        Gate 1: evaluation prompts carry their own pass criteria, so returning
+        one lets a query be answered by the query. This is not a ranking
+        preference and not a default — it is a boundary, so it is applied to the
+        dense filter, to the fused list (BM25 knows nothing about metadata), and
+        again after neighbour expansion, and a caller-supplied `where` is
+        intersected with it rather than replacing it.
+        """
+        return {str(d) for d in (self.cfg.get("forbid_doc_types_always") or [])}
+
+    @staticmethod
+    def _exclusion_clause(doc_types: list[str]) -> dict[str, Any]:
+        if len(doc_types) == 1:
+            return {"doc_type": {"$ne": doc_types[0]}}
+        return {"$and": [{"doc_type": {"$ne": d}} for d in doc_types]}
+
+    @staticmethod
+    def _merge_filters(*clauses: dict[str, Any] | None) -> dict[str, Any] | None:
+        present = [c for c in clauses if c]
+        if not present:
+            return None
+        if len(present) == 1:
+            return present[0]
+        return {"$and": present}
+
     def _default_filter(
         self, query: str, where: dict[str, Any] | None
     ) -> tuple[dict[str, Any] | None, bool]:
-        """Apply the negative-material exclusion unless the caller filtered already."""
+        """Compose the caller's filter with the two exclusions the project owns.
+
+        Before Gate 1 this returned the caller's filter untouched whenever one
+        was supplied, so passing any `where` at all silently disabled the
+        negative-pattern exclusion. Both exclusions are now intersected with the
+        caller's clause: a filter narrows a search, it does not widen it.
+        """
+        forbidden = sorted(self.forbidden_doc_types())
+        hard = self._exclusion_clause(forbidden) if forbidden else None
+
         excluded = [str(d) for d in (self.cfg.get("exclude_doc_types_by_default") or [])]
-        if where or not excluded or self.has_contrast_intent(query):
-            return where, False
-        if len(excluded) == 1:
-            return {"doc_type": {"$ne": excluded[0]}}, True
-        return {"$and": [{"doc_type": {"$ne": d}} for d in excluded]}, True
+        wants_contrast = self.has_contrast_intent(query)
+        negatives_excluded = bool(excluded) and not wants_contrast
+        soft = self._exclusion_clause(excluded) if negatives_excluded else None
+
+        return self._merge_filters(where, hard, soft), negatives_excluded
+
+    def _drop_forbidden(self, chunks: list[RetrievedChunk]) -> list[RetrievedChunk]:
+        forbidden = self.forbidden_doc_types()
+        if not forbidden:
+            return chunks
+        return [c for c in chunks if str(c.metadata.get("doc_type")) not in forbidden]
 
     def _apply_floor(self, ids: list[str], distances: list[float]) -> list[str]:
         floor = self.cfg.get("similarity_floor")
@@ -314,10 +356,11 @@ class Retriever:
             if hit.chunk_id in by_id
         ]
 
+        # The `where` clause constrains the dense arm only; BM25 knows nothing
+        # about metadata, so a lexical hit could still smuggle forbidden or
+        # negative material into the fused list.
+        chunks = self._drop_forbidden(chunks)
         if negatives_excluded:
-            # The `where` clause constrains the dense arm only; BM25 knows nothing
-            # about metadata, so a lexical hit could still smuggle a negative
-            # chunk into the fused list.
             excluded = {str(d) for d in (self.cfg.get("exclude_doc_types_by_default") or [])}
             chunks = [c for c in chunks if str(c.metadata.get("doc_type")) not in excluded]
 
@@ -326,6 +369,9 @@ class Retriever:
         chunks = self._demote_doc_types(chunks)
         chunks = chunks[:final_k]
         chunks = self._expand_neighbors(chunks)
+        # Neighbour expansion pulls chunks in by adjacency, not by score, so it
+        # can reintroduce material the filters already removed.
+        chunks = self._drop_forbidden(chunks)
         if negatives_excluded:
             chunks = [c for c in chunks if str(c.metadata.get("doc_type")) not in excluded]
         chunks = self._trim_to_budget(chunks)

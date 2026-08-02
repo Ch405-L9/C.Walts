@@ -60,6 +60,12 @@ def evaluate() -> dict:
     settings = load_settings()
     spec = yaml.safe_load((ROOT / "eval" / "expectations.yaml").read_text(encoding="utf-8"))
     k = int(spec.get("k", 5))
+    global_forbidden_primary = {
+        str(d) for d in (spec.get("global_forbid_primary_doc_types") or [])
+    }
+    global_forbidden_anywhere = {
+        str(d) for d in (spec.get("global_forbid_doc_types_anywhere") or [])
+    }
 
     store = VectorStore(settings)
     embedder = OllamaEmbedder(settings.embedding)
@@ -136,12 +142,26 @@ def evaluate() -> dict:
         # fixed before the query ran, exactly as this file's header requires.
         primary = ranked[0] if ranked else None
 
-        if case.get("forbid_primary_doc_types"):
-            forbidden_primary = [str(d) for d in case["forbid_primary_doc_types"]]
+        # Gate 1: the global bans apply to every retrieval case, whether or not
+        # the case declares them, and they are unioned with any per-case list so
+        # a case can add to them but never subtract.
+        forbidden_primary = sorted(
+            {str(d) for d in (case.get("forbid_primary_doc_types") or [])}
+            | global_forbidden_primary
+        )
+        if forbidden_primary:
             entry["primary_doc_type"] = str(primary.metadata.get("doc_type")) if primary else None
             entry["primary_doc_type_pass"] = bool(
                 primary and entry["primary_doc_type"] not in forbidden_primary
             )
+
+        if global_forbidden_anywhere:
+            offending = [
+                c.chunk_id for c in ranked
+                if str(c.metadata.get("doc_type")) in global_forbidden_anywhere
+            ]
+            entry["forbidden_doc_types_returned"] = offending
+            entry["forbidden_doc_types_pass"] = not offending
 
         if case.get("require_primary_source"):
             entry["primary_source_id"] = str(primary.metadata.get("source_id")) if primary else None
@@ -210,6 +230,24 @@ def evaluate() -> dict:
     total_ranked = sum(r["ranked"] for r in retrieval_cases)
     total_positive = sum(r["positive_chunks"] for r in retrieval_cases)
 
+    # Gate 1: every declared assertion is counted, so a failure shows up in the
+    # printed summary. Before this, primary_doc_type_pass and its siblings were
+    # computed and then only ever read by someone opening the JSON — a
+    # regression could print 17/17 and look clean.
+    assertion_keys = (
+        "primary_doc_type_pass",
+        "primary_source_pass",
+        "definition_pass",
+        "forbidden_doc_types_pass",
+        "exact_term_pass",
+    )
+    assertion_failures = [
+        {"id": r["id"], "assertion": key}
+        for r in results
+        for key in assertion_keys
+        if key in r and not r[key]
+    ]
+
     summary = {
         "generated": datetime.now(UTC).isoformat(),
         "collection": health.collection,
@@ -235,6 +273,11 @@ def evaluate() -> dict:
         "distance_median": round(statistics.median(distances), 6) if distances else None,
         "similarity_min": round(1 - max(distances), 6) if distances else None,
         "similarity_max": round(1 - min(distances), 6) if distances else None,
+        "assertion_failures": len(assertion_failures),
+        "failed_assertions": assertion_failures,
+        "evaluation_case_chunks_returned": sum(
+            len(r.get("forbidden_doc_types_returned", [])) for r in results
+        ),
         "preservation_correct": sum(1 for p in preservation_results if p["correct"]),
         "preservation_total": len(preservation_results),
         "configured_similarity_floor": settings.retrieval.get("similarity_floor"),
@@ -281,6 +324,10 @@ summary
   exact-term retrieval      {'PASS' if s['exact_term_pass'] else 'FAIL'}
   positive-source ratio     {s['positive_source_ratio'] * 100:.0f}%
   negative contamination    {s['negative_contamination']}
+  evaluation-case chunks returned  {s['evaluation_case_chunks_returned']}
+  declared assertions failed       {s['assertion_failures']}{
+      '  ' + ', '.join(f"{f['id']}:{f['assertion']}" for f in s['failed_assertions'])
+      if s['failed_assertions'] else ''}
   citation failures         {s['citation_failures']}
   lexical arm degraded      {s['lexical_degraded']}
   latency p50 / p95         {s['latency_ms_p50']} ms / {s['latency_ms_p95']} ms

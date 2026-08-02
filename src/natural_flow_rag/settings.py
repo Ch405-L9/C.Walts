@@ -19,6 +19,20 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_PATH = PROJECT_ROOT / "config" / "rag.yaml"
 SOURCES_PATH = PROJECT_ROOT / "config" / "sources.yaml"
 
+# Evaluation material is a TEST INPUT, never knowledge. Ingesting it lets
+# retrieval answer an evaluation query by returning the query, which is how
+# EVAL-005 through EVAL-009 came to pass partly on their own prompts before
+# Gate 1. These trees are therefore unreachable by ingestion, structurally,
+# rather than by a source manifest that happens not to list them.
+FORBIDDEN_INGEST_PREFIXES = (
+    "eval",
+    "var/eval_sources",
+)
+
+# The doc_type an evaluation prompt carries. Ingestion refuses it outright, so a
+# future source entry cannot re-admit this material by pointing somewhere new.
+FORBIDDEN_INGEST_DOC_TYPES = ("evaluation_case",)
+
 
 class ConfigError(RuntimeError):
     """Configuration is missing, malformed, or violates a hard invariant."""
@@ -106,6 +120,35 @@ class Settings:
             )
 
     # ── path containment ──────────────────────────────────────────────────────
+
+    def resolve_ingest_path(self, candidate: Path | str) -> Path:
+        """Resolve a source path that ingestion is allowed to read.
+
+        Containment is not enough here. `eval/` and `var/eval_sources/` are both
+        inside the project root and both hold material that must never reach the
+        production collection, so this adds the second gate: a source path under
+        an evaluation tree is refused before a single file is discovered.
+        """
+        resolved = self.resolve_inside_project(candidate)
+        relative = resolved.relative_to(self.project_root.resolve())
+        for prefix in FORBIDDEN_INGEST_PREFIXES:
+            prefix_path = Path(prefix)
+            if relative == prefix_path or prefix_path in relative.parents:
+                raise ConfigError(
+                    f"ingestion path {relative} lies under {prefix}/, which holds "
+                    f"evaluation material. Evaluation records are test inputs, not "
+                    f"knowledge, and are never ingested. Refused."
+                )
+        return resolved
+
+    def assert_ingestible_doc_type(self, doc_type: str | None, where: str) -> None:
+        if str(doc_type) in FORBIDDEN_INGEST_DOC_TYPES:
+            raise ConfigError(
+                f"{where}: doc_type {doc_type!r} may not be ingested. Evaluation "
+                f"prompts carry their own pass criteria, so ingesting them lets "
+                f"retrieval answer an evaluation query with the query. Keep the "
+                f"material under eval/regression/ as a fixture."
+            )
 
     def resolve_inside_project(self, candidate: Path | str) -> Path:
         """Resolve a path and prove it lies under the project root.

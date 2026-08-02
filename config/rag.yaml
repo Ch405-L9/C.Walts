@@ -116,15 +116,35 @@ retrieval:
   # difficult when read aloud") pulled the negative chunk into a rewrite result.
   exclude_doc_types_by_default: [negative_pattern]
 
-  # Probe-shaped material must not outrank the material that answers it.
-  # MEASURED 2026-08-01: the query "ToBI" ranked the EVAL-004 chunk first and the
-  # glossary's ToBI definition second, because EVAL-004 is an evaluation prompt —
-  # short, and almost entirely composed of the probe terms, which is the shape
-  # BM25 scores highest. Demotion is a stable partition, not a filter: the
-  # evaluation cases stay in the result and keep their order among themselves,
-  # because they carry pass criteria that EVAL-005 through EVAL-007 legitimately
-  # need. They simply stop leading.
-  demote_doc_types: [evaluation_case]
+  # HARD BOUNDARY, v0.4.0-dev.2 Gate 1. Evaluation material is a test input, not
+  # knowledge. An evaluation prompt states its own pass criterion, so returning
+  # one lets a query be answered by the query — which is how EVAL-005, EVAL-006,
+  # EVAL-007 and EVAL-009 came to pass partly on their own prompts.
+  #
+  # This is not a default and not a preference. It is intersected with any
+  # caller-supplied filter rather than replaced by one, applied again to the
+  # fused list because BM25 sees no metadata, and applied a third time after
+  # neighbour expansion. There is no argument that re-admits this material.
+  #
+  # The production collection also contains zero such chunks as of Gate 1; this
+  # is the second lock, not the only one.
+  forbid_doc_types_always: [evaluation_case]
+
+  # SUPERSEDED at Gate 1, retained as an empty mechanism rather than deleted.
+  #
+  # Until Gate 1 this held [evaluation_case], and the rationale was that
+  # probe-shaped material must not outrank the material that answers it —
+  # MEASURED 2026-08-01, the query "ToBI" ranked the EVAL-004 prompt above the
+  # glossary's ToBI definition. Demotion reordered the result but kept the
+  # evaluation prompts in it, because EVAL-005 through EVAL-007 were then
+  # expected to match their own pass criteria. Removing that expectation is what
+  # Gate 1 did, so demotion is no longer the control: forbid_doc_types_always
+  # is. Leaving evaluation_case listed here would imply the material is still
+  # expected in production retrieval, which is now false.
+  #
+  # The mechanism stays because it is generic and cheap, and a future doc_type
+  # may legitimately need ranking demotion without exclusion.
+  demote_doc_types: []
   contrast_intent_patterns:
     - avoid
     - robotic

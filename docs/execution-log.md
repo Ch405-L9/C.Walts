@@ -918,3 +918,199 @@ material: `cwalts_negative_patterns` at `corpus/raw/evaluation/negative/`,
 `doc_type=negative_pattern`, one chunk. It is a corpus description of delivery to
 avoid, required by Prompt D §D, and it is governed by the contamination rule
 rather than by this gate. It is not moved and not deleted.
+
+### Verified backup before any mutation
+
+`scripts/store_snapshot.py` was added because the existing backup path snapshots
+`chroma.sqlite3` alone. That is the right gate before a delete but not a complete
+restore point: Chroma keeps each collection's HNSW index in sibling directories,
+the lexical arm lives in `var/bm25/index.json`, and `config/sources.yaml` decides
+what the corpus is. Restoring the database alone would bring back rows whose
+vector and lexical indexes disagree with them.
+
+| Field | Value |
+|---|---|
+| Snapshot | `var/snapshots/20260802T010230Z` (Git-ignored) |
+| Taken (UTC) | 2026-08-02T01:02:30Z |
+| Chroma tree SHA-256 | `99f03b03b10d443426846796eed9ce6813957ff5fa54dd5feaa27a8006420334` |
+| `chroma.sqlite3` SHA-256 | `405f527b09f4c5fd1e0442f254e6c297ff0bff61c838b3b1acca04f603caabb1` |
+| BM25 SHA-256 | `3cdf35b807aa17071cf8007165dc8882a8e74dc9c5dcd49daa30db7cc0a02b0f` |
+| `sources.yaml` SHA-256 | `afecf9a7297fdec80c2fc1b006d27c766101aba40ba95fb6769b75f99d690579` |
+| Collections in the copy | `badgr_natural_flow_v1` 101, `badgr_natural_flow_feedback_v1` 2 |
+| BM25 chunk ids in the copy | 101 |
+
+Verified by interrogation, not by hash: the copy was reopened, its collections
+listed and counted **out of the snapshot's own SQLite file**, BM25/Chroma parity
+confirmed at 101 = 101, and an exact-term query for `ToBI` run against the
+restored lexical index returned 3 hits. A damaged database can still hash.
+
+### Isolation
+
+`corpus/raw/evaluation/cases/evaluation_prompts.md` →
+`eval/regression/source_documents/evaluation_prompts.md`, moved with `git mv`
+(recorded as `R100` — byte-identical, history follows it). No ingestible copy was
+left behind; the source directory is gone. The original text, all fifteen EVAL
+ids, every `**Pass**` block, the historical notes and the prior failure
+disclosures are preserved verbatim and asserted by test.
+
+`cwalts_evaluation_cases` was removed from `config/sources.yaml`. In its place is
+a WITHDRAWN FROM PRODUCTION record explaining what the source was, why it was
+withdrawn, where it went, and what now prevents its return. It is a record, not a
+source entry, and nothing in it is ingestible.
+
+### Hard boundary — three independent locks
+
+1. **Ingestion.** `settings.resolve_ingest_path()` refuses any source path under
+   `eval/` or `var/eval_sources/` before a file is discovered, and
+   `assert_ingestible_doc_type()` refuses `doc_type: evaluation_case` outright.
+   Both raise rather than skip, so a manifest that declares evaluation material
+   is a visible configuration error rather than a line of output nobody reads.
+2. **Store.** Zero `evaluation_case` records in Chroma and zero in BM25.
+3. **Retrieval.** `forbid_doc_types_always: [evaluation_case]` is applied to the
+   dense filter, again to the fused list because BM25 sees no metadata, and a
+   third time after neighbour expansion, which pulls chunks in by adjacency
+   rather than by score.
+
+### Defect found while building lock 3: a caller filter disabled the exclusions
+
+`_default_filter()` returned the caller's `where` clause untouched whenever one
+was supplied. Passing **any** filter therefore silently disabled the
+negative-pattern exclusion — and would have disabled the evaluation exclusion the
+same way, which is precisely the bypass §4 forbids. Measured during the pre-delete
+dry probe: `search(EVAL-009 query, where={"doc_type": {"$ne": "evaluation_case"}})`
+returned the negative-pattern chunk at rank 5, which the same query without a
+filter excludes.
+
+Fixed by composing rather than replacing: the caller's clause, the hard ban, and
+the negative-pattern default are intersected with `$and`. A filter narrows a
+search; it cannot widen one.
+
+`tests/test_negative_policy.py::test_an_explicit_caller_filter_is_never_overridden`
+asserted the old behaviour (`assert where is supplied`). It was renamed to
+`test_a_caller_filter_narrows_and_is_never_allowed_to_widen` and now asserts the
+opposite. This is the one existing test Gate 1 changed, and it is recorded here
+rather than quietly edited: the requirement itself changed, by mandate, and the
+old assertion encoded the defect.
+
+### The obsolete demotion rule
+
+`demote_doc_types` held `[evaluation_case]`. It is now `[]`. Leaving it would
+imply evaluation cases are still expected in production retrieval, which is false.
+The mechanism is kept — generic, cheap, and a future doc_type may need ranking
+demotion without exclusion — with the rc.2 rationale preserved in the config as
+history.
+
+### Controlled removal
+
+Dry run first, through the sanctioned `natural_flow_reindex` path with
+`confirm=true`, `dry_run=true`, `delete_stale=true`:
+
+```
+chunks_in_corpus        84
+chunks_in_collection   101
+would_add_count          0
+stale_count             17
+stale_listing_complete true
+```
+
+`would_add_count = 0` matters as much as the stale count: chunk ids are
+content-derived, so a non-empty add list would have meant chunking had drifted
+and the survivors were not the same records. No broad `source=` filter was used —
+the full reindex computes `stale = existing - wanted`, which is an exact id set.
+The tool refuses `delete_stale` together with `source=` for exactly this reason.
+
+Before committing, the 17 stale ids were compared set-for-set against
+`docs/evidence/gate1-removal-plan.json`, captured before any change: identical,
+no extras, none missing. Every id was then re-read from the collection and
+confirmed to carry `doc_type=evaluation_case`; no approved example, glossary,
+style-rule or negative-pattern chunk was in the removal set.
+
+Commit run, with writes enabled by environment variable for that single
+invocation only — `config/rag.yaml` still carries `allow_writes: false`, so
+writes were off again the moment the process exited:
+
+```
+written          84
+deleted_count    17
+collection_count 84
+lexical_count    84
+backup           var/backups/20260802T010613Z/chroma.sqlite3
+                 sha256 85eb5716…2119, verified, reopened, 103 embedding rows
+```
+
+The tool took its own verified backup before the delete, independently of the
+snapshot taken earlier. Full result: `docs/evidence/gate1-removal-result.json`.
+
+### State after removal
+
+| Item | Before | After |
+|---|---:|---:|
+| Chroma `badgr_natural_flow_v1` | 101 | **84** |
+| `doc_type=evaluation_case` chunks | 17 | **0** |
+| BM25 chunk ids / token rows | 101 / 101 | **84 / 84** |
+| Chroma/BM25 id-set parity | exact | **exact** |
+| Chroma `badgr_natural_flow_feedback_v1` | 2 | 2 |
+| BADGR Harness store MD5 | `bdcbe32b…2c49` | `bdcbe32b…2c49` |
+
+Corpus lint after removal: PASS, 84 chunks — approved_example 59 (70.2%),
+glossary 19 (22.6%), style_rule 5 (6.0%), negative_pattern 1 (1.2%). Both
+auxiliary classes remain under the 40% cap; removing the 17 evaluation chunks
+raised the primary share rather than lowering it.
+
+### Expectation cleanup
+
+Five cases could pass by retrieving their own question. Markers removed:
+
+| Case | Removed | Why it was contamination |
+|---|---|---|
+| EVAL-005 | `EVAL-005`, `Number preservation`, `Preservation` | all three matched only the EVAL-005/006/007 prompt headings |
+| EVAL-006 | `EVAL-006`, `Obligation` | matched only `EVAL-006 — Obligation preservation` |
+| EVAL-007 | `EVAL-007`, `Certainty preservation`, `Preservation` | matched only the evaluation prompts |
+| EVAL-009 | `EVAL-009`, `Technical density` | matched only `EVAL-009 — Technical density` |
+| EVAL-010 | `EVAL-001` | matched a *different* case's prompt |
+
+One further change, and it is a TIGHTENING rather than a relaxation. EVAL-009
+also listed `Pair CW-0`, a prefix that matches every approved pair CW-001 through
+CW-039. Harmless while other markers carried the case; with the evaluation
+markers gone it would have become an almost unfalsifiable marker holding the case
+up on its own. It is replaced by `Pair CW-021` and `dense architecture` — the
+pair that actually rewrites a dense architecture paragraph, and which ranks
+first for this query.
+
+No requirement was weakened to preserve 17/17. The stricter direction was taken
+in the one place there was a choice.
+
+### The global assertion now scores
+
+`primary_doc_type_pass`, `primary_source_pass` and `definition_pass` were
+computed per case and then never folded into the summary — a regression in any of
+them would have printed 17/17 and looked clean. `expectations.yaml` gains
+`global_forbid_primary_doc_types` and `global_forbid_doc_types_anywhere`, applied
+to every retrieval case whether or not the case declares them and unioned with
+any per-case list, so a case can add to the ban but never subtract from it. The
+runner counts every declared assertion and prints `declared assertions failed`
+and `evaluation-case chunks returned` in the summary.
+
+### Evaluation after decontamination
+
+```
+useful hit @5                    17/17  (100%)
+exact-term retrieval             PASS
+positive-source ratio            74%
+negative contamination           0
+evaluation-case chunks returned  0
+declared assertions failed       0
+citation failures                0
+preservation correct             10/10
+```
+
+Every case that previously matched its own prompt now matches production
+material: EVAL-005 on `Pair CW-038`, EVAL-006 on `Pair CW-020`, EVAL-007 on
+`Pair CW-036`, EVAL-009 on `Pair CW-021`, EVAL-010 on `Pair CW-001`. **No case
+regressed**, so §5's honest-failure path was not needed — but the outcome was
+predicted before the delete, by running every case against a filtered view of the
+un-decontaminated collection, so 17/17 was not discovered after the fact.
+
+Positive-source ratio moved 74% → 74% and latency p50 79 ms → 78 ms. The distance
+distribution shifted slightly (min 0.114 → 0.144) because the removed chunks were
+short and probe-shaped and had been supplying some of the closest matches.

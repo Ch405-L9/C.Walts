@@ -122,33 +122,9 @@ sources:
       use and are REFUSED — see the register. No text from them is used here, and
       the ToBI entries are grounded in CC BY literature describing the system.
 
-      This source replaces cwalts_evaluation_cases as the answer to the exact
-      prosody probes. Retrieval for ToBI, H*, L-L% and break index must now rank
-      a glossary chunk above the evaluation prompts; that is asserted in
-      eval/expectations.yaml and in tests/test_glossary_retrieval.py rather than
-      left to inspection.
-
-  - id: cwalts_evaluation_cases
-    title: C.Walts evaluation prompts
-    url: null
-    path: corpus/raw/evaluation/cases/
-    doc_type: evaluation_case
-    chunk_profile: approved_example
-    license: Proprietary — BADGRTechnologies LLC
-    license_url: null
-    license_status: approved
-    license_verified_on: 2026-08-01
-    license_verified_by: owner-authored evaluation material
-    commercial_use: permitted
-    redistribution: prohibited
-    attribution_required: false
-    dialect: en-US
-    register: evaluation
-    notes: >
-      EVAL-001 through EVAL-015 with pass criteria. Ingested so that retrieval
-      can surface the controlling acceptance criteria alongside a rewrite. This
-      is also the only approved document containing the exact prosody probes
-      ToBI, H*, and L-L% — see the known limitation in docs/.
+      This source is the ONLY answer to the exact prosody probes. It formerly
+      shared that role with cwalts_evaluation_cases, which was removed from
+      production at Gate 1 (v0.4.0-dev.2) — see below.
 
   - id: cwalts_negative_patterns
     title: C.Walts rejected and contrast delivery patterns
@@ -173,6 +149,36 @@ sources:
       metadata-based: every chunk from this source carries
       doc_type=negative_pattern, and contamination is measured per query in the
       evaluation report. No negative RECORDING is ingested in any form.
+
+      NOT evaluation material, despite living under corpus/raw/evaluation/. This
+      is corpus text describing delivery to avoid. Gate 1 removed the evaluation
+      PROMPTS; it deliberately did not touch this source.
+
+# ---------------------------------------------------------------------------
+# WITHDRAWN FROM PRODUCTION — v0.4.0-dev.2, Gate 1
+#
+# cwalts_evaluation_cases (C.Walts evaluation prompts, EVAL-001…015 with their
+# pass criteria) was an ingested source until Gate 1. It is now a REGRESSION
+# FIXTURE and is never ingested again.
+#
+# Why: an evaluation prompt states the question and the pass criterion. Ingesting
+# it let retrieval answer an evaluation query by returning the query — EVAL-005,
+# EVAL-006, EVAL-007 and EVAL-009 each passed, at least in part, on the marker of
+# their own prompt. A benchmark that can retrieve its own answer key measures
+# nothing. The rc.2 mitigation (demote_doc_types) reordered the results but left
+# the material in the collection and in the expectations.
+#
+# Where it went: eval/regression/source_documents/evaluation_prompts.md, moved
+# with git mv so the history follows it. Original text, EVAL ids, pass criteria,
+# historical notes and prior failure disclosures are preserved verbatim.
+#
+# What stops it coming back: ingestion refuses doc_type evaluation_case outright,
+# source discovery refuses any path under eval/ or var/eval_sources/, and
+# retrieval filters evaluation_case unconditionally — a caller-supplied filter
+# cannot re-admit it. All three are asserted in tests/test_evaluation_boundary.py.
+#
+# This section is a record, not a source entry. Nothing here is ingestible.
+# ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
 # QUARANTINED — present for traceability. Ingestion will refuse all of these.
