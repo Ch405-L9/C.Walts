@@ -3,6 +3,50 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.2 Stage 1, determinism instrumentation
+
+Version stays at `0.4.0-dev.2`. Stage 1 resolves the ANN/fused-score wobble
+question with measurement only: no corpus change, no production ChromaDB/BM25
+mutation, no holdout inspection, and no threshold fitting.
+
+### Added
+
+- `scripts/determinism_probe.py` — read-only Gate 1.2 probe that builds an exact
+  normalized-cosine NumPy oracle over the 84-vector production collection, checks
+  five representative embeddings 10 times each at byte level, repeats fixed-index
+  queries, rebuilds scratch Chroma indexes from fixed vectors, and removes the
+  scratch indexes before exit.
+- `tests/test_determinism_probe.py` — focused regression tests for oracle ranking
+  tie-breaks, recall@k, Kendall's tau, vector digests, nullable metric summaries,
+  and distance variance accounting.
+- `docs/evidence/gate1_2-determinism.json` — Stage 1 evidence: production count
+  84, embedding dimension 768, `embedding_byte_stable: true`, fixed-index and
+  rebuilt-index recall@24 min/mean/max all 1.0, Kendall's tau min/mean/max all
+  1.0, verdict flips 0/0, and disposition `cosmetic_float_noise`.
+
+### Changed
+
+- `requirements.txt` now pins `numpy==2.5.1`, the measured local dependency used
+  by the exact-cosine oracle.
+- Unresolved item B is disposed for Gate 1.2 Stage 1: `nomic-embed-text` stays,
+  distance fields remain diagnostic/volatile, and calibration thresholds remain
+  unfitted until the committed Gate 5 stage. The handoff architecture did not
+  change, so the complete handoff report did not require an architecture update.
+
+### Validation
+
+```text
+determinism_probe.py             84 vectors, embedding_byte_stable=True,
+                                 fixed_flips=0, rebuilt_flips=0,
+                                 disposition=cosmetic_float_noise
+pytest tests/test_determinism_probe.py
+                                 6 passed
+pytest tests/                    327 observed progress dots, exit 0
+ruff check .                     All checks passed!
+verify_restore.py                PASS — 84/84, id set 0 absent / 0 unexpected,
+                                 evaluation_case 0, feedback 2, harness MD5 unchanged
+```
+
 ## [Unreleased] — Gate 1.1, operational closeout of Gate 1
 
 Version stays at `0.4.0-dev.2`. Gate 1.1 resolves ambiguities Gate 1 disclosed

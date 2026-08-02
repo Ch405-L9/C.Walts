@@ -2005,3 +2005,93 @@ was required.
 ```
 
 Evidence: `docs/evidence/gate1_2-stage0-baseline.json`.
+
+---
+
+## 2026-08-02 - C.Walts v0.4 Gate 1.2 Stage 1: determinism instrumentation
+
+Version held at `0.4.0-dev.2`. Stage 1 only: no corpus change, no production
+ChromaDB or BM25 mutation, no threshold fitting, no holdout inspection, no Gate 2
+work, and no gate renumbering. The owner clarification from Stage 0 remains in
+force; `FULL_c.walts_project_outside-eyes-ovrvw_context.txt` and
+`README_compass_artificat.md` stayed local-only and untracked.
+
+### Instrument
+
+Added `scripts/determinism_probe.py`, `tests/test_determinism_probe.py`, and
+`docs/evidence/gate1_2-determinism.json`. The probe uses an exact
+normalized-cosine NumPy oracle over the 84-vector production collection, embeds
+five representative strings ten times each, repeats fixed-index queries, rebuilds
+scratch Chroma indexes from fixed vectors, compares both sweeps to the oracle,
+and removes scratch indexes before exit.
+
+`requirements.txt` now pins `numpy==2.5.1`, the measured local dependency used by
+the oracle. This is instrumentation only; the retrieval architecture did not
+change, so the complete handoff report did not require an architecture update.
+
+### Result
+
+```text
+.venv/bin/python scripts/determinism_probe.py
+  determinism probe: 84 vectors, embedding_byte_stable=True, fixed_flips=0,
+  rebuilt_flips=0, disposition=cosmetic_float_noise
+```
+
+Measured evidence:
+
+| Fact | Value |
+|---|---|
+| Production collection | 84 vectors, 768 dimensions |
+| Embedding repeat probes | 5 strings x 10 repeats |
+| Embedding byte stability | `true` |
+| Fixed-index recall@24 | min 1.0, mean 1.0, max 1.0 |
+| Fixed-index Kendall tau | min 1.0, mean 1.0, max 1.0 |
+| Fixed-index max delta to oracle | `5.31664e-07` |
+| Fixed-index verdict flips | 0 |
+| Rebuilt-index recall@24 | min 1.0, mean 1.0, max 1.0 |
+| Rebuilt-index Kendall tau | min 1.0, mean 1.0, max 1.0 |
+| Rebuilt-index max delta to oracle | `5.57523e-07` |
+| Rebuilt-index verdict flips | 0 |
+| Decision disposition | `cosmetic_float_noise` |
+| `nomic-embed-text` | stays |
+| Thresholds fit | `false` |
+
+Disposition for Stage 1.4: the observed ANN distance wobble is cosmetic float
+noise. Distance fields remain diagnostic/volatile and must not be used for
+calibration inputs. Stage 4 still owns report-schema provenance, and Gate 5 still
+owns threshold fitting.
+
+### Validation
+
+```text
+.venv/bin/python -m pytest tests/test_determinism_probe.py -q
+  6 passed
+
+.venv/bin/python -m pytest tests/ -q
+  exit 0, 327 observed progress dots
+
+.venv/bin/ruff check .
+  All checks passed!
+
+git diff --check
+  clean
+
+.venv/bin/python -m json.tool docs/evidence/gate1_2-determinism.json
+  exit 0
+
+.venv/bin/python scripts/verify_restore.py --expect-from-sources
+  PASS - expected 84, production 84, BM25 84, id set 0 absent / 0 unexpected,
+  evaluation_case 0, feedback 2, ToBI 3 hits, retrieval probe 12 chunks,
+  BADGR Harness MD5 bdcbe32b706c6ccce1f62e8e9f2d2c49
+
+scratch index check
+  no /tmp/cwalts-stage1-hnsw-* or in-tree cwalts-stage1-hnsw-* directories found
+
+secret pattern scan
+  no matches
+
+raw dataset / holdout tracked path check
+  no tracked paths under var, eval/holdout/private, or eval/sources/public_pool
+```
+
+Evidence: `docs/evidence/gate1_2-determinism.json`.
