@@ -610,3 +610,75 @@ Neither has anything to do with narration. The rule now matches on
 underscore-separated token prefixes, and the stem is `synonym`. CLINC150
 near-domain candidates fell from 11 to 9. The rule is printed in full in the
 report so a reviewer can reject it outright; it annotates, it does not select.
+
+### Acquisition executed
+
+Three archives, all HTTPS, all first-party, 40 MB raw and 7.3 MB extracted
+(48 MB total under `var/eval_sources/`, Git-ignored):
+
+| Dataset | Bytes | Archive SHA-256 |
+|---|---:|---|
+| clinc150 | 1,048,003 | `0d8ecc3e1edd7b25cabde0177544ce536ddf773844bc80ef1a75f36e7f030ea2` |
+| massive_1_0_en_us | (tar.gz) | `7df623fd2d300a4d235d6ee5bd396c9a28258d3a0ccb29abdb054506eba153f8` |
+| banking77 | (zip) | `b8c2ba23bc1ab7b182230c378f07417c8aef735260a2fd3546faef54ecbbfa91` |
+
+Per-file hashes, exact byte counts, and the licence markers verified inside each
+archive are in `docs/dataset-acquisition-report-gate0.md`. Only the allowlisted
+members were written; the CLINC150 archive also contains `data_small.json`,
+`data_imbalanced.json`, `data_oos_plus.json`, and a `__MACOSX/` tree, none of
+which were extracted.
+
+### Inventory
+
+| Dataset | Records | Structure | Duplicates | Words min/median/max |
+|---|---:|---|---:|---|
+| CLINC150 | 23,700 | 151 labels; 1,200 out-of-scope | 5 | 1 / 8 / 28 |
+| MASSIVE 1.0 en-US | 16,521 | 18 scenarios, 60 intents | 89 | 1 / 6 / 61 |
+| Banking77 | 13,083 | 77 categories | 11 | 2 / 10 / 79 |
+
+Duplicates are reported, not removed: de-duplication is a selection decision and
+selection has not happened.
+
+### Production boundary, measured before and after
+
+| Item | Before | After |
+|---|---|---|
+| Chroma `badgr_natural_flow_v1` | 101 | 101 |
+| Chroma `badgr_natural_flow_feedback_v1` | 2 | 2 |
+| BM25 chunk_ids / tokens | 101 / 101 | 101 / 101 |
+| BADGR Harness store MD5 | `bdcbe32b706c6ccce1f62e8e9f2d2c49` | `bdcbe32b706c6ccce1f62e8e9f2d2c49` |
+| Free disk | 70 GiB | 70 GiB |
+
+No ingestion or reindex tool was called. Nothing was chunked or embedded.
+
+### Full validation at handoff
+
+```
+pytest tests/                 172 passed  (145 at baseline + 27 adversarial)
+ruff check .                  All checks passed
+scripts/corpus_lint.py        PASS — no findings
+eval/run_evaluation.py        17/17 useful hits, exact-term PASS,
+                              contamination 0, citations 0, preservation 10/10
+scripts/smoke_test.py         43/43 passed   (42/43 at baseline; see Failure 1)
+scripts/mcp_session_check.py  23/23 passed
+acquire_eval_sources.py --verify    all files and embedded licences verified
+inventory_eval_sources.py --verify  inventory reproduces byte-for-byte
+```
+
+### Post-edit hashes of the three modified package files
+
+The root `SHA256SUMS` records the package **as delivered** and still verifies
+12/12 against that delivery for the nine unmodified files. These three were
+edited during the phase, for the reasons above:
+
+```
+e77080245cd45ff21088809a69bd137cd38cd18d741d3f40ff055e05a0376dbb  scripts/acquire_eval_sources.py
+5e33ce7b623a62dbc8821cab602227918a5d233ed1d71d34b8b5684798bcebc4  scripts/inventory_eval_sources.py
+21453dbefb5c6bd60b3930795ce3c525bd92e65ef4de79e8b455b3c54f6d4ab3  tests/test_gate0_dataset_tools.py
+```
+
+### Stop condition
+
+Gate 0 ends here. No query was selected, no 600-query set built, no calibration
+or holdout file created, no threshold fitted, no MCP evidence status changed, no
+audiobook corpus acquired, `main` not promoted, and no release candidate tagged.

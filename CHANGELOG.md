@@ -25,10 +25,32 @@ Development version. Not a release candidate. `v0.3.0-rc.2` is untouched.
 - `.gitignore` now excludes `var/eval_sources/`, `eval/holdout/private/`, and
   `eval/sources/public_pool/`. Raw public datasets stay local-only.
 
+- `scripts/acquire_eval_sources.py` — HTTPS-only, size-capped, atomically
+  renamed, traversal- and symlink-refusing acquisition with in-band licence
+  verification and a repeatable `--verify` manifest.
+- `scripts/inventory_eval_sources.py` — aggregate inventory and report. Counts,
+  label names, checksums, and licence conclusions only; no dataset rows.
+- `tests/test_gate0_dataset_tools.py` — 36 adversarial tests. Suite: 145 → 172.
+- `docs/evidence/dataset-inventory-gate0.json`,
+  `docs/dataset-acquisition-report-gate0.md`.
+
+### Fixed
+
+- CLINC150 was declared CC BY 4.0. The licence inside the UCI archive is
+  **CC BY 3.0 Unported**. The declaration now matches the verified evidence and
+  the marker check was tightened, not relaxed.
+- The delivered inventory tool assumed headerless Banking77 CSVs; the
+  `text,category` header is now asserted and excluded from the counts.
+- Six Ruff findings in the incoming package were corrected at source. `S310` was
+  resolved with justified per-call `noqa`, not by adding it to the project-wide
+  ignore list.
+
 ### Boundary
 
 Acquired records are evaluation-query candidates. They are not corpus chunks and
 are never written to `var/chroma/`, `var/bm25/`, or `badgr_natural_flow_v1`.
+Measured before and after acquisition: Chroma 101, BM25 101, BADGR Harness store
+MD5 `bdcbe32b706c6ccce1f62e8e9f2d2c49` — all unchanged.
 
 ## [Unreleased]
 
