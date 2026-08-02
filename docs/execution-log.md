@@ -2095,3 +2095,63 @@ raw dataset / holdout tracked path check
 ```
 
 Evidence: `docs/evidence/gate1_2-determinism.json`.
+
+---
+
+## 2026-08-02 - C.Walts v0.4 Gate 1.2 Stage 1 follow-up: disposition hardening
+
+Version held at `0.4.0-dev.2`. Follow-up hardening only: no corpus change, no
+production ChromaDB or BM25 mutation, no threshold fitting, no holdout
+inspection, no Stage 2 work, and no gate renumbering.
+
+### Correction
+
+Extracted the Stage 1.4 decision logic into `decide_stage1_disposition()`. The
+probe now returns `cosmetic_float_noise` only when all seven named criteria pass:
+
+| Criterion | Regenerated value |
+|---|---|
+| Embedding byte stability | `true` |
+| Fixed-index minimum recall@dense_k | 1.0 |
+| Rebuilt-index minimum recall@dense_k | 1.0 |
+| Fixed-index minimum Kendall tau | 1.0 |
+| Rebuilt-index minimum Kendall tau | 1.0 |
+| Fixed-index verdict flips | 0 |
+| Rebuilt-index verdict flips | 0 |
+
+Failure routing is explicit: embedding instability returns
+`embedding_instability_detected`, oracle recall/ranking disagreement returns
+`ann_oracle_rank_disagreement`, and remaining verdict instability returns
+`ranking_or_verdict_instability_detected`.
+
+### Result
+
+Regenerated `docs/evidence/gate1_2-determinism.json`. The measured conclusion
+remained unchanged under the complete criteria:
+
+```text
+.venv/bin/python scripts/determinism_probe.py
+  determinism probe: 84 vectors, embedding_byte_stable=True, fixed_flips=0,
+  rebuilt_flips=0, disposition=cosmetic_float_noise
+```
+
+### Validation
+
+```text
+.venv/bin/python -m pytest tests/test_determinism_probe.py -q
+  11 passed
+
+.venv/bin/python -m pytest tests/ -q
+  exit 0, 332 observed progress dots
+
+.venv/bin/ruff check .
+  All checks passed!
+
+git diff --check
+  clean
+
+.venv/bin/python scripts/verify_restore.py --expect-from-sources
+  PASS - expected 84, production 84, BM25 84, id set 0 absent / 0 unexpected,
+  evaluation_case 0, feedback 2, ToBI 3 hits, retrieval probe 12 chunks,
+  BADGR Harness MD5 bdcbe32b706c6ccce1f62e8e9f2d2c49
+```

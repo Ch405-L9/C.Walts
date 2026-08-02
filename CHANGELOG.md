@@ -33,6 +33,14 @@ mutation, no holdout inspection, and no threshold fitting.
   unfitted until the committed Gate 5 stage. The handoff architecture did not
   change, so the complete handoff report did not require an architecture update.
 
+### Fixed
+
+- The Stage 1.4 disposition logic now requires all seven named criteria before
+  returning `cosmetic_float_noise`: embedding byte stability, fixed/rebuilt
+  recall@dense_k minimum 1.0, fixed/rebuilt Kendall tau minimum 1.0, and
+  fixed/rebuilt verdict flips zero. Zero flips alone now routes to a
+  non-cosmetic disposition when oracle recall or ranking agreement fails.
+
 ### Validation
 
 ```text
@@ -40,8 +48,8 @@ determinism_probe.py             84 vectors, embedding_byte_stable=True,
                                  fixed_flips=0, rebuilt_flips=0,
                                  disposition=cosmetic_float_noise
 pytest tests/test_determinism_probe.py
-                                 6 passed
-pytest tests/                    327 observed progress dots, exit 0
+                                 11 passed
+pytest tests/                    332 observed progress dots, exit 0
 ruff check .                     All checks passed!
 verify_restore.py                PASS — 84/84, id set 0 absent / 0 unexpected,
                                  evaluation_case 0, feedback 2, harness MD5 unchanged

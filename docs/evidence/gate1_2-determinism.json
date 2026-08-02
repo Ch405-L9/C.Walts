@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-02T13:17:26.418964+00:00",
+  "generated": "2026-08-02T13:40:24.028947+00:00",
   "phase": "C.Walts v0.4 Gate 1.2 Stage 1 - determinism instrumentation",
   "version": "0.4.0-dev.2",
   "read_only_production_store": true,
@@ -7825,6 +7825,15 @@
   },
   "decision": {
     "disposition": "cosmetic_float_noise",
+    "criteria": {
+      "embedding_byte_stable": true,
+      "fixed_recall_min_is_1": true,
+      "rebuilt_recall_min_is_1": true,
+      "fixed_kendall_tau_min_is_1": true,
+      "rebuilt_kendall_tau_min_is_1": true,
+      "fixed_verdict_flips_zero": true,
+      "rebuilt_verdict_flips_zero": true
+    },
     "nomic_embed_text_stays": true,
     "thresholds_fit": false,
     "notes": [

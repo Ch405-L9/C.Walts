@@ -316,6 +316,53 @@ def summarize_distance_variance(
     }
 
 
+def decide_stage1_disposition(
+    *,
+    embedding_byte_stable: bool,
+    fixed_recall_summary: dict[str, float | None],
+    rebuilt_recall_summary: dict[str, float | None],
+    fixed_kendall_summary: dict[str, float | None],
+    rebuilt_kendall_summary: dict[str, float | None],
+    fixed_verdict_flips: dict[str, object],
+    rebuilt_verdict_flips: dict[str, object],
+) -> dict[str, object]:
+    criteria = {
+        "embedding_byte_stable": embedding_byte_stable is True,
+        "fixed_recall_min_is_1": fixed_recall_summary.get("min") == 1.0,
+        "rebuilt_recall_min_is_1": rebuilt_recall_summary.get("min") == 1.0,
+        "fixed_kendall_tau_min_is_1": fixed_kendall_summary.get("min") == 1.0,
+        "rebuilt_kendall_tau_min_is_1": rebuilt_kendall_summary.get("min") == 1.0,
+        "fixed_verdict_flips_zero": fixed_verdict_flips.get("verdict_flip_count") == 0,
+        "rebuilt_verdict_flips_zero": rebuilt_verdict_flips.get("verdict_flip_count") == 0,
+    }
+
+    if all(criteria.values()):
+        disposition = "cosmetic_float_noise"
+    elif not criteria["embedding_byte_stable"]:
+        disposition = "embedding_instability_detected"
+    elif not (
+        criteria["fixed_recall_min_is_1"]
+        and criteria["rebuilt_recall_min_is_1"]
+        and criteria["fixed_kendall_tau_min_is_1"]
+        and criteria["rebuilt_kendall_tau_min_is_1"]
+    ):
+        disposition = "ann_oracle_rank_disagreement"
+    else:
+        disposition = "ranking_or_verdict_instability_detected"
+
+    return {
+        "disposition": disposition,
+        "criteria": criteria,
+        "nomic_embed_text_stays": all(criteria.values()),
+        "thresholds_fit": False,
+        "notes": [
+            "Exact normalized-cosine NumPy oracle is used as dense ground truth at 84 vectors.",
+            "No production ChromaDB or BM25 files are mutated by this probe.",
+            "Distance fields remain diagnostic only and are not calibration inputs.",
+        ],
+    }
+
+
 def run_probe(args: argparse.Namespace) -> dict[str, Any]:
     settings = load_settings()
     store = VectorStore(settings)
@@ -454,14 +501,19 @@ def run_probe(args: argparse.Namespace) -> dict[str, Any]:
     fixed_flips = verdict_flips(fixed_runs)
     rebuilt_flips = verdict_flips(rebuilt_runs)
     embedding_stable = all(row["byte_stable"] for row in embedding_repeat)
-    rank_verdict_stable = (
-        fixed_flips["verdict_flip_count"] == 0
-        and rebuilt_flips["verdict_flip_count"] == 0
+    fixed_recall_summary = summarize_recalls(fixed_recalls)
+    rebuilt_recall_summary = summarize_recalls(rebuilt_recalls)
+    fixed_kendall_summary = summarize_nullable_metrics(fixed_kendall)
+    rebuilt_kendall_summary = summarize_nullable_metrics(rebuilt_kendall)
+    decision = decide_stage1_disposition(
+        embedding_byte_stable=embedding_stable,
+        fixed_recall_summary=fixed_recall_summary,
+        rebuilt_recall_summary=rebuilt_recall_summary,
+        fixed_kendall_summary=fixed_kendall_summary,
+        rebuilt_kendall_summary=rebuilt_kendall_summary,
+        fixed_verdict_flips=fixed_flips,
+        rebuilt_verdict_flips=rebuilt_flips,
     )
-    if rank_verdict_stable:
-        disposition = "cosmetic_float_noise"
-    else:
-        disposition = "ranking_or_verdict_instability_detected"
 
     return {
         "generated": datetime.now(UTC).isoformat(),
@@ -495,28 +547,19 @@ def run_probe(args: argparse.Namespace) -> dict[str, Any]:
         },
         "fixed_index_repeated_queries": {
             "runs": fixed_runs,
-            "recall_summary": summarize_recalls(fixed_recalls),
-            "kendall_tau_summary": summarize_nullable_metrics(fixed_kendall),
+            "recall_summary": fixed_recall_summary,
+            "kendall_tau_summary": fixed_kendall_summary,
             "distance_variance_summary": summarize_distance_variance(fixed_runs, oracle),
             "verdict_flips": fixed_flips,
         },
         "rebuilt_index_fixed_vectors": {
             "runs": rebuilt_runs,
-            "recall_summary": summarize_recalls(rebuilt_recalls),
-            "kendall_tau_summary": summarize_nullable_metrics(rebuilt_kendall),
+            "recall_summary": rebuilt_recall_summary,
+            "kendall_tau_summary": rebuilt_kendall_summary,
             "distance_variance_summary": summarize_distance_variance(rebuilt_runs, oracle),
             "verdict_flips": rebuilt_flips,
         },
-        "decision": {
-            "disposition": disposition,
-            "nomic_embed_text_stays": embedding_stable and rank_verdict_stable,
-            "thresholds_fit": False,
-            "notes": [
-                "Exact normalized-cosine NumPy oracle is used as dense ground truth at 84 vectors.",
-                "No production ChromaDB or BM25 files are mutated by this probe.",
-                "Distance fields remain diagnostic only and are not calibration inputs.",
-            ],
-        },
+        "decision": decision,
     }
 
 
