@@ -1,0 +1,28 @@
+# C.Walts v0.4 Gate 0 — checksums of the CURRENT tracked implementation.
+# Regenerate with: .venv/bin/python scripts/verify_gate0_integrity.py --write
+# Verify with:     .venv/bin/python scripts/verify_gate0_integrity.py --verify
+#
+# SHA256SUMS.package is the separate, immutable record of the package as
+# delivered. Four of its twelve entries no longer match the working tree by
+# design; the reasons are in docs/execution-log.md and in the
+# KNOWN_MODIFIED_SINCE_DELIVERY set in scripts/verify_gate0_integrity.py.
+#
+# CHANGELOG.md and docs/execution-log.md are excluded on purpose: they are
+# living cross-gate documents, not Gate 0 artefacts.
+16a85a4620c4e2ff4ea892e852c07055238af8f0405c72c84e5cc2ee7e81e3d9  CLAUDE_LAUNCHER.txt
+d76b05e90c5c191852ca77273f1fd51d80c940e957526e548ab2152da8ace9a9  GITIGNORE_ADDITIONS.txt
+c14c1a9fe10f17b7f0d0321c67ad07086b453eb95010a52fef32b39a3a7686bb  README_START_HERE_C.Walts_v0.4_Gate0.md
+0e7e87d2721cafdfe9bdc41fc057dad601374a0ac21be99dd09de03b480cf091  SHA256SUMS.package
+7d2d34dbe6e5b37ca6b40e41bc26e16017bb14deced26e4989c9ce292a960aac  config/approved_eval_datasets.json
+129220fe7b69756a071690c45781acc03cda58f9761f48a1bb1e5932b9584fe9  config/query_allocation.yaml
+5eb0a56d4e613ccace6d9b74fd00e97fad92c42532066b021bef6d36580c86e6  docs/dataset-acquisition-report-gate0.md
+094f08efadac75761d77a89f2dc14a130533e7ef744cf3aead8f5ae9ad60667e  docs/evidence/dataset-inventory-gate0.json
+9c0492915248ad22b11fd70230beb2023be80576059326be5406489a8c20c1a0  docs/evidence/gate0-boundary.json
+c8ac3c4083d384755daf5b88c56a74dbb9004e2390fe73e3577402adefa1bd6e  docs/owner_actions.md
+4925842783fc8db86b4abeb9954d4dd04d5ef33dc99392960749770b05bd6a46  docs/repeatability_blueprint.md
+c67a5976efa07c759015ae6771fb7c8a3fbcafb792b4335f1183845b9b6f5948  prompts/PF_C.Walts_v0.4_Gate0_dataset-acquisition.md
+8843d4e6c4eb604bddcad794eef7f1f8c8aea97f1db9a4b8acb3d364822db0fa  schemas/eval_query.schema.json
+4705f21905c2b94c47f12ce678dcc57eaa99ef6eb98a90216f9cd1ce78884e28  scripts/acquire_eval_sources.py
+2f88df965e5e35aabf6ac9636b0e36ebc31c6d0a8628bb56e24d8a483032a215  scripts/inventory_eval_sources.py
+f2313ebe11b6993cdfaf27ab0fd4b255771552d421f1156ef8a02d81252940bd  scripts/verify_gate0_integrity.py
+b95ddfa5dd91668c9d14468d469ff31175bde7bb1fa8878c37e3bbb96fb6454d  tests/test_gate0_dataset_tools.py

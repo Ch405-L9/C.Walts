@@ -456,9 +456,11 @@ owner after acceptance, not a build step, so it was deliberately not done here.
 
 Executed on branch `feat/narration-generalization-v0.4`, cut from
 `8a86ae3` (the tip of `feat/natural-flow-rag-activation`), **not** from the
-`v0.3.0-rc.2` tag. HEAD carries rc.2 plus the three post-tag documentation
-corrections; branching from the tag would have silently dropped them. RC2 is not
-retagged or modified anywhere in this phase.
+`v0.3.0-rc.2` tag. Branching from the tag would have silently dropped one
+commit. RC2 is not retagged or modified anywhere in this phase. The exact
+ancestry is stated in the Gate 0.1 section below; the earlier phrasing "three
+post-tag documentation corrections" in this log and in commit `a333d6f` was
+wrong on both counts and is superseded there.
 
 ### Immutable baseline, re-measured before any change
 
@@ -695,3 +697,181 @@ the acquisition manifest, and the before/after store measurements come from
 `docs/evidence/gate0-boundary.json`, which records the commands used. The
 execution log's archive byte counts were also corrected — one was transcribed
 from a rounded `du` reading rather than the manifest.
+
+---
+
+## C.Walts v0.4 Gate 0.1 — provenance and checksum closeout
+
+Bounded integrity pass over the Gate 0 result. No dataset was downloaded, no
+query selected, no threshold fitted, and ChromaDB, BM25, MCP behaviour, and
+`main` were not touched. Version stays `0.4.0-dev.1`.
+
+### 1. Baseline ancestry, stated exactly
+
+The earlier description was wrong twice over: it said "three post-tag
+documentation corrections", which implied three commits, and it implied the
+work was documentation-only. Measured:
+
+```
+git rev-parse v0.3.0-rc.2            8b0d2d7a…  (tag object)
+git rev-parse v0.3.0-rc.2^{commit}   5ece81db9ab9334246f8e58781627a159d036a68
+git rev-list --count 5ece81db..8a86ae3   1
+```
+
+The record is:
+
+- `v0.3.0-rc.2` points to commit `5ece81db`;
+- the v0.4 branch was cut from `8a86ae3`;
+- `8a86ae3` is **one** post-tag commit ahead of RC2 — not three;
+- that single commit corrected **three inaccuracies** in the rc.2 record: the
+  set-2 examples header that said "twenty-five pairs" when the file held
+  twenty-seven, the A7 note in `config/sources.yaml` that still called CMUdict
+  the only externally licensed material, and the owner report's failure to
+  connect the §6 `demote_doc_types` change to the §7 marker updates as one
+  event;
+- it was **not documentation-only**. The header edit changed one corpus chunk,
+  so the collection was reindexed and the evidence regenerated;
+- all gates were re-run after that regeneration and passed: corpus lint 0
+  failures and 0 warnings, evaluation 17/17 with exact-term PASS, contamination
+  0, citation failures 0, preservation 10/10, 136 unit tests, smoke 43/43,
+  fresh-session MCP 23/23, ruff clean, 101 chunks;
+- the `v0.3.0-rc.2` tag itself was never moved. A pushed tag that moves is worse
+  than a follow-up commit that explains itself.
+
+### 2. CLINC150 licence reconciliation
+
+Two authoritative sources disagree, and both are now recorded. Neither is
+erased, and the more permissive one is not assumed.
+
+| Field | Value |
+|---|---|
+| Archive URL | `https://archive.ics.uci.edu/static/public/570/clinc150.zip` |
+| Archive SHA-256 | `0d8ecc3e1edd7b25cabde0177544ce536ddf773844bc80ef1a75f36e7f030ea2` |
+| Embedded licence | `clinc150_uci/LICENSE`, SHA-256 `e6bc9e9c474700b708f568bac9e5a8a9bcb2b1dad53442f5ba449fcb848b8e76` |
+| Embedded licence text | Creative Commons Legal Code — **Attribution 3.0 Unported** |
+| Landing page | `https://archive.ics.uci.edu/dataset/570/clinc150`, DOI 10.24432/C5MP58 |
+| Landing-page statement | "Creative Commons Attribution 4.0 International (CC BY 4.0) license" |
+| Access date | 2026-08-01 |
+| **Operative minimum for this archive** | **CC BY 3.0 Unported** |
+| Attribution | required — Larson et al., EMNLP-IJCNLP 2019, plus the UCI DOI citation |
+| Commercial use | permitted under both versions |
+| Transformation | permitted under both; 3.0 requires modifications be identified |
+| Redistribution | permitted under both, **not exercised** — local-only, Git-ignored |
+
+CC BY 3.0 is designated the conservative operative minimum **for this exact
+archive**. That is a statement about what this project will comply with, not a
+finding that UCI's landing page is wrong. Which statement UCI intends to govern
+has not been established, and a future re-acquisition may ship a 4.0 LICENSE and
+must be re-checked.
+
+Recorded in three places, all tracked: the machine-readable
+`license_reconciliation` block in `config/approved_eval_datasets.json`, the
+human-readable third-party section in `NOTICE`, and a rendered table in
+`docs/dataset-acquisition-report-gate0.md`. The block flows through the
+acquisition manifest into the inventory, so the report cannot drift from the
+configuration.
+
+`NOTICE` previously had no section for the public evaluation sources at all.
+MASSIVE 1.0 and Banking77 are now credited there as well, both CC BY 4.0
+verified in-band, alongside the statement that all three are evaluation-query
+candidates that are never ingested — which preserves the A7 distinction between
+third-party text that is INGESTED and third-party work that is CITED.
+
+### 3. Checksum repair
+
+`SHA256SUMS` was ambiguous: it recorded the delivery but was read as if it
+described the current tree, and it fails `sha256sum -c` because files were
+legitimately edited during Gate 0. Split in two:
+
+| File | Question it answers | Regenerated? |
+|---|---|---|
+| `SHA256SUMS.package` | what was delivered | never |
+| `SHA256SUMS.current` | what is tracked now | on every legitimate change |
+
+`SHA256SUMS.package` is the delivered file renamed with `git mv`, byte-identical.
+Its immutability is proved by pinning the SHA-256 of the file itself
+(`0e7e87d2721cafdfe9bdc41fc057dad601374a0ac21be99dd09de03b480cf091`) rather than
+by asserting its twelve entries still match — because four of them deliberately
+do not.
+
+`scripts/verify_gate0_integrity.py --verify` is the gate. It proves three things
+and cannot knowingly fail:
+
+1. the delivery record is unaltered, and exactly the four files with recorded
+   reasons differ from it — a fifth drifting file fails the gate, and so does a
+   listed file that quietly stops differing;
+2. all 17 entries of `SHA256SUMS.current` match, covering every tracked Gate 0
+   source, test, configuration, schema, prompt, and report;
+3. raw datasets are excluded — seven paths under `var/eval_sources/` and the two
+   pool directories are Git-ignored, and `git ls-files` returns nothing for them.
+
+`SHA256SUMS.current` also verifies with plain `sha256sum -c`, which skips its
+`#` comment header.
+
+**Failure 7, caught by the new gate on its first run.** The first `--verify`
+failed:
+
+```
+FAIL
+  - delivered files changed without a recorded reason: ['config/approved_eval_datasets.json']
+```
+
+The known-modified set had been written from the execution log's
+"three modified files" note, which had not been updated when the CLINC150
+licence correction edited the configuration during Gate 0. The gate caught the
+stale record on its first execution, which is the behaviour that justifies it.
+The configuration is now listed with its reasons.
+
+`CHANGELOG.md` and `docs/execution-log.md` are deliberately outside
+`SHA256SUMS.current`: they are living cross-gate documents, and pinning them
+would guarantee a stale checksum the moment Gate 1 opens. The exclusion is
+stated in the file's own header.
+
+**Expected behaviour for whoever opens Gate 1.** `SHA256SUMS.current` is a
+tripwire by design. Editing any of the 17 covered files makes
+`test_gate0_integrity_verification_passes` fail — and therefore the whole
+suite — until the record is regenerated with:
+
+```bash
+.venv/bin/python scripts/verify_gate0_integrity.py --write
+```
+
+That failure is the intended signal that a Gate 0 artefact moved, not a
+regression. This happened once during Gate 0.1 itself, when the integrity tests
+were appended to the test module.
+
+### 4. Duplicate counts, confirmed and unchanged
+
+Exact case-folded, whitespace-stripped repeats, counted across all splits, n-1
+per group of n identical records:
+
+| Dataset | Duplicates |
+|---|---:|
+| CLINC150 | 5 |
+| MASSIVE 1.0 en-US | 89 |
+| Banking77 | 11 |
+
+**None was removed.** De-duplication is a selection decision and no selection has
+been made. A test now pins these three figures, so a silent change to the parser
+or the sources cannot pass unnoticed.
+
+### 5. Candidate labels demoted to unapproved proposals
+
+The inventory keys `near_domain_candidates` and `far_domain_candidates` read as
+classifications. They were not classifications; they were string-rule output.
+Renamed to `mechanically_proposed_unapproved` and `not_proposed_by_the_rule`,
+with `approval_status: "unapproved"` and `approved_by: null` alongside.
+
+The report now names the five proposals a reviewer should expect to argue with,
+with the reason the rule matched and the reason that may be wrong. `text` in
+CLINC150 means *send a text message*, not written text, which is the clearest
+demonstration that the rule is a filter and not a classifier. `change_volume` is
+device loudness, not vocal delivery. `meaning_of_life` is small talk.
+`tell_joke` is delivery-adjacent at best. `general_quirky` is a catch-all bucket
+whose contents must be inspected per record.
+
+Not being proposed is likewise not a judgement: the rule can miss. Both lists
+stay in the JSON inventory.
+
+Banking77 remains the one stated domain conclusion in the report, and it rests
+on reading the 77 category names, not on the token rule.

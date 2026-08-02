@@ -99,6 +99,71 @@ and is refused on the same grounds.
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
+Public evaluation-source datasets (C.Walts v0.4 Gate 0)
+
+Three public datasets were acquired as EVALUATION-QUERY CANDIDATES. They are
+test inputs, not knowledge. None is ingested into badgr_natural_flow_v1, chunked,
+embedded, or indexed, and none is redistributed: the archives and their extracted
+files stay under the Git-ignored var/eval_sources/ and are never committed. This
+preserves the A7 distinction the project has kept throughout — CMUdict remains
+the only third-party text that would be INGESTED, and its path is still empty.
+
+Acquired and license-verified 2026-08-01 by reading the LICENSE file inside each
+downloaded archive, not from a publisher page. Per-file SHA-256 values are in
+docs/dataset-acquisition-report-gate0.md; the machine-readable record is
+config/approved_eval_datasets.json.
+
+  MASSIVE 1.0 (en-US), Amazon.com Inc. or its affiliates
+    https://github.com/alexa/massive
+    CC BY 4.0 — "Attribution 4.0 International" verified in-band.
+    FitzGerald, J., Hench, C., Peris, C., et al. (2022). MASSIVE: A 1M-Example
+    Multilingual Natural Language Understanding Dataset with 51 Typologically
+    Diverse Languages.
+
+  Banking77, PolyAI Limited
+    https://github.com/PolyAI-LDN/task-specific-datasets
+    CC BY 4.0 — "Attribution 4.0 International" verified in-band.
+    Casanueva, I., Temcinas, T., Gerz, D., Henderson, M., & Vulic, I. (2020).
+    Efficient Intent Detection with Dual Sentence Encoders. Proceedings of the
+    2nd Workshop on NLP for ConvAI, ACL.
+
+  CLINC150, distributed by the UCI Machine Learning Repository (dataset 570)
+    https://archive.ics.uci.edu/dataset/570/clinc150
+    doi:10.24432/C5MP58
+
+    LICENSE DISCREPANCY, RECORDED RATHER THAN RESOLVED. Two authoritative
+    sources disagree, and both are preserved here:
+
+      - the LICENSE file inside the downloaded archive
+        (SHA-256 e6bc9e9c474700b708f568bac9e5a8a9bcb2b1dad53442f5ba449fcb848b8e76)
+        is the Creative Commons Legal Code for Attribution 3.0 Unported;
+      - the UCI landing page for dataset 570 stated, on the access date
+        2026-08-01, "Creative Commons Attribution 4.0 International (CC BY 4.0)
+        license".
+
+    For this exact archive
+    (SHA-256 0d8ecc3e1edd7b25cabde0177544ce536ddf773844bc80ef1a75f36e7f030ea2,
+    fetched from https://archive.ics.uci.edu/static/public/570/clinc150.zip),
+    CC BY 3.0 Unported is designated the CONSERVATIVE OPERATIVE MINIMUM. That is
+    a decision about what this project will comply with, not a finding that the
+    landing page is wrong. This project has not established which statement UCI
+    intends to govern, and does not assume the more permissive one. Any
+    downstream use of CLINC150-derived evaluation queries must satisfy CC BY 3.0.
+    A future re-acquisition may carry a 4.0 LICENSE and must be re-checked.
+
+    Under CC BY 3.0: commercial use is permitted; adaptation is permitted
+    provided modifications are identified as such; redistribution is permitted
+    but is not exercised by this project; attribution is required and is given
+    here as:
+
+      Larson, S., Mahendran, A., Peper, J. J., Clarke, C., Lee, A., Hill, P.,
+      Kummerfeld, J. K., Leach, K., Laurenzano, M. A., Tang, L., & Mars, J.
+      (2019). An evaluation dataset for intent classification and out-of-scope
+      prediction. Proceedings of EMNLP-IJCNLP. Distributed via UCI Machine
+      Learning Repository, https://doi.org/10.24432/C5MP58.
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
 nomic-embed-text (embedding model, served locally via Ollama)
 Licensed Apache License 2.0 — confirmed via `ollama show nomic-embed-text`.
 Model weights are not redistributed by this project; they are pulled by the

@@ -61,17 +61,30 @@ NEAR_DOMAIN_KEYWORDS = (
 )
 
 CANDIDACY_RULE = (
-    "A label is annotated as a near-domain candidate when one of its "
+    "A label is MECHANICALLY PROPOSED, and nothing more, when one of its "
     "underscore-separated tokens begins with one of: "
-    f"{', '.join(NEAR_DOMAIN_KEYWORDS)}. Everything else is a far-domain "
-    "candidate. This is a mechanical annotation for the next phase to accept or "
-    "reject; no query has been selected."
+    f"{', '.join(NEAR_DOMAIN_KEYWORDS)}. A string match is not a domain "
+    "judgement: CLINC150's `text` means 'send a text message', not written "
+    "text, and it is proposed only because the rule cannot tell the difference. "
+    "Every proposed label is UNAPPROVED and requires human review before any "
+    "use. No query has been selected."
+)
+
+# Named in the Gate 0.1 review as labels a reader would reasonably doubt. They
+# are listed in the report so the burden of justifying each one is explicit
+# rather than buried in a list of nine.
+DISPUTED_PROPOSALS = (
+    "meaning_of_life",
+    "tell_joke",
+    "text",
+    "change_volume",
+    "general_quirky",
 )
 
 
-def candidate_split(names: Iterable[str]) -> dict[str, list[str]]:
-    near: list[str] = []
-    far: list[str] = []
+def candidate_split(names: Iterable[str]) -> dict[str, object]:
+    proposed: list[str] = []
+    not_proposed: list[str] = []
     for name in sorted(set(names)):
         tokens = name.casefold().replace("-", "_").split("_")
         if any(
@@ -79,10 +92,15 @@ def candidate_split(names: Iterable[str]) -> dict[str, list[str]]:
             for token in tokens
             for keyword in NEAR_DOMAIN_KEYWORDS
         ):
-            near.append(name)
+            proposed.append(name)
         else:
-            far.append(name)
-    return {"near_domain_candidates": near, "far_domain_candidates": far}
+            not_proposed.append(name)
+    return {
+        "approval_status": "unapproved",
+        "approved_by": None,
+        "mechanically_proposed_unapproved": proposed,
+        "not_proposed_by_the_rule": not_proposed,
+    }
 
 
 def text_stats(values: Iterable[str]) -> dict[str, object]:
@@ -233,6 +251,7 @@ def acquisition_provenance() -> dict[str, object]:
             "version": entry["version"],
             "official_page": entry["official_page"],
             "declared_license": entry["declared_license"],
+            "license_reconciliation": entry.get("license_reconciliation"),
             "archive_url": entry["download"]["url"],
             "archive_final_url": entry["download"]["final_url"],
             "archive_bytes": entry["download"]["bytes"],
@@ -338,9 +357,23 @@ def write_reports(inventory: dict[str, object]) -> None:
             f"{banking['text']['exact_casefold_duplicate_records']} | {words(banking)} |"
         ),
         "",
-        "Duplicates are exact case-folded, whitespace-stripped repeats counted across",
-        "all splits of a dataset. They are reported, not removed: de-duplication is a",
-        "selection decision and selection has not happened.",
+        "### Duplicate counts, confirmed",
+        "",
+        "A duplicate is an exact repeat after case-folding and stripping surrounding",
+        "whitespace, counted across all splits of a dataset. For n identical records the",
+        "count contributed is n-1, so the figure is the number of records that could be",
+        "dropped without losing a distinct query.",
+        "",
+        "| Dataset | Exact case-folded duplicate records |",
+        "|---|---:|",
+        f"| CLINC150 | {clinc['text']['exact_casefold_duplicate_records']} |",
+        f"| MASSIVE 1.0 en-US | "
+        f"{massive['text']['exact_casefold_duplicate_records']} |",
+        f"| Banking77 | {banking['text']['exact_casefold_duplicate_records']} |",
+        "",
+        "**No duplicate was removed.** De-duplication is a selection decision, and no",
+        "selection has been made. They are counted so the next phase inherits a known",
+        "figure rather than rediscovering it.",
         "",
         "## Provenance and licence verification",
         "",
@@ -388,6 +421,49 @@ def write_reports(inventory: dict[str, object]) -> None:
         verification = entry["license_verification"]
         markers = "; ".join(f"`{m}`" for m in verification["markers_verified"])
         lines.append(f"| {name} | `{verification['path']}` | {markers} |")
+
+    for name, entry in acquisition["datasets"].items():
+        reconciliation = entry.get("license_reconciliation")
+        if not reconciliation:
+            continue
+        lines += [
+            "",
+            f"### {name} — licence discrepancy, recorded rather than resolved",
+            "",
+            "Two authoritative sources disagree. Both are preserved; neither is erased.",
+            "",
+            "| Field | Value |",
+            "|---|---|",
+            f"| Archive URL | {reconciliation['archive_url']} |",
+            f"| Archive SHA-256 | `{reconciliation['archive_sha256']}` |",
+            f"| Embedded licence path | `{reconciliation['embedded_license_path']}` |",
+            f"| Embedded licence SHA-256 | "
+            f"`{reconciliation['embedded_license_sha256']}` |",
+            f"| Embedded licence version | "
+            f"{reconciliation['embedded_license_version']} |",
+            f"| Embedded licence opening | "
+            f"{reconciliation['embedded_license_first_lines']} |",
+            f"| Landing page | {reconciliation['landing_page_url']} |",
+            f"| Landing-page statement | "
+            f"\"{reconciliation['landing_page_license_statement']}\" |",
+            f"| Landing-page DOI | {reconciliation['landing_page_doi']} |",
+            f"| Access date | {reconciliation['access_date']} |",
+            f"| Operative minimum for this archive | "
+            f"**{reconciliation['operative_minimum']}** |",
+            f"| Attribution required | {reconciliation['attribution_required']} |",
+            f"| Commercial use | {reconciliation['commercial_use']} |",
+            f"| Transformation | {reconciliation['transformation']} |",
+            f"| Redistribution | {reconciliation['redistribution']} |",
+            "",
+            f"{reconciliation['operative_minimum_rationale']}",
+            "",
+            "**Unresolved discrepancy.** "
+            f"{reconciliation['unresolved_discrepancy_note']}",
+            "",
+            "Attribution as required:",
+            "",
+            f"> {reconciliation['attribution_text']}",
+        ]
     lines += [
         "",
         "## CLINC150",
@@ -420,28 +496,52 @@ def write_reports(inventory: dict[str, object]) -> None:
         "Both CSVs carry a `text,category` header row, which the inventory asserts and",
         "excludes from the counts above.",
         "",
-        "## Candidate domain annotation",
+        "## Mechanically proposed labels — UNAPPROVED",
+        "",
+        "**Nothing below is a near-domain classification.** These are the labels a",
+        "string rule matched. None has been approved, none has been selected, and no",
+        "label may be treated as near-domain on the strength of this list alone.",
         "",
         f"{clinc['candidacy_rule']}",
         "",
-        "### CLINC150 near-domain candidate labels",
+        "### Proposals a reviewer should expect to reject or qualify",
         "",
-        f"{', '.join(clinc['candidate_labels']['near_domain_candidates'])}",
+        "The rule matched these, and each needs a human decision before use:",
         "",
-        f"The remaining {len(clinc['candidate_labels']['far_domain_candidates'])} labels "
-        "are far-domain candidates and are listed in the JSON inventory.",
+        "| Label | Why the rule matched | Why that may be wrong |",
+        "|---|---|---|",
+        "| `text` (CLINC150) | token `text` | The intent is *send a text message*. "
+        "It has nothing to do with written text or wording. |",
+        "| `change_volume` (CLINC150) | token `volume` | Device loudness, not vocal "
+        "delivery or emphasis. |",
+        "| `meaning_of_life` (CLINC150) | token `meaning` | Philosophical small talk, "
+        "not lexical or semantic meaning. |",
+        "| `tell_joke` (CLINC150) | token `joke` | Delivery-adjacent at best; humour "
+        "timing is not the narration guidance C.Walts covers. |",
+        "| `general_quirky` (MASSIVE) | token `quirky` | A catch-all bucket, not a "
+        "domain. Its contents are heterogeneous and must be inspected per record. |",
         "",
-        "### MASSIVE near-domain candidate scenarios",
+        "### CLINC150 — mechanically proposed, unapproved",
         "",
-        f"{', '.join(massive['candidate_scenarios']['near_domain_candidates'])}",
+        f"{', '.join(clinc['candidate_labels']['mechanically_proposed_unapproved'])}",
         "",
-        "### MASSIVE near-domain candidate intents",
+        f"The other {len(clinc['candidate_labels']['not_proposed_by_the_rule'])} labels "
+        "were not proposed by the rule. Not being proposed is also not a judgement: the "
+        "rule can miss. Both lists are in the JSON inventory.",
         "",
-        f"{', '.join(massive['candidate_intents']['near_domain_candidates'])}",
+        "### MASSIVE — mechanically proposed scenarios, unapproved",
+        "",
+        f"{', '.join(massive['candidate_scenarios']['mechanically_proposed_unapproved'])}",
+        "",
+        "### MASSIVE — mechanically proposed intents, unapproved",
+        "",
+        f"{', '.join(massive['candidate_intents']['mechanically_proposed_unapproved'])}",
         "",
         "### Banking77",
         "",
-        "No near-domain candidates. All 77 categories are far out-of-domain.",
+        "The rule proposed nothing. All 77 categories are retail-banking customer",
+        "support. This is the one place the report states a domain conclusion, and it",
+        "rests on reading the category names, not on the token rule.",
         "",
         "## Production boundary, measured before and after",
         "",

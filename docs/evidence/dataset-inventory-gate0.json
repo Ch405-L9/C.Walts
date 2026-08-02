@@ -3,7 +3,7 @@
   "selection_performed": false,
   "production_ingestion_performed": false,
   "acquisition": {
-    "config_sha256": "971eb2ede0265ce6ae8ea68ef49905eab53f7452fac2c728568d873e9384f5c2",
+    "config_sha256": "7d2d34dbe6e5b37ca6b40e41bc26e16017bb14deced26e4989c9ce292a960aac",
     "archive_bytes_total": 41749543,
     "extracted_bytes_total": 7539821,
     "datasets": {
@@ -11,6 +11,27 @@
         "version": "UCI-570-data_full",
         "official_page": "https://archive.ics.uci.edu/dataset/570/clinc150",
         "declared_license": "CC-BY-3.0",
+        "license_reconciliation": {
+          "status": "unresolved_discrepancy_recorded",
+          "operative_minimum": "CC-BY-3.0",
+          "operative_minimum_rationale": "Two authoritative sources disagree. CC BY 3.0 Unported is the licence physically shipped inside this exact archive, so it is designated the conservative operative minimum for this exact archive. It is not a finding that the UCI landing page is wrong. Both observations are recorded; neither is erased.",
+          "archive_url": "https://archive.ics.uci.edu/static/public/570/clinc150.zip",
+          "archive_sha256": "0d8ecc3e1edd7b25cabde0177544ce536ddf773844bc80ef1a75f36e7f030ea2",
+          "embedded_license_path": "clinc150_uci/LICENSE",
+          "embedded_license_sha256": "e6bc9e9c474700b708f568bac9e5a8a9bcb2b1dad53442f5ba449fcb848b8e76",
+          "embedded_license_version": "Creative Commons Attribution 3.0 Unported (CC BY 3.0)",
+          "embedded_license_first_lines": "Creative Commons Legal Code / Attribution 3.0 Unported",
+          "landing_page_url": "https://archive.ics.uci.edu/dataset/570/clinc150",
+          "landing_page_license_statement": "Creative Commons Attribution 4.0 International (CC BY 4.0) license",
+          "landing_page_doi": "10.24432/C5MP58",
+          "access_date": "2026-08-01",
+          "attribution_required": true,
+          "attribution_text": "Larson, S., Mahendran, A., Peper, J. J., Clarke, C., Lee, A., Hill, P., Kummerfeld, J. K., Leach, K., Laurenzano, M. A., Tang, L., & Mars, J. (2019). An evaluation dataset for intent classification and out-of-scope prediction. Proceedings of EMNLP-IJCNLP. Distributed via UCI Machine Learning Repository, https://doi.org/10.24432/C5MP58.",
+          "commercial_use": "permitted under both CC BY 3.0 and CC BY 4.0",
+          "transformation": "permitted under both versions; CC BY 3.0 requires that modifications be identified as such",
+          "redistribution": "permitted under both versions but NOT exercised by this project: the archive and its extracted files stay under the Git-ignored var/eval_sources/ and are never committed or published",
+          "unresolved_discrepancy_note": "The UCI landing page for dataset 570 states CC BY 4.0 as of the access date, while the LICENSE file inside the archive served from that same page is the CC BY 3.0 Unported legal code. This project has not established which statement UCI intends to govern, and does not assume the more permissive one. Any downstream use of CLINC150-derived evaluation queries must satisfy CC BY 3.0. Re-check on any future re-acquisition: a newer archive may carry a 4.0 LICENSE."
+        },
         "archive_url": "https://archive.ics.uci.edu/static/public/570/clinc150.zip",
         "archive_final_url": "https://archive.ics.uci.edu/static/public/570/clinc150.zip",
         "archive_bytes": 1053960,
@@ -45,6 +66,7 @@
         "version": "1.0",
         "official_page": "https://github.com/alexa/massive",
         "declared_license": "CC-BY-4.0",
+        "license_reconciliation": null,
         "archive_url": "https://amazon-massive-nlu-dataset.s3.amazonaws.com/amazon-massive-dataset-1.0.tar.gz",
         "archive_final_url": "https://amazon-massive-nlu-dataset.s3.amazonaws.com/amazon-massive-dataset-1.0.tar.gz",
         "archive_bytes": 39500415,
@@ -73,8 +95,9 @@
         "version": "PolyAI-master-snapshot",
         "official_page": "https://github.com/PolyAI-LDN/task-specific-datasets",
         "declared_license": "CC-BY-4.0",
+        "license_reconciliation": null,
         "archive_url": "https://github.com/PolyAI-LDN/task-specific-datasets/archive/refs/heads/master.zip",
-        "archive_final_url": "https://codeload.github.com/PolyAI-LDN/task-specific-datasets/zip/refs/heads/master",
+        "archive_final_url": "https://github.com/PolyAI-LDN/task-specific-datasets/archive/refs/heads/master.zip",
         "archive_bytes": 1195168,
         "archive_sha256": "b8c2ba23bc1ab7b182230c378f07417c8aef735260a2fd3546faef54ecbbfa91",
         "extracted_files": [
@@ -307,7 +330,9 @@
         "oos_train": 100
       },
       "candidate_labels": {
-        "near_domain_candidates": [
+        "approval_status": "unapproved",
+        "approved_by": null,
+        "mechanically_proposed_unapproved": [
           "change_accent",
           "change_language",
           "change_volume",
@@ -318,7 +343,7 @@
           "text",
           "translate"
         ],
-        "far_domain_candidates": [
+        "not_proposed_by_the_rule": [
           "accept_reservations",
           "account_blocked",
           "alarm",
@@ -463,7 +488,7 @@
           "yes"
         ]
       },
-      "candidacy_rule": "A label is annotated as a near-domain candidate when one of its underscore-separated tokens begins with one of: accent, audio, definition, joke, language, meaning, podcast, pronounc, quirky, read, speak, speech, spell, story, synonym, text, translat, voice, volume, word, write. Everything else is a far-domain candidate. This is a mechanical annotation for the next phase to accept or reject; no query has been selected.",
+      "candidacy_rule": "A label is MECHANICALLY PROPOSED, and nothing more, when one of its underscore-separated tokens begins with one of: accent, audio, definition, joke, language, meaning, podcast, pronounc, quirky, read, speak, speech, spell, story, synonym, text, translat, voice, volume, word, write. A string match is not a domain judgement: CLINC150's `text` means 'send a text message', not written text, and it is proposed only because the rule cannot tell the difference. Every proposed label is UNAPPROVED and requires human review before any use. No query has been selected.",
       "text": {
         "records": 23700,
         "exact_casefold_duplicate_records": 5,
@@ -565,10 +590,12 @@
       "scenario_count": 18,
       "intent_count": 60,
       "candidate_scenarios": {
-        "near_domain_candidates": [
+        "approval_status": "unapproved",
+        "approved_by": null,
+        "mechanically_proposed_unapproved": [
           "audio"
         ],
-        "far_domain_candidates": [
+        "not_proposed_by_the_rule": [
           "alarm",
           "calendar",
           "cooking",
@@ -589,7 +616,9 @@
         ]
       },
       "candidate_intents": {
-        "near_domain_candidates": [
+        "approval_status": "unapproved",
+        "approved_by": null,
+        "mechanically_proposed_unapproved": [
           "audio_volume_down",
           "audio_volume_mute",
           "audio_volume_other",
@@ -600,7 +629,7 @@
           "play_podcasts",
           "qa_definition"
         ],
-        "far_domain_candidates": [
+        "not_proposed_by_the_rule": [
           "alarm_query",
           "alarm_remove",
           "alarm_set",
@@ -654,7 +683,7 @@
           "weather_query"
         ]
       },
-      "candidacy_rule": "A label is annotated as a near-domain candidate when one of its underscore-separated tokens begins with one of: accent, audio, definition, joke, language, meaning, podcast, pronounc, quirky, read, speak, speech, spell, story, synonym, text, translat, voice, volume, word, write. Everything else is a far-domain candidate. This is a mechanical annotation for the next phase to accept or reject; no query has been selected.",
+      "candidacy_rule": "A label is MECHANICALLY PROPOSED, and nothing more, when one of its underscore-separated tokens begins with one of: accent, audio, definition, joke, language, meaning, podcast, pronounc, quirky, read, speak, speech, spell, story, synonym, text, translat, voice, volume, word, write. A string match is not a domain judgement: CLINC150's `text` means 'send a text message', not written text, and it is proposed only because the rule cannot tell the difference. Every proposed label is UNAPPROVED and requires human review before any use. No query has been selected.",
       "dataset_shape": "Single-shot assistant utterances labelled by scenario and intent. MASSIVE is not a multi-intent dataset.",
       "text": {
         "records": 16521,

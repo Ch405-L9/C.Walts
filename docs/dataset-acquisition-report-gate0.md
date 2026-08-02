@@ -17,13 +17,26 @@ knowledge, and they never enter `badgr_natural_flow_v1`, `var/chroma/`, or
 | MASSIVE 1.0 en-US | 16521 | 18 scenarios / 60 intents | 89 | 1 / 6 / 61 |
 | Banking77 | 13083 | 77 categories | 11 | 2 / 10 / 79 |
 
-Duplicates are exact case-folded, whitespace-stripped repeats counted across
-all splits of a dataset. They are reported, not removed: de-duplication is a
-selection decision and selection has not happened.
+### Duplicate counts, confirmed
+
+A duplicate is an exact repeat after case-folding and stripping surrounding
+whitespace, counted across all splits of a dataset. For n identical records the
+count contributed is n-1, so the figure is the number of records that could be
+dropped without losing a distinct query.
+
+| Dataset | Exact case-folded duplicate records |
+|---|---:|
+| CLINC150 | 5 |
+| MASSIVE 1.0 en-US | 89 |
+| Banking77 | 11 |
+
+**No duplicate was removed.** De-duplication is a selection decision, and no
+selection has been made. They are counted so the next phase inherits a known
+figure rather than rediscovering it.
 
 ## Provenance and licence verification
 
-Approved-source config SHA-256: `971eb2ede0265ce6ae8ea68ef49905eab53f7452fac2c728568d873e9384f5c2`
+Approved-source config SHA-256: `7d2d34dbe6e5b37ca6b40e41bc26e16017bb14deced26e4989c9ce292a960aac`
 
 | Dataset | Version | Licence (verified in-band) | Archive SHA-256 |
 |---|---|---|---|
@@ -62,6 +75,36 @@ Face mirror or third-party copy was used.
 | massive_1_0_en_us | `var/eval_sources/extracted/massive_1_0_en_us/1.0/LICENSE` | `Attribution 4.0 International` |
 | banking77 | `var/eval_sources/extracted/banking77/task-specific-datasets-master/LICENSE` | `Attribution 4.0 International` |
 
+### clinc150 — licence discrepancy, recorded rather than resolved
+
+Two authoritative sources disagree. Both are preserved; neither is erased.
+
+| Field | Value |
+|---|---|
+| Archive URL | https://archive.ics.uci.edu/static/public/570/clinc150.zip |
+| Archive SHA-256 | `0d8ecc3e1edd7b25cabde0177544ce536ddf773844bc80ef1a75f36e7f030ea2` |
+| Embedded licence path | `clinc150_uci/LICENSE` |
+| Embedded licence SHA-256 | `e6bc9e9c474700b708f568bac9e5a8a9bcb2b1dad53442f5ba449fcb848b8e76` |
+| Embedded licence version | Creative Commons Attribution 3.0 Unported (CC BY 3.0) |
+| Embedded licence opening | Creative Commons Legal Code / Attribution 3.0 Unported |
+| Landing page | https://archive.ics.uci.edu/dataset/570/clinc150 |
+| Landing-page statement | "Creative Commons Attribution 4.0 International (CC BY 4.0) license" |
+| Landing-page DOI | 10.24432/C5MP58 |
+| Access date | 2026-08-01 |
+| Operative minimum for this archive | **CC-BY-3.0** |
+| Attribution required | True |
+| Commercial use | permitted under both CC BY 3.0 and CC BY 4.0 |
+| Transformation | permitted under both versions; CC BY 3.0 requires that modifications be identified as such |
+| Redistribution | permitted under both versions but NOT exercised by this project: the archive and its extracted files stay under the Git-ignored var/eval_sources/ and are never committed or published |
+
+Two authoritative sources disagree. CC BY 3.0 Unported is the licence physically shipped inside this exact archive, so it is designated the conservative operative minimum for this exact archive. It is not a finding that the UCI landing page is wrong. Both observations are recorded; neither is erased.
+
+**Unresolved discrepancy.** The UCI landing page for dataset 570 states CC BY 4.0 as of the access date, while the LICENSE file inside the archive served from that same page is the CC BY 3.0 Unported legal code. This project has not established which statement UCI intends to govern, and does not assume the more permissive one. Any downstream use of CLINC150-derived evaluation queries must satisfy CC BY 3.0. Re-check on any future re-acquisition: a newer archive may carry a 4.0 LICENSE.
+
+Attribution as required:
+
+> Larson, S., Mahendran, A., Peper, J. J., Clarke, C., Lee, A., Hill, P., Kummerfeld, J. K., Leach, K., Laurenzano, M. A., Tang, L., & Mars, J. (2019). An evaluation dataset for intent classification and out-of-scope prediction. Proceedings of EMNLP-IJCNLP. Distributed via UCI Machine Learning Repository, https://doi.org/10.24432/C5MP58.
+
 ## CLINC150
 
 Splits: {'oos_val': 100, 'val': 3000, 'train': 15000, 'oos_test': 1000, 'test': 4500, 'oos_train': 100}.
@@ -89,27 +132,45 @@ Far out-of-domain only. Every category is retail-banking customer support, which
 Both CSVs carry a `text,category` header row, which the inventory asserts and
 excludes from the counts above.
 
-## Candidate domain annotation
+## Mechanically proposed labels — UNAPPROVED
 
-A label is annotated as a near-domain candidate when one of its underscore-separated tokens begins with one of: accent, audio, definition, joke, language, meaning, podcast, pronounc, quirky, read, speak, speech, spell, story, synonym, text, translat, voice, volume, word, write. Everything else is a far-domain candidate. This is a mechanical annotation for the next phase to accept or reject; no query has been selected.
+**Nothing below is a near-domain classification.** These are the labels a
+string rule matched. None has been approved, none has been selected, and no
+label may be treated as near-domain on the strength of this list alone.
 
-### CLINC150 near-domain candidate labels
+A label is MECHANICALLY PROPOSED, and nothing more, when one of its underscore-separated tokens begins with one of: accent, audio, definition, joke, language, meaning, podcast, pronounc, quirky, read, speak, speech, spell, story, synonym, text, translat, voice, volume, word, write. A string match is not a domain judgement: CLINC150's `text` means 'send a text message', not written text, and it is proposed only because the rule cannot tell the difference. Every proposed label is UNAPPROVED and requires human review before any use. No query has been selected.
+
+### Proposals a reviewer should expect to reject or qualify
+
+The rule matched these, and each needs a human decision before use:
+
+| Label | Why the rule matched | Why that may be wrong |
+|---|---|---|
+| `text` (CLINC150) | token `text` | The intent is *send a text message*. It has nothing to do with written text or wording. |
+| `change_volume` (CLINC150) | token `volume` | Device loudness, not vocal delivery or emphasis. |
+| `meaning_of_life` (CLINC150) | token `meaning` | Philosophical small talk, not lexical or semantic meaning. |
+| `tell_joke` (CLINC150) | token `joke` | Delivery-adjacent at best; humour timing is not the narration guidance C.Walts covers. |
+| `general_quirky` (MASSIVE) | token `quirky` | A catch-all bucket, not a domain. Its contents are heterogeneous and must be inspected per record. |
+
+### CLINC150 — mechanically proposed, unapproved
 
 change_accent, change_language, change_volume, definition, meaning_of_life, spelling, tell_joke, text, translate
 
-The remaining 142 labels are far-domain candidates and are listed in the JSON inventory.
+The other 142 labels were not proposed by the rule. Not being proposed is also not a judgement: the rule can miss. Both lists are in the JSON inventory.
 
-### MASSIVE near-domain candidate scenarios
+### MASSIVE — mechanically proposed scenarios, unapproved
 
 audio
 
-### MASSIVE near-domain candidate intents
+### MASSIVE — mechanically proposed intents, unapproved
 
 audio_volume_down, audio_volume_mute, audio_volume_other, audio_volume_up, general_joke, general_quirky, play_audiobook, play_podcasts, qa_definition
 
 ### Banking77
 
-No near-domain candidates. All 77 categories are far out-of-domain.
+The rule proposed nothing. All 77 categories are retail-banking customer
+support. This is the one place the report states a domain conclusion, and it
+rests on reading the category names, not on the token rule.
 
 ## Production boundary, measured before and after
 

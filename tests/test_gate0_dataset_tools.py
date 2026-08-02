@@ -495,3 +495,104 @@ def test_the_badgr_harness_production_store_is_untouched() -> None:
         pytest.skip("the BADGR Harness store is not present on this host")
     digest = hashlib.md5(harness.read_bytes(), usedforsecurity=False).hexdigest()
     assert digest == "bdcbe32b706c6ccce1f62e8e9f2d2c49"
+
+
+# --- Gate 0.1 integrity closeout --------------------------------------------
+
+
+def test_gate0_integrity_verification_passes() -> None:
+    """The current-tree checksum gate must never knowingly fail."""
+    result = subprocess.run(  # noqa: S603
+        [".venv/bin/python", "scripts/verify_gate0_integrity.py", "--verify"],  # noqa: S607
+        cwd=PROJECT_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_the_delivery_record_is_never_regenerated() -> None:
+    """SHA256SUMS.package is history: --write must not touch it."""
+    from scripts import verify_gate0_integrity as integrity
+
+    assert integrity.PACKAGE_SUMS.name == "SHA256SUMS.package"
+    assert integrity.CURRENT_SUMS.name == "SHA256SUMS.current"
+    assert "SHA256SUMS.package" in integrity.CURRENT_FILES
+    assert "SHA256SUMS.current" not in integrity.CURRENT_FILES
+    source = (
+        PROJECT_ROOT / "scripts" / "verify_gate0_integrity.py"
+    ).read_text(encoding="utf-8")
+    write_body = source.split("def write_current()")[1].split("def ")[0]
+    assert "PACKAGE_SUMS" not in write_body
+
+
+def test_the_clinc150_license_discrepancy_is_recorded_not_resolved() -> None:
+    """Both authoritative observations must survive in the tracked record."""
+    config = json.loads(
+        (PROJECT_ROOT / "config" / "approved_eval_datasets.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    reconciliation = config["datasets"]["clinc150"]["license_reconciliation"]
+    assert reconciliation["operative_minimum"] == "CC-BY-3.0"
+    assert "3.0 Unported" in reconciliation["embedded_license_version"]
+    assert "4.0" in reconciliation["landing_page_license_statement"]
+    assert reconciliation["attribution_required"] is True
+    for field in [
+        "archive_url",
+        "archive_sha256",
+        "embedded_license_sha256",
+        "access_date",
+        "commercial_use",
+        "transformation",
+        "redistribution",
+        "unresolved_discrepancy_note",
+    ]:
+        assert reconciliation[field], f"{field} is empty"
+
+    # NOTICE is hard-wrapped, so compare against whitespace-collapsed text.
+    notice = " ".join((PROJECT_ROOT / "NOTICE").read_text(encoding="utf-8").split())
+    assert "Attribution 3.0 Unported" in notice
+    assert (
+        reconciliation["landing_page_license_statement"] in notice
+    ), "the UCI landing-page statement must survive verbatim in NOTICE"
+    assert reconciliation["archive_sha256"] in notice
+    assert reconciliation["embedded_license_sha256"] in notice
+
+
+def test_proposed_labels_are_marked_unapproved() -> None:
+    inventory = json.loads(
+        (
+            PROJECT_ROOT / "docs" / "evidence" / "dataset-inventory-gate0.json"
+        ).read_text(encoding="utf-8")
+    )
+    clinc = inventory["datasets"]["clinc150"]["candidate_labels"]
+    assert clinc["approval_status"] == "unapproved"
+    assert clinc["approved_by"] is None
+    assert "near_domain_candidates" not in clinc
+    assert "mechanically_proposed_unapproved" in clinc
+
+    report = (
+        PROJECT_ROOT / "docs" / "dataset-acquisition-report-gate0.md"
+    ).read_text(encoding="utf-8")
+    assert "UNAPPROVED" in report
+    for label in ["meaning_of_life", "tell_joke", "change_volume", "general_quirky"]:
+        assert label in report
+
+
+def test_duplicate_counts_are_reported_and_unchanged() -> None:
+    inventory = json.loads(
+        (
+            PROJECT_ROOT / "docs" / "evidence" / "dataset-inventory-gate0.json"
+        ).read_text(encoding="utf-8")
+    )
+    counts = {
+        name: entry["text"]["exact_casefold_duplicate_records"]
+        for name, entry in inventory["datasets"].items()
+    }
+    assert counts == {
+        "clinc150": 5,
+        "massive_1_0_en_us": 89,
+        "banking77": 11,
+    }

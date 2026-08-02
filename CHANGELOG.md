@@ -3,11 +3,66 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
-## [0.4.0-dev.1] — C.Walts v0.4 Gate 0, dataset acquisition baseline
+## [0.4.0-dev.1]
 
-Development version. Not a release candidate. `v0.3.0-rc.2` is untouched.
+Two gates share this development version. Gate 0.1 changed no behaviour and no
+version; it closed provenance and checksum gaps left by Gate 0.
 
-### Added
+### Gate 0.1 — provenance and checksum closeout
+
+Integrity pass over the Gate 0 result: no dataset downloaded,
+no query selected, no threshold fitted, and ChromaDB, BM25, MCP behaviour, and
+`main` untouched.
+
+#### Added
+
+- `SHA256SUMS.package` — the Gate 0 package exactly as delivered, renamed from
+  `SHA256SUMS` with `git mv` and never regenerated. Four of its twelve entries no
+  longer match the working tree by design.
+- `SHA256SUMS.current` — checksums of the 17 tracked Gate 0 artefacts. Every
+  entry must match; regenerated whenever a covered file legitimately changes, so
+  it never knowingly fails. `CHANGELOG.md` and `docs/execution-log.md` are
+  excluded as living cross-gate documents, stated in the file's own header.
+- `scripts/verify_gate0_integrity.py` — `--verify` proves the delivery record is
+  unaltered and exactly the four recorded files differ from it, that every
+  current checksum matches, and that raw datasets stay Git-ignored and untracked.
+  `--write` regenerates the current record. Covered by pytest.
+- A `license_reconciliation` record for CLINC150 in
+  `config/approved_eval_datasets.json`, carried through the acquisition manifest
+  into the inventory and rendered in the report.
+- A third-party `NOTICE` section for the three public evaluation sources, with
+  the CLINC150 discrepancy stated in full and MASSIVE and Banking77 credited.
+
+#### Changed
+
+- **CLINC150 licence.** Both authoritative observations are now recorded and
+  neither is erased: the archive ships CC BY 3.0 Unported, while the UCI landing
+  page stated CC BY 4.0 on the 2026-08-01 access date. CC BY 3.0 is designated
+  the conservative operative minimum **for this exact archive** — a compliance
+  decision, not a finding that the landing page is wrong.
+- **Ancestry, corrected.** `v0.3.0-rc.2` points to commit `5ece81db`; the v0.4
+  branch was cut from `8a86ae3`, which is **one** commit ahead of RC2, not three.
+  That commit corrected three inaccuracies and was **not** documentation-only:
+  one corpus header changed, so the collection was reindexed and the evidence
+  regenerated, and all gates were re-run and passed. The tag was never moved.
+- **Proposed labels demoted.** `near_domain_candidates` is now
+  `mechanically_proposed_unapproved`, with `approval_status: "unapproved"`. The
+  report names `text`, `change_volume`, `meaning_of_life`, `tell_joke`, and
+  `general_quirky` as proposals a reviewer should expect to reject or qualify —
+  `text` in CLINC150 means *send a text message*.
+
+#### Confirmed
+
+- Exact case-folded duplicate records, none removed: CLINC150 5, MASSIVE en-US
+  89, Banking77 11. Now pinned by test.
+- Chroma 101 and 2, BM25 101, BADGR Harness store MD5
+  `bdcbe32b706c6ccce1f62e8e9f2d2c49` — unchanged after the manifest rebuild.
+
+### Gate 0 — dataset acquisition baseline
+
+Not a release candidate. `v0.3.0-rc.2` is untouched.
+
+#### Added
 
 - `config/approved_eval_datasets.json` — the only three authorised evaluation
   sources (CLINC150, MASSIVE 1.0 en-US, Banking77), their archive URLs, extract
@@ -18,7 +73,7 @@ Development version. Not a release candidate. `v0.3.0-rc.2` is untouched.
   One query per JSONL record; evaluation records are never chunked.
 - `docs/owner_actions.md`, `docs/repeatability_blueprint.md`.
 
-### Changed
+#### Changed
 
 - Version `0.3.0` → `0.4.0-dev.1` in `pyproject.toml` and
   `src/natural_flow_rag/__init__.py`.
@@ -34,7 +89,7 @@ Development version. Not a release candidate. `v0.3.0-rc.2` is untouched.
 - `docs/evidence/dataset-inventory-gate0.json`,
   `docs/dataset-acquisition-report-gate0.md`.
 
-### Fixed
+#### Fixed
 
 - CLINC150 was declared CC BY 4.0. The licence inside the UCI archive is
   **CC BY 3.0 Unported**. The declaration now matches the verified evidence and
@@ -45,7 +100,7 @@ Development version. Not a release candidate. `v0.3.0-rc.2` is untouched.
   resolved with justified per-call `noqa`, not by adding it to the project-wide
   ignore list.
 
-### Boundary
+#### Boundary
 
 Acquired records are evaluation-query candidates. They are not corpus chunks and
 are never written to `var/chroma/`, `var/bm25/`, or `badgr_natural_flow_v1`.

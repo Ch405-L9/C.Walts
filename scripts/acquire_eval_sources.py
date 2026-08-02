@@ -314,6 +314,10 @@ def execute(config: dict[str, object], force: bool) -> None:
             "version": spec["version"],
             "official_page": spec["official_page"],
             "declared_license": spec["license"],
+            # Present only where two authoritative sources disagree about the
+            # licence. Carried into the manifest so the tracked report can show
+            # the discrepancy without re-reading the configuration.
+            "license_reconciliation": spec.get("license_reconciliation"),
             "download": download,
             "extracted_files": files,
             "license_verification": license_result,
