@@ -2408,3 +2408,105 @@ stage2_candidate_duplicates.json
   verdict=pass, production_records=84, bm25_ids=84, exact_parity=true,
   blank_source_ids=0, feedback_records_included=0
 ```
+
+---
+
+## Gate 1.2 Stage 2.3-H1 — BADGR Harness invariant correction
+
+Stage 2.3 activation remained blocked. This safety-tooling correction removed
+the permanent historical BADGR Harness MD5 gate and replaced it with an
+operation-scoped semantic guard.
+
+Starting state was verified at commit
+`87d5fd3771d484582fce9b80750ae21ad615e6f6`, branch
+`feat/narration-generalization-v0.4`, version `0.4.0-dev.2`, with C.Walts
+production Chroma 84, BM25 84, exact parity true, `evaluation_case` 0, feedback
+2, ID-list SHA-256
+`9d2ef292de32f63347c20fceb15e90fb7e861c533c7ab1e9ac2211086babcc8f`, semantic
+digest `4c11c53aac587bd6f5cc219e03b14d56d6debe27ea6a0ed57b4a7a322e0d645e`,
+`config/sources.yaml`
+`cc3d97b0cda06495a8147e92cd3e376762fcad035aa355d2d008449bc7b8f4ef`, and
+`NOTICE` `af7629f4260abf1556029990951e46ac9ed842f5526bd44478ae4ea3bf5aca29`.
+All ten source-snapshot checksums passed.
+
+The accepted B2R1 bundle
+`aa24cfc7f9119c40b9b9c64ac718713a12ead8e5b391a0693d877441564bf689` and H0 drift
+bundle `d219b57b8ff058b7f2d887e5cedf6f603d4504bc8984b023f65c19f3e6463a97`
+were verified before implementation.
+
+The H0 `CORRUPTION_OR_DAMAGE` classification was corrected to
+`INSUFFICIENT_HISTORICAL_EVIDENCE`. The current database health is
+`HEALTHY_WITH_KNOWN_CHROMA_SCHEMA_ANOMALY`: Chroma migrations create
+`collections`, while `segments.collection` references singular `collection(id)`.
+The raw `PRAGMA foreign_key_check` rows remain visible and are recognized only
+because every segment resolves logically to `collections.id`, unresolved segment
+count is 0, all 2,617 embeddings resolve to recognized collections,
+`quick_check` is `ok`, and `integrity_check` is `ok`.
+
+Added `scripts/harness_invariant.py` and focused tests. `scripts/verify_restore.py`
+now reports `harness_invariant_checked: false` when no fresh baseline is supplied
+and no longer compares against the historical MD5. With `--harness-baseline`, it
+uses the operation-scoped semantic comparison and fails on Harness semantic
+drift. The historical MD5 remains historical byte-level evidence only; it is not
+a permanent acceptance value.
+
+Live Harness read-only cycle:
+
+```text
+harness_invariant.py capture --require-quiescent
+  verdict=pass
+  health=healthy_with_known_chroma_schema_anomaly
+  logical_unresolved_segment_collection_count=0
+  total_embeddings=2617
+  embeddings_resolved_to_recognized_collections=2617
+
+harness_invariant.py verify --require-quiescent
+  verdict=pass
+  physical_drift=false
+  semantic_drift=false
+```
+
+No BADGR Harness write occurred; no WAL checkpoint, VACUUM, REINDEX, restore,
+service stop, or restart occurred. No C.Walts Chroma/BM25 mutation occurred.
+Stage 2.3 activation, Stage 3, Gate 2, holdout inspection, EVAL-009 inspection,
+and threshold fitting remained blocked. CW-LIM-009 remains open.
+
+Validation:
+
+```text
+.venv/bin/python -m pytest tests/test_harness_invariant.py
+  28 passed in 6.89s
+
+.venv/bin/python -m pytest tests/ --tb=short
+  419 passed in 18.48s
+
+.venv/bin/ruff check .
+  All checks passed!
+
+git diff --check
+  clean
+
+.venv/bin/python scripts/verify_restore.py --expect-from-sources
+  PASS - expected 84, production 84, BM25 84, id set 0 absent / 0 unexpected,
+  evaluation_case 0, feedback 2, ToBI 3 hits, retrieval probe 12 chunks,
+  harness_invariant_checked false
+
+.venv/bin/python scripts/verify_restore.py --expect-from-sources \
+  --harness-baseline var/harness_gate_correction/current_harness_capture.json \
+  --require-harness-invariant --json
+  verified=true, harness_invariant_checked=true, harness verdict=pass,
+  semantic_drift=false
+
+sha256sum -c docs/evidence/source-snapshots/SHA256SUMS
+  all 10 source snapshots OK
+
+.venv/bin/python scripts/validate_stage2_sources.py --manifest config/stage2_public_sources.yaml
+  verdict=pass, sources=10, errors=0, warnings=0
+
+.venv/bin/python scripts/validate_stage2_candidates.py --manifest config/stage2_public_sources.yaml
+  verdict=pass, records=12, errors=0, warnings=0
+
+.venv/bin/python scripts/corpus_lint.py
+  10 expected pre-activation manifest-coverage findings for ignored local
+  Stage 2 proposed files under corpus/raw/stage2_public_examples/
+```

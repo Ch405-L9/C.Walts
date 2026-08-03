@@ -3,6 +3,70 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.2 Stage 2.3-H1, Harness invariant correction
+
+Version stays at `0.4.0-dev.2`. This is safety-gate correction work only: no
+Stage 2.3 corpus activation, no `config/sources.yaml` change, no `NOTICE`
+change, no Chroma/BM25 mutation, no BADGR Harness mutation, no holdout
+inspection, no threshold fitting, and no Gate 2 work.
+
+### Added
+
+- `scripts/harness_invariant.py` — read-only operation-scoped semantic guard for
+  the external BADGR Harness Chroma database. It captures and verifies schema,
+  logical database digest, collection inventory, per-collection ID sets,
+  canonical document/metadata digests, duplicate/blank ID counts, and the known
+  Chroma schema-anomaly signature using a temporary SQLite backup-API snapshot.
+- `tests/test_harness_invariant.py` — focused fixture coverage for the known
+  Chroma `collection`/`collections` migration anomaly, real logical drift,
+  physical-only drift, quiescence enforcement, and `verify_restore.py` Harness
+  gate behavior.
+
+### Changed
+
+- `scripts/verify_restore.py` no longer asserts a permanent historical BADGR
+  Harness MD5. Without a fresh baseline it reports current external fingerprints
+  and `harness_invariant_checked: false`; with `--harness-baseline` it fails on
+  semantic Harness drift.
+- `scripts/smoke_test.py` now checks that the external Harness store remains
+  semantically unchanged during the smoke run instead of comparing against an
+  old fixed byte hash.
+- Rollback and Stage 2 safety documentation now state that the old Harness MD5
+  is historical evidence only. Stage 2.3 must capture a fresh Harness baseline
+  immediately before activation and verify it immediately afterward.
+
+### Evidence
+
+- H1 reclassification: `INSUFFICIENT_HISTORICAL_EVIDENCE`.
+- Current health: `HEALTHY_WITH_KNOWN_CHROMA_SCHEMA_ANOMALY`.
+- `quick_check` and `integrity_check`: `ok`.
+- Raw foreign-key findings: 4 known Chroma `segments` findings.
+- Logical unresolved segments: 0.
+- Embeddings resolved to recognized collections: 2,617 / 2,617.
+- Current Harness capture/verify cycle: pass, semantic drift false.
+
+### Validation
+
+```text
+pytest tests/test_harness_invariant.py
+                                 28 passed
+pytest tests/ --tb=short         419 passed in 18.48s
+ruff check .                     All checks passed!
+git diff --check                 clean
+verify_restore.py                PASS - 84/84, BM25 84, exact parity,
+                                 evaluation_case 0, feedback 2,
+                                 harness_invariant_checked=false
+verify_restore.py --harness-baseline
+                                 PASS - Harness semantic invariant checked,
+                                 semantic_drift=false
+sha256sum -c docs/evidence/source-snapshots/SHA256SUMS
+                                 all 10 source snapshots OK
+validate_stage2_sources.py       verdict=pass, sources=10, errors=0, warnings=0
+validate_stage2_candidates.py    verdict=pass, records=12, errors=0, warnings=0
+corpus_lint.py                   expected pre-activation manifest-coverage
+                                 findings for 10 ignored Stage 2 proposed files
+```
+
 ## [Unreleased] — Gate 1.2 Stage 2.2B-1D, source-evidence promotion
 
 Version stays at `0.4.0-dev.2`. This is source-evidence and validation

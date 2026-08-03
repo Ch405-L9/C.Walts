@@ -156,3 +156,56 @@ Before any production corpus mutation, Stage 2.2B must show:
 
 These tools do not authorize mutation by themselves. They are preconditions for
 owner approval immediately before the first production corpus write.
+
+## Operation-scoped BADGR Harness invariant
+
+`scripts/harness_invariant.py` replaces the former permanent external MD5 gate
+with a read-only semantic guard for the independently operated BADGR Harness
+Chroma database.
+
+Capture a fresh baseline immediately before a controlled write-capable
+operation:
+
+```bash
+.venv/bin/python scripts/harness_invariant.py capture \
+  --database /home/t0n34781/projects/badgr_harness/rag_db/chroma.sqlite3 \
+  --require-quiescent \
+  --output var/stage2_activation/harness_baseline.json
+```
+
+Verify immediately after the operation:
+
+```bash
+.venv/bin/python scripts/harness_invariant.py verify \
+  --database /home/t0n34781/projects/badgr_harness/rag_db/chroma.sqlite3 \
+  --baseline var/stage2_activation/harness_baseline.json \
+  --require-quiescent \
+  --output var/stage2_activation/harness_postcheck.json
+```
+
+The tool opens the source database read-only, creates a temporary SQLite
+backup-API snapshot for deterministic analysis, and deletes that snapshot before
+exit. It does not checkpoint WAL, run `VACUUM`, run `REINDEX`, repair, restore,
+stop services, or retain database bytes.
+
+The semantic invariant covers schema SHA-256, whole logical database SHA-256,
+collection inventory digest, collection names and IDs, per-collection counts,
+per-collection ID sets, canonical document/metadata digests, duplicate and blank
+ID counts, unresolved segment-to-collection count, health failures, and the
+known Chroma schema-anomaly signature. Raw file hashes are recorded as
+diagnostics; raw SQLite byte drift alone is not semantic damage.
+
+The known Chroma anomaly is reported as `known_chroma_schema_anomaly`, not
+hidden. Recognition is allowed only when the actual `collections` table exists,
+singular `collection` does not, the `segments.collection` foreign key targets
+`collection(id)`, every raw `foreign_key_check` row is that exact `segments`
+finding, every segment resolves logically to `collections.id`, every embedding
+resolves through a recognized collection, `quick_check` and `integrity_check`
+return `ok`, and no duplicate or blank embedding IDs exist.
+
+`scripts/verify_restore.py` accepts `--harness-baseline` and
+`--require-harness-invariant`. Without a baseline it reports current external
+fingerprints and `harness_invariant_checked: false`; it does not compare against
+a historical MD5 and does not claim external immutability. Stage 2.3 must
+capture a fresh baseline before activation and verify it afterward. Any semantic
+Harness drift blocks success and triggers the C.Walts rollback path.

@@ -488,13 +488,15 @@ def test_gate0_verification_leaves_the_production_stores_byte_identical() -> Non
     assert (_digest(chroma), _digest(bm25)) == before
 
 
-def test_the_badgr_harness_production_store_is_untouched() -> None:
-    """Pinned at the same MD5 scripts/smoke_test.py has asserted since CP3."""
+def test_the_badgr_harness_production_store_can_be_fingerprinted_read_only() -> None:
+    """The fixed historical MD5 is evidence, not an executable future baseline."""
     harness = Path("/home/t0n34781/projects/badgr_harness/rag_db/chroma.sqlite3")
     if not harness.is_file():
         pytest.skip("the BADGR Harness store is not present on this host")
-    digest = hashlib.md5(harness.read_bytes(), usedforsecurity=False).hexdigest()
-    assert digest == "bdcbe32b706c6ccce1f62e8e9f2d2c49"
+    before = harness.stat().st_mtime_ns
+    digest = hashlib.sha256(harness.read_bytes()).hexdigest()
+    assert len(digest) == 64
+    assert harness.stat().st_mtime_ns == before
 
 
 # --- Gate 0.1 integrity closeout --------------------------------------------

@@ -24,8 +24,10 @@ Nothing here touches the BADGR Harness. Its store
 project root and structurally unreachable from this code:
 `resolve_inside_project()` refuses any path outside the project, and
 `assert_allowed()` refuses any collection name outside the allowlist.
-`scripts/verify_restore.py` checks its checksum anyway, because a structural
-guarantee you never measure is a belief.
+The historical BADGR Harness MD5 recorded in earlier evidence is a byte-level
+observation, not a permanent acceptance value. For write-capable operations,
+capture a fresh semantic baseline with `scripts/harness_invariant.py` before the
+operation and compare against it afterward.
 
 <!-- Section numbering note: mcp/server.py emits "docs/rollback.md §2" and
      "docs/rollback.md §3" in live error messages. §2 must stay "restore from
@@ -129,7 +131,35 @@ Exit status 0 means every one of these passed:
 | exact lexical retrieval returns hits | proves the lexical arm is live, not merely present |
 | production retrieval returns chunks | proves the dense arm and fusion work end to end |
 | feedback collection, separately and by name | a different collection with a different lifecycle; it must not be assumed healthy because the corpus is |
-| BADGR Harness store MD5 unchanged | this project must never touch it |
+| BADGR Harness invariant | checked only when a fresh operation baseline is supplied; otherwise current fingerprints are reported and external immutability is explicitly not claimed |
+
+For a restore-sensitive or write-capable operation, capture and require a fresh
+Harness invariant:
+
+```bash
+.venv/bin/python scripts/harness_invariant.py capture \
+  --database /home/t0n34781/projects/badgr_harness/rag_db/chroma.sqlite3 \
+  --require-quiescent \
+  --output var/<operation>/harness_baseline.json
+
+.venv/bin/python scripts/verify_restore.py --expect-from-sources \
+  --harness-baseline var/<operation>/harness_baseline.json \
+  --require-harness-invariant
+```
+
+The Harness guard is read-only. It uses SQLite's backup API for a temporary
+analysis snapshot, deletes that snapshot, and compares schema, logical database
+digest, collection inventory, per-collection ID sets, and canonical
+document/metadata digests. Raw SQLite byte drift alone is diagnostic; semantic
+drift, collection loss, record loss, unresolved segment references, corruption,
+or an unexpected foreign-key finding fails closed.
+
+The current BADGR Harness Chroma schema has a known upstream anomaly:
+`segments.collection` references singular `collection(id)` while the actual
+parent table is `collections`. The guard reports that anomaly only when every
+segment value resolves logically to `collections.id`, all embeddings resolve
+through recognized collections, `quick_check` and `integrity_check` return `ok`,
+and no additional foreign-key finding appears.
 
 If the corpus on disk is itself untrusted or was rolled back with the code, derive
 the expectation from the snapshot instead:

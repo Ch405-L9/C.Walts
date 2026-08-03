@@ -357,7 +357,8 @@ def test_r09_the_verification_also_covers_the_other_required_checks() -> None:
     assert report["feedback_count"] is not None
     assert report["exact_term_hits"] > 0
     assert report["retrieval_probe_hits"] > 0
-    assert report["badgr_harness_store_md5"] == verify_restore.HARNESS_MD5
+    assert report["harness_invariant_checked"] is False
+    assert report["badgr_harness_store_md5"] is not None
 
 
 # ── §5.10 historical rollback evidence remains preserved ─────────────────────

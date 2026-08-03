@@ -1,0 +1,547 @@
+from __future__ import annotations
+
+import hashlib
+import importlib.util
+import json
+import os
+import sqlite3
+import sys
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _load_script(name: str):
+    path = PROJECT_ROOT / "scripts" / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(f"_{name}", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load {path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[f"_{name}"] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+harness = _load_script("harness_invariant")
+verify_restore = _load_script("verify_restore")
+
+
+def _connect(path: Path) -> sqlite3.Connection:
+    connection = sqlite3.connect(path)
+    connection.row_factory = sqlite3.Row
+    return connection
+
+
+def _create_chroma_fixture(
+    path: Path,
+    *,
+    orphan_segment: bool = False,
+    duplicate_id: bool = False,
+    blank_id: bool = False,
+    extra_fk_violation: bool = False,
+    missing_table: str | None = None,
+) -> None:
+    connection = _connect(path)
+    try:
+        connection.executescript(
+            """
+            CREATE TABLE collections (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL UNIQUE
+            );
+            CREATE TABLE segments (
+                id TEXT PRIMARY KEY,
+                type TEXT NOT NULL,
+                scope TEXT NOT NULL,
+                collection TEXT REFERENCES collection(id) NOT NULL
+            );
+            CREATE TABLE embeddings (
+                id INTEGER PRIMARY KEY,
+                segment_id TEXT NOT NULL,
+                embedding_id TEXT NOT NULL
+            );
+            CREATE TABLE embedding_metadata (
+                id INTEGER NOT NULL,
+                key TEXT NOT NULL,
+                string_value TEXT,
+                int_value INTEGER,
+                float_value REAL,
+                bool_value INTEGER
+            );
+            """
+        )
+        if extra_fk_violation:
+            connection.executescript(
+                """
+                CREATE TABLE other_child (
+                    id INTEGER PRIMARY KEY,
+                    parent TEXT REFERENCES missing_parent(id)
+                );
+                INSERT INTO other_child (id, parent) VALUES (1, 'missing');
+                """
+            )
+        connection.executemany(
+            "INSERT INTO collections (id, name) VALUES (?, ?)",
+            [("c1", "badgr_corpus"), ("c2", "job_opportunities")],
+        )
+        segments = [
+            ("s1", "urn:chroma:segment/vector/hnsw-local-persisted", "VECTOR", "c1"),
+            ("s2", "urn:chroma:segment/metadata/sqlite", "METADATA", "c1"),
+            ("s3", "urn:chroma:segment/vector/hnsw-local-persisted", "VECTOR", "c2"),
+            (
+                "s4",
+                "urn:chroma:segment/metadata/sqlite",
+                "METADATA",
+                "missing" if orphan_segment else "c2",
+            ),
+        ]
+        connection.executemany(
+            "INSERT INTO segments (id, type, scope, collection) VALUES (?, ?, ?, ?)",
+            segments,
+        )
+        rows = [(1, "s2", "doc-1"), (2, "s2", "doc-2"), (3, "s4", "job-1")]
+        if duplicate_id:
+            rows.append((4, "s2", "doc-1"))
+        if blank_id:
+            rows.append((5, "s4", ""))
+        connection.executemany(
+            "INSERT INTO embeddings (id, segment_id, embedding_id) VALUES (?, ?, ?)",
+            rows,
+        )
+        for row_id, _segment_id, embedding_id in rows:
+            connection.execute(
+                """
+                INSERT INTO embedding_metadata
+                  (id, key, string_value, int_value, float_value, bool_value)
+                VALUES (?, 'chroma:document', ?, NULL, NULL, NULL)
+                """,
+                (row_id, f"document for {embedding_id}"),
+            )
+            connection.execute(
+                """
+                INSERT INTO embedding_metadata
+                  (id, key, string_value, int_value, float_value, bool_value)
+                VALUES (?, 'source_id', ?, NULL, NULL, NULL)
+                """,
+                (row_id, "fixture"),
+            )
+        if missing_table:
+            connection.execute(f"DROP TABLE {missing_table}")
+        connection.commit()
+    finally:
+        connection.close()
+
+
+def _capture(path: Path, **kwargs: Any) -> dict[str, Any]:
+    return harness.capture(path, **kwargs)
+
+
+def _mutate_metadata(path: Path, value: str) -> None:
+    connection = _connect(path)
+    try:
+        connection.execute(
+            "UPDATE embedding_metadata SET string_value=? WHERE key='source_id' AND id=1",
+            (value,),
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+
+def test_chroma_schema_anomaly_fixture_passes(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    report = _capture(db)
+    assert report["health"] == harness.HEALTH_ANOMALY
+    assert report["known_schema_anomalies"] == [harness.KNOWN_ANOMALY]
+    assert report["logical_unresolved_segment_collection_count"] == 0
+    assert report["total_segments"] == 4
+    assert len(report["foreign_key_check"]) == 4
+    assert report["verdict"] == "pass"
+
+
+def test_true_orphan_segment_fails(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db, orphan_segment=True)
+    report = _capture(db)
+    assert report["logical_unresolved_segment_collection_count"] == 1
+    assert report["verdict"] == "fail"
+
+
+def test_additional_foreign_key_violation_fails(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db, extra_fk_violation=True)
+    report = _capture(db)
+    assert report["verdict"] == "fail"
+    assert "unexpected_foreign_key_check" in report["findings"]
+
+
+def test_quick_check_failure_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    original = harness.analyze_connection
+
+    def fake(connection: sqlite3.Connection) -> dict[str, Any]:
+        report = original(connection)
+        report["quick_check"] = [["not ok"]]
+        report["unexpected_health_failures"] = ["quick_check_failed"]
+        report["health"] = harness.HEALTH_FAIL
+        return report
+
+    monkeypatch.setattr(harness, "analyze_connection", fake)
+    report = _capture(db)
+    assert report["verdict"] == "fail"
+    assert "quick_check_failed" in report["findings"]
+
+
+def test_integrity_check_failure_fails(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    original = harness.analyze_connection
+
+    def fake(connection: sqlite3.Connection) -> dict[str, Any]:
+        report = original(connection)
+        report["integrity_check"] = [["broken"]]
+        report["unexpected_health_failures"] = ["integrity_check_failed"]
+        report["health"] = harness.HEALTH_FAIL
+        return report
+
+    monkeypatch.setattr(harness, "analyze_connection", fake)
+    report = _capture(db)
+    assert report["verdict"] == "fail"
+    assert "integrity_check_failed" in report["findings"]
+
+
+def test_missing_required_chroma_table_fails(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db, missing_table="embedding_metadata")
+    report = _capture(db)
+    assert report["verdict"] == "fail"
+    assert "missing_required_chroma_table" in report["findings"]
+
+
+def test_duplicate_embedding_id_fails(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db, duplicate_id=True)
+    report = _capture(db)
+    assert report["verdict"] == "fail"
+    assert "duplicate_embedding_ids" in report["findings"]
+
+
+def test_blank_embedding_id_fails(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db, blank_id=True)
+    report = _capture(db)
+    assert report["verdict"] == "fail"
+    assert "blank_embedding_ids" in report["findings"]
+
+
+def test_capture_deletes_temporary_database_copy(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    snapshots: list[Path] = []
+    original = harness.sqlite_backup_snapshot
+
+    def wrapped(database: Path):
+        result = original(database)
+        snapshots.append(result.path)
+        return result
+
+    monkeypatch.setattr(harness, "sqlite_backup_snapshot", wrapped)
+    report = _capture(db)
+    assert report["temporary_snapshot_deleted"] is True
+    assert snapshots and not snapshots[0].exists()
+
+
+def test_capture_performs_no_source_write(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    before = (db.stat().st_mtime_ns, hashlib.sha256(db.read_bytes()).hexdigest())
+    report = _capture(db)
+    after = (db.stat().st_mtime_ns, hashlib.sha256(db.read_bytes()).hexdigest())
+    assert before == after
+    assert report["source_write_performed"] is False
+
+
+def test_capture_performs_no_wal_checkpoint(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    report = _capture(db)
+    assert report["wal_checkpoint_performed"] is False
+
+
+def test_capture_performs_no_vacuum_or_reindex(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    report = _capture(db)
+    assert report["vacuum_performed"] is False
+    assert report["reindex_performed"] is False
+
+
+def test_identical_capture_and_verify_pass(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    baseline = _capture(db)
+    result = harness.verify(db, baseline)
+    assert result["verdict"] == "pass"
+    assert result["physical_drift"] is False
+    assert result["semantic_drift"] is False
+
+
+def test_physical_file_only_drift_with_identical_logical_contents_passes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    baseline = _capture(db)
+    original = harness.file_identity
+
+    def fake_identity(path: Path) -> dict[str, Any]:
+        identity = original(path)
+        if path.resolve() == db.resolve():
+            identity["md5"] = "different"
+        return identity
+
+    monkeypatch.setattr(harness, "file_identity", fake_identity)
+    result = harness.verify(db, baseline)
+    assert result["verdict"] == "pass"
+    assert result["physical_drift"] is True
+    assert result["semantic_drift"] is False
+
+
+@pytest.mark.parametrize(
+    ("mutation", "field"),
+    [
+        ("document", "logical_database_sha256"),
+        ("metadata", "logical_database_sha256"),
+        ("addition", "collections"),
+        ("removal", "collections"),
+        ("collection_addition", "collections"),
+        ("collection_deletion", "collections"),
+        ("schema", "schema_sha256"),
+    ],
+)
+def test_semantic_changes_fail(tmp_path: Path, mutation: str, field: str) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    baseline = _capture(db)
+    connection = _connect(db)
+    try:
+        if mutation == "document":
+            connection.execute(
+                """
+                UPDATE embedding_metadata
+                SET string_value='changed'
+                WHERE key='chroma:document' AND id=1
+                """
+            )
+        elif mutation == "metadata":
+            connection.execute(
+                """
+                UPDATE embedding_metadata
+                SET string_value='changed'
+                WHERE key='source_id' AND id=1
+                """
+            )
+        elif mutation == "addition":
+            connection.execute(
+                "INSERT INTO embeddings (id, segment_id, embedding_id) VALUES (99, 's2', 'doc-99')"
+            )
+            connection.execute(
+                """
+                INSERT INTO embedding_metadata (id, key, string_value)
+                VALUES (99, 'chroma:document', 'new')
+                """
+            )
+        elif mutation == "removal":
+            connection.execute("DELETE FROM embedding_metadata WHERE id=1")
+            connection.execute("DELETE FROM embeddings WHERE id=1")
+        elif mutation == "collection_addition":
+            connection.execute("INSERT INTO collections (id, name) VALUES ('c3', 'extra')")
+        elif mutation == "collection_deletion":
+            connection.execute("DELETE FROM collections WHERE id='c2'")
+        elif mutation == "schema":
+            connection.execute("CREATE TABLE added_schema (id INTEGER)")
+        connection.commit()
+    finally:
+        connection.close()
+    result = harness.verify(db, baseline)
+    assert result["verdict"] == "fail"
+    assert result["semantic_drift"] is True
+    assert any(diff["field"] == field for diff in result["semantic_differences"])
+
+
+def test_known_anomaly_signature_change_fails(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    baseline = _capture(db)
+    connection = _connect(db)
+    try:
+        connection.execute("ALTER TABLE segments RENAME TO old_segments")
+        connection.execute(
+            """
+            CREATE TABLE segments (
+                id TEXT PRIMARY KEY,
+                type TEXT NOT NULL,
+                scope TEXT NOT NULL,
+                collection TEXT NOT NULL
+            )
+            """
+        )
+        connection.execute("INSERT INTO segments SELECT * FROM old_segments")
+        connection.execute("DROP TABLE old_segments")
+        connection.commit()
+    finally:
+        connection.close()
+    result = harness.verify(db, baseline)
+    assert result["verdict"] == "fail"
+    assert result["semantic_drift"] is True
+    assert any(diff["field"] == "known_schema_anomalies" for diff in result["semantic_differences"])
+
+
+def test_active_external_writer_with_require_quiescent_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    monkeypatch.setattr(
+        harness,
+        "find_db_holder_processes",
+        lambda _database: [{"pid": os.getpid(), "paths": [str(db)], "cmdline": "pytest"}],
+    )
+    report = _capture(db, require_quiescent=True)
+    assert report["verdict"] == "fail"
+    assert "database_not_quiescent" in report["findings"]
+
+
+def test_verify_restore_with_valid_baseline_passes_harness_gate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    baseline = _capture(db)
+    monkeypatch.setattr(verify_restore, "HARNESS_DB", db)
+    _patch_restore_fakes(tmp_path, monkeypatch)
+    report = verify_restore.verify({"id1"}, 1, "fixture", harness_baseline=baseline)
+    assert report["verified"] is True, report["failures"]
+    assert report["harness_invariant_checked"] is True
+
+
+def test_verify_restore_with_semantic_harness_drift_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    baseline = _capture(db)
+    _mutate_metadata(db, "changed")
+    monkeypatch.setattr(verify_restore, "HARNESS_DB", db)
+    _patch_restore_fakes(tmp_path, monkeypatch)
+    report = verify_restore.verify({"id1"}, 1, "fixture", harness_baseline=baseline)
+    assert report["verified"] is False
+    assert any("Harness semantic invariant failed" in failure for failure in report["failures"])
+
+
+def test_verify_restore_requires_baseline_when_requested(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _patch_restore_fakes(tmp_path, monkeypatch)
+    report = verify_restore.verify({"id1"}, 1, "fixture", require_harness_invariant=True)
+    assert report["verified"] is False
+    assert any("no --harness-baseline" in failure for failure in report["failures"])
+
+
+def test_verify_restore_without_baseline_reports_unchecked_and_does_not_use_old_md5(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _patch_restore_fakes(tmp_path, monkeypatch)
+    report = verify_restore.verify({"id1"}, 1, "fixture")
+    assert report["verified"] is True, report["failures"]
+    assert report["harness_invariant_checked"] is False
+
+
+def test_historical_md5_is_not_an_executable_acceptance_constant() -> None:
+    old = "bdcbe32b706c6ccce1f62e8e9f2" + "d2c49"
+    offenders = []
+    for path in [*PROJECT_ROOT.glob("scripts/*.py"), *PROJECT_ROOT.glob("tests/*.py")]:
+        if path.name == "test_harness_invariant.py":
+            continue
+        if old in path.read_text(encoding="utf-8"):
+            offenders.append(str(path.relative_to(PROJECT_ROOT)))
+    assert offenders == []
+
+
+def _patch_restore_fakes(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    index_path = tmp_path / "var" / "bm25" / "index.json"
+    index_path.parent.mkdir(parents=True)
+    index_path.write_text(json.dumps({"chunk_ids": ["id1"]}), encoding="utf-8")
+    monkeypatch.setattr(verify_restore, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setattr(verify_restore, "load_settings", lambda: _FakeSettings())
+    monkeypatch.setattr(verify_restore, "VectorStore", lambda _settings: _FakeStore())
+    monkeypatch.setattr(verify_restore, "LexicalIndex", _FakeLexical)
+    monkeypatch.setattr(verify_restore, "OllamaEmbedder", lambda _embedding: object())
+    monkeypatch.setattr(verify_restore, "Retriever", _FakeRetriever)
+
+
+class _FakeCollection:
+    def count(self) -> int:
+        return 1
+
+    def get(self, **kwargs: Any) -> dict[str, Any]:
+        if kwargs.get("where"):
+            return {"ids": []}
+        return {"ids": ["id1"], "metadatas": [{"doc_type": "approved_example"}]}
+
+
+class _FakeClient:
+    def get_collection(self, _name: str) -> _FakeCollection:
+        return _FakeCollection()
+
+
+class _FakeStore:
+    client = _FakeClient()
+
+    def exists(self) -> bool:
+        return True
+
+    def get(self) -> _FakeCollection:
+        return _FakeCollection()
+
+
+class _FakeSettings:
+    embedding = object()
+
+
+class _FakeLexical:
+    def __init__(self, _path: Path) -> None:
+        pass
+
+    def search(self, _query: str, _limit: int) -> list[str]:
+        return ["hit"]
+
+
+class _FakeChunk:
+    metadata = {"doc_type": "approved_example"}
+
+
+class _FakeResult:
+    chunks = [_FakeChunk()]
+
+
+class _FakeRetriever:
+    def __init__(self, *_args: Any) -> None:
+        pass
+
+    def search(self, _query: str, k: int = 5) -> _FakeResult:
+        return _FakeResult()

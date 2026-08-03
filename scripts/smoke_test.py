@@ -26,6 +26,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+import harness_invariant  # noqa: E402
+
 from natural_flow_rag import preservation  # noqa: E402
 from natural_flow_rag.embeddings import OllamaEmbedder  # noqa: E402
 from natural_flow_rag.lexical_search import LexicalIndex  # noqa: E402
@@ -34,7 +36,6 @@ from natural_flow_rag.settings import load_settings  # noqa: E402
 from natural_flow_rag.vector_store import VectorStore  # noqa: E402
 
 HARNESS_DB = Path("/home/t0n34781/projects/badgr_harness/rag_db/chroma.sqlite3")
-HARNESS_MD5_AT_CP3 = "bdcbe32b706c6ccce1f62e8e9f2d2c49"
 
 checks: list[dict] = []
 
@@ -84,6 +85,7 @@ def load_server():
 
 def main() -> int:  # noqa: PLR0915 — a checklist reads better flat than split up
     settings = load_settings()
+    harness_baseline = harness_invariant.capture(HARNESS_DB) if HARNESS_DB.exists() else None
 
     # ── 11.1 environment ──────────────────────────────────────────────────────
     record("11.1 environment", "virtualenv python in use",
@@ -263,13 +265,17 @@ def main() -> int:  # noqa: PLR0915 — a checklist reads better flat than split
                "badgr_natural_flow_v1" in names, names)
 
     if HARNESS_DB.exists():
-        # S603/S607: fixed argv, no shell, and the only interpolated value is a
-        # module-level constant path.
-        digest = subprocess.run(["md5sum", str(HARNESS_DB)],  # noqa: S603,S607
-                                capture_output=True, text=True, check=False)
-        current = digest.stdout.split()[0] if digest.stdout else ""
-        record("11.7 rollback", "BADGR Harness production store unchanged",
-               current == HARNESS_MD5_AT_CP3, current)
+        current = harness_invariant.verify(HARNESS_DB, harness_baseline or {})
+        record(
+            "11.7 rollback",
+            "BADGR Harness production store semantically unchanged during smoke test",
+            current["verdict"] == "pass",
+            {
+                "physical_drift": current["physical_drift"],
+                "semantic_drift": current["semantic_drift"],
+                "findings": current["findings"],
+            },
+        )
 
     mcp_list = subprocess.run(["claude", "mcp", "list"], cwd=ROOT,  # noqa: S607
                               capture_output=True, text=True, check=False)

@@ -28,27 +28,34 @@ previous report:
   retrieval ...... a real production query returns useful, on-corpus chunks
   feedback ....... checked separately and by its own name; it is a different
                    collection with a different lifecycle
-  harness ........ the BADGR Harness store is byte-identical, proving this
-                   project touched nothing outside its own root
+  harness ........ optional operation-scoped semantic comparison for the external
+                   BADGR Harness store. Without a fresh baseline, this reports
+                   current fingerprints but does not claim external immutability.
 
 Exit status is 0 only if every check passes.
 
     --expect-from-sources     derive the expected count by running discovery
     --expect-from-snapshot P  derive it from snapshot P's manifest
+    --harness-baseline P      compare the external Harness store to a fresh
+                              operation-scoped semantic baseline
+    --require-harness-invariant
+                              fail closed unless --harness-baseline is supplied
     --json                    machine-readable report
 """
 
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import sys
 from pathlib import Path
 from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
+
+import harness_invariant  # noqa: E402
 
 from natural_flow_rag.embeddings import OllamaEmbedder  # noqa: E402
 from natural_flow_rag.lexical_search import LexicalIndex  # noqa: E402
@@ -57,7 +64,6 @@ from natural_flow_rag.settings import load_settings  # noqa: E402
 from natural_flow_rag.vector_store import VectorStore  # noqa: E402
 
 HARNESS_DB = Path("/home/t0n34781/projects/badgr_harness/rag_db/chroma.sqlite3")
-HARNESS_MD5 = "bdcbe32b706c6ccce1f62e8e9f2d2c49"
 FEEDBACK_COLLECTION = "badgr_natural_flow_feedback_v1"
 EXACT_TERM_PROBE = "ToBI"
 RETRIEVAL_PROBE = "Make this sound more natural: access is constrained by the user's permissions."
@@ -121,7 +127,14 @@ def expected_from_snapshot(path: Path) -> tuple[set[str] | None, int, str]:
     return None, int(count), f"snapshot manifest {path.name}"
 
 
-def verify(expected_ids: set[str] | None, expected: int, provenance: str) -> dict[str, Any]:
+def verify(
+    expected_ids: set[str] | None,
+    expected: int,
+    provenance: str,
+    *,
+    harness_baseline: dict[str, Any] | None = None,
+    require_harness_invariant: bool = False,
+) -> dict[str, Any]:
     settings = load_settings()
     store = VectorStore(settings)
     failures: list[str] = []
@@ -213,15 +226,37 @@ def verify(expected_ids: set[str] | None, expected: int, provenance: str) -> dic
         except Exception as exc:  # noqa: BLE001
             failures.append(f"production retrieval failed: {exc}")
 
-    # ── the store this project must never touch ──────────────────────────────
+    # ── external Harness store: operation-scoped semantic invariant ──────────
     harness_md5 = None
+    harness_sha256 = None
+    harness_invariant_checked = False
+    harness_invariant_report: dict[str, Any] | None = None
     if HARNESS_DB.is_file():
-        harness_md5 = hashlib.md5(HARNESS_DB.read_bytes()).hexdigest()  # noqa: S324
-        if harness_md5 != HARNESS_MD5:
+        try:
+            identity = harness_invariant.file_identity(HARNESS_DB)
+            harness_md5 = identity.get("md5")
+            harness_sha256 = identity.get("sha256")
+        except OSError as exc:
+            failures.append(f"BADGR Harness fingerprints could not be measured: {exc}")
+
+    if require_harness_invariant and harness_baseline is None:
+        failures.append(
+            "BADGR Harness invariant was required but no --harness-baseline was supplied"
+        )
+    elif harness_baseline is not None:
+        harness_invariant_checked = True
+        try:
+            harness_invariant_report = harness_invariant.verify(HARNESS_DB, harness_baseline)
+        except Exception as exc:  # noqa: BLE001
             failures.append(
-                f"BADGR Harness store MD5 is {harness_md5}, expected {HARNESS_MD5}. "
-                f"Nothing in this project may modify it."
+                f"BADGR Harness invariant could not be verified: {exc}"
             )
+        else:
+            if harness_invariant_report.get("verdict") != "pass":
+                failures.append(
+                    "BADGR Harness semantic invariant failed: "
+                    f"{harness_invariant_report.get('findings')}"
+                )
 
     return {
         "expected_count": expected,
@@ -243,6 +278,9 @@ def verify(expected_ids: set[str] | None, expected: int, provenance: str) -> dic
         "retrieval_probe_hits": retrieval_hits,
         "retrieval_doc_types": retrieval_doc_types,
         "badgr_harness_store_md5": harness_md5,
+        "badgr_harness_store_sha256": harness_sha256,
+        "harness_invariant_checked": harness_invariant_checked,
+        "harness_invariant_report": harness_invariant_report,
         "verified": not failures,
         "failures": failures,
     }
@@ -262,6 +300,16 @@ def main() -> int:
         help="derive the expected count from a snapshot's own manifest",
     )
     parser.add_argument("--json", action="store_true", help="machine-readable report")
+    parser.add_argument(
+        "--harness-baseline",
+        metavar="PATH",
+        help="operation-scoped Harness baseline captured by scripts/harness_invariant.py",
+    )
+    parser.add_argument(
+        "--require-harness-invariant",
+        action="store_true",
+        help="fail closed unless --harness-baseline is supplied",
+    )
     args = parser.parse_args()
 
     try:
@@ -271,8 +319,19 @@ def main() -> int:
             )
         else:
             expected_ids, expected, provenance = expected_from_sources()
-        report = verify(expected_ids, expected, provenance)
-    except (RestoreVerificationError, OSError, ValueError, KeyError) as exc:
+        harness_baseline = (
+            json.loads(Path(args.harness_baseline).read_text(encoding="utf-8"))
+            if args.harness_baseline
+            else None
+        )
+        report = verify(
+            expected_ids,
+            expected,
+            provenance,
+            harness_baseline=harness_baseline,
+            require_harness_invariant=args.require_harness_invariant,
+        )
+    except (RestoreVerificationError, OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
 
@@ -295,6 +354,7 @@ def main() -> int:
         print(f"  exact term {EXACT_TERM_PROBE!r}    {report['exact_term_hits']} hits")
         print(f"  retrieval probe     {report['retrieval_probe_hits']} chunks")
         print(f"  harness store MD5   {report['badgr_harness_store_md5']}")
+        print(f"  harness invariant   {report['harness_invariant_checked']}")
         print()
         for failure in report["failures"]:
             print(f"  FAIL  {failure}")
