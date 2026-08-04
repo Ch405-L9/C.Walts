@@ -37,6 +37,12 @@ class SnapshotResult:
     deleted: bool = False
 
 
+@dataclass(frozen=True)
+class CleanupError:
+    action: str
+    error: BaseException
+
+
 def utc_now() -> str:
     return datetime.now(UTC).isoformat()
 
@@ -130,10 +136,57 @@ def find_db_holder_processes(database: Path) -> list[dict[str, Any]]:
     return sorted(holders, key=lambda item: item["pid"])
 
 
+def close_connection_for_cleanup(
+    connection: sqlite3.Connection | None,
+    action: str,
+) -> CleanupError | None:
+    if connection is None:
+        return None
+    try:
+        connection.close()
+    except BaseException as exc:  # noqa: BLE001 - cleanup must continue
+        return CleanupError(action=action, error=exc)
+    return None
+
+
+def unlink_snapshot_for_cleanup(path: Path | None) -> CleanupError | None:
+    if path is None:
+        return None
+    try:
+        path.unlink(missing_ok=True)
+    except BaseException as exc:  # noqa: BLE001 - report after all cleanup attempts
+        return CleanupError(action="snapshot_unlink", error=exc)
+    return None
+
+
+def add_cleanup_notes(
+    primary: BaseException,
+    cleanup_errors: list[CleanupError],
+) -> None:
+    for cleanup_error in cleanup_errors:
+        primary.add_note(
+            f"{cleanup_error.action} failed during cleanup: "
+            f"{type(cleanup_error.error).__name__}: {cleanup_error.error}"
+        )
+
+
+def cleanup_errors_as_json(cleanup_errors: list[CleanupError]) -> list[dict[str, str]]:
+    return [
+        {
+            "action": cleanup_error.action,
+            "error_type": type(cleanup_error.error).__name__,
+            "error": str(cleanup_error.error),
+        }
+        for cleanup_error in cleanup_errors
+    ]
+
+
 def sqlite_backup_snapshot(database: Path) -> SnapshotResult:
     tmp_path: Path | None = None
     source: sqlite3.Connection | None = None
     destination: sqlite3.Connection | None = None
+    primary: BaseException | None = None
+    cleanup_errors: list[CleanupError] = []
     try:
         tmp = tempfile.NamedTemporaryFile(
             prefix="cwalts-harness-snapshot-",
@@ -146,26 +199,35 @@ def sqlite_backup_snapshot(database: Path) -> SnapshotResult:
         destination = sqlite3.connect(tmp_path)
         source.backup(destination)
         destination.commit()
-        return SnapshotResult(path=tmp_path)
-    except BaseException:
-        if destination is not None:
-            try:
-                destination.close()
-            finally:
-                destination = None
-        if source is not None:
-            try:
-                source.close()
-            finally:
-                source = None
-        if tmp_path is not None:
-            tmp_path.unlink(missing_ok=True)
-        raise
+    except BaseException as exc:
+        primary = exc
     finally:
-        if destination is not None:
-            destination.close()
-        if source is not None:
-            source.close()
+        destination_close_error = close_connection_for_cleanup(
+            destination,
+            "destination_close",
+        )
+        if destination_close_error is not None:
+            cleanup_errors.append(destination_close_error)
+        destination = None
+        source_close_error = close_connection_for_cleanup(source, "source_close")
+        if source_close_error is not None:
+            cleanup_errors.append(source_close_error)
+        source = None
+        if primary is not None or cleanup_errors:
+            unlink_error = unlink_snapshot_for_cleanup(tmp_path)
+            if unlink_error is not None:
+                cleanup_errors.append(unlink_error)
+    if primary is not None:
+        add_cleanup_notes(primary, cleanup_errors)
+        raise primary
+    if cleanup_errors:
+        exc = HarnessInvariantError("Harness snapshot cleanup failed after backup")
+        add_cleanup_notes(exc, cleanup_errors)
+        raise exc
+    if tmp_path is None:  # pragma: no cover - tempfile raises before a path exists
+        raise HarnessInvariantError("Harness snapshot was not created")
+    return SnapshotResult(path=tmp_path)
+
 
 
 def table_names(connection: sqlite3.Connection) -> set[str]:
@@ -529,22 +591,35 @@ def capture(database: Path, *, require_quiescent: bool = False) -> dict[str, Any
     snapshot = sqlite_backup_snapshot(database)
     connection: sqlite3.Connection | None = None
     cleanup_findings: list[str] = []
+    cleanup_errors: list[CleanupError] = []
+    primary: BaseException | None = None
     try:
         connection = sqlite3.connect(f"file:{snapshot.path.resolve()}?mode=ro", uri=True)
         report.update(analyze_connection(connection))
+    except BaseException as exc:
+        primary = exc
     finally:
-        if connection is not None:
-            connection.close()
-        try:
-            if snapshot.path.exists():
-                snapshot.path.unlink()
-            report["temporary_snapshot_deleted"] = not snapshot.path.exists()
-        except FileNotFoundError:
+        close_error = close_connection_for_cleanup(connection, "snapshot_connection_close")
+        if close_error is not None:
+            cleanup_errors.append(close_error)
+            cleanup_findings.append("snapshot_connection_close_failed")
+        unlink_error = unlink_snapshot_for_cleanup(snapshot.path)
+        if unlink_error is not None:
+            cleanup_errors.append(unlink_error)
+            cleanup_findings.append("temporary_snapshot_cleanup_failed")
+            report["temporary_snapshot_cleanup_error"] = str(unlink_error.error)
+            report["temporary_snapshot_path"] = str(snapshot.path)
+        if not snapshot.path.exists():
             report["temporary_snapshot_deleted"] = True
-        except OSError as exc:
+        else:
             report["temporary_snapshot_deleted"] = False
             cleanup_findings.append("temporary_snapshot_cleanup_failed")
-            report["temporary_snapshot_cleanup_error"] = str(exc)
+            report["temporary_snapshot_path"] = str(snapshot.path)
+        if cleanup_errors:
+            report["cleanup_errors"] = cleanup_errors_as_json(cleanup_errors)
+    if primary is not None:
+        add_cleanup_notes(primary, cleanup_errors)
+        raise primary
     findings = list(report.get("unexpected_health_failures", []))
     findings.extend(cleanup_findings)
     if require_quiescent and not quiescent:

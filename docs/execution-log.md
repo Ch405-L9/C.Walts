@@ -2513,6 +2513,104 @@ sha256sum -c docs/evidence/source-snapshots/SHA256SUMS
 
 ---
 
+## Gate 1.2 Stage 2.3-H1R2 — Harness snapshot close-safety
+
+Stage 2.3 activation remained blocked. This follow-up fixed the remaining
+close-failure cleanup defect in the H1R Harness invariant.
+
+Starting state was verified at commit
+`a99f44e01910d611d53190072de1a498a2eb72eb`, branch
+`feat/narration-generalization-v0.4`, version `0.4.0-dev.2`, with C.Walts
+production Chroma 84, BM25 84, exact parity true, `evaluation_case` 0, feedback
+2, `config/sources.yaml`
+`cc3d97b0cda06495a8147e92cd3e376762fcad035aa355d2d008449bc7b8f4ef`, and
+`NOTICE` `af7629f4260abf1556029990951e46ac9ed842f5526bd44478ae4ea3bf5aca29`.
+The accepted H1R review bundle
+`68266c5d2f2a2395ecc971f4341e2e12a41258e74737ade52333612f635f4006` was
+verified before implementation.
+
+Corrected defect:
+
+- `sqlite_backup_snapshot()` close cleanup can no longer skip later cleanup.
+  Destination close, source close, and unlink are all attempted; source-open,
+  destination-open, and backup-copy exceptions remain primary, with close/unlink
+  errors attached as diagnostic notes.
+- Successful backup followed by source-close or destination-close failure now
+  fails without returning `SnapshotResult` and still attempts unlink.
+- `capture()` now attempts snapshot-analysis connection close and snapshot
+  unlink independently. A close failure after successful analysis yields a fail
+  verdict with `snapshot_connection_close_failed`; a close failure after analysis
+  failure is attached to the original analysis exception.
+
+Live Harness read-only cycle:
+
+```text
+harness_invariant.py capture --require-quiescent
+  verdict=pass
+  health=healthy_with_known_chroma_schema_anomaly
+  temporary_snapshot_deleted=true
+  logical_unresolved_segment_collection_count=0
+  total_embeddings=2617
+  embeddings_resolved_to_recognized_collections=2617
+
+harness_invariant.py verify --require-quiescent
+  verdict=pass
+  baseline_valid=true
+  current_capture_valid=true
+  comparison_performed=true
+  physical_drift=false
+  semantic_drift=false
+```
+
+No BADGR Harness write occurred; no WAL checkpoint, VACUUM, REINDEX, restore,
+service stop, or restart occurred. No retained temporary Harness snapshot was
+found. No C.Walts Chroma/BM25 mutation occurred. Stage 2.3 activation, Stage 3,
+Gate 2, holdout inspection, EVAL-009 inspection, and threshold fitting remained
+blocked. CW-LIM-009 remains open.
+
+Validation:
+
+```text
+.venv/bin/python -m pytest tests/test_harness_invariant.py -q
+  62 passed
+
+.venv/bin/python -m pytest tests/ --tb=short
+  453 passed in 23.43s
+
+.venv/bin/ruff check .
+  All checks passed!
+
+git diff --check
+  clean
+
+.venv/bin/python scripts/verify_restore.py --expect-from-sources --json
+  verified=true, production_count=84, bm25_chunk_ids=84,
+  chroma_bm25_parity=true, evaluation_case=0, feedback=2,
+  harness_invariant_checked=false
+
+.venv/bin/python scripts/verify_restore.py --expect-from-sources \
+  --harness-baseline var/harness_gate_close_safety/current_harness_capture.json \
+  --require-harness-invariant --json
+  verified=true, harness_invariant_checked=true, harness_quiescence_required=true,
+  harness_baseline_valid=true, harness_comparison_performed=true,
+  semantic_drift=false
+
+.venv/bin/python scripts/validate_stage2_sources.py --manifest config/stage2_public_sources.yaml
+  verdict=pass, sources=10, errors=0, warnings=0
+
+.venv/bin/python scripts/validate_stage2_candidates.py --manifest config/stage2_public_sources.yaml
+  verdict=pass, records=12, errors=0, warnings=0
+
+sha256sum -c SHA256SUMS  # run from docs/evidence/source-snapshots/
+  all 10 source snapshots OK
+
+.venv/bin/python scripts/corpus_lint.py
+  10 expected pre-activation manifest-coverage findings for ignored local
+  Stage 2 proposed files under corpus/raw/stage2_public_examples/
+```
+
+---
+
 ## Gate 1.2 Stage 2.3-H1R — Harness invariant failure-path hardening
 
 Stage 2.3 activation remained blocked. This follow-up hardened the accepted H1

@@ -196,6 +196,15 @@ normal completion and handled analysis failures. A successful capture is not
 possible when the temporary snapshot still exists; cleanup failure is reported as
 `temporary_snapshot_cleanup_failed`.
 
+Connection closing is non-interrupting during cleanup. Destination close, source
+close, snapshot-analysis connection close, and snapshot unlink are treated as
+separate cleanup attempts. A close failure is captured as diagnostic context and
+cannot skip later cleanup. When an operational error already exists, such as a
+source-open or backup-copy failure, that original exception remains primary and
+cleanup errors are attached as notes. When analysis succeeds but the snapshot
+analysis connection fails to close, the snapshot is still unlinked and the
+capture report fails with `snapshot_connection_close_failed`.
+
 The semantic invariant covers schema SHA-256, whole logical database SHA-256,
 collection inventory digest, collection names and IDs, per-collection counts,
 per-collection ID sets, canonical document/metadata digests, duplicate and blank

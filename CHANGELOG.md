@@ -3,6 +3,53 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.2 Stage 2.3-H1R2, Harness snapshot close-safety
+
+Version stays at `0.4.0-dev.2`. This is safety-gate correction work only: no
+Stage 2.3 corpus activation, no `config/sources.yaml` change, no `NOTICE`
+change, no Chroma/BM25 mutation, no BADGR Harness mutation, no holdout
+inspection, no threshold fitting, and no Gate 2 work.
+
+### Changed
+
+- `scripts/harness_invariant.py` now makes connection closing non-interrupting
+  during snapshot cleanup. Destination close, source close, and snapshot unlink
+  are each attempted even when an earlier close operation raises.
+- `sqlite_backup_snapshot()` preserves the original source-open,
+  destination-open, or backup-copy exception as primary and attaches close/unlink
+  cleanup errors as diagnostic notes.
+- A successful SQLite backup followed by destination-close or source-close
+  failure now fails without returning `SnapshotResult` and still attempts
+  snapshot deletion.
+- `capture()` now attempts analysis-connection close and snapshot unlink
+  independently. Analysis-connection close failure cannot skip unlink, and a
+  successful analysis with close failure returns a fail verdict with
+  `snapshot_connection_close_failed`.
+
+### Validation
+
+```text
+pytest tests/test_harness_invariant.py -q
+                                 62 passed
+pytest tests/ --tb=short         453 passed in 23.43s
+ruff check .                     All checks passed!
+git diff --check                 clean
+verify_restore.py --expect-from-sources --json
+                                 PASS - 84/84, BM25 84, exact parity,
+                                 evaluation_case 0, feedback 2,
+                                 harness_invariant_checked=false
+verify_restore.py --harness-baseline --require-harness-invariant
+                                 PASS - baseline_valid=true,
+                                 comparison_performed=true,
+                                 semantic_drift=false
+validate_stage2_sources.py       verdict=pass, sources=10, errors=0, warnings=0
+validate_stage2_candidates.py    verdict=pass, records=12, errors=0, warnings=0
+sha256sum -c SHA256SUMS          all 10 source snapshots OK from
+                                 docs/evidence/source-snapshots/
+corpus_lint.py                   expected pre-activation manifest-coverage
+                                 findings for 10 ignored Stage 2 proposed files
+```
+
 ## [Unreleased] — Gate 1.2 Stage 2.3-H1R, Harness invariant failure-path hardening
 
 Version stays at `0.4.0-dev.2`. This is safety-gate correction work only: no

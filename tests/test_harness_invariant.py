@@ -166,8 +166,14 @@ def _fake_named_temporary_file(root: Path):
 
 
 class _FakeConnection:
-    def __init__(self, *, backup_error: Exception | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        backup_error: Exception | None = None,
+        close_error: Exception | None = None,
+    ) -> None:
         self.backup_error = backup_error
+        self.close_error = close_error
         self.closed = False
         self.committed = False
 
@@ -180,6 +186,29 @@ class _FakeConnection:
 
     def close(self) -> None:
         self.closed = True
+        if self.close_error is not None:
+            raise self.close_error
+
+
+class _CloseFailingConnection:
+    def __init__(self, connection: sqlite3.Connection, close_error: Exception) -> None:
+        self.connection = connection
+        self.close_error = close_error
+
+    @property
+    def row_factory(self):
+        return self.connection.row_factory
+
+    @row_factory.setter
+    def row_factory(self, value: object) -> None:
+        self.connection.row_factory = value
+
+    def execute(self, *args: Any, **kwargs: Any):
+        return self.connection.execute(*args, **kwargs)
+
+    def close(self) -> None:
+        self.connection.close()
+        raise self.close_error
 
 
 def test_chroma_schema_anomaly_fixture_passes(tmp_path: Path) -> None:
@@ -395,6 +424,138 @@ def test_sqlite_backup_failure_removes_temporary_snapshot_and_closes_connections
     assert _snapshot_files(temp_root) == []
 
 
+@pytest.mark.parametrize(
+    ("source_close_error", "destination_close_error", "expected_notes"),
+    [
+        (None, sqlite3.Error("destination close failed"), ["destination_close"]),
+        (sqlite3.Error("source close failed"), None, ["source_close"]),
+        (
+            sqlite3.Error("source close failed"),
+            sqlite3.Error("destination close failed"),
+            ["destination_close", "source_close"],
+        ),
+    ],
+)
+def test_backup_failure_with_close_failures_still_unlinks_snapshot(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    source_close_error: Exception | None,
+    destination_close_error: Exception | None,
+    expected_notes: list[str],
+) -> None:
+    temp_root = tmp_path / "tmp"
+    db = tmp_path / "chroma.sqlite3"
+    db.write_bytes(b"source")
+    source = _FakeConnection(
+        backup_error=sqlite3.Error("backup failed"),
+        close_error=source_close_error,
+    )
+    destination = _FakeConnection(close_error=destination_close_error)
+
+    def fake_connect(target: object, *_args: Any, **_kwargs: Any):
+        return source if str(target).startswith("file:") else destination
+
+    monkeypatch.setattr(
+        harness.tempfile,
+        "NamedTemporaryFile",
+        _fake_named_temporary_file(temp_root),
+    )
+    monkeypatch.setattr(harness.sqlite3, "connect", fake_connect)
+
+    with pytest.raises(sqlite3.Error, match="backup failed") as raised:
+        harness.sqlite_backup_snapshot(db)
+
+    assert raised.value.__notes__
+    for expected_note in expected_notes:
+        assert any(expected_note in note for note in raised.value.__notes__)
+    assert source.closed is True
+    assert destination.closed is True
+    assert _snapshot_files(temp_root) == []
+
+
+@pytest.mark.parametrize(
+    ("source_close_error", "destination_close_error", "expected_notes"),
+    [
+        (None, sqlite3.Error("destination close failed"), ["destination_close"]),
+        (sqlite3.Error("source close failed"), None, ["source_close"]),
+    ],
+)
+def test_successful_backup_with_close_failure_fails_and_unlinks_snapshot(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    source_close_error: Exception | None,
+    destination_close_error: Exception | None,
+    expected_notes: list[str],
+) -> None:
+    temp_root = tmp_path / "tmp"
+    db = tmp_path / "chroma.sqlite3"
+    db.write_bytes(b"source")
+    source = _FakeConnection(close_error=source_close_error)
+    destination = _FakeConnection(close_error=destination_close_error)
+
+    def fake_connect(target: object, *_args: Any, **_kwargs: Any):
+        return source if str(target).startswith("file:") else destination
+
+    monkeypatch.setattr(
+        harness.tempfile,
+        "NamedTemporaryFile",
+        _fake_named_temporary_file(temp_root),
+    )
+    monkeypatch.setattr(harness.sqlite3, "connect", fake_connect)
+
+    with pytest.raises(harness.HarnessInvariantError) as raised:
+        harness.sqlite_backup_snapshot(db)
+
+    assert raised.value.__notes__
+    for expected_note in expected_notes:
+        assert any(expected_note in note for note in raised.value.__notes__)
+    assert source.closed is True
+    assert destination.closed is True
+    assert _snapshot_files(temp_root) == []
+
+
+def test_successful_backup_with_close_and_unlink_failure_reports_all_cleanup(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    temp_root = tmp_path / "tmp"
+    db = tmp_path / "chroma.sqlite3"
+    db.write_bytes(b"source")
+    source = _FakeConnection(close_error=sqlite3.Error("source close failed"))
+    destination = _FakeConnection(close_error=sqlite3.Error("destination close failed"))
+    unlink_attempted: list[Path] = []
+    original_unlink = harness.Path.unlink
+
+    def fake_connect(target: object, *_args: Any, **_kwargs: Any):
+        return source if str(target).startswith("file:") else destination
+
+    def failing_unlink(path: Path, *args: Any, **kwargs: Any) -> None:
+        if path.name.startswith("cwalts-harness-snapshot-"):
+            unlink_attempted.append(path)
+            raise OSError("unlink failed")
+        original_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(
+        harness.tempfile,
+        "NamedTemporaryFile",
+        _fake_named_temporary_file(temp_root),
+    )
+    monkeypatch.setattr(harness.sqlite3, "connect", fake_connect)
+    monkeypatch.setattr(harness.Path, "unlink", failing_unlink)
+
+    with pytest.raises(harness.HarnessInvariantError) as raised:
+        harness.sqlite_backup_snapshot(db)
+
+    assert source.closed is True
+    assert destination.closed is True
+    assert unlink_attempted
+    assert any("source_close" in note for note in raised.value.__notes__)
+    assert any("destination_close" in note for note in raised.value.__notes__)
+    assert any("snapshot_unlink" in note for note in raised.value.__notes__)
+    for leaked in _snapshot_files(temp_root):
+        original_unlink(leaked)
+
+
 def test_analysis_failure_after_snapshot_creation_removes_snapshot(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -478,6 +639,110 @@ def test_snapshot_unlink_failure_fails_capture(
     assert "temporary_snapshot_cleanup_failed" in report["findings"]
     assert snapshots and snapshots[0].exists()
     original_unlink(snapshots[0])
+
+
+def test_analysis_success_with_snapshot_close_failure_unlinks_and_fails_capture(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    snapshot_path = tmp_path / "snapshot.sqlite3"
+    original_connect = sqlite3.connect
+
+    def fake_snapshot(_database: Path):
+        snapshot_path.write_bytes(db.read_bytes())
+        return harness.SnapshotResult(path=snapshot_path)
+
+    def fake_connect(target: object, *_args: Any, **_kwargs: Any):
+        real = original_connect(str(target).replace("file:", "").replace("?mode=ro", ""))
+        return _CloseFailingConnection(real, sqlite3.Error("snapshot close failed"))
+
+    monkeypatch.setattr(harness, "sqlite_backup_snapshot", fake_snapshot)
+    monkeypatch.setattr(harness.sqlite3, "connect", fake_connect)
+
+    report = _capture(db)
+
+    assert report["verdict"] == "fail"
+    assert report["temporary_snapshot_deleted"] is True
+    assert "snapshot_connection_close_failed" in report["findings"]
+    assert snapshot_path.exists() is False
+
+
+def test_analysis_failure_with_snapshot_close_failure_still_unlinks(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    snapshot_path = tmp_path / "snapshot.sqlite3"
+    original_connect = sqlite3.connect
+
+    def fake_snapshot(_database: Path):
+        snapshot_path.write_bytes(db.read_bytes())
+        return harness.SnapshotResult(path=snapshot_path)
+
+    def fake_connect(target: object, *_args: Any, **_kwargs: Any):
+        real = original_connect(str(target).replace("file:", "").replace("?mode=ro", ""))
+        return _CloseFailingConnection(real, sqlite3.Error("snapshot close failed"))
+
+    monkeypatch.setattr(harness, "sqlite_backup_snapshot", fake_snapshot)
+    monkeypatch.setattr(harness.sqlite3, "connect", fake_connect)
+    monkeypatch.setattr(
+        harness,
+        "analyze_connection",
+        lambda _connection: (_ for _ in ()).throw(RuntimeError("analysis failed")),
+    )
+
+    with pytest.raises(RuntimeError, match="analysis failed") as raised:
+        _capture(db)
+
+    assert any("snapshot_connection_close" in note for note in raised.value.__notes__)
+    assert snapshot_path.exists() is False
+
+
+def test_analysis_failure_close_failure_and_unlink_failure_are_visible(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    snapshot_path = tmp_path / "snapshot.sqlite3"
+    unlink_attempted: list[Path] = []
+    original_connect = sqlite3.connect
+    original_unlink = harness.Path.unlink
+
+    def fake_snapshot(_database: Path):
+        snapshot_path.write_bytes(db.read_bytes())
+        return harness.SnapshotResult(path=snapshot_path)
+
+    def fake_connect(target: object, *_args: Any, **_kwargs: Any):
+        real = original_connect(str(target).replace("file:", "").replace("?mode=ro", ""))
+        return _CloseFailingConnection(real, sqlite3.Error("snapshot close failed"))
+
+    def failing_unlink(path: Path, *args: Any, **kwargs: Any) -> None:
+        if path == snapshot_path:
+            unlink_attempted.append(path)
+            raise OSError("unlink failed")
+        original_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(harness, "sqlite_backup_snapshot", fake_snapshot)
+    monkeypatch.setattr(harness.sqlite3, "connect", fake_connect)
+    monkeypatch.setattr(harness.Path, "unlink", failing_unlink)
+    monkeypatch.setattr(
+        harness,
+        "analyze_connection",
+        lambda _connection: (_ for _ in ()).throw(RuntimeError("analysis failed")),
+    )
+
+    with pytest.raises(RuntimeError, match="analysis failed") as raised:
+        _capture(db)
+
+    assert unlink_attempted == [snapshot_path]
+    assert any("snapshot_connection_close" in note for note in raised.value.__notes__)
+    assert any("snapshot_unlink" in note for note in raised.value.__notes__)
+    assert snapshot_path.exists()
+    original_unlink(snapshot_path)
 
 
 def test_identical_capture_and_verify_pass(tmp_path: Path) -> None:
