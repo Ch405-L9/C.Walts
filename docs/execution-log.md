@@ -2510,3 +2510,105 @@ sha256sum -c docs/evidence/source-snapshots/SHA256SUMS
   10 expected pre-activation manifest-coverage findings for ignored local
   Stage 2 proposed files under corpus/raw/stage2_public_examples/
 ```
+
+---
+
+## Gate 1.2 Stage 2.3-H1R — Harness invariant failure-path hardening
+
+Stage 2.3 activation remained blocked. This follow-up hardened the accepted H1
+Harness invariant without changing C.Walts production state or the external
+BADGR Harness database.
+
+Starting state was verified at commit
+`a3eb2746b8ea62e9864c3971d306acf4caa3e88b`, branch
+`feat/narration-generalization-v0.4`, version `0.4.0-dev.2`, with C.Walts
+production Chroma 84, BM25 84, exact parity true, `evaluation_case` 0, feedback
+2, `config/sources.yaml`
+`cc3d97b0cda06495a8147e92cd3e376762fcad035aa355d2d008449bc7b8f4ef`, and
+`NOTICE` `af7629f4260abf1556029990951e46ac9ed842f5526bd44478ae4ea3bf5aca29`.
+The H1 review bundle
+`cfb8b08323d975911fe2e172d754f4e164e5dd3abba9b4d5e9f3e1f6ba1bfeb6` was
+verified before implementation.
+
+Corrected defects:
+
+- `sqlite_backup_snapshot()` now deletes its temporary SQLite file on
+  source-open failure, destination-open failure, and backup-copy failure before
+  propagating the original exception.
+- `capture()` now deletes returned snapshots on analysis or snapshot-open
+  failure and fails closed with `temporary_snapshot_cleanup_failed` if unlink
+  cleanup cannot be confirmed.
+- `verify()` now validates baselines before semantic comparison and rejects
+  failed, malformed, wrong-path, source-writing, prohibited-operation,
+  non-quiescent, or incomplete baselines.
+- `verify_restore.py --require-harness-invariant` requires quiescent baseline
+  and current Harness measurements.
+- `smoke_test.py` no longer compares the Harness store against a failed or empty
+  baseline capture.
+
+Live Harness read-only cycle:
+
+```text
+harness_invariant.py capture --require-quiescent
+  verdict=pass
+  health=healthy_with_known_chroma_schema_anomaly
+  temporary_snapshot_deleted=true
+  logical_unresolved_segment_collection_count=0
+  total_embeddings=2617
+  embeddings_resolved_to_recognized_collections=2617
+
+harness_invariant.py verify --require-quiescent
+  verdict=pass
+  baseline_valid=true
+  current_capture_valid=true
+  comparison_performed=true
+  physical_drift=false
+  semantic_drift=false
+```
+
+No BADGR Harness write occurred; no WAL checkpoint, VACUUM, REINDEX, restore,
+service stop, or restart occurred. No retained temporary Harness snapshot was
+found. No C.Walts Chroma/BM25 mutation occurred. Stage 2.3 activation, Stage 3,
+Gate 2, holdout inspection, EVAL-009 inspection, and threshold fitting remained
+blocked. CW-LIM-009 remains open.
+
+Validation:
+
+```text
+.venv/bin/python -m pytest tests/test_harness_invariant.py -q
+  53 passed
+
+.venv/bin/python -m pytest tests/ --tb=short
+  444 passed in 23.14s
+
+.venv/bin/ruff check .
+  All checks passed!
+
+git diff --check
+  clean
+
+.venv/bin/python scripts/verify_restore.py --expect-from-sources --json
+  verified=true, production_count=84, bm25_chunk_ids=84,
+  chroma_bm25_parity=true, evaluation_case=0, feedback=2,
+  harness_invariant_checked=false
+
+.venv/bin/python scripts/verify_restore.py --expect-from-sources \
+  --harness-baseline var/harness_gate_hardening/current_harness_capture.json \
+  --require-harness-invariant --json
+  verified=true, harness_invariant_checked=true, harness_quiescence_required=true,
+  harness_baseline_valid=true, harness_comparison_performed=true,
+  semantic_drift=false
+
+.venv/bin/python scripts/validate_stage2_sources.py --manifest config/stage2_public_sources.yaml
+  verdict=pass, sources=10, errors=0, warnings=0
+
+.venv/bin/python scripts/validate_stage2_candidates.py --manifest config/stage2_public_sources.yaml
+  verdict=pass, records=12, errors=0, warnings=0
+
+sha256sum -c SHA256SUMS  # run from docs/evidence/source-snapshots/
+  all 10 source snapshots OK
+
+.venv/bin/python scripts/corpus_lint.py
+  10 expected pre-activation manifest-coverage findings for ignored local
+  Stage 2 proposed files under corpus/raw/stage2_public_examples/
+```

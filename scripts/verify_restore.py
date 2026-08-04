@@ -231,6 +231,9 @@ def verify(
     harness_sha256 = None
     harness_invariant_checked = False
     harness_invariant_report: dict[str, Any] | None = None
+    harness_quiescence_required = bool(require_harness_invariant)
+    harness_baseline_valid: bool | None = None
+    harness_comparison_performed: bool | None = None
     if HARNESS_DB.is_file():
         try:
             identity = harness_invariant.file_identity(HARNESS_DB)
@@ -246,12 +249,18 @@ def verify(
     elif harness_baseline is not None:
         harness_invariant_checked = True
         try:
-            harness_invariant_report = harness_invariant.verify(HARNESS_DB, harness_baseline)
+            harness_invariant_report = harness_invariant.verify(
+                HARNESS_DB,
+                harness_baseline,
+                require_quiescent=require_harness_invariant,
+            )
         except Exception as exc:  # noqa: BLE001
             failures.append(
                 f"BADGR Harness invariant could not be verified: {exc}"
             )
         else:
+            harness_baseline_valid = harness_invariant_report.get("baseline_valid")
+            harness_comparison_performed = harness_invariant_report.get("comparison_performed")
             if harness_invariant_report.get("verdict") != "pass":
                 failures.append(
                     "BADGR Harness semantic invariant failed: "
@@ -280,6 +289,9 @@ def verify(
         "badgr_harness_store_md5": harness_md5,
         "badgr_harness_store_sha256": harness_sha256,
         "harness_invariant_checked": harness_invariant_checked,
+        "harness_quiescence_required": harness_quiescence_required,
+        "harness_baseline_valid": harness_baseline_valid,
+        "harness_comparison_performed": harness_comparison_performed,
         "harness_invariant_report": harness_invariant_report,
         "verified": not failures,
         "failures": failures,

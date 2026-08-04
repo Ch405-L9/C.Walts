@@ -79,13 +79,44 @@ def lexical_chunk_count(settings) -> int:
     return len(index)
 
 
+def harness_semantic_unchanged_check() -> tuple[bool, dict[str, object]]:
+    """Capture and compare the external Harness store only when the baseline is valid."""
+    if not HARNESS_DB.exists():
+        return True, {"status": "harness_database_absent"}
+    baseline = harness_invariant.capture(HARNESS_DB, require_quiescent=True)
+    if baseline.get("verdict") != "pass":
+        return False, {
+            "baseline_valid": False,
+            "comparison_performed": False,
+            "findings": baseline.get("findings", ["baseline_capture_failed"]),
+        }
+    current = harness_invariant.verify(
+        HARNESS_DB,
+        baseline,
+        require_quiescent=True,
+    )
+    passed = (
+        current["baseline_valid"] is True
+        and current["comparison_performed"] is True
+        and current["current_capture_valid"] is True
+        and current["semantic_drift"] is False
+        and current["verdict"] == "pass"
+    )
+    return passed, {
+        "baseline_valid": current.get("baseline_valid"),
+        "comparison_performed": current.get("comparison_performed"),
+        "physical_drift": current.get("physical_drift"),
+        "semantic_drift": current.get("semantic_drift"),
+        "findings": current.get("findings"),
+    }
+
+
 def load_server():
     return load_module(ROOT / "mcp" / "server.py", "nfr_mcp_server")
 
 
 def main() -> int:  # noqa: PLR0915 — a checklist reads better flat than split up
     settings = load_settings()
-    harness_baseline = harness_invariant.capture(HARNESS_DB) if HARNESS_DB.exists() else None
 
     # ── 11.1 environment ──────────────────────────────────────────────────────
     record("11.1 environment", "virtualenv python in use",
@@ -265,16 +296,12 @@ def main() -> int:  # noqa: PLR0915 — a checklist reads better flat than split
                "badgr_natural_flow_v1" in names, names)
 
     if HARNESS_DB.exists():
-        current = harness_invariant.verify(HARNESS_DB, harness_baseline or {})
+        harness_passed, harness_detail = harness_semantic_unchanged_check()
         record(
             "11.7 rollback",
             "BADGR Harness production store semantically unchanged during smoke test",
-            current["verdict"] == "pass",
-            {
-                "physical_drift": current["physical_drift"],
-                "semantic_drift": current["semantic_drift"],
-                "findings": current["findings"],
-            },
+            harness_passed,
+            harness_detail,
         )
 
     mcp_list = subprocess.run(["claude", "mcp", "list"], cwd=ROOT,  # noqa: S607

@@ -154,6 +154,13 @@ document/metadata digests. Raw SQLite byte drift alone is diagnostic; semantic
 drift, collection loss, record loss, unresolved segment references, corruption,
 or an unexpected foreign-key finding fails closed.
 
+Temporary snapshot cleanup is part of the invariant. If source-open,
+destination-open, backup-copy, analysis, or unlink cleanup fails, the guard does
+not report a successful capture. `verify_restore.py --require-harness-invariant`
+also requires the supplied baseline and the current capture to be quiescent.
+Failed, malformed, wrong-path, source-writing, prohibited-operation, or
+non-quiescent baselines are rejected before semantic comparison.
+
 The current BADGR Harness Chroma schema has a known upstream anomaly:
 `segments.collection` references singular `collection(id)` while the actual
 parent table is `collections`. The guard reports that anomaly only when every
@@ -291,8 +298,10 @@ gh repo view --json defaultBranchRef
 - The approved corpus text: committed to the private remote.
 - The evaluation regression fixtures under `eval/regression/`: never ingested, so
   no store operation can affect them.
-- The BADGR Harness production store: outside this project root, checksum
-  asserted unchanged by `scripts/verify_restore.py` and `scripts/smoke_test.py`.
+- The BADGR Harness production store: outside this project root. It is checked
+  by operation-scoped semantic capture/verify when a fresh baseline is supplied;
+  without that baseline, restore verification reports fingerprints but does not
+  claim external immutability.
 
 ## 9. Historical record
 

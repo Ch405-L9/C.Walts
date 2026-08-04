@@ -3,6 +3,54 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.2 Stage 2.3-H1R, Harness invariant failure-path hardening
+
+Version stays at `0.4.0-dev.2`. This is safety-gate correction work only: no
+Stage 2.3 corpus activation, no `config/sources.yaml` change, no `NOTICE`
+change, no Chroma/BM25 mutation, no BADGR Harness mutation, no holdout
+inspection, no threshold fitting, and no Gate 2 work.
+
+### Changed
+
+- `scripts/harness_invariant.py` now deletes a temporary SQLite backup snapshot
+  from inside `sqlite_backup_snapshot()` when source-open, destination-open, or
+  backup-copy failure occurs before the path can be returned to the caller.
+- `capture()` now treats temporary snapshot cleanup failure as a fail-closed
+  finding and reports `temporary_snapshot_deleted: true` only after deletion is
+  confirmed or the file is already absent.
+- `verify()` now validates the supplied baseline before comparing semantic
+  digests. Failed, malformed, wrong-path, non-quiescent, source-writing, or
+  prohibited-operation baselines are rejected before a comparison is reported.
+- `scripts/verify_restore.py` now records Harness quiescence requirements,
+  baseline validity, and comparison status. `--require-harness-invariant` uses a
+  quiescent baseline/current comparison.
+- `scripts/smoke_test.py` now refuses to compare the Harness store against a
+  failed or missing baseline capture.
+
+### Validation
+
+```text
+pytest tests/test_harness_invariant.py -q
+                                 53 passed
+pytest tests/ --tb=short         444 passed in 23.22s
+ruff check .                     All checks passed!
+git diff --check                 clean
+verify_restore.py --expect-from-sources --json
+                                 PASS - 84/84, BM25 84, exact parity,
+                                 evaluation_case 0, feedback 2,
+                                 harness_invariant_checked=false
+verify_restore.py --harness-baseline --require-harness-invariant
+                                 PASS - baseline_valid=true,
+                                 comparison_performed=true,
+                                 semantic_drift=false
+validate_stage2_sources.py       verdict=pass, sources=10, errors=0, warnings=0
+validate_stage2_candidates.py    verdict=pass, records=12, errors=0, warnings=0
+sha256sum -c SHA256SUMS          all 10 source snapshots OK from
+                                 docs/evidence/source-snapshots/
+corpus_lint.py                   expected pre-activation manifest-coverage
+                                 findings for 10 ignored Stage 2 proposed files
+```
+
 ## [Unreleased] — Gate 1.2 Stage 2.3-H1, Harness invariant correction
 
 Version stays at `0.4.0-dev.2`. This is safety-gate correction work only: no

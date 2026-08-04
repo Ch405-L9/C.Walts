@@ -188,6 +188,14 @@ backup-API snapshot for deterministic analysis, and deletes that snapshot before
 exit. It does not checkpoint WAL, run `VACUUM`, run `REINDEX`, repair, restore,
 stop services, or retain database bytes.
 
+Snapshot cleanup is fail-closed. `sqlite_backup_snapshot()` owns the temporary
+file until it successfully returns a usable path, so source-open,
+destination-open, and backup-copy failures delete the temporary file before the
+exception propagates. After a snapshot is returned, `capture()` deletes it during
+normal completion and handled analysis failures. A successful capture is not
+possible when the temporary snapshot still exists; cleanup failure is reported as
+`temporary_snapshot_cleanup_failed`.
+
 The semantic invariant covers schema SHA-256, whole logical database SHA-256,
 collection inventory digest, collection names and IDs, per-collection counts,
 per-collection ID sets, canonical document/metadata digests, duplicate and blank
@@ -209,3 +217,12 @@ fingerprints and `harness_invariant_checked: false`; it does not compare against
 a historical MD5 and does not claim external immutability. Stage 2.3 must
 capture a fresh baseline before activation and verify it afterward. Any semantic
 Harness drift blocks success and triggers the C.Walts rollback path.
+
+Baselines are validated before comparison. A baseline must be a passing capture
+for the same database path, include no findings, report no source write or
+prohibited operation, confirm its temporary snapshot was deleted, include the
+semantic digests and collection inventory, and report zero duplicate IDs, blank
+IDs, and unresolved segment references. When `--require-quiescent` is used, both
+the baseline and current capture must be quiescent: no active holder process and
+no WAL or SHM sidecar. Invalid baselines fail before any successful invariant
+comparison is claimed.

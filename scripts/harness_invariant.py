@@ -131,21 +131,41 @@ def find_db_holder_processes(database: Path) -> list[dict[str, Any]]:
 
 
 def sqlite_backup_snapshot(database: Path) -> SnapshotResult:
-    tmp = tempfile.NamedTemporaryFile(
-        prefix="cwalts-harness-snapshot-",
-        suffix=".sqlite3",
-        delete=False,
-    )
-    tmp_path = Path(tmp.name)
-    tmp.close()
-    source = sqlite3.connect(f"file:{database.resolve()}?mode=ro", uri=True)
-    destination = sqlite3.connect(tmp_path)
+    tmp_path: Path | None = None
+    source: sqlite3.Connection | None = None
+    destination: sqlite3.Connection | None = None
     try:
+        tmp = tempfile.NamedTemporaryFile(
+            prefix="cwalts-harness-snapshot-",
+            suffix=".sqlite3",
+            delete=False,
+        )
+        tmp_path = Path(tmp.name)
+        tmp.close()
+        source = sqlite3.connect(f"file:{database.resolve()}?mode=ro", uri=True)
+        destination = sqlite3.connect(tmp_path)
         source.backup(destination)
+        destination.commit()
+        return SnapshotResult(path=tmp_path)
+    except BaseException:
+        if destination is not None:
+            try:
+                destination.close()
+            finally:
+                destination = None
+        if source is not None:
+            try:
+                source.close()
+            finally:
+                source = None
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+        raise
     finally:
-        destination.close()
-        source.close()
-    return SnapshotResult(path=tmp_path)
+        if destination is not None:
+            destination.close()
+        if source is not None:
+            source.close()
 
 
 def table_names(connection: sqlite3.Connection) -> set[str]:
@@ -507,21 +527,30 @@ def capture(database: Path, *, require_quiescent: bool = False) -> dict[str, Any
         "temporary_snapshot_deleted": False,
     }
     snapshot = sqlite_backup_snapshot(database)
+    connection: sqlite3.Connection | None = None
+    cleanup_findings: list[str] = []
     try:
         connection = sqlite3.connect(f"file:{snapshot.path.resolve()}?mode=ro", uri=True)
-        try:
-            report.update(analyze_connection(connection))
-        finally:
-            connection.close()
+        report.update(analyze_connection(connection))
     finally:
+        if connection is not None:
+            connection.close()
         try:
-            snapshot.path.unlink()
-            report["temporary_snapshot_deleted"] = True
+            if snapshot.path.exists():
+                snapshot.path.unlink()
+            report["temporary_snapshot_deleted"] = not snapshot.path.exists()
         except FileNotFoundError:
             report["temporary_snapshot_deleted"] = True
+        except OSError as exc:
+            report["temporary_snapshot_deleted"] = False
+            cleanup_findings.append("temporary_snapshot_cleanup_failed")
+            report["temporary_snapshot_cleanup_error"] = str(exc)
     findings = list(report.get("unexpected_health_failures", []))
+    findings.extend(cleanup_findings)
     if require_quiescent and not quiescent:
         findings.append("database_not_quiescent")
+    if not report["temporary_snapshot_deleted"]:
+        findings.append("temporary_snapshot_cleanup_failed")
     report["findings"] = sorted(set(findings))
     report["verdict"] = "pass" if not findings else "fail"
     return report
@@ -541,13 +570,109 @@ SEMANTIC_KEYS = [
 ]
 
 
+def validate_baseline(
+    baseline: dict[str, Any],
+    database: Path,
+    *,
+    require_quiescent: bool,
+) -> list[str]:
+    if not isinstance(baseline, dict):
+        return ["baseline_not_mapping"]
+    findings: list[str] = []
+    if baseline.get("schema_version") != SCHEMA_VERSION:
+        findings.append("baseline_schema_version_invalid")
+    if baseline.get("mode") != "capture":
+        findings.append("baseline_mode_invalid")
+    if baseline.get("verdict") != "pass":
+        findings.append("baseline_verdict_failed")
+    if baseline.get("findings"):
+        findings.append("baseline_has_findings")
+    try:
+        baseline_path = Path(str(baseline.get("database_path", ""))).resolve()
+    except OSError:
+        baseline_path = Path()
+    if baseline_path != database.resolve():
+        findings.append("baseline_database_path_mismatch")
+    if baseline.get("source_write_performed") is not False:
+        findings.append("baseline_reports_source_write")
+    prohibited = (
+        "wal_checkpoint_performed",
+        "vacuum_performed",
+        "reindex_performed",
+        "restore_performed",
+    )
+    if any(baseline.get(key) is not False for key in prohibited):
+        findings.append("baseline_reports_prohibited_operation")
+    if baseline.get("temporary_snapshot_deleted") is not True:
+        findings.append("baseline_snapshot_not_deleted")
+    if baseline.get("full_documents_included") is not False:
+        findings.append("baseline_collection_inventory_invalid")
+    if baseline.get("embeddings_included") is not False:
+        findings.append("baseline_collection_inventory_invalid")
+    if baseline.get("health") not in {HEALTH_OK, HEALTH_ANOMALY}:
+        findings.append("baseline_health_invalid")
+    if baseline.get("unexpected_health_failures"):
+        findings.append("baseline_health_invalid")
+    if not baseline.get("schema_sha256") or not baseline.get("logical_database_sha256"):
+        findings.append("baseline_semantic_digest_missing")
+    if not baseline.get("collection_inventory_digest") or not isinstance(
+        baseline.get("collections"), list
+    ):
+        findings.append("baseline_collection_inventory_invalid")
+    if baseline.get("duplicate_id_count") != 0 or baseline.get("blank_id_count") != 0:
+        findings.append("baseline_collection_inventory_invalid")
+    if baseline.get("logical_unresolved_segment_collection_count") != 0:
+        findings.append("baseline_collection_inventory_invalid")
+    if require_quiescent:
+        wal = baseline.get("wal_identity") or {}
+        shm = baseline.get("shm_identity") or {}
+        if (
+            baseline.get("require_quiescent") is not True
+            or baseline.get("database_quiescent") is not True
+            or baseline.get("active_db_holder_processes")
+            or wal.get("exists")
+            or shm.get("exists")
+        ):
+            findings.append("baseline_not_quiescent")
+    return sorted(set(findings))
+
+
 def verify(
     database: Path,
     baseline: dict[str, Any],
     *,
     require_quiescent: bool = False,
 ) -> dict[str, Any]:
+    database = Path(database).resolve()
+    baseline_validation_findings = validate_baseline(
+        baseline,
+        database,
+        require_quiescent=require_quiescent,
+    )
+    baseline_valid = not baseline_validation_findings
+    if not baseline_valid:
+        return {
+            "schema_version": SCHEMA_VERSION,
+            "generated_at": utc_now(),
+            "mode": "verify",
+            "database_path": str(database),
+            "baseline_generated_at": baseline.get("generated_at")
+            if isinstance(baseline, dict)
+            else None,
+            "baseline_valid": False,
+            "baseline_validation_findings": baseline_validation_findings,
+            "current_capture_valid": None,
+            "comparison_performed": False,
+            "current_capture": None,
+            "physical_drift": None,
+            "semantic_drift": None,
+            "raw_identity_differences": [],
+            "semantic_differences": [],
+            "findings": baseline_validation_findings,
+            "verdict": "fail",
+        }
     current = capture(database, require_quiescent=require_quiescent)
+    current_capture_valid = current.get("verdict") == "pass"
     semantic_differences = []
     for key in SEMANTIC_KEYS:
         if current.get(key) != baseline.get(key):
@@ -573,6 +698,10 @@ def verify(
         "mode": "verify",
         "database_path": str(Path(database).resolve()),
         "baseline_generated_at": baseline.get("generated_at"),
+        "baseline_valid": baseline_valid,
+        "baseline_validation_findings": baseline_validation_findings,
+        "current_capture_valid": current_capture_valid,
+        "comparison_performed": current_capture_valid,
         "current_capture": current,
         "physical_drift": bool(raw_differences),
         "semantic_drift": bool(semantic_differences),

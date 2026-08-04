@@ -27,6 +27,7 @@ def _load_script(name: str):
 
 harness = _load_script("harness_invariant")
 verify_restore = _load_script("verify_restore")
+smoke_test = _load_script("smoke_test")
 
 
 def _connect(path: Path) -> sqlite3.Connection:
@@ -149,6 +150,36 @@ def _mutate_metadata(path: Path, value: str) -> None:
         connection.commit()
     finally:
         connection.close()
+
+
+def _snapshot_files(path: Path) -> list[Path]:
+    return sorted(path.glob("cwalts-harness-snapshot-*.sqlite3"))
+
+
+def _fake_named_temporary_file(root: Path):
+    def factory(*_args: Any, **_kwargs: Any):
+        root.mkdir(parents=True, exist_ok=True)
+        path = root / f"cwalts-harness-snapshot-{len(_snapshot_files(root))}.sqlite3"
+        return path.open("w+b")
+
+    return factory
+
+
+class _FakeConnection:
+    def __init__(self, *, backup_error: Exception | None = None) -> None:
+        self.backup_error = backup_error
+        self.closed = False
+        self.committed = False
+
+    def backup(self, _destination: _FakeConnection) -> None:
+        if self.backup_error is not None:
+            raise self.backup_error
+
+    def commit(self) -> None:
+        self.committed = True
+
+    def close(self) -> None:
+        self.closed = True
 
 
 def test_chroma_schema_anomaly_fixture_passes(tmp_path: Path) -> None:
@@ -282,6 +313,171 @@ def test_capture_performs_no_vacuum_or_reindex(tmp_path: Path) -> None:
     report = _capture(db)
     assert report["vacuum_performed"] is False
     assert report["reindex_performed"] is False
+
+
+def test_source_connection_failure_removes_temporary_snapshot(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    temp_root = tmp_path / "tmp"
+    db = tmp_path / "missing.sqlite3"
+    db.write_bytes(b"not sqlite")
+    monkeypatch.setattr(
+        harness.tempfile,
+        "NamedTemporaryFile",
+        _fake_named_temporary_file(temp_root),
+    )
+
+    def fail_connect(*_args: Any, **_kwargs: Any):
+        raise sqlite3.Error("source failed")
+
+    monkeypatch.setattr(harness.sqlite3, "connect", fail_connect)
+
+    with pytest.raises(sqlite3.Error, match="source failed"):
+        harness.sqlite_backup_snapshot(db)
+
+    assert _snapshot_files(temp_root) == []
+
+
+def test_destination_connection_failure_removes_temporary_snapshot(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    temp_root = tmp_path / "tmp"
+    db = tmp_path / "chroma.sqlite3"
+    db.write_bytes(b"source")
+    source = _FakeConnection()
+
+    def fake_connect(target: object, *_args: Any, **_kwargs: Any):
+        if str(target).startswith("file:"):
+            return source
+        raise sqlite3.Error("destination failed")
+
+    monkeypatch.setattr(
+        harness.tempfile,
+        "NamedTemporaryFile",
+        _fake_named_temporary_file(temp_root),
+    )
+    monkeypatch.setattr(harness.sqlite3, "connect", fake_connect)
+
+    with pytest.raises(sqlite3.Error, match="destination failed"):
+        harness.sqlite_backup_snapshot(db)
+
+    assert source.closed is True
+    assert _snapshot_files(temp_root) == []
+
+
+def test_sqlite_backup_failure_removes_temporary_snapshot_and_closes_connections(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    temp_root = tmp_path / "tmp"
+    db = tmp_path / "chroma.sqlite3"
+    db.write_bytes(b"source")
+    source = _FakeConnection(backup_error=sqlite3.Error("backup failed"))
+    destination = _FakeConnection()
+
+    def fake_connect(target: object, *_args: Any, **_kwargs: Any):
+        return source if str(target).startswith("file:") else destination
+
+    monkeypatch.setattr(
+        harness.tempfile,
+        "NamedTemporaryFile",
+        _fake_named_temporary_file(temp_root),
+    )
+    monkeypatch.setattr(harness.sqlite3, "connect", fake_connect)
+
+    with pytest.raises(sqlite3.Error, match="backup failed"):
+        harness.sqlite_backup_snapshot(db)
+
+    assert source.closed is True
+    assert destination.closed is True
+    assert _snapshot_files(temp_root) == []
+
+
+def test_analysis_failure_after_snapshot_creation_removes_snapshot(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    snapshots: list[Path] = []
+    original_snapshot = harness.sqlite_backup_snapshot
+
+    def wrapped(database: Path):
+        result = original_snapshot(database)
+        snapshots.append(result.path)
+        return result
+
+    monkeypatch.setattr(harness, "sqlite_backup_snapshot", wrapped)
+    monkeypatch.setattr(
+        harness,
+        "analyze_connection",
+        lambda _connection: (_ for _ in ()).throw(RuntimeError("analysis failed")),
+    )
+
+    with pytest.raises(RuntimeError, match="analysis failed"):
+        _capture(db)
+
+    assert snapshots
+    assert not snapshots[0].exists()
+
+
+def test_snapshot_readonly_connection_failure_removes_snapshot(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    snapshot_path = tmp_path / "snapshot.sqlite3"
+    snapshots = [snapshot_path]
+
+    def fake_snapshot(_database: Path):
+        snapshot_path.write_bytes(db.read_bytes())
+        return harness.SnapshotResult(path=snapshot_path)
+
+    monkeypatch.setattr(harness, "sqlite_backup_snapshot", fake_snapshot)
+    def fail_snapshot_open(*_args: Any, **_kwargs: Any):
+        raise sqlite3.Error("snapshot open failed")
+
+    monkeypatch.setattr(harness.sqlite3, "connect", fail_snapshot_open)
+
+    with pytest.raises(sqlite3.Error, match="snapshot open failed"):
+        _capture(db)
+
+    assert snapshots[0].exists() is False
+
+
+def test_snapshot_unlink_failure_fails_capture(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    snapshots: list[Path] = []
+    original_snapshot = harness.sqlite_backup_snapshot
+    original_unlink = harness.Path.unlink
+
+    def wrapped(database: Path):
+        result = original_snapshot(database)
+        snapshots.append(result.path)
+        return result
+
+    def failing_unlink(path: Path, *args: Any, **kwargs: Any) -> None:
+        if snapshots and path == snapshots[0]:
+            raise OSError("cannot remove snapshot")
+        original_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(harness, "sqlite_backup_snapshot", wrapped)
+    monkeypatch.setattr(harness.Path, "unlink", failing_unlink)
+
+    report = _capture(db)
+
+    assert report["verdict"] == "fail"
+    assert report["temporary_snapshot_deleted"] is False
+    assert "temporary_snapshot_cleanup_failed" in report["findings"]
+    assert snapshots and snapshots[0].exists()
+    original_unlink(snapshots[0])
 
 
 def test_identical_capture_and_verify_pass(tmp_path: Path) -> None:
@@ -422,6 +618,150 @@ def test_active_external_writer_with_require_quiescent_fails(
     assert "database_not_quiescent" in report["findings"]
 
 
+@pytest.mark.parametrize(
+    ("mutate", "expected_code"),
+    [
+        (
+            lambda baseline, _db: baseline.update({"verdict": "fail"}),
+            "baseline_verdict_failed",
+        ),
+        (
+            lambda baseline, _db: baseline.update({"findings": ["prior_failure"]}),
+            "baseline_has_findings",
+        ),
+        (
+            lambda baseline, _db: baseline.update({"schema_version": 999}),
+            "baseline_schema_version_invalid",
+        ),
+        (
+            lambda baseline, _db: baseline.update({"mode": "verify"}),
+            "baseline_mode_invalid",
+        ),
+        (
+            lambda baseline, db: baseline.update(
+                {"database_path": str(db.with_name("other.sqlite3"))}
+            ),
+            "baseline_database_path_mismatch",
+        ),
+        (
+            lambda baseline, _db: baseline.update({"source_write_performed": True}),
+            "baseline_reports_source_write",
+        ),
+        (
+            lambda baseline, _db: baseline.update({"vacuum_performed": True}),
+            "baseline_reports_prohibited_operation",
+        ),
+        (
+            lambda baseline, _db: baseline.update({"temporary_snapshot_deleted": False}),
+            "baseline_snapshot_not_deleted",
+        ),
+        (
+            lambda baseline, _db: baseline.update({"logical_database_sha256": ""}),
+            "baseline_semantic_digest_missing",
+        ),
+    ],
+)
+def test_invalid_baselines_are_rejected(
+    tmp_path: Path,
+    mutate: Any,
+    expected_code: str,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    baseline = _capture(db, require_quiescent=True)
+    mutate(baseline, db)
+
+    result = harness.verify(db, baseline, require_quiescent=True)
+
+    assert result["verdict"] == "fail"
+    assert result["baseline_valid"] is False
+    assert result["comparison_performed"] is False
+    assert expected_code in result["baseline_validation_findings"]
+
+
+def test_baseline_collection_inventory_failures_are_rejected(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    baseline = _capture(db)
+    baseline["duplicate_id_count"] = 1
+
+    result = harness.verify(db, baseline)
+
+    assert result["verdict"] == "fail"
+    assert "baseline_collection_inventory_invalid" in result["baseline_validation_findings"]
+
+
+def test_non_mapping_baseline_is_rejected(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+
+    result = harness.verify(db, ["not", "a", "mapping"], require_quiescent=True)
+
+    assert result["verdict"] == "fail"
+    assert result["baseline_validation_findings"] == ["baseline_not_mapping"]
+
+
+def test_non_quiescent_baseline_rejected_when_quiescence_required(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    baseline = _capture(db)
+    baseline["require_quiescent"] = False
+    baseline["database_quiescent"] = False
+    baseline["active_db_holder_processes"] = [{"pid": 123, "paths": [str(db)], "cmdline": "writer"}]
+
+    result = harness.verify(db, baseline, require_quiescent=True)
+
+    assert result["verdict"] == "fail"
+    assert "baseline_not_quiescent" in result["baseline_validation_findings"]
+
+
+def test_current_active_writer_rejected_when_quiescence_required(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    baseline = _capture(db, require_quiescent=True)
+    monkeypatch.setattr(
+        harness,
+        "find_db_holder_processes",
+        lambda _database: [{"pid": os.getpid(), "paths": [str(db)], "cmdline": "pytest"}],
+    )
+
+    result = harness.verify(db, baseline, require_quiescent=True)
+
+    assert result["verdict"] == "fail"
+    assert result["baseline_valid"] is True
+    assert result["current_capture_valid"] is False
+    assert "database_not_quiescent" in result["findings"]
+
+
+@pytest.mark.parametrize("sidecar", ["chroma.sqlite3-wal", "chroma.sqlite3-shm"])
+def test_current_wal_or_shm_rejected_when_quiescence_required(tmp_path: Path, sidecar: str) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    baseline = _capture(db, require_quiescent=True)
+    (tmp_path / sidecar).write_text("sidecar", encoding="utf-8")
+
+    result = harness.verify(db, baseline, require_quiescent=True)
+
+    assert result["verdict"] == "fail"
+    assert result["current_capture_valid"] is False
+    assert "database_not_quiescent" in result["findings"]
+
+
+def test_valid_quiescent_baseline_and_current_pair_passes(tmp_path: Path) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    baseline = _capture(db, require_quiescent=True)
+
+    result = harness.verify(db, baseline, require_quiescent=True)
+
+    assert result["verdict"] == "pass"
+    assert result["baseline_valid"] is True
+    assert result["comparison_performed"] is True
+
+
 def test_verify_restore_with_valid_baseline_passes_harness_gate(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -434,6 +774,62 @@ def test_verify_restore_with_valid_baseline_passes_harness_gate(
     report = verify_restore.verify({"id1"}, 1, "fixture", harness_baseline=baseline)
     assert report["verified"] is True, report["failures"]
     assert report["harness_invariant_checked"] is True
+
+
+def test_verify_restore_required_harness_uses_quiescent_comparison(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    baseline = _capture(db, require_quiescent=True)
+    monkeypatch.setattr(verify_restore, "HARNESS_DB", db)
+    _patch_restore_fakes(tmp_path, monkeypatch)
+    calls: list[bool] = []
+    original_verify = verify_restore.harness_invariant.verify
+
+    def wrapped(
+        database: Path,
+        baseline_report: dict[str, Any],
+        *,
+        require_quiescent: bool = False,
+    ):
+        calls.append(require_quiescent)
+        return original_verify(database, baseline_report, require_quiescent=require_quiescent)
+
+    monkeypatch.setattr(verify_restore.harness_invariant, "verify", wrapped)
+
+    report = verify_restore.verify(
+        {"id1"},
+        1,
+        "fixture",
+        harness_baseline=baseline,
+        require_harness_invariant=True,
+    )
+
+    assert report["verified"] is True, report["failures"]
+    assert calls == [True]
+    assert report["harness_quiescence_required"] is True
+    assert report["harness_baseline_valid"] is True
+    assert report["harness_comparison_performed"] is True
+
+
+def test_verify_restore_rejects_failed_harness_baseline(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    _create_chroma_fixture(db)
+    baseline = _capture(db)
+    baseline["verdict"] = "fail"
+    monkeypatch.setattr(verify_restore, "HARNESS_DB", db)
+    _patch_restore_fakes(tmp_path, monkeypatch)
+
+    report = verify_restore.verify({"id1"}, 1, "fixture", harness_baseline=baseline)
+
+    assert report["verified"] is False
+    assert report["harness_baseline_valid"] is False
+    assert any("Harness semantic invariant failed" in failure for failure in report["failures"])
 
 
 def test_verify_restore_with_semantic_harness_drift_fails(
@@ -469,6 +865,35 @@ def test_verify_restore_without_baseline_reports_unchecked_and_does_not_use_old_
     report = verify_restore.verify({"id1"}, 1, "fixture")
     assert report["verified"] is True, report["failures"]
     assert report["harness_invariant_checked"] is False
+
+
+def test_smoke_test_does_not_compare_against_failed_baseline(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db = tmp_path / "chroma.sqlite3"
+    db.write_text("placeholder", encoding="utf-8")
+    monkeypatch.setattr(smoke_test, "HARNESS_DB", db)
+    monkeypatch.setattr(
+        smoke_test.harness_invariant,
+        "capture",
+        lambda _database, *, require_quiescent: {
+            "verdict": "fail",
+            "findings": ["database_not_quiescent"],
+        },
+    )
+
+    def forbidden_verify(*_args: Any, **_kwargs: Any):
+        raise AssertionError("verify should not run against a failed baseline")
+
+    monkeypatch.setattr(smoke_test.harness_invariant, "verify", forbidden_verify)
+
+    passed, detail = smoke_test.harness_semantic_unchanged_check()
+
+    assert passed is False
+    assert detail["baseline_valid"] is False
+    assert detail["comparison_performed"] is False
+    assert detail["findings"] == ["database_not_quiescent"]
 
 
 def test_historical_md5_is_not_an_executable_acceptance_constant() -> None:
