@@ -48,6 +48,26 @@ checkpoint.
 - Stage 2.3 still excludes EVAL-009 inspection, holdout inspection, threshold
   fitting, Stage 3 implementation, Gate 2 work, and closing `CW-LIM-009`.
 
+### Activation Evidence
+
+- Content commit: `d8c5f54bf1bcf756205eb6a701203c197b987927`.
+- Fresh backup:
+  `var/backups/stage2-3-pre-activation-20260805T024507Z/`, verdict `pass`.
+- Controlled activation completed with `mutation_performed=true` and
+  `rollback_performed=false`.
+- Live Chroma count: 96.
+- Live BM25 count: 96.
+- Exact Chroma/BM25 parity: true.
+- Prior records retained unchanged: 84.
+- `evaluation_case`: 0.
+- Feedback collection: 2.
+- BADGR Harness invariant: baseline valid, comparison performed,
+  semantic drift false.
+- Live retrieval-diversity verification: pass.
+- Corpus lint: 96 chunks, 0 failures, 0 warnings.
+- Full test suite: `473 passed in 23.37s`.
+- Restore verification with required Harness invariant: pass.
+
 ## [Unreleased] — Gate 1.2 Stage 2.3-H1R2, Harness snapshot close-safety
 
 Version stays at `0.4.0-dev.2`. This is safety-gate correction work only: no

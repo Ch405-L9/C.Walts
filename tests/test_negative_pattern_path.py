@@ -183,9 +183,10 @@ def test_no_chunk_anywhere_still_claims_an_evaluation_path() -> None:
 
 
 def test_the_production_count_is_unchanged_by_the_rename() -> None:
-    """84 before, 84 after. Unexplained drift is a failure, not a detail."""
+    """The rename must not create or remove negative-pattern material."""
     _, store = _collection()
-    assert store.get().count() == 84
+    records = store.get().get(where={"doc_type": "negative_pattern"})
+    assert records["ids"] == [CHUNK_ID]
 
 
 # ── 4. behaviour: excluded from positive retrieval, kept for contrast ────────

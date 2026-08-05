@@ -2675,6 +2675,85 @@ thresholds, did not begin Stage 3 or Gate 2, and did not close `CW-LIM-009`.
 Final activation measurements are recorded separately after the live 84-to-96
 transition.
 
+## 2026-08-04 — Gate 1.2 Stage 2.3 live activation completed
+
+Content commit:
+`d8c5f54bf1bcf756205eb6a701203c197b987927`.
+
+Activation command:
+
+```text
+.venv/bin/python scripts/run_stage2_activation.py --confirm-stage2-activation
+```
+
+The wrapper verified the fresh backup, captured a quiescent BADGR Harness
+baseline, ran the write-capable activation subprocess with `NFR_ALLOW_WRITES`
+scoped to that subprocess, and immediately verified the Harness baseline
+afterward.
+
+Measured live results:
+
+```text
+activation_report.json             verdict=pass, mutation_performed=true,
+                                   embedded_text_count=12,
+                                   bm25_replaced=true
+harness_postcheck.json             verdict=pass, baseline_valid=true,
+                                   comparison_performed=true,
+                                   physical_drift=false,
+                                   semantic_drift=false
+post_activation_verification.json  verdict=pass, Chroma 96, BM25 96,
+                                   exact parity true
+post_activation_state.json         verdict=pass, evaluation_case 0,
+                                   feedback 2, prior IDs retained 84,
+                                   prior content/metadata changes 0
+live_retrieval_verification.json   verdict=pass, required Stage 2 source
+                                   coverage retrieved for all families
+live_reindex_equivalence.json      verdict=pass, would_add 0, stale 0,
+                                   unchanged 96, mutation_performed=false
+post_activation_corpus_lint.json   total_chunks=96, failures=0, warnings=0
+post_activation_restore_verification.json
+                                   verified=true, production_count=96,
+                                   bm25_chunk_ids=96, parity=true,
+                                   harness_invariant_checked=true,
+                                   semantic_drift=false
+```
+
+Post-activation validation:
+
+```text
+.venv/bin/python -m pytest tests/ --tb=short
+  473 passed in 23.37s
+
+.venv/bin/ruff check .
+  All checks passed!
+
+git diff --check
+  clean
+
+.venv/bin/python scripts/validate_stage2_sources.py
+  verdict=pass, sources=10, errors=0, warnings=0
+
+.venv/bin/python scripts/validate_stage2_candidates.py
+  verdict=pass, records=12, errors=0, warnings=0
+
+.venv/bin/python var/stage2_authoring/validate_authored_records.py
+  verdict=pass, records=12, errors=0, warnings=0
+
+.venv/bin/python var/stage2_authoring/validate_authored_records.py --self-test
+  verdict=pass, cases=8, failures=0
+
+sha256sum -c SHA256SUMS  # run from docs/evidence/source-snapshots/
+  all 10 source snapshots OK
+```
+
+Activation evidence frozen at:
+`docs/evidence/gate1_2-stage2-activation.json`.
+
+No BADGR Harness write occurred; no permanent Harness MD5 gate was reintroduced.
+No holdout content or EVAL-009 wording was inspected, no threshold fitting was
+performed, no Stage 3 implementation or Gate 2 work began, and `CW-LIM-009`
+remains open.
+
 ---
 
 ## Gate 1.2 Stage 2.3-H1R — Harness invariant failure-path hardening
