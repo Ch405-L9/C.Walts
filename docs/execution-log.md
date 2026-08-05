@@ -2609,6 +2609,72 @@ sha256sum -c SHA256SUMS  # run from docs/evidence/source-snapshots/
   Stage 2 proposed files under corpus/raw/stage2_public_examples/
 ```
 
+## 2026-08-04 — Gate 1.2 Stage 2.3 controlled activation preparation
+
+Accepted starting checkpoint:
+`f12886c04a85d1da60a2244c08bb4fa5408e11ce`.
+
+Accepted B2R1 package:
+`aa24cfc7f9119c40b9b9c64ac718713a12ead8e5b391a0693d877441564bf689`.
+
+Accepted H1R2 Harness package:
+`cb817e0c29e4bc90922f9b2723a8d2267c04f3720b07edba639fd53896483f85`.
+
+Version prepared for activation: `0.4.0-dev.3`.
+
+Pre-change state was verified on
+`feat/narration-generalization-v0.4`: C.Walts Chroma 84, BM25 84, exact parity
+true, `evaluation_case` 0, feedback 2, embedding model `nomic-embed-text`,
+digest `0a109f422b47`, dimension 768, `config/sources.yaml` SHA-256
+`cc3d97b0cda06495a8147e92cd3e376762fcad035aa355d2d008449bc7b8f4ef`, and
+NOTICE SHA-256
+`af7629f4260abf1556029990951e46ac9ed842f5526bd44478ae4ea3bf5aca29`.
+
+Fresh pre-activation backup:
+`var/backups/stage2-3-pre-activation-20260805T024507Z/`.
+
+Backup result:
+
+```text
+fresh_backup_report.json         verdict=pass, Chroma 84, BM25 84,
+                                 exact parity true, evaluation_case 0,
+                                 feedback 2
+fresh_rollback_smoke_test.json   verdict=pass, isolated restore Chroma 84,
+                                 BM25 84, exact parity true,
+                                 evaluation_case 0, feedback 2
+```
+
+Prepared tracked activation content:
+
+- ten accepted Stage 2 public-source `approved_examples.md` files copied
+  byte-for-byte from the B2R1 package;
+- exactly ten approved public-source entries appended to `config/sources.yaml`;
+- accepted ten-source CC BY attribution block appended once to NOTICE;
+- dedicated add-only activation tool and wrapper added;
+- focused activation tests added.
+
+The exact accepted Stage 2 deterministic IDs remain:
+
+```text
+00c8de5cea3d7264_1
+34b2313e2e1d6a27_0
+3803c58ef7081395_0
+4be038e8819e8c1e_0
+5c2a189e56a20f08_0
+80d2e5225b05e9e1_0
+8de17b0cbff6c2cb_0
+d4ed381978ee9df0_0
+de2924affb966cdc_0
+df50d16e51c460fc_1
+e70d3e8ae1737bcb_0
+f3340055575f6517_0
+```
+
+This preparation did not inspect EVAL-009 or holdout material, did not fit
+thresholds, did not begin Stage 3 or Gate 2, and did not close `CW-LIM-009`.
+Final activation measurements are recorded separately after the live 84-to-96
+transition.
+
 ---
 
 ## Gate 1.2 Stage 2.3-H1R — Harness invariant failure-path hardening

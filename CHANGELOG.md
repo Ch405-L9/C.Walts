@@ -3,6 +3,51 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.2 Stage 2.3, controlled public-example activation
+
+Version advances to `0.4.0-dev.3` for the controlled Stage 2 activation
+checkpoint.
+
+### Added
+
+- Ten approved CC BY 4.0 Stage 2 public-source `approved_examples.md` files are
+  prepared for production ingestion, containing exactly twelve accepted
+  before/after records: `CW-040` through `CW-051`.
+- `scripts/activate_stage2.py` implements the narrow add-only activation path:
+  it builds the 96-record source plan, embeds only the twelve accepted additions,
+  writes only those twelve Chroma IDs, and replaces BM25 atomically only after
+  Chroma post-write verification.
+- `scripts/run_stage2_activation.py` wraps the write subprocess with fresh backup
+  verification, operation-scoped BADGR Harness baseline capture/postcheck, and
+  C.Walts rollback handling on activation failure.
+- `tests/test_stage2_activation.py` covers Stage 2 activation preconditions,
+  add-only write behavior, refusal modes, and failure ordering with isolated
+  fakes.
+
+### Changed
+
+- `config/sources.yaml` appends exactly the ten approved Stage 2 public-source
+  entries while preserving the existing five production sources, comments,
+  withdrawn-source notes, and quarantined records.
+- `NOTICE` appends the accepted ten-source CC BY attribution block from the B2R1
+  review package.
+
+### Safety
+
+- Accepted B2R1 package:
+  `aa24cfc7f9119c40b9b9c64ac718713a12ead8e5b391a0693d877441564bf689`.
+- Accepted H1R2 Harness package:
+  `cb817e0c29e4bc90922f9b2723a8d2267c04f3720b07edba639fd53896483f85`.
+- The exact accepted Stage 2 IDs are frozen as:
+  `00c8de5cea3d7264_1`, `34b2313e2e1d6a27_0`,
+  `3803c58ef7081395_0`, `4be038e8819e8c1e_0`,
+  `5c2a189e56a20f08_0`, `80d2e5225b05e9e1_0`,
+  `8de17b0cbff6c2cb_0`, `d4ed381978ee9df0_0`,
+  `de2924affb966cdc_0`, `df50d16e51c460fc_1`,
+  `e70d3e8ae1737bcb_0`, and `f3340055575f6517_0`.
+- Stage 2.3 still excludes EVAL-009 inspection, holdout inspection, threshold
+  fitting, Stage 3 implementation, Gate 2 work, and closing `CW-LIM-009`.
+
 ## [Unreleased] — Gate 1.2 Stage 2.3-H1R2, Harness snapshot close-safety
 
 Version stays at `0.4.0-dev.2`. This is safety-gate correction work only: no

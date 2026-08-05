@@ -157,6 +157,80 @@ Before any production corpus mutation, Stage 2.2B must show:
 These tools do not authorize mutation by themselves. They are preconditions for
 owner approval immediately before the first production corpus write.
 
+## Stage 2.3 controlled activation
+
+Stage 2.3 uses a dedicated add-only activation path. Do not use
+`scripts/ingest.py --commit` for this checkpoint.
+
+Read-only activation preflight:
+
+```bash
+.venv/bin/python scripts/activate_stage2.py \
+  --preflight \
+  --expected-current-count 84 \
+  --expected-final-count 96 \
+  --expected-b2r1-sha256 <accepted-b2r1-sha256> \
+  --expected-plan var/stage2_activation/final_reindex_preflight.json \
+  --expected-new-id <accepted-id> \
+  --output-json var/stage2_activation/activation_preflight.json
+```
+
+Controlled activation is run through the wrapper, not directly:
+
+```bash
+.venv/bin/python scripts/run_stage2_activation.py \
+  --backup-path <fresh-stage2-3-backup> \
+  --harness-baseline var/stage2_activation/harness_baseline.json \
+  --harness-postcheck var/stage2_activation/harness_postcheck.json \
+  --expected-current-count 84 \
+  --expected-final-count 96 \
+  --expected-b2r1-sha256 <accepted-b2r1-sha256> \
+  --expected-plan var/stage2_activation/final_reindex_preflight.json \
+  --expected-head <content-commit-sha> \
+  --expected-new-id <accepted-id> \
+  --activation-output var/stage2_activation/activation_report.json \
+  --activation-stdout var/stage2_activation/activation_command_stdout.txt \
+  --activation-stderr var/stage2_activation/activation_command_stderr.txt \
+  --journal-path var/stage2_activation/activation_journal.json \
+  --output-json var/stage2_activation/wrapper_report.json \
+  --confirm-stage2-activation
+```
+
+The wrapper captures a quiescent operation-scoped BADGR Harness baseline, starts
+the write-capable activation in a separate subprocess with `NFR_ALLOW_WRITES`
+set only for that process, immediately verifies the Harness baseline afterward,
+and restores C.Walts Chroma/BM25 from the fresh backup on activation or Harness
+postcheck failure.
+
+The activation tool builds the complete 96-record plan through the production
+record builder, compares it with the live 84-record store, embeds only the
+twelve accepted additions, and calls Chroma `add` only for those IDs. It never
+deletes Chroma IDs and never writes the feedback collection. A complete 96-record
+BM25 index is built and reloaded in isolation before any Chroma write, then
+atomically replaces the live BM25 index only after Chroma post-write verification
+proves all 84 prior records remain unchanged.
+
+The accepted Stage 2 IDs are:
+
+- `00c8de5cea3d7264_1`
+- `34b2313e2e1d6a27_0`
+- `3803c58ef7081395_0`
+- `4be038e8819e8c1e_0`
+- `5c2a189e56a20f08_0`
+- `80d2e5225b05e9e1_0`
+- `8de17b0cbff6c2cb_0`
+- `d4ed381978ee9df0_0`
+- `de2924affb966cdc_0`
+- `df50d16e51c460fc_1`
+- `e70d3e8ae1737bcb_0`
+- `f3340055575f6517_0`
+
+The fresh Stage 2.3 rollback checkpoint is
+`var/backups/stage2-3-pre-activation-20260805T024507Z/`. Its rollback smoke
+test restores to Chroma 84, BM25 84, exact parity, `evaluation_case` 0, and
+feedback 2 in an isolated workspace. A fresh backup remains mandatory for any
+future activation retry.
+
 ## Operation-scoped BADGR Harness invariant
 
 `scripts/harness_invariant.py` replaces the former permanent external MD5 gate

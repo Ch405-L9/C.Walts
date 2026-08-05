@@ -20,7 +20,7 @@
 # but empty — ingestion picks it up as soon as files are placed in its path.
 
 version: 1
-updated: 2026-07-31
+updated: 2026-08-04
 
 sources:
 
@@ -162,6 +162,233 @@ sources:
       from the file path. Only the source_path metadata moved. The rename exists
       so that no production-ingestible directory is named "evaluation", which
       previously invited exactly the confusion Gate 1 had to undo.
+
+  - id: labphon-11-ipra
+    title: Towards an International Prosodic Alphabet (IPrA)
+    url: https://doi.org/10.5334/labphon.11
+    path: corpus/raw/stage2_public_examples/labphon-11-ipra/
+    doc_type: approved_example
+    chunk_profile: approved_example
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_status: approved
+    license_verified_on: '2026-08-01'
+    license_verified_by: config/stage2_public_sources.yaml; preserved JATS snapshot checksum
+      verified
+    commercial_use: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    dialect: en-US
+    register: technical spoken rewrite
+    notes: 'Stage 2.2B-2 proposed source for candidates ST2-CAND-001 and records CW-040. Attribution:
+      José I. Hualde; Pilar Prieto, Towards an International Prosodic Alphabet (IPrA), Laboratory
+      Phonology: Journal of the Association for Laboratory Phonology, CC BY 4.0. Before text
+      is licensed source text; After text is an adapted rewrite. Changes were made. Source evidence
+      is preserved under docs/evidence/source-snapshots/.'
+  - id: labphon-29-new-methods
+    title: 'New Methods for Prosodic Transcription: Capturing Variability as a Source of Information'
+    url: https://doi.org/10.5334/labphon.29
+    path: corpus/raw/stage2_public_examples/labphon-29-new-methods/
+    doc_type: approved_example
+    chunk_profile: approved_example
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_status: approved
+    license_verified_on: '2026-08-01'
+    license_verified_by: config/stage2_public_sources.yaml; preserved JATS snapshot checksum
+      verified
+    commercial_use: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    dialect: en-US
+    register: technical spoken rewrite
+    notes: 'Stage 2.2B-2 proposed source for candidates ST2-CAND-003, ST2-CAND-011 and records
+      CW-042, CW-050. Attribution: Jennifer Cole; Stefanie Shattuck-Hufnagel, New Methods for
+      Prosodic Transcription: Capturing Variability as a Source of Information, Laboratory Phonology:
+      Journal of the Association for Laboratory Phonology, CC BY 4.0. Before text is licensed
+      source text; After text is an adapted rewrite. Changes were made. Source evidence is preserved
+      under docs/evidence/source-snapshots/.'
+  - id: labphon-32-introducing-apt
+    title: Introducing Advancing Prosodic Transcription
+    url: https://doi.org/10.5334/labphon.32
+    path: corpus/raw/stage2_public_examples/labphon-32-introducing-apt/
+    doc_type: approved_example
+    chunk_profile: approved_example
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_status: approved
+    license_verified_on: '2026-08-01'
+    license_verified_by: config/stage2_public_sources.yaml; preserved JATS snapshot checksum
+      verified
+    commercial_use: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    dialect: en-US
+    register: technical spoken rewrite
+    notes: 'Stage 2.2B-2 proposed source for candidates ST2-CAND-002 and records CW-041. Attribution:
+      Mariapaola D’Imperio; Francesco Cangemi; Martine Grice, Introducing Advancing Prosodic
+      Transcription, Laboratory Phonology, CC BY 4.0. Before text is licensed source text; After
+      text is an adapted rewrite. Changes were made. Source evidence is preserved under docs/evidence/source-snapshots/.'
+  - id: labphon-48-seoul-korean-focus
+    title: Prosodic Marking of Narrow Focus in Seoul Korean
+    url: https://doi.org/10.5334/labphon.48
+    path: corpus/raw/stage2_public_examples/labphon-48-seoul-korean-focus/
+    doc_type: approved_example
+    chunk_profile: approved_example
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_status: approved
+    license_verified_on: '2026-08-01'
+    license_verified_by: config/stage2_public_sources.yaml; preserved JATS snapshot checksum
+      verified
+    commercial_use: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    dialect: en-US
+    register: technical spoken rewrite
+    notes: 'Stage 2.2B-2 proposed source for candidates ST2-CAND-008 and records CW-047. Attribution:
+      Hae-Sung Jeon; Francis Nolan, Prosodic Marking of Narrow Focus in Seoul Korean, Laboratory
+      Phonology, CC BY 4.0. Before text is licensed source text; After text is an adapted rewrite.
+      Changes were made. Source evidence is preserved under docs/evidence/source-snapshots/.'
+  - id: pmc11592126-silent-reading-rhythm
+    title: Examining the Neural Markers of Speech Rhythm in Silent Reading Using Mass Univariate
+      Statistics of EEG Single Trials
+    url: https://doi.org/10.3390/brainsci14111142
+    path: corpus/raw/stage2_public_examples/pmc11592126-silent-reading-rhythm/
+    doc_type: approved_example
+    chunk_profile: approved_example
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_status: approved
+    license_verified_on: '2026-08-01'
+    license_verified_by: config/stage2_public_sources.yaml; preserved JATS snapshot checksum
+      verified
+    commercial_use: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    dialect: en-US
+    register: technical spoken rewrite
+    notes: 'Stage 2.2B-2 proposed source for candidates ST2-CAND-007 and records CW-046. Attribution:
+      Stephanie J. Powell; Srishti Nayak; Cyrille L. Magne, Examining the Neural Markers of
+      Speech Rhythm in Silent Reading Using Mass Univariate Statistics of EEG Single Trials,
+      Brain Sciences, CC BY 4.0. Before text is licensed source text; After text is an adapted
+      rewrite. Changes were made. Source evidence is preserved under docs/evidence/source-snapshots/.'
+  - id: pmc12452892-prosodic-meaning
+    title: 'Disentanglement of prosodic meaning: Toward a framework for the analysis of nonverbal
+      information in speech'
+    url: https://doi.org/10.1073/pnas.2500510122
+    path: corpus/raw/stage2_public_examples/pmc12452892-prosodic-meaning/
+    doc_type: approved_example
+    chunk_profile: approved_example
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_status: approved
+    license_verified_on: '2026-08-02'
+    license_verified_by: config/stage2_public_sources.yaml; preserved JATS snapshot checksum
+      verified
+    commercial_use: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    dialect: en-US
+    register: technical spoken rewrite
+    notes: 'Stage 2.2B-2 proposed source for candidates ST2-CAND-010 and records CW-049. Attribution:
+      Tirza Biron; Moshe Barboy; Eran Ben-Artzy; Alona Golubchik; Yanir Marmor; Assaf Marron;
+      Smadar Szekely; Yaron Winter; David Harel, Disentanglement of prosodic meaning: Toward
+      a framework for the analysis of nonverbal information in speech, Proceedings of the National
+      Academy of Sciences of the United States of America, CC BY 4.0. Before text is licensed
+      source text; After text is an adapted rewrite. Changes were made. Source evidence is preserved
+      under docs/evidence/source-snapshots/.'
+  - id: pmc12468771-l2-prosody-perception
+    title: 'Cross-Linguistic Influences on L2 Prosody Perception: Evidence from English Interrogative
+      Focus Perception by Mandarin Listeners'
+    url: https://doi.org/10.3390/brainsci15091000
+    path: corpus/raw/stage2_public_examples/pmc12468771-l2-prosody-perception/
+    doc_type: approved_example
+    chunk_profile: approved_example
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_status: approved
+    license_verified_on: '2026-08-01'
+    license_verified_by: config/stage2_public_sources.yaml; preserved JATS snapshot checksum
+      verified
+    commercial_use: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    dialect: en-US
+    register: technical spoken rewrite
+    notes: 'Stage 2.2B-2 proposed source for candidates ST2-CAND-004, ST2-CAND-006 and records
+      CW-043, CW-045. Attribution: Xing Liu; Xiaoxiang Chen; Chen Kuang; Fei Chen, Cross-Linguistic
+      Influences on L2 Prosody Perception: Evidence from English Interrogative Focus Perception
+      by Mandarin Listeners, Brain Sciences, CC BY 4.0. Before text is licensed source text;
+      After text is an adapted rewrite. Changes were made. Source evidence is preserved under
+      docs/evidence/source-snapshots/.'
+  - id: pmc12641984-ci-auditory-environment
+    title: Everyday Auditory Environment Among Elderly Cochlear Implant Users
+    url: https://doi.org/10.3390/audiolres15060144
+    path: corpus/raw/stage2_public_examples/pmc12641984-ci-auditory-environment/
+    doc_type: approved_example
+    chunk_profile: approved_example
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_status: approved
+    license_verified_on: '2026-08-02'
+    license_verified_by: config/stage2_public_sources.yaml; preserved JATS snapshot checksum
+      verified
+    commercial_use: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    dialect: en-US
+    register: technical spoken rewrite
+    notes: 'Stage 2.2B-2 proposed source for candidates ST2-CAND-009 and records CW-048. Attribution:
+      Ulrika Larsson; Ulrika Löfkvist; Karin Hallin, Everyday Auditory Environment Among Elderly
+      Cochlear Implant Users, Audiology Research, CC BY 4.0. Before text is licensed source
+      text; After text is an adapted rewrite. Changes were made. Source evidence is preserved
+      under docs/evidence/source-snapshots/.'
+  - id: pmc8092678-prosodic-boundaries
+    title: Automatic detection of prosodic boundaries in spontaneous speech
+    url: https://doi.org/10.1371/journal.pone.0250969
+    path: corpus/raw/stage2_public_examples/pmc8092678-prosodic-boundaries/
+    doc_type: approved_example
+    chunk_profile: approved_example
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_status: approved
+    license_verified_on: '2026-08-01'
+    license_verified_by: config/stage2_public_sources.yaml; preserved JATS snapshot checksum
+      verified
+    commercial_use: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    dialect: en-US
+    register: technical spoken rewrite
+    notes: 'Stage 2.2B-2 proposed source for candidates ST2-CAND-005 and records CW-044. Attribution:
+      Tirza Biron; Daniel Baum; Dominik Freche; Nadav Matalon; Netanel Ehrmann; Eyal Weinreb;
+      David Biron; Elisha Moses, Automatic detection of prosodic boundaries in spontaneous speech,
+      PLOS ONE, CC BY 4.0. Before text is licensed source text; After text is an adapted rewrite.
+      Changes were made. Source evidence is preserved under docs/evidence/source-snapshots/.'
+  - id: pmc9887997-intonational-categories
+    title: 'Internal structure of intonational categories: The (dis)appearance of a perceptual
+      magnet effect'
+    url: https://doi.org/10.3389/fpsyg.2022.911349
+    path: corpus/raw/stage2_public_examples/pmc9887997-intonational-categories/
+    doc_type: approved_example
+    chunk_profile: approved_example
+    license: CC BY 4.0
+    license_url: https://creativecommons.org/licenses/by/4.0/
+    license_status: approved
+    license_verified_on: '2026-08-02'
+    license_verified_by: config/stage2_public_sources.yaml; preserved JATS snapshot checksum
+      verified
+    commercial_use: permitted
+    redistribution: permitted with attribution
+    attribution_required: true
+    dialect: en-US
+    register: technical spoken rewrite
+    notes: 'Stage 2.2B-2 proposed source for candidates ST2-CAND-012 and records CW-051. Attribution:
+      Joe Rodd; Aoju Chen, Internal structure of intonational categories: The (dis)appearance
+      of a perceptual magnet effect, Frontiers in Psychology, CC BY 4.0. Before text is licensed
+      source text; After text is an adapted rewrite. Changes were made. Source evidence is preserved
+      under docs/evidence/source-snapshots/.'
 
 # ---------------------------------------------------------------------------
 # WITHDRAWN FROM PRODUCTION — v0.4.0-dev.2, Gate 1
