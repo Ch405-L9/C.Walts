@@ -185,6 +185,8 @@ def main() -> int:
     parser.add_argument("--expected-b2r1-sha256", required=True)
     parser.add_argument("--expected-plan", required=True)
     parser.add_argument("--expected-head", required=True)
+    parser.add_argument("--expected-starting-id-list-sha256")
+    parser.add_argument("--expected-starting-semantic-digest")
     parser.add_argument("--expected-new-id", action="append")
     parser.add_argument("--expected-new-ids-json")
     parser.add_argument("--activation-output", required=True, type=Path)
@@ -213,6 +215,8 @@ def main() -> int:
         "mutation_performed": False,
         "findings": [],
     }
+    activation_started = False
+    activation_completed = False
     try:
         backup_report = verify_backup(args.backup_path)
         report["backup_verification"] = backup_report
@@ -252,12 +256,14 @@ def main() -> int:
         ]
         for chunk_id in load_expected_ids(args):
             activation_argv.extend(["--expected-new-id", chunk_id])
+        activation_started = True
         activation = run_command(
             activation_argv,
             env=env,
             output_stdout=args.activation_stdout,
             output_stderr=args.activation_stderr,
         )
+        activation_completed = True
         report["activation_command"] = activation_argv
         report["activation_exit_code"] = activation.returncode
         if activation.returncode != 0:
@@ -273,17 +279,30 @@ def main() -> int:
         report["verdict"] = "pass"
     except Exception as exc:  # noqa: BLE001 - wrapper must preserve failure evidence
         report["findings"].append(str(exc))
-        try:
-            restore_report = verify_restored_state(
-                args.backup_path,
-                expected_current_count=args.expected_current_count,
-                expected_id_list_sha256=None,
-                expected_semantic_digest=None,
+        report["activation_subprocess_started"] = activation_started
+        report["activation_subprocess_exited_before_rollback"] = activation_completed
+        report["failure_evidence_preserved"] = all(
+            path.exists()
+            for path in (
+                args.activation_stdout,
+                args.activation_stderr,
             )
-            report["rollback_performed"] = True
-            report["rollback_report"] = restore_report
-        except Exception as restore_exc:  # noqa: BLE001
-            report["rollback_error"] = str(restore_exc)
+        ) or not activation_started
+        if activation_started:
+            try:
+                restore_report = verify_restored_state(
+                    args.backup_path,
+                    expected_current_count=args.expected_current_count,
+                    expected_id_list_sha256=args.expected_starting_id_list_sha256,
+                    expected_semantic_digest=args.expected_starting_semantic_digest,
+                )
+                report["rollback_performed"] = True
+                report["rollback_report"] = restore_report
+            except Exception as restore_exc:  # noqa: BLE001
+                report["rollback_error"] = str(restore_exc)
+        else:
+            report["rollback_performed"] = False
+            report["rollback_skipped_reason"] = "failure_before_activation_subprocess"
         report["finished_at"] = utc_now()
         report["verdict"] = "fail"
     write_json(args.output_json, report)

@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -9,6 +12,7 @@ from typing import Any
 import pytest
 
 from scripts import activate_stage2 as activation
+from scripts import run_stage2_activation as wrapper
 
 
 def record(
@@ -428,3 +432,280 @@ def test_verify_only_performs_no_mutation(tmp_path: Path, monkeypatch: pytest.Mo
 
     assert report["verdict"] == "pass"
     assert report["mutation_performed"] is False
+
+
+def wrapper_args(tmp_path: Path, **overrides: Any) -> list[str]:
+    values = {
+        "--backup-path": str(tmp_path / "backup"),
+        "--harness-baseline": str(tmp_path / "harness_baseline.json"),
+        "--harness-postcheck": str(tmp_path / "harness_postcheck.json"),
+        "--expected-current-count": "84",
+        "--expected-final-count": "96",
+        "--expected-b2r1-sha256": "accepted",
+        "--expected-plan": str(tmp_path / "plan.json"),
+        "--expected-head": "content-head",
+        "--expected-starting-id-list-sha256": "id84",
+        "--expected-starting-semantic-digest": "sem84",
+        "--expected-new-id": "new_0",
+        "--activation-output": str(tmp_path / "activation.json"),
+        "--activation-stdout": str(tmp_path / "activation.stdout"),
+        "--activation-stderr": str(tmp_path / "activation.stderr"),
+        "--journal-path": str(tmp_path / "activation_journal.json"),
+        "--output-json": str(tmp_path / "wrapper.json"),
+        "--confirm-stage2-activation": None,
+    }
+    values.update(overrides)
+    argv = ["run_stage2_activation.py"]
+    for key, value in values.items():
+        if value is None:
+            argv.append(key)
+        elif isinstance(value, list):
+            for item in value:
+                argv.extend([key, str(item)])
+        else:
+            argv.extend([key, str(value)])
+    return argv
+
+
+def completed(
+    returncode: int = 0, stdout: str = "", stderr: str = ""
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.CompletedProcess(["fake"], returncode, stdout, stderr)
+
+
+def run_wrapper(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, **argv_overrides: Any
+) -> dict[str, Any]:
+    monkeypatch.setattr(sys, "argv", wrapper_args(tmp_path, **argv_overrides))
+    monkeypatch.setattr(
+        wrapper.subprocess,
+        "check_output",
+        lambda *_args, **_kwargs: "feat/narration-generalization-v0.4\n",
+    )
+    exit_code = wrapper.main()
+    report = json.loads((tmp_path / "wrapper.json").read_text(encoding="utf-8"))
+    report["_exit_code"] = exit_code
+    return report
+
+
+def test_wrapper_harness_baseline_capture_failure_prevents_activation_and_rollback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    activation_called = False
+    rollback_called = False
+
+    monkeypatch.setattr(wrapper, "verify_backup", lambda _path: {"verdict": "pass"})
+    monkeypatch.setattr(
+        wrapper, "capture_harness_baseline", lambda _out: completed(1, stderr="busy")
+    )
+
+    def fake_run_command(*_args: Any, **_kwargs: Any) -> subprocess.CompletedProcess[str]:
+        nonlocal activation_called
+        activation_called = True
+        return completed(0)
+
+    def fake_restore(*_args: Any, **_kwargs: Any) -> dict[str, Any]:
+        nonlocal rollback_called
+        rollback_called = True
+        return {"verdict": "pass"}
+
+    monkeypatch.setattr(wrapper, "run_command", fake_run_command)
+    monkeypatch.setattr(wrapper, "verify_restored_state", fake_restore)
+
+    report = run_wrapper(tmp_path, monkeypatch)
+
+    assert report["_exit_code"] == 1
+    assert report["verdict"] == "fail"
+    assert activation_called is False
+    assert rollback_called is False
+    assert report["rollback_performed"] is False
+    assert report["rollback_skipped_reason"] == "failure_before_activation_subprocess"
+
+
+def test_wrapper_harness_postcheck_failure_invokes_verified_rollback_after_subprocess_exit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    activation_completed = False
+    restore_seen: dict[str, Any] = {}
+    envs: list[dict[str, str] | None] = []
+
+    monkeypatch.setattr(wrapper, "verify_backup", lambda _path: {"verdict": "pass"})
+    monkeypatch.setattr(wrapper, "capture_harness_baseline", lambda _out: completed(0))
+    monkeypatch.setattr(wrapper, "verify_harness_baseline", lambda _base, _out: completed(1))
+
+    def fake_run_command(
+        argv: list[str],
+        *,
+        env: dict[str, str] | None = None,
+        output_stdout: Path | None = None,
+        output_stderr: Path | None = None,
+        **_kwargs: Any,
+    ) -> subprocess.CompletedProcess[str]:
+        nonlocal activation_completed
+        envs.append(env)
+        if output_stdout is not None:
+            output_stdout.write_text("activation stdout preserved", encoding="utf-8")
+        if output_stderr is not None:
+            output_stderr.write_text("", encoding="utf-8")
+        assert "activate_stage2.py" in " ".join(argv)
+        assert env is not None and env.get("NFR_ALLOW_WRITES") == "true"
+        activation_completed = True
+        return completed(0)
+
+    def fake_restore(
+        backup_path: Path,
+        *,
+        expected_current_count: int,
+        expected_id_list_sha256: str | None,
+        expected_semantic_digest: str | None,
+    ) -> dict[str, Any]:
+        assert activation_completed is True
+        restore_seen.update(
+            {
+                "backup_path": backup_path,
+                "expected_current_count": expected_current_count,
+                "expected_id_list_sha256": expected_id_list_sha256,
+                "expected_semantic_digest": expected_semantic_digest,
+            }
+        )
+        return {
+            "verdict": "pass",
+            "restored_chroma_count": 84,
+            "restored_bm25_count": 84,
+            "restored_exact_parity": True,
+            "restored_id_list_sha256": expected_id_list_sha256,
+            "restored_semantic_digest": expected_semantic_digest,
+        }
+
+    monkeypatch.setattr(wrapper, "run_command", fake_run_command)
+    monkeypatch.setattr(wrapper, "verify_restored_state", fake_restore)
+    monkeypatch.setenv("NFR_ALLOW_WRITES", "caller-value")
+
+    report = run_wrapper(tmp_path, monkeypatch)
+
+    assert report["_exit_code"] == 1
+    assert report["rollback_performed"] is True
+    assert report["activation_subprocess_exited_before_rollback"] is True
+    assert report["failure_evidence_preserved"] is True
+    assert restore_seen["expected_current_count"] == 84
+    assert restore_seen["expected_id_list_sha256"] == "id84"
+    assert restore_seen["expected_semantic_digest"] == "sem84"
+    assert os.environ["NFR_ALLOW_WRITES"] == "caller-value"
+    assert len(envs) == 1
+
+
+def test_wrapper_activation_failure_preserves_evidence_and_returns_nonzero_after_rollback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(wrapper, "verify_backup", lambda _path: {"verdict": "pass"})
+    monkeypatch.setattr(wrapper, "capture_harness_baseline", lambda _out: completed(0))
+    monkeypatch.setattr(wrapper, "verify_harness_baseline", lambda _base, _out: completed(0))
+
+    def fake_run_command(
+        _argv: list[str],
+        *,
+        output_stdout: Path | None = None,
+        output_stderr: Path | None = None,
+        **_kwargs: Any,
+    ) -> subprocess.CompletedProcess[str]:
+        if output_stdout is not None:
+            output_stdout.write_text("partial failure evidence", encoding="utf-8")
+        if output_stderr is not None:
+            output_stderr.write_text("failed after write", encoding="utf-8")
+        return completed(23)
+
+    monkeypatch.setattr(wrapper, "run_command", fake_run_command)
+    monkeypatch.setattr(
+        wrapper,
+        "verify_restored_state",
+        lambda *_args, **_kwargs: {
+            "verdict": "pass",
+            "restored_chroma_count": 84,
+            "restored_bm25_count": 84,
+            "restored_exact_parity": True,
+            "restored_id_list_sha256": "id84",
+            "restored_semantic_digest": "sem84",
+        },
+    )
+
+    report = run_wrapper(tmp_path, monkeypatch)
+
+    assert report["_exit_code"] == 1
+    assert report["activation_exit_code"] == 23
+    assert report["rollback_performed"] is True
+    assert report["failure_evidence_preserved"] is True
+    assert (
+        (tmp_path / "activation.stdout").read_text(encoding="utf-8")
+        == "partial failure evidence"
+    )
+    assert (tmp_path / "activation.stderr").read_text(encoding="utf-8") == "failed after write"
+
+
+def test_verify_restored_state_requires_original_id_hash_and_semantic_digest(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        wrapper,
+        "restore_from_backup",
+        lambda _backup: {
+            "restored_chroma_count": 84,
+            "restored_bm25_count": 84,
+            "restored_exact_parity": True,
+            "restored_id_list_sha256": "wrong-id",
+            "restored_semantic_digest": "wrong-semantic",
+        },
+    )
+
+    report = wrapper.verify_restored_state(
+        tmp_path / "backup",
+        expected_current_count=84,
+        expected_id_list_sha256="id84",
+        expected_semantic_digest="sem84",
+    )
+
+    assert report["verdict"] == "fail"
+    assert "restored_id_list_hash_mismatch" in report["findings"]
+    assert "restored_semantic_digest_mismatch" in report["findings"]
+
+
+def test_successful_wrapper_fixture_reaches_96_96_without_rollback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(wrapper, "verify_backup", lambda _path: {"verdict": "pass"})
+    monkeypatch.setattr(wrapper, "capture_harness_baseline", lambda _out: completed(0))
+    monkeypatch.setattr(wrapper, "verify_harness_baseline", lambda _base, _out: completed(0))
+    monkeypatch.setattr(wrapper, "verify_restored_state", pytest.fail)
+
+    def fake_run_command(
+        _argv: list[str],
+        *,
+        output_stdout: Path | None = None,
+        output_stderr: Path | None = None,
+        **_kwargs: Any,
+    ) -> subprocess.CompletedProcess[str]:
+        if output_stdout is not None:
+            output_stdout.write_text("success", encoding="utf-8")
+        if output_stderr is not None:
+            output_stderr.write_text("", encoding="utf-8")
+        (tmp_path / "activation.json").write_text(
+            json.dumps(
+                {
+                    "verdict": "pass",
+                    "current_count": 96,
+                    "bm25_count": 96,
+                    "exact_parity": True,
+                    "mutation_performed": True,
+                }
+            ),
+            encoding="utf-8",
+        )
+        return completed(0)
+
+    monkeypatch.setattr(wrapper, "run_command", fake_run_command)
+
+    report = run_wrapper(tmp_path, monkeypatch)
+
+    assert report["_exit_code"] == 0
+    assert report["verdict"] == "pass"
+    assert report["mutation_performed"] is True
+    assert report["rollback_performed"] is False
