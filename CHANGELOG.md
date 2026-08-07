@@ -68,6 +68,24 @@ checkpoint.
 - Full test suite: `473 passed in 23.37s`.
 - Restore verification with required Harness invariant: pass.
 
+### Stage 2.3-R1 Audit Correction
+
+- Added wrapper failure-path coverage for Harness baseline refusal, Harness
+  postcheck rollback, activation failure evidence preservation, rollback
+  ID-list/semantic-digest checks, and scoped `NFR_ALLOW_WRITES` handling.
+- Reconciled the pre-activation semantic-digest discrepancy: `4c11…` and
+  `462c…` are the same preserved 84-record state under two documented digest
+  algorithms; no historical corpus drift was found.
+- Reconstructed the missing pre-activation regression in an isolated checkout of
+  `d8c5f54bf1bcf756205eb6a701203c197b987927` with the preserved 84-record
+  backup: `472 passed, 1 skipped`, focused activation tests `20 passed`, read-only
+  reindex comparison `pass`, activation preflight `pass`, mutation `false`.
+- Final R1 live read-only verification remained 96 Chroma / 96 BM25 with exact
+  parity, all twelve Stage 2 IDs present, prior 84 IDs present, Harness semantic
+  drift `false`, corpus lint `pass`, and R1 `mutation_performed=false`.
+- Evidence recorded at
+  `docs/evidence/gate1_2-stage2_3-r1-correction.json`.
+
 ## [Unreleased] — Gate 1.2 Stage 2.3-H1R2, Harness snapshot close-safety
 
 Version stays at `0.4.0-dev.2`. This is safety-gate correction work only: no

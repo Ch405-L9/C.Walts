@@ -2756,6 +2756,145 @@ remains open.
 
 ---
 
+## Gate 1.2 Stage 2.3-R1 — Activation audit correction
+
+Stage 2.3 was not re-run. The live 96/96 production state from the accepted
+activation remained frozen while R1 corrected audit evidence and closed missing
+failure-path test coverage.
+
+Starting live state:
+
+```text
+branch: feat/narration-generalization-v0.4
+HEAD/upstream: e956c4d635b8a3e44b95ca509a050a56e570f059
+version: 0.4.0-dev.3
+Chroma: 96
+BM25: 96
+exact parity: true
+evaluation_case: 0
+feedback: 2
+approved production sources: 15
+```
+
+Semantic-digest reconciliation:
+
+```text
+historical directive digest: 4c11c53aac587bd6f5cc219e03b14d56d6debe27ea6a0ed57b4a7a322e0d645e
+activation backup digest:    462cbd6fe89a73c35c2655b86fcd65e7c99b824dab00c79a60217179e5454ee6
+```
+
+Both preserved 84-record backups produce `4c11…` with the B2 authoring digest
+algorithm and `462c…` with the Stage 2.3 activation digest algorithm. The 84 IDs,
+documents, full metadata, and reindex-relevant metadata compare equal. The
+discrepancy is algorithmic, not corpus drift.
+
+Reconstructed historical pre-activation regression used an isolated local clone
+of content commit `d8c5f54bf1bcf756205eb6a701203c197b987927`, with the preserved
+84-record backup copied under that clone and its local `config/rag.yaml` pointed
+at the clone path. Live 96/96 production was not touched.
+
+```text
+pytest tests/ --tb=short
+  472 passed, 1 skipped in 24.01s
+
+pytest tests/test_stage2_activation.py --tb=short
+  20 passed in 0.16s
+
+ruff check .
+  All checks passed!
+
+git diff --check
+  clean
+
+validate_stage2_sources.py
+  verdict=pass, sources=10, errors=0, warnings=0
+
+validate_stage2_candidates.py
+  verdict=pass, records=12, errors=0, warnings=0
+
+validate_authored_records.py
+  verdict=pass, records=12, errors=0, warnings=0
+
+validate_authored_records.py --self-test
+  verdict=pass, cases=8, failures=0
+
+compare_reindex_plan.py --dry-run
+  verdict=pass, current=84, proposed=96, would_add=12,
+  stale=0, unchanged=84, duplicate_ids=0, duplicate_content=0,
+  content_changed=0, metadata_changed=0, mutation_performed=false
+
+activate_stage2.py --preflight
+  verdict=pass, current=84, final=96, mutation_performed=false
+```
+
+Corrective test commit
+`65ee89bf01f0131739dc4868fce8b507d43a3c79` adds wrapper/failure-path coverage
+and supporting rollback hash assertions:
+
+- Harness baseline capture failure prevents activation and rollback.
+- Harness postcheck failure invokes rollback after the activation subprocess has
+  exited.
+- Activation subprocess failure preserves stdout/stderr evidence and returns
+  nonzero after rollback.
+- Rollback verification checks original ID-list and semantic digest values.
+- `NFR_ALLOW_WRITES=true` is scoped to the activation subprocess.
+- Successful wrapper fixture reaches 96/96 without rollback.
+
+Final R1 read-only verification:
+
+```text
+pytest tests/test_stage2_activation.py --tb=short
+  25 passed in 0.25s
+
+pytest tests/ --tb=short
+  478 passed in 24.53s
+
+ruff check .
+  All checks passed!
+
+git diff --check
+  clean
+
+corpus_lint.py --json
+  total_chunks=96, failures=0, warnings=0
+
+verify_restore.py --expect-from-sources --require-harness-invariant
+  verified=true, production_count=96, bm25_chunk_ids=96,
+  chroma_bm25_parity=true, harness_invariant_checked=true,
+  harness_baseline_valid=true, harness_comparison_performed=true,
+  harness semantic drift=false
+
+activate_stage2.py --verify-only
+  verdict=pass, current=96, bm25=96, exact_parity=true,
+  mutation_performed=false
+
+compare_reindex_plan.py --dry-run
+  verdict=pass, current=96, proposed=96, would_add=0, stale=0,
+  unchanged=96, mutation_performed=false
+
+sha256sum -c SHA256SUMS  # from docs/evidence/source-snapshots/
+  all 10 source snapshots OK
+```
+
+The published evidence commit
+`e956c4d635b8a3e44b95ca509a050a56e570f059` included
+`tests/test_negative_pattern_path.py`, outside the original evidence-commit
+allowlist. R1 documents this as a procedural deviation: the change was
+technically correct, changed test semantics only, and removed an obsolete
+hard-coded 84-count assumption after the legitimate 84-to-96 activation. No
+production behavior changed and no history rewrite was performed.
+
+Tracked R1 evidence:
+`docs/evidence/gate1_2-stage2_3-r1-correction.json`.
+
+No Stage 2.3 reactivation occurred. R1 `mutation_performed=false`; no C.Walts
+record was added, deleted, replaced, re-embedded, or re-upserted. No BADGR
+Harness write occurred. No holdout content or EVAL-009 wording was inspected, no
+threshold fitting was performed, no Stage 3 implementation or Gate 2 work began,
+and `CW-LIM-009` remains open.
+
+---
+
 ## Gate 1.2 Stage 2.3-H1R — Harness invariant failure-path hardening
 
 Stage 2.3 activation remained blocked. This follow-up hardened the accepted H1

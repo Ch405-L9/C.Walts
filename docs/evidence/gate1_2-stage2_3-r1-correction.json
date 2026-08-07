@@ -1,0 +1,146 @@
+{
+  "CW_LIM_009": "open",
+  "EVAL_009_accessed": false,
+  "branch": "feat/narration-generalization-v0.4",
+  "corrective_test_commit": "65ee89bf01f0131739dc4868fce8b507d43a3c79",
+  "evidence_commit_allowlist_disposition": {
+    "amend_performed": false,
+    "diff_excerpt": "commit e956c4d635b8a3e44b95ca509a050a56e570f059\nAuthor: Anthony Grant <adgrant1@badgrtech.com>\nDate:   Tue Aug 4 22:56:20 2026 -0400\n\n    docs: record Stage 2 activation evidence\n\ndiff --git a/tests/test_negative_pattern_path.py b/tests/test_negative_pattern_path.py\nindex bbaec88..9195f8a 100644\n--- a/tests/test_negative_pattern_path.py\n+++ b/tests/test_negative_pattern_path.py\n@@ -166,43 +166,44 @@ def test_the_negative_chunk_kept_its_id_and_gained_the_new_path() -> None:\n     _, store = _collection()\n     records = store.get().get(where={\"doc_type\": \"negative_pattern\"}, include=[\"metadatas\"])\n \n     assert records[\"ids\"] == [CHUNK_ID], \"the rename must not renumber the chunk\"\n     metadata = records[\"metadatas\"][0]\n     assert metadata[\"source_path\"] == \"corpus/raw/negative_patterns/rejected_audio_contrast.md\"\n     assert metadata[\"source_id\"] == SOURCE_ID\n     assert metadata[\"doc_type\"] == \"negative_pattern\"\n     assert metadata[\"register\"] == \"contrast\"\n     assert metadata[\"license\"] == \"Proprietary \u2014 BADGRTechnologies LLC\"\n \n \n def test_no_chunk_anywhere_still_claims_an_evaluation_path() -> None:\n     _, store = _collection()\n     records = store.get().get(include=[\"metadatas\"])\n     paths = {str((m or {}).get(\"source_path\")) for m in records[\"metadatas\"]}\n     assert not any(\"evaluation\" in p for p in paths), sorted(p for p in paths if \"evaluation\" in p)\n \n \n def test_the_production_count_is_unchanged_by_the_rename() -> None:\n-    \"\"\"84 before, 84 after. Unexplained drift is a failure, not a detail.\"\"\"\n+    \"\"\"The rename must not create or remove negative-pattern material.\"\"\"\n     _, store = _collection()\n-    assert store.get().count() == 84\n+    records = store.get().get(where={\"doc_type\": \"negative_pattern\"})\n+    assert records[\"ids\"] == [CHUNK_ID]\n \n \n # \u2500\u2500 4. behaviour: excluded from positive retrieval, kept for contrast \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n \n \n @pytest.fixture(scope=\"module\")\n def retriever() -> Retriever:\n     settings = load_settings()\n     store = VectorStore(settings)\n     if not store.exists():\n         pytest.skip(\"production collection is not present in this working tree\")\n     return Retriever(\n         settings,\n         store,\n         OllamaEmbedder(settings.embedding),\n         LexicalIndex(settings.project_root / \"var\" / \"bm25\" / \"index.json\"),\n     )\n \n \n REWRITE_QUERIES = [\n",
+    "evidence_commit_sha": "e956c4d635b8a3e44b95ca509a050a56e570f059",
+    "exact_diff_summary": "e956c4d docs: record Stage 2 activation evidence\n tests/test_negative_pattern_path.py | 5 +++--\n 1 file changed, 3 insertions(+), 2 deletions(-)\n",
+    "force_push_performed": false,
+    "generated_at": "2026-08-07T00:32:39.963569+00:00",
+    "history_rewrite_performed": false,
+    "production_behavior_changed": false,
+    "reason_change_was_necessary_or_unnecessary": "Technically correct: the change removed an obsolete hard-coded 84-record production-count assertion after the authorized 84-to-96 activation while retaining the negative-pattern behavioral assertion. It changes test expectations only, not production code or corpus content.",
+    "recommended_owner_disposition": "retain published history as-is and accept as a documented procedural deviation pending owner/architect acceptance",
+    "squash_performed": false,
+    "test_semantics_changed": true,
+    "unexpected_tracked_file": "tests/test_negative_pattern_path.py",
+    "verdict": "pass"
+  },
+  "final_live_readonly_verification": {
+    "accepted_stage2_ids_present": [
+      "00c8de5cea3d7264_1",
+      "34b2313e2e1d6a27_0",
+      "3803c58ef7081395_0",
+      "4be038e8819e8c1e_0",
+      "5c2a189e56a20f08_0",
+      "80d2e5225b05e9e1_0",
+      "8de17b0cbff6c2cb_0",
+      "d4ed381978ee9df0_0",
+      "de2924affb966cdc_0",
+      "df50d16e51c460fc_1",
+      "e70d3e8ae1737bcb_0",
+      "f3340055575f6517_0"
+    ],
+    "activation_verify_only_verdict": "pass",
+    "approved_source_count": 15,
+    "bm25_count": 96,
+    "branch": "feat/narration-generalization-v0.4",
+    "chroma_count": 96,
+    "config_sources_sha256": "56fcd9406fb92f1c49f898374d9e417b3511fb875d3bf940c24e8501d5b36b03",
+    "corpus_lint_verdict": "unknown",
+    "duplicate_canonical_content_count": 0,
+    "duplicate_ids": [],
+    "embedding_digest": "0a109f422b47",
+    "embedding_dimension": 768,
+    "embedding_model": "nomic-embed-text",
+    "evaluation_case_count": 0,
+    "exact_parity": true,
+    "feedback_count": 2,
+    "generated_at": "2026-08-07T00:35:49.115677+00:00",
+    "harness_baseline_valid": true,
+    "harness_comparison_performed": true,
+    "harness_invariant_checked": true,
+    "harness_semantic_drift": false,
+    "harness_verdict": "pass",
+    "head": "65ee89bf01f0131739dc4868fce8b507d43a3c79",
+    "live_reindex_equivalence_verdict": "pass",
+    "mutation_performed": false,
+    "notice_sha256": "ca4148432b7bdf15952c9618a2040ad27e7fa249aea8c9ae5b2119a8602291c4",
+    "previous_84_ids_present": 84,
+    "production_id_list_sha256": "da637c728f8ef7603b6cb5977401ed6d013187ed7a85173f9d4eb70203cf0a03",
+    "production_semantic_digest": "60910f5bbb1c8ab0328a0129e80ec740275f9f55c2d9bd95dbae9ad7f66cb83f",
+    "retrieval_verification_verdict": "pass",
+    "source_snapshots_pass": true,
+    "stale_ids": [],
+    "upstream_head": "e956c4d635b8a3e44b95ca509a050a56e570f059",
+    "verdict": "pass",
+    "verify_restore_verified": true,
+    "version": "0.4.0-dev.3"
+  },
+  "generated_at": "2026-08-07T00:35:49.292767+00:00",
+  "head": "65ee89bf01f0131739dc4868fce8b507d43a3c79",
+  "holdout_accessed": false,
+  "recommendation": "GO FOR STAGE 3 PLANNING",
+  "reconstructed_pre_activation_regression": {
+    "activation_preflight_verdict": "pass",
+    "content_commit": "d8c5f54bf1bcf756205eb6a701203c197b987927",
+    "focused_activation_tests": "20 passed in 0.16s",
+    "git_diff_check": "pass",
+    "isolated_clone": "var/stage2_activation_r1/content_commit_clone",
+    "mutation_performed": false,
+    "pytest": "472 passed, 1 skipped in 24.01s",
+    "reindex_verdict": "pass",
+    "ruff": "pass"
+  },
+  "schema_version": 1,
+  "semantic_digest_reconciliation": {
+    "actual_corpus_drift_occurred": false,
+    "algorithms": {
+      "activation_v1": {
+        "fields": [
+          "id",
+          "sha256(text.strip())",
+          "relevant metadata map from scripts.compare_reindex_plan.RELEVANT_METADATA_KEYS"
+        ],
+        "json_serialization": "json.dumps(payload, sort_keys=True), no indent",
+        "sorting": "records sorted by id",
+        "source": "scripts/activate_stage2.py::semantic_digest",
+        "whitespace_unicode_normalization": "leading/trailing whitespace stripped before content digest only"
+      },
+      "b2_authoring_v1": {
+        "fields": [
+          "id",
+          "sha256(text as stored, no strip)",
+          "metadata.source_id",
+          "metadata.source_checksum"
+        ],
+        "json_serialization": "json.dumps(payload, sort_keys=True), no indent",
+        "sorting": "records sorted by id",
+        "source": "var/stage2_authoring/build_stage2_b2_artifacts.py::semantic_digest",
+        "whitespace_unicode_normalization": "none beyond Python UTF-8 string serialization"
+      }
+    },
+    "aug3_backup": {
+      "activation_v1_digest": "462cbd6fe89a73c35c2655b86fcd65e7c99b824dab00c79a60217179e5454ee6",
+      "b2_authoring_v1_digest": "4c11c53aac587bd6f5cc219e03b14d56d6debe27ea6a0ed57b4a7a322e0d645e",
+      "id_list_sha256": "9d2ef292de32f63347c20fceb15e90fb7e861c533c7ab1e9ac2211086babcc8f",
+      "record_count": 84
+    },
+    "aug5_backup": {
+      "activation_v1_digest": "462cbd6fe89a73c35c2655b86fcd65e7c99b824dab00c79a60217179e5454ee6",
+      "b2_authoring_v1_digest": "4c11c53aac587bd6f5cc219e03b14d56d6debe27ea6a0ed57b4a7a322e0d645e",
+      "id_list_sha256": "9d2ef292de32f63347c20fceb15e90fb7e861c533c7ab1e9ac2211086babcc8f",
+      "record_count": 84
+    },
+    "document_comparison_result": {
+      "compared_ids": 84,
+      "different_documents": 0
+    },
+    "exact_reason_for_discrepancy": "algorithmic digest version change: B2 authoring digest hashed full text plus source_id/source_checksum only; Stage 2.3 activation digest hashed stripped text plus the full relevant metadata set used by reindex comparison",
+    "expected_historical_digest": "4c11c53aac587bd6f5cc219e03b14d56d6debe27ea6a0ed57b4a7a322e0d645e",
+    "generated_at": "2026-08-07T00:32:39.955953+00:00",
+    "measured_activation_digest": "462cbd6fe89a73c35c2655b86fcd65e7c99b824dab00c79a60217179e5454ee6",
+    "metadata_comparison_result": {
+      "compared_ids": 84,
+      "different_full_metadata": 0,
+      "different_relevant_metadata": 0
+    },
+    "same_84_ids": true,
+    "verdict": "pass"
+  },
+  "threshold_fitted": false,
+  "verdict": "pass"
+}
