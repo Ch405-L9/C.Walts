@@ -3,6 +3,24 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.2 Stage 6 blocker enforcement
+
+Version advances to `0.4.0-dev.9` for Architecture Scope Amendment A2.
+
+### Added
+
+- Added authoritative explicit blocker scopes while preserving historical
+  limitation booleans for audit compatibility.
+- Added the generic fail-closed open-blocker verifier and supported transition
+  authorization adapter.
+- Added Gate 2 composition with Stage 5 read-only prerequisites.
+
+### Safety
+
+- The current deferred blocker remains open and all four protected scopes refuse
+  authorization. No Gate 2 work, blocker closure, production mutation, holdout
+  access, qrels, or threshold fitting occurred.
+
 ## [Unreleased] — Gate 1.2 Stage 5-R1 integrity closure
 
 Version advances to `0.4.0-dev.8` for adversarial split-integrity hardening.

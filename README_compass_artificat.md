@@ -23,6 +23,15 @@ holdout records. Stage 5 split verification remains mandatory before Gate 2
 or Gate 3 query authoring. Gate numbering and the 600-record allocation do
 not change. `CW-LIM-009` remains open.
 
+### Architecture Scope Amendment A2 — Stage 6 blocker scopes
+
+The explicit `blocking_scopes` field on the limitation registry is authoritative
+for Stage 6+ enforcement. Historical boolean fields remain preserved verbatim
+for audit compatibility. The current deferred blocker applies to
+`gate2_authorization`, `calibration`, `rc_creation`, and `release_promotion`;
+this scope migration does not close the blocker. Gate 2 remains prohibited while
+the blocker is open, while Stages 7 and 8 may proceed independently.
+
 ---
 
 ## How the disputes were settled

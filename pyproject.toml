@@ -1,6 +1,6 @@
 [project]
 name = "natural-language-flow-rag"
-version = "0.4.0-dev.8"
+version = "0.4.0-dev.9"
 description = "Natural-language-flow and English-prosody retrieval for the BADGR local AI stack"
 requires-python = ">=3.12"
 license = { text = "Proprietary — BADGRTechnologies LLC" }

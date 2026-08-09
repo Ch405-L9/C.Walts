@@ -28,7 +28,15 @@ severity: medium
 blocks_gate2: false
 blocks_threshold_calibration: true
 blocks_release_candidate: true
+blocking_scopes:
+  - gate2_authorization
+  - calibration
+  - rc_creation
+  - release_promotion
 ```
+
+Stage 6 explicit `blocking_scopes` are authoritative for current enforcement;
+the historical boolean fields above remain unchanged for audit compatibility.
 
 ### Statements of record
 
@@ -133,6 +141,7 @@ severity: informational
 blocks_gate2: false
 blocks_threshold_calibration: false
 blocks_release_candidate: false
+blocking_scopes: []
 ```
 
 `docs/owner-test-report-rc2.md` states the corpus grew "from 48 chunks to 101"
@@ -160,6 +169,7 @@ severity: informational
 blocks_gate2: false
 blocks_threshold_calibration: false
 blocks_release_candidate: false
+blocking_scopes: []
 ```
 
 `docs/history/rollback-rc2.md` records a restore that returned the vector store to
@@ -195,6 +205,7 @@ resolved_by: cdb670d
 blocks_gate2: false
 blocks_threshold_calibration: false
 blocks_release_candidate: false
+blocking_scopes: []
 ```
 
 The negative-pattern corpus lived at `corpus/raw/evaluation/negative/`. The

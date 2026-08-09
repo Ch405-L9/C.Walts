@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "C.Walts blocker registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "scope_policy", "entries"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "scope_policy": {"const": "explicit_blocking_scopes_v1"},
+    "entries": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/entry"}
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "blocking_scopes"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^CW-LIM-[A-Z0-9-]+$"},
+        "status": {"enum": ["deferred", "accepted", "resolved"]},
+        "classification": {"type": "string"},
+        "severity": {"type": "string"},
+        "blocks_gate2": {"type": "boolean"},
+        "blocks_threshold_calibration": {"type": "boolean"},
+        "blocks_release_candidate": {"type": "boolean"},
+        "blocking_scopes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "gate2_authorization",
+              "calibration",
+              "rc_creation",
+              "release_promotion"
+            ]
+          }
+        },
+        "resolved_at": {"type": "string", "minLength": 1},
+        "resolved_by": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}
