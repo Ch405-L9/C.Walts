@@ -238,7 +238,9 @@ class LeakageCluster:
         return len(self.record_ids)
 
 
-def build_clusters(records: list[dict[str, Any]]) -> list[LeakageCluster]:
+def build_clusters(
+    records: list[dict[str, Any]], extra_links: list[tuple[str, str]] | None = None
+) -> list[LeakageCluster]:
     by_id = {str(record["id"]): record for record in records}
     parent = {record_id: record_id for record_id in by_id}
     group_owner: dict[str, str] = {}
@@ -257,6 +259,10 @@ def build_clusters(records: list[dict[str, Any]]) -> list[LeakageCluster]:
                 _union(parent, record_id, template_owner[template])
             else:
                 template_owner[template] = record_id
+    for left, right in extra_links or []:
+        if left not in parent or right not in parent:
+            raise SplitIntegrityError("disposition_candidate_missing")
+        _union(parent, left, right)
     members: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for record_id, record in by_id.items():
         members[_find(parent, record_id)].append(record)
@@ -311,12 +317,7 @@ def inspect_near_duplicates(
     records: list[dict[str, Any]], dispositions: list[dict[str, Any]] | None = None
 ) -> list[dict[str, Any]]:
     disposition_map = {
-        (
-            str(item.get("pair_fingerprint")),
-            str(item.get("candidate_a_fingerprint")),
-            str(item.get("candidate_b_fingerprint")),
-        ): item
-        for item in (dispositions or [])
+        str(item.get("pair_fingerprint")): item for item in (dispositions or [])
     }
     findings: list[dict[str, Any]] = []
     ordered = sorted(records, key=lambda item: str(item["id"]))
@@ -352,23 +353,31 @@ def inspect_near_duplicates(
                     sorted([record_fingerprint(left), record_fingerprint(right)])
                 ),
             }
-            pair_key = (
-                pair["pair_fingerprint"],
-                record_fingerprint(left),
-                record_fingerprint(right),
-            )
-            reverse_key = (
-                pair["pair_fingerprint"],
-                record_fingerprint(right),
-                record_fingerprint(left),
-            )
-            disposition = disposition_map.get(pair_key) or disposition_map.get(reverse_key)
+            disposition = disposition_map.get(pair["pair_fingerprint"])
             if review and not hard and not disposition:
                 pair["requires_disposition"] = True
             elif disposition:
                 pair["disposition"] = disposition.get("disposition")
             findings.append(pair)
     return findings
+
+
+def disposition_links(
+    records: list[dict[str, Any]], dispositions: list[dict[str, Any]] | None
+) -> list[tuple[str, str]]:
+    by_fingerprint = {record_fingerprint(record): str(record["id"]) for record in records}
+    links: list[tuple[str, str]] = []
+    for disposition in dispositions or []:
+        left_fp = str(disposition.get("candidate_a_fingerprint", ""))
+        right_fp = str(disposition.get("candidate_b_fingerprint", ""))
+        pair_fp = str(disposition.get("pair_fingerprint", ""))
+        if left_fp not in by_fingerprint or right_fp not in by_fingerprint:
+            raise SplitIntegrityError("stale_disposition_fingerprint")
+        if sha256_value(sorted([left_fp, right_fp])) != pair_fp:
+            raise SplitIntegrityError("stale_disposition_fingerprint")
+        if disposition.get("disposition") == "same_family":
+            links.append((by_fingerprint[left_fp], by_fingerprint[right_fp]))
+    return links
 
 
 def validate_candidate_manifest(
@@ -401,8 +410,9 @@ def validate_candidate_manifest(
         if cell not in targets:
             raise SplitIntegrityError("unexpected_allocation_source", f"{cell[0]}:{cell[1]}")
         counts[cell] += 1
-    clusters = build_clusters(records)
-    findings = inspect_near_duplicates(records, manifest.get("near_duplicate_review_dispositions"))
+    dispositions = manifest.get("near_duplicate_review_dispositions")
+    clusters = build_clusters(records, disposition_links(records, dispositions))
+    findings = inspect_near_duplicates(records, dispositions)
     if any(item.get("hard") for item in findings):
         raise SplitIntegrityError("hard_near_duplicate", findings[0]["pair_fingerprint"])
     if any(item.get("requires_disposition") for item in findings):

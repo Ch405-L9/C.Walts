@@ -201,6 +201,31 @@ def test_disposition_cannot_override_exact_duplicate() -> None:
         split.validate_candidate_manifest(manifest(records))
 
 
+def test_same_family_disposition_unifies_cluster_and_stale_is_refused() -> None:
+    records = [
+        candidate(
+            1, "supported_in_domain", "custom", "owner_authored", text="one distinct family member"
+        ),
+        candidate(
+            2, "supported_in_domain", "custom", "owner_authored", text="two distinct family member"
+        ),
+    ]
+    left_fp = split.record_fingerprint(records[0])
+    right_fp = split.record_fingerprint(records[1])
+    disposition = {
+        "pair_fingerprint": split.sha256_value(sorted([left_fp, right_fp])),
+        "candidate_a_fingerprint": left_fp,
+        "candidate_b_fingerprint": right_fp,
+        "disposition": "same_family",
+    }
+    links = split.disposition_links(records, [disposition])
+    assert links == [(records[0]["id"], records[1]["id"])]
+    assert len(split.build_clusters(records, links)) == 1
+    disposition["candidate_a_fingerprint"] = "f" * 64
+    with pytest.raises(split.SplitIntegrityError, match="stale_disposition_fingerprint"):
+        split.disposition_links(records, [disposition])
+
+
 def test_deterministic_regeneration_and_timestamp_independent_identity() -> None:
     first = split.generate_split(manifest(synthetic_records()))
     second = split.generate_split(manifest(synthetic_records()))
