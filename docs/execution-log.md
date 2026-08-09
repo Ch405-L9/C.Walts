@@ -3100,3 +3100,21 @@ read-only capture/verify passed. No real candidate universe, split, holdout,
 qrels, evaluation query, or prohibited wording was created or accessed.
 Production remained 96/96 with exact parity and unchanged ID/semantic digests.
 CW-LIM-009 remains open.
+
+# Gate 1.2 Stage 6 — Cross-gate blocker enforcement
+
+2026-08-09: Architecture Scope Amendment A2 records explicit
+`blocking_scopes` as authoritative for Stage 6+ enforcement while preserving
+the historical limitation booleans. `CW-LIM-009-DENSE-COVERAGE` remains
+`deferred` and applies to `gate2_authorization`, `calibration`, `rc_creation`,
+and `release_promotion`.
+
+Implementation commit `66576b164639200194fc32733bb449ddb8c3ba81` adds the formal
+registry schema, fail-closed open-blocker verifier, supported authorization
+adapter, Gate 2 composition with Stage 5 read-only checks, and adversarial
+tests. The current overall open-blocker query returns exactly
+`CW-LIM-009-DENSE-COVERAGE`; all four real authorization scopes refuse, which
+is the expected passing behavior. The focused suite passed 24 tests and the
+complete suite passed 582 tests. No blocker closure, Gate 2 work, split,
+holdout, qrels, calibration, threshold fitting, or production mutation
+occurred. Stages 7 and 8 remain available; CW-LIM-009 remains open.
