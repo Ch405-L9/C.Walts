@@ -14,7 +14,7 @@ from typing import Any
 
 from .embeddings import OllamaEmbedder
 from .fusion import reciprocal_rank_fusion
-from .lexical_search import LexicalIndex
+from .lexical_search import LexicalHit, LexicalIndex
 from .schemas import validate_filter
 from .settings import Settings
 from .vector_store import VectorStore
@@ -31,6 +31,8 @@ class RetrievedChunk:
     lexical_rank: int | None
     metadata: dict[str, Any] = field(default_factory=dict)
     is_neighbor: bool = False
+    dense_distance: float | None = None
+    bm25_score: float | None = None
 
     @property
     def source_title(self) -> str:
@@ -78,7 +80,7 @@ class Retriever:
         vector = self.embedder.embed_one(query)
         return self.store.query(embedding=vector, n_results=k, where=where)
 
-    def _lexical(self, query: str, k: int) -> list[str]:
+    def _lexical(self, query: str, k: int) -> list[LexicalHit]:
         """Lexical arm. Degrades to dense-only, but never silently.
 
         A degraded arm used to be indistinguishable from a query with no lexical
@@ -90,7 +92,7 @@ class Retriever:
             self.lexical_error = "no lexical index configured"
             return []
         try:
-            return [hit.chunk_id for hit in self.lexical.search(query, k)]
+            return self.lexical.search(query, k)
         except Exception as exc:  # noqa: BLE001 — degrade, but report
             self.lexical_error = f"{type(exc).__name__}: {exc}"
             return []
@@ -266,6 +268,8 @@ class Retriever:
                     found_by="neighbor",
                     dense_rank=None,
                     lexical_rank=None,
+                    dense_distance=None,
+                    bm25_score=None,
                     metadata=metadata or {},
                     is_neighbor=True,
                 )
@@ -319,9 +323,16 @@ class Retriever:
             cid: {"text": doc, "metadata": meta or {}}
             for cid, doc, meta in zip(dense_ids, documents, metadatas, strict=False)
         }
+        raw_dense_distances = {
+            chunk_id: float(distance)
+            for chunk_id, distance in zip(dense_raw.get("ids", [[]])[0], distances, strict=False)
+        }
         dense_ids = self._apply_floor(dense_ids, distances)
+        dense_distances = {chunk_id: raw_dense_distances[chunk_id] for chunk_id in dense_ids}
 
-        lexical_ids = self._lexical(query, lexical_k)
+        lexical_hits = self._lexical(query, lexical_k)
+        lexical_ids = [hit.chunk_id for hit in lexical_hits]
+        bm25_scores = {hit.chunk_id: float(hit.score) for hit in lexical_hits}
 
         fused = reciprocal_rank_fusion(
             dense_ids,
@@ -350,6 +361,12 @@ class Retriever:
                 found_by=hit.found_by,
                 dense_rank=hit.dense_rank,
                 lexical_rank=hit.lexical_rank,
+                dense_distance=(
+                    dense_distances.get(hit.chunk_id) if hit.dense_rank is not None else None
+                ),
+                bm25_score=(
+                    bm25_scores.get(hit.chunk_id) if hit.lexical_rank is not None else None
+                ),
                 metadata=by_id.get(hit.chunk_id, {}).get("metadata", {}),
             )
             for hit in fused

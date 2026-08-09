@@ -22,12 +22,16 @@ into the retrieval hit rate.
 from __future__ import annotations
 
 import argparse
+import copy
+import hashlib
 import json
 import statistics
 import sys
+import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 
+import jsonschema
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,6 +47,130 @@ from natural_flow_rag.vector_store import VectorStore  # noqa: E402
 
 POSITIVE_DOC_TYPES = {"approved_example", "style_rule"}
 NEGATIVE_DOC_TYPE = "negative_pattern"
+REPORT_SCHEMA_VERSION = 2
+
+REPORT_SEMANTICS = {
+    "canonical_result_identity": "chunk_id",
+    "heading_role": "display_only",
+    "diagnostic_distance_verdict_input": False,
+    "diagnostic_distance_calibration_input": False,
+    "stable_paths": [
+        "schema_version",
+        "run.collection",
+        "run.collection_count",
+        "run.version",
+        "run.embedding_model",
+        "run.embedding_dimension",
+        "cases[].query_id",
+        "cases[].query_sha256",
+        "cases[].results[].chunk_id",
+        "cases[].results[].source_id",
+        "cases[].results[].doc_type",
+        "cases[].results[].dense.present",
+        "cases[].results[].dense.rank",
+        "cases[].results[].bm25.present",
+        "cases[].results[].bm25.rank",
+        "cases[].results[].bm25.score",
+        "cases[].results[].fused.present",
+        "cases[].results[].fused.rank",
+        "cases[].results[].fused.score",
+        "cases[].results[].fused.method",
+        "cases[].results[].fused.rrf_k",
+    ],
+    "volatile_paths": [
+        "run.run_id",
+        "run.generated_at",
+        "summary.generated",
+        "summary.latency_ms_p50",
+        "summary.latency_ms_p95",
+        "cases[].latency_ms",
+        "cases[].dense.distance",
+        "cases[].diagnostic.min_distance",
+        "cases[].diagnostic.max_distance",
+        "summary.distance_min",
+        "summary.distance_median",
+        "summary.distance_max",
+        "summary.similarity_min",
+        "summary.similarity_max",
+    ],
+}
+
+
+def result_provenance(query_id: str, chunks: list) -> list[dict]:
+    """Serialize one result per chunk without using presentation headings as identity."""
+    records = []
+    for chunk in chunks:
+        metadata = chunk.metadata or {}
+        dense_present = chunk.dense_rank is not None and not chunk.is_neighbor
+        bm25_present = chunk.lexical_rank is not None and not chunk.is_neighbor
+        fused_present = not chunk.is_neighbor
+        records.append(
+            {
+                "query_id": query_id,
+                "chunk_id": chunk.chunk_id,
+                "source_id": str(metadata.get("source_id", "")),
+                "doc_type": str(metadata.get("doc_type", "")),
+                "heading": metadata.get("section_heading"),
+                "is_neighbor": chunk.is_neighbor,
+                "dense": {
+                    "present": dense_present,
+                    "rank": chunk.dense_rank if dense_present else None,
+                    "distance": chunk.dense_distance if dense_present else None,
+                    "metric": "cosine_distance",
+                    "direction": "lower_is_better",
+                },
+                "bm25": {
+                    "present": bm25_present,
+                    "rank": chunk.lexical_rank if bm25_present else None,
+                    "score": chunk.bm25_score if bm25_present else None,
+                    "direction": "higher_is_better",
+                },
+                "fused": {
+                    "present": fused_present,
+                    "rank": chunk.rank if fused_present else None,
+                    "score": chunk.score if fused_present else None,
+                    "method": "reciprocal_rank_fusion" if fused_present else None,
+                    "rrf_k": 60 if fused_present else None,
+                },
+            }
+        )
+    return records
+
+
+def semantic_projection(report: dict) -> dict:
+    """Remove only enumerated execution volatility from a report."""
+    projected = copy.deepcopy(report)
+    projected.get("run", {}).pop("run_id", None)
+    projected.get("run", {}).pop("generated_at", None)
+    summary = projected.get("summary", {})
+    for key in (
+        "generated",
+        "latency_ms_p50",
+        "latency_ms_p95",
+        "distance_min",
+        "distance_median",
+        "distance_max",
+        "similarity_min",
+        "similarity_max",
+    ):
+        summary.pop(key, None)
+    for case in projected.get("cases", []):
+        case.pop("latency_ms", None)
+        case.pop("min_distance", None)
+        case.pop("max_distance", None)
+        diagnostic = case.get("diagnostic", {})
+        diagnostic.pop("min_distance", None)
+        diagnostic.pop("max_distance", None)
+        for result in case.get("results", []):
+            result.get("dense", {}).pop("distance", None)
+    return projected
+
+
+def validate_report_schema(report: dict) -> None:
+    schema = json.loads(
+        (ROOT / "schemas" / "evaluation_report.schema.json").read_text(encoding="utf-8")
+    )
+    jsonschema.validate(report, schema)
 
 
 def marker_hit(chunk, markers: list[str]) -> str | None:
@@ -73,6 +201,8 @@ def evaluate() -> dict:
     retriever = Retriever(settings, store, embedder, lexical)
 
     health = store.health()
+    run_id = str(uuid.uuid4())
+    generated_at = datetime.now(UTC).isoformat()
     results: list[dict] = []
     latencies: list[int] = []
     distances: list[float] = []
@@ -107,6 +237,8 @@ def evaluate() -> dict:
 
         entry = {
             "id": case["id"],
+            "query_id": case["id"],
+            "query_sha256": hashlib.sha256(query.encode("utf-8")).hexdigest(),
             "mode": case.get("mode", "retrieval"),
             "latency_ms": result.latency_ms,
             "ranked": len(ranked),
@@ -124,6 +256,17 @@ def evaluate() -> dict:
             "top_headings": [str(c.metadata.get("section_heading"))[:48] for c in ranked],
             "min_distance": round(min(case_distances), 6) if case_distances else None,
             "max_distance": round(max(case_distances), 6) if case_distances else None,
+            "results": result_provenance(case["id"], result.chunks),
+            "diagnostic": {
+                "source": "separate_raw_vector_query",
+                "metric": "cosine_distance",
+                "direction": "lower_is_better",
+                "query_embedding_recomputed": True,
+                "verdict_input": False,
+                "calibration_input": False,
+                "min_distance": round(min(case_distances), 6) if case_distances else None,
+                "max_distance": round(max(case_distances), 6) if case_distances else None,
+            },
         }
 
         if case.get("exact_terms"):
@@ -249,7 +392,7 @@ def evaluate() -> dict:
     ]
 
     summary = {
-        "generated": datetime.now(UTC).isoformat(),
+        "generated": generated_at,
         "collection": health.collection,
         "collection_count": health.count,
         "embedding_model": health.embedding_function,
@@ -283,7 +426,24 @@ def evaluate() -> dict:
         "configured_similarity_floor": settings.retrieval.get("similarity_floor"),
     }
 
-    return {"summary": summary, "cases": results, "preservation": preservation_results}
+    report = {
+        "schema_version": REPORT_SCHEMA_VERSION,
+        "run": {
+            "run_id": run_id,
+            "generated_at": generated_at,
+            "collection": health.collection,
+            "collection_count": health.count,
+            "version": __import__("natural_flow_rag").__version__,
+            "embedding_model": health.embedding_function,
+            "embedding_dimension": health.dimension_declared,
+        },
+        "summary": summary,
+        "cases": results,
+        "preservation": preservation_results,
+        "report_semantics": REPORT_SEMANTICS,
+    }
+    validate_report_schema(report)
+    return report
 
 
 def main() -> int:

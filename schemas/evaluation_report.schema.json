@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cwalts.local/schemas/evaluation-report-v2.json",
+  "title": "C.Walts evaluation report v2",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "run",
+    "summary",
+    "cases",
+    "preservation",
+    "report_semantics"
+  ],
+  "properties": {
+    "schema_version": { "const": 2 },
+    "run": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "run_id",
+        "generated_at",
+        "collection",
+        "collection_count",
+        "version",
+        "embedding_model",
+        "embedding_dimension"
+      ],
+      "properties": {
+        "run_id": { "type": "string", "format": "uuid" },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "collection": { "type": "string", "minLength": 1 },
+        "collection_count": { "type": "integer", "minimum": 0 },
+        "version": { "type": "string", "minLength": 1 },
+        "embedding_model": { "type": "string", "minLength": 1 },
+        "embedding_dimension": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "summary": { "type": "object", "additionalProperties": true },
+    "cases": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/case" }
+    },
+    "preservation": { "type": "array" },
+    "report_semantics": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "canonical_result_identity",
+        "heading_role",
+        "diagnostic_distance_verdict_input",
+        "diagnostic_distance_calibration_input",
+        "stable_paths",
+        "volatile_paths"
+      ],
+      "properties": {
+        "canonical_result_identity": { "const": "chunk_id" },
+        "heading_role": { "const": "display_only" },
+        "diagnostic_distance_verdict_input": { "const": false },
+        "diagnostic_distance_calibration_input": { "const": false },
+        "stable_paths": { "type": "array", "items": { "type": "string" } },
+        "volatile_paths": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "$defs": {
+    "case": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "query_id", "results", "diagnostic"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "query_id": { "type": "string", "minLength": 1 },
+        "query_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "results": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/result" }
+        },
+        "diagnostic": { "$ref": "#/$defs/diagnostic" }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "query_id",
+        "chunk_id",
+        "source_id",
+        "doc_type",
+        "heading",
+        "is_neighbor",
+        "dense",
+        "bm25",
+        "fused"
+      ],
+      "properties": {
+        "query_id": { "type": "string", "minLength": 1 },
+        "chunk_id": { "type": "string", "minLength": 1 },
+        "source_id": { "type": "string", "minLength": 1 },
+        "doc_type": { "type": "string", "minLength": 1 },
+        "heading": { "type": ["string", "null"] },
+        "is_neighbor": { "type": "boolean" },
+        "dense": { "$ref": "#/$defs/dense" },
+        "bm25": { "$ref": "#/$defs/bm25" },
+        "fused": { "$ref": "#/$defs/fused" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "is_neighbor": { "const": true } } },
+          "then": {
+            "properties": {
+              "dense": { "properties": { "present": { "const": false } } },
+              "bm25": { "properties": { "present": { "const": false } } },
+              "fused": { "properties": { "present": { "const": false } } }
+            }
+          }
+        }
+      ]
+    },
+    "dense": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["present", "rank", "distance", "metric", "direction"],
+      "properties": {
+        "present": { "type": "boolean" },
+        "rank": { "type": ["integer", "null"], "minimum": 1 },
+        "distance": { "type": ["number", "null"] },
+        "metric": { "const": "cosine_distance" },
+        "direction": { "const": "lower_is_better" }
+      }
+    },
+    "bm25": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["present", "rank", "score", "direction"],
+      "properties": {
+        "present": { "type": "boolean" },
+        "rank": { "type": ["integer", "null"], "minimum": 1 },
+        "score": { "type": ["number", "null"] },
+        "direction": { "const": "higher_is_better" }
+      }
+    },
+    "fused": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["present", "rank", "score", "method", "rrf_k"],
+      "properties": {
+        "present": { "type": "boolean" },
+        "rank": { "type": ["integer", "null"], "minimum": 1 },
+        "score": { "type": ["number", "null"] },
+        "method": { "type": ["string", "null"], "enum": ["reciprocal_rank_fusion", null] },
+        "rrf_k": { "type": ["integer", "null"], "minimum": 1 }
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "metric",
+        "direction",
+        "query_embedding_recomputed",
+        "verdict_input",
+        "calibration_input"
+      ],
+      "properties": {
+        "source": { "const": "separate_raw_vector_query" },
+        "metric": { "const": "cosine_distance" },
+        "direction": { "const": "lower_is_better" },
+        "query_embedding_recomputed": { "const": true },
+        "verdict_input": { "const": false },
+        "calibration_input": { "const": false },
+        "min_distance": { "type": ["number", "null"] },
+        "max_distance": { "type": ["number", "null"] }
+      }
+    }
+  }
+}

@@ -3,6 +3,24 @@
 Required by Prompt C §14. No secrets, no raw private owner text, no full
 retrieved documents. Timestamps are local host time (UTC-04).
 
+## 2026-08-08 — Gate 1.2 Stage 4: reporting provenance v2
+
+Stage 4 added an additive evaluation-report schema v2. Retrieval results now
+retain canonical chunk identity, source/doc identity, dense rank and cosine
+distance, BM25 rank and score, and fused RRF rank and score. Headings remain
+presentation metadata only.
+
+The report marks `min_distance`/`max_distance` as evidence from a separate raw
+vector query. The diagnostic query recomputes the embedding and is explicitly
+outside verdict and calibration inputs. Run IDs, timestamps, latency, and
+listed diagnostic floating-point paths are excluded from semantic regression
+projection; arm ranks, scores, identities, and verdict fields remain stable
+inputs.
+
+No retrieval configuration or ranking behavior changed. The historical tracked
+evaluation report was left untouched, and no real qrels, holdout material, or
+sealed evaluation wording was processed. `CW-LIM-009` remains open.
+
 ---
 
 ## 2026-08-01 — Checkpoint 1: verified baseline

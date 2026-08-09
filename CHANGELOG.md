@@ -3,6 +3,26 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.2 Stage 4 reporting provenance v2
+
+Version advances to `0.4.0-dev.5` for additive retrieval-report provenance.
+
+### Added
+
+- Schema-v2 reports carry canonical `chunk_id` identity, query/run identity,
+  dense distance, BM25 score, and fused RRF rank/score provenance.
+- Diagnostic distance evidence is labeled as a separate raw vector query and
+  excluded from verdict and calibration inputs.
+- Semantic regression projection explicitly separates stable evidence from
+  execution volatility without ignoring all numeric fields.
+
+### Safety
+
+- Retrieval ordering, RRF (`rrf_k: 60`), thresholds, filters, corpus, qrels,
+  and production stores are unchanged.
+- The historical tracked evaluation report is not regenerated. Holdout and
+  sealed evaluation wording remain outside this work; `CW-LIM-009` remains open.
+
 ## [Unreleased] — Gate 1.2 Stage 2.3, controlled public-example activation
 
 Version advances to `0.4.0-dev.3` for the controlled Stage 2 activation
