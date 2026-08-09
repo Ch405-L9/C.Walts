@@ -3081,3 +3081,22 @@ The narrow follow-up commit `bab2fa87122329e5ee2f1699c49358368027b0e6` closes
 review-band disposition handling: pair fingerprints are validated, stale
 dispositions fail closed, and `same_family` dispositions union records into one
 leakage cluster. The focused Stage 5 suite passed 16 tests after this correction.
+
+# Gate 1.2 Stage 5-R1 — Split-integrity adversarial closure
+
+2026-08-09: R1 starts from final Stage 5 evidence checkpoint
+`842b131845eff6765df8841fc3ff5f595fafb6c1` and accepted review ZIP
+`bb2a7d99a9ca6686160ceb3526ad4aca7aed0d49f02444e864cf741662a07a5d`.
+The corrective implementation closes exhaustive near-duplicate evaluation across
+all 179,700 synthetic-600 pairs, defines short-query 3-gram non-applicability,
+validates approved public dataset/version bindings, rebinds seals to actual
+candidate/split/config artifacts, verifies seals before lifecycle changes,
+validates evidence SHA-256, enforces private output roots, and performs
+fsync/read-back/atomic lifecycle writes.
+
+The focused R1 suite passed 25 tests and the complete suite passed 558 tests.
+Ruff, diff check, corpus lint, Gate 0, Stage 3 coverage, and BADGR Harness
+read-only capture/verify passed. No real candidate universe, split, holdout,
+qrels, evaluation query, or prohibited wording was created or accessed.
+Production remained 96/96 with exact parity and unchanged ID/semantic digests.
+CW-LIM-009 remains open.
