@@ -31,8 +31,8 @@ import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 
-import jsonschema
 import yaml
+from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -76,7 +76,22 @@ REPORT_SEMANTICS = {
         "cases[].results[].fused.score",
         "cases[].results[].fused.method",
         "cases[].results[].fused.rrf_k",
+        "cases[].useful_hit",
+        "cases[].exact_term_pass",
+        "cases[].primary_doc_type_pass",
+        "cases[].primary_source_pass",
+        "cases[].definition_pass",
+        "cases[].forbidden_doc_types_pass",
+        "summary.exact_term_pass",
+        "summary.assertion_failures",
+        "summary.failed_assertions",
+        "summary.evaluation_case_chunks_returned",
+        "summary.negative_contamination",
+        "summary.citation_failures",
+        "summary.preservation_correct",
+        "summary.preservation_total",
     ],
+    "semantic_projection_mode": "exclude_only_enumerated_volatile_paths",
     "volatile_paths": [
         "run.run_id",
         "run.generated_at",
@@ -84,7 +99,7 @@ REPORT_SEMANTICS = {
         "summary.latency_ms_p50",
         "summary.latency_ms_p95",
         "cases[].latency_ms",
-        "cases[].dense.distance",
+        "cases[].results[].dense.distance",
         "cases[].diagnostic.min_distance",
         "cases[].diagnostic.max_distance",
         "summary.distance_min",
@@ -170,7 +185,19 @@ def validate_report_schema(report: dict) -> None:
     schema = json.loads(
         (ROOT / "schemas" / "evaluation_report.schema.json").read_text(encoding="utf-8")
     )
-    jsonschema.validate(report, schema)
+    format_checker = FormatChecker()
+
+    @format_checker.checks("date-time", raises=(TypeError, ValueError, AttributeError))
+    def is_rfc3339_datetime(value: object) -> bool:
+        if not isinstance(value, str) or "T" not in value:
+            raise ValueError("date-time must be RFC3339 with a T separator")
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            raise ValueError("date-time must include a timezone")
+        return True
+
+    Draft202012Validator.check_schema(schema)
+    Draft202012Validator(schema, format_checker=format_checker).validate(report)
 
 
 def marker_hit(chunk, markers: list[str]) -> str | None:

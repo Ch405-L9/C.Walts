@@ -6,4 +6,4 @@ Built against MEASURED facts about this host, not against a research report:
 model ceiling, and ChromaDB 1.5.8.
 """
 
-__version__ = "0.4.0-dev.5"
+__version__ = "0.4.0-dev.6"

@@ -84,6 +84,9 @@ def report(results: list[dict]) -> dict:
             "id": "SYN-001",
             "query_id": "SYN-001",
             "query_sha256": hashlib.sha256(b"synthetic query").hexdigest(),
+            "useful_hit": True,
+            "exact_term_pass": True,
+            "primary_doc_type_pass": True,
             "latency_ms": 4,
             "min_distance": 0.1,
             "max_distance": 0.3,
@@ -112,6 +115,23 @@ def test_valid_schema_v2_and_uuid_run_id() -> None:
     value = report(result(chunk("a")))
     validate_report_schema(value)
     uuid.UUID(value["run"]["run_id"])
+
+
+def test_valid_rfc3339_datetime_passes_strict_format_validation() -> None:
+    validate_report_schema(report(result(chunk("a"))))
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [("run_id", "not-a-uuid"), ("generated_at", "not-a-date")],
+)
+def test_invalid_uuid_or_datetime_fails_strict_format_validation(
+    field: str, value: str
+) -> None:
+    candidate = report(result(chunk("a")))
+    candidate["run"][field] = value
+    with pytest.raises(ValidationError):
+        validate_report_schema(candidate)
 
 
 def test_one_execution_uses_one_run_id_and_distinct_runs_differ() -> None:
@@ -251,6 +271,48 @@ def test_run_id_and_execution_fields_are_excluded_but_identity_is_not() -> None:
     second["summary"]["latency_ms_p50"] = 99
     second["cases"][0]["results"][0]["dense"]["distance"] = 0.91
     assert semantic_projection(first) == semantic_projection(second)
+
+
+def _resolve_declared_path(document: dict, path: str) -> object:
+    current: object = document
+    for part in path.split("."):
+        if part.endswith("[]"):
+            key = part[:-2]
+            assert isinstance(current, dict) and key in current
+            current = current[key]
+            assert isinstance(current, list) and current
+            current = current[0]
+        else:
+            assert isinstance(current, dict) and part in current
+            current = current[part]
+    return current
+
+
+def test_semantic_policy_paths_match_report_structure() -> None:
+    candidate = report(result(chunk("a")))
+    for path in REPORT_SEMANTICS["volatile_paths"]:
+        _resolve_declared_path(candidate, path)
+    assert "cases[].results[].dense.distance" in REPORT_SEMANTICS["volatile_paths"]
+    assert "cases[].dense.distance" not in REPORT_SEMANTICS["volatile_paths"]
+    assert (
+        REPORT_SEMANTICS["semantic_projection_mode"]
+        == "exclude_only_enumerated_volatile_paths"
+    )
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda v: v["cases"][0].update(useful_hit=False),
+        lambda v: v["summary"].update(exact_term_pass=False),
+        lambda v: v["summary"].update(assertion_failures=1),
+    ],
+)
+def test_verdict_fields_remain_semantic(mutation) -> None:
+    first = report(result(chunk("a")))
+    second = copy.deepcopy(first)
+    mutation(second)
+    assert semantic_projection(first) != semantic_projection(second)
 
 
 @pytest.mark.parametrize(

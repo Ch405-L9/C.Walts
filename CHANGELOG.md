@@ -3,6 +3,24 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.2 Stage 4-R1 report contract correction
+
+Version advances to `0.4.0-dev.6`.
+
+### Fixed
+
+- Corrected the schema-v2 volatile path to
+  `cases[].results[].dense.distance`.
+- Declared the projection mode as
+  `exclude_only_enumerated_volatile_paths`, keeping verdict/assertion fields
+  semantic.
+- Enabled strict UUID and date-time JSON Schema format validation.
+
+### Safety
+
+- No retrieval behavior, RRF configuration, thresholds, corpus, or production
+  state changed. The historical evaluation report remains untouched.
+
 ## [Unreleased] — Gate 1.2 Stage 4 reporting provenance v2
 
 Version advances to `0.4.0-dev.5` for additive retrieval-report provenance.
