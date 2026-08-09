@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema_version", "query_id", "query_sha256", "split", "query_class",
+    "group_id", "expected_behavior", "chunk_id", "source_id", "source_path",
+    "doc_type", "relevance_grade", "judge_role", "judgment_timestamp_utc",
+    "collection_version_identity"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "query_id": {"type": "string", "minLength": 1},
+    "query_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "split": {"const": "calibration"},
+    "query_class": {"type": "string", "minLength": 1},
+    "group_id": {"type": "string", "minLength": 1},
+    "expected_behavior": {"type": "string", "minLength": 1},
+    "chunk_id": {"type": "string", "minLength": 1},
+    "source_id": {"type": "string", "minLength": 1},
+    "source_path": {"type": "string", "minLength": 1},
+    "doc_type": {"type": "string", "minLength": 1},
+    "relevance_grade": {"type": "integer", "enum": [0, 1, 2]},
+    "judge_role": {"type": "string", "minLength": 1},
+    "judgment_timestamp_utc": {"type": "string", "minLength": 1},
+    "reason_code": {"type": "string"},
+    "collection_version_identity": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}

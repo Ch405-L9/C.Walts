@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema_version", "generated_at", "branch", "commit", "version",
+    "expected_production_count", "measured_chroma_count", "measured_bm25_count",
+    "exact_parity", "production_id_list_sha256", "evaluation_case_count",
+    "category_count", "categorized_record_count", "review_required_count",
+    "categories", "uncategorized_ids", "duplicate_assignment_ids",
+    "unknown_assignment_ids", "mutation_performed", "verdict"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string"},
+    "branch": {"type": "string"},
+    "commit": {"type": "string"},
+    "version": {"type": "string"},
+    "expected_production_count": {"type": "integer", "minimum": 0},
+    "measured_chroma_count": {"type": "integer", "minimum": 0},
+    "measured_bm25_count": {"type": "integer", "minimum": 0},
+    "exact_parity": {"type": "boolean"},
+    "production_id_list_sha256": {"type": "string", "minLength": 64, "maxLength": 64},
+    "expected_id_list_sha256": {"type": "string", "minLength": 64, "maxLength": 64},
+    "evaluation_case_count": {"type": "integer", "minimum": 0},
+    "category_count": {"type": "integer", "minimum": 0},
+    "categorized_record_count": {"type": "integer", "minimum": 0},
+    "review_required_count": {"type": "integer", "minimum": 0},
+    "categories": {"type": "array", "items": {"$ref": "#/$defs/category"}},
+    "uncategorized_ids": {"type": "array", "items": {"type": "string"}},
+    "duplicate_assignment_ids": {"type": "array", "items": {"type": "string"}},
+    "unknown_assignment_ids": {"type": "array", "items": {"type": "string"}},
+    "findings": {"type": "array", "items": {"type": "string"}},
+    "mutation_performed": {"const": false},
+    "verdict": {"enum": ["pass", "fail"]}
+  },
+  "$defs": {
+    "category": {
+      "type": "object",
+      "required": [
+        "category_id", "category_name", "record_count", "independent_example_count",
+        "source_count", "chunk_ids", "cw_ids", "source_ids", "smoke_floor_bucket",
+        "smoke_floor_label", "caveat_text"
+      ],
+      "properties": {
+        "category_id": {"type": "string"},
+        "category_name": {"type": "string"},
+        "record_count": {"type": "integer", "minimum": 0},
+        "independent_example_count": {"type": "integer", "minimum": 0},
+        "source_count": {"type": "integer", "minimum": 0},
+        "chunk_ids": {"type": "array", "items": {"type": "string"}},
+        "cw_ids": {"type": "array", "items": {"type": "string"}},
+        "source_ids": {"type": "array", "items": {"type": "string"}},
+        "smoke_floor_bucket": {"enum": ["0", "1", "2", ">=3"]},
+        "smoke_floor_label": {"type": ["string", "null"], "enum": ["smoke_test_floor", null]},
+        "caveat_text": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

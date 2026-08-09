@@ -8,6 +8,28 @@ is Semantic Versioning as required by Prompt C §4.3.
 Version advances to `0.4.0-dev.3` for the controlled Stage 2 activation
 checkpoint.
 
+## [Unreleased] — Gate 1.2 Stage 3A, Architecture Ordering Amendment A1
+
+Version advances to `0.4.0-dev.4` for the frozen-96 coverage histogram and
+qrels infrastructure. Real qrels population is deferred to Gate 4 because the
+canonical 600-query universe does not yet exist.
+
+### Added
+
+- Architecture Ordering Amendment A1 records the Stage 3A infrastructure-first
+  ordering and preserves the Gate 2/3/4/5 numbering and 600-query allocation.
+- Added the one-dimensional production coverage taxonomy and read-only verifier
+  for the exact frozen 96-record corpus.
+- Added qrels schema, calibration-only candidate-pool infrastructure, qrels
+  validation, holdout refusal, and synthetic/fake-only focused tests.
+
+### Safety
+
+- No real evaluation query was authored or processed.
+- No qrels judgments or `eval/coverage/qrels.tsv` were created.
+- Holdout material, EVAL-009 wording, threshold fitting, and Gate 2/3 work
+  remain out of scope. `CW-LIM-009` remains open.
+
 ### Added
 
 - Ten approved CC BY 4.0 Stage 2 public-source `approved_examples.md` files are

@@ -2994,3 +2994,14 @@ sha256sum -c SHA256SUMS  # run from docs/evidence/source-snapshots/
   10 expected pre-activation manifest-coverage findings for ignored local
   Stage 2 proposed files under corpus/raw/stage2_public_examples/
 ```
+# Gate 1.2 Stage 3A — Architecture Ordering Amendment A1
+
+2026-08-08: Stage 3A implementation begins from the accepted Stage 3-P bundle
+`86925b434df8eecc00854aafaa78e10e7516dbfb2d4e9129aa10069b7674827e`.
+Architecture Ordering Amendment A1 supersedes the impossible pre-Gate-2
+populated-qrels exit criterion. This work measures the exact frozen 96-record
+production corpus and adds qrels schemas, validation, deterministic
+dense/BM25 candidate-pool infrastructure, and synthetic tests only. The
+canonical query universe remains absent, so real qrels population is deferred
+to Gate 4 after split validation and holdout sealing. No evaluation query,
+holdout text, EVAL-009 wording, or threshold was accessed.
