@@ -3076,3 +3076,8 @@ Ruff, diff check, corpus lint, Gate 0, Stage 3 coverage, and read-only Harness
 capture/verify passed. No real candidate universe, split, holdout, qrels, or
 evaluation query was created or accessed. Production remained 96/96 with exact
 parity and unchanged ID/semantic digests. CW-LIM-009 remains open.
+
+The narrow follow-up commit `bab2fa87122329e5ee2f1699c49358368027b0e6` closes
+review-band disposition handling: pair fingerprints are validated, stale
+dispositions fail closed, and `same_family` dispositions union records into one
+leakage cluster. The focused Stage 5 suite passed 16 tests after this correction.
