@@ -23,6 +23,14 @@ Version advances to `0.4.0-dev.5` for additive retrieval-report provenance.
 - The historical tracked evaluation report is not regenerated. Holdout and
   sealed evaluation wording remain outside this work; `CW-LIM-009` remains open.
 
+### Validation
+
+- Focused provenance tests: 21 passed; complete suite: 526 passed; Ruff and
+  diff checks passed.
+- Read-only coverage, corpus lint, restore verification, source snapshots, and
+  BADGR Harness capture/verify passed. Production remained 96/96 with exact
+  parity and unchanged ID/semantic digests.
+
 ## [Unreleased] — Gate 1.2 Stage 2.3, controlled public-example activation
 
 Version advances to `0.4.0-dev.3` for the controlled Stage 2 activation

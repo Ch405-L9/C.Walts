@@ -21,6 +21,14 @@ No retrieval configuration or ranking behavior changed. The historical tracked
 evaluation report was left untouched, and no real qrels, holdout material, or
 sealed evaluation wording was processed. `CW-LIM-009` remains open.
 
+Measured results: focused provenance tests **21 passed**; complete suite **526
+passed**; Ruff and diff checks passed; corpus lint, source snapshots, restore
+verification, and coverage verification passed. The read-only Harness capture
+and required-quiescence verify both passed with semantic drift false and the
+temporary snapshot deleted. Production remained Chroma/BM25 **96/96**, exact
+parity true, evaluation_case 0, feedback 2, and unchanged ID-list and semantic
+digests.
+
 ---
 
 ## 2026-08-01 — Checkpoint 1: verified baseline
