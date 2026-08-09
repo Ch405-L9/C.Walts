@@ -26,7 +26,11 @@ def candidate(
         "class": class_name,
         "expected_behavior": "grounded" if class_name == "supported_in_domain" else "abstain",
         "source_dataset": dataset,
-        "source_version": "synthetic-v1",
+        "source_version": {
+            "clinc150": "UCI-570-data_full",
+            "massive_1_0_en_us": "1.0",
+            "banking77": "PolyAI-master-snapshot",
+        }.get(dataset, "synthetic-v1"),
         "source_record_id": f"record-{number:04d}",
         "source_partition": "synthetic",
         "source_intent": "synthetic-intent",
@@ -190,6 +194,155 @@ def test_near_duplicate_golden_metrics_and_guards() -> None:
     records[0]["query_text"] = "synthetic alpha beta gamma delta epsilon zeta"
     findings = split.inspect_near_duplicates(records)
     assert findings and findings[0]["requires_disposition"] is True
+
+
+def test_short_queries_are_exhaustively_evaluated_without_empty_gram_false_positive() -> None:
+    short = split.similarity_pair("reset password", "reset passw0rd")
+    unrelated = split.similarity_pair("blue chair", "quiet river")
+    assert short["token_3gram_applicable"] is False
+    assert short["token_3gram_jaccard"] is None
+    assert short["sequence_matcher_ratio"] >= 0.92
+    assert unrelated["token_3gram_applicable"] is False
+    assert unrelated["token_3gram_jaccard"] is None
+    records = [
+        candidate(1, "supported_in_domain", "custom", "owner_authored", text="reset password"),
+        candidate(2, "supported_in_domain", "custom", "owner_authored", text="reset passw0rd"),
+        candidate(3, "supported_in_domain", "custom", "owner_authored", text="blue chair"),
+        candidate(4, "supported_in_domain", "custom", "owner_authored", text="quiet river"),
+    ]
+    stats: dict[str, int] = {}
+    findings = split.inspect_near_duplicates(records, stats=stats)
+    assert stats["pair_evaluations"] == 6
+    assert any(item["ids"] == ["CWQ-SYN-0001", "CWQ-SYN-0002"] for item in findings)
+    assert not any(item["ids"] == ["CWQ-SYN-0003", "CWQ-SYN-0004"] for item in findings)
+
+
+def test_synthetic_600_pair_space_is_exhaustive() -> None:
+    stats: dict[str, int] = {}
+    split.inspect_near_duplicates(synthetic_records(), stats=stats)
+    assert stats["pair_evaluations"] == 179700
+
+
+def test_public_registry_version_and_approval_validation() -> None:
+    record = candidate(1, "near_domain_unsupported", "clinc150", "public_verbatim")
+    registry = split.load_approved_registry()
+    record["source_version"] = "bogus"
+    with pytest.raises(split.SplitIntegrityError, match="public_source_version_mismatch"):
+        split.validate_public_registry(record, registry)
+    record["source_version"] = "UCI-570-data_full"
+    registry["datasets"]["clinc150"]["approved"] = False
+    with pytest.raises(split.SplitIntegrityError, match="public_dataset_not_approved"):
+        split.validate_public_registry(record, registry)
+
+
+def test_candidate_date_time_format_is_strict() -> None:
+    record = candidate(1, "supported_in_domain", "custom", "owner_authored")
+    left_fp, right_fp = split.record_fingerprint(record), "f" * 64
+    payload = manifest([record])
+    payload["near_duplicate_review_dispositions"] = [
+        {
+            "pair_fingerprint": split.sha256_value(sorted([left_fp, right_fp])),
+            "candidate_a_fingerprint": left_fp,
+            "candidate_b_fingerprint": right_fp,
+            "disposition": "distinct_allow",
+            "reason": "synthetic",
+            "reviewer_role": "test",
+            "timestamp_utc": "not-a-date",
+        }
+    ]
+    with pytest.raises(split.SplitIntegrityError, match="schema_validation_failed"):
+        split.validate_schema(payload, split.load_candidate_schema())
+
+
+def _write_seal_directory(path: Path, seal: dict) -> Path:
+    path.mkdir()
+    for name in ("candidate_manifest.json", "split_manifest.json", "seal.json"):
+        payload = (
+            seal["candidate_manifest"]
+            if name.startswith("candidate")
+            else seal["split_manifest"]
+            if name.startswith("split")
+            else seal
+        )
+        (path / name).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    return path / "seal.json"
+
+
+def test_seal_rebinds_candidate_split_and_config(tmp_path: Path) -> None:
+    seal = split.generate_split(manifest(synthetic_records()))
+    seal_path = _write_seal_directory(tmp_path / "sealed", seal)
+    split.verify_seal(seal, seal_dir=seal_path.parent)
+    candidate_path = seal_path.parent / "candidate_manifest.json"
+    candidate_payload = json.loads(candidate_path.read_text())
+    candidate_payload["records"][0]["query_text"] += " mutated"
+    candidate_path.write_text(json.dumps(candidate_payload, sort_keys=True))
+    with pytest.raises(
+        split.SplitIntegrityError,
+        match="seal_artifact_rebinding_failed|split_record_rebinding_failed",
+    ):
+        split.verify_seal(seal, seal_dir=seal_path.parent)
+
+
+def test_config_drift_and_split_mutation_are_detected(tmp_path: Path) -> None:
+    seal = split.generate_split(manifest(synthetic_records()))
+    seal_path = _write_seal_directory(tmp_path / "sealed", seal)
+    allocation = tmp_path / "query_allocation.yaml"
+    allocation.write_text(Path("config/query_allocation.yaml").read_text() + "\n# drift\n")
+    with pytest.raises(split.SplitIntegrityError, match="seal_artifact_rebinding_failed"):
+        split.verify_seal(seal, seal_dir=seal_path.parent, allocation_path=allocation)
+    split_payload = json.loads((seal_path.parent / "split_manifest.json").read_text())
+    split_payload["records"][0]["split"] = "holdout"
+    (seal_path.parent / "split_manifest.json").write_text(json.dumps(split_payload, sort_keys=True))
+    with pytest.raises(
+        split.SplitIntegrityError,
+        match="seal_artifact_rebinding_failed|split_record_rebinding_failed",
+    ):
+        split.verify_seal(seal, seal_dir=seal_path.parent)
+
+
+def test_lifecycle_verifies_before_transition_and_evidence_sha_is_strict(tmp_path: Path) -> None:
+    seal = split.generate_split(manifest(synthetic_records()))
+    seal_path = _write_seal_directory(tmp_path / "sealed", seal)
+    with pytest.raises(split.SplitIntegrityError, match="invalid_evidence_sha256"):
+        split.transition_lifecycle_atomic(seal_path, "scored_once", "bad")
+    split_payload = json.loads((seal_path.parent / "split_manifest.json").read_text())
+    split_payload["records"][0]["group_id"] = "mutated"
+    (seal_path.parent / "split_manifest.json").write_text(json.dumps(split_payload, sort_keys=True))
+    with pytest.raises(split.SplitIntegrityError):
+        split.transition_lifecycle_atomic(seal_path, "scored_once", "a" * 64)
+    assert json.loads(seal_path.read_text())["lifecycle"]["state"] == "sealed_unused"
+
+
+def test_private_output_root_and_generation_readback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    assert split.ensure_private_output_root(tmp_path) is True
+    with pytest.raises(split.SplitIntegrityError, match="output_root_not_ignored"):
+        split.ensure_private_output_root(Path("docs/evidence"))
+    with pytest.raises(split.SplitIntegrityError, match="output_root_is_repository"):
+        split.ensure_private_output_root(Path("."))
+    monkeypatch.setenv("NFR_ALLOW_EVAL_WRITES", "true")
+    result = split.atomic_generate(manifest(synthetic_records()), tmp_path, confirm=True)
+    final = Path(result["output"])
+    assert result["outside_repository"] is True
+    assert {path.name for path in final.iterdir()} == {
+        "candidate_manifest.json",
+        "split_manifest.json",
+        "seal.json",
+    }
+    split.verify_seal(json.loads((final / "seal.json").read_text()), seal_dir=final)
+
+
+def test_orphan_disposition_is_rejected() -> None:
+    record = candidate(1, "supported_in_domain", "custom", "owner_authored")
+    disposition = {
+        "candidate_a_fingerprint": "a" * 64,
+        "candidate_b_fingerprint": "b" * 64,
+        "pair_fingerprint": split.sha256_value(["a" * 64, "b" * 64]),
+        "disposition": "distinct_allow",
+    }
+    with pytest.raises(split.SplitIntegrityError, match="stale_disposition_fingerprint"):
+        split.disposition_links([record], [disposition])
 
 
 def test_disposition_cannot_override_exact_duplicate() -> None:

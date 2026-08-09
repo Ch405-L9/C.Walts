@@ -7,6 +7,7 @@ import argparse
 import difflib
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -15,6 +16,7 @@ import unicodedata
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -50,6 +52,21 @@ ALLOCATION_TO_DATASET = {
     "massive_en_us": "massive_1_0_en_us",
     "banking77": "banking77",
 }
+FORMAT_CHECKER = jsonschema.FormatChecker()
+
+
+@FORMAT_CHECKER.checks("date-time")
+def _strict_date_time(value: object) -> bool:
+    if not isinstance(value, str) or not re.fullmatch(
+        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})",
+        value,
+    ):
+        return False
+    try:
+        datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return True
 
 
 class SplitIntegrityError(ValueError):
@@ -121,8 +138,14 @@ def load_split_schema() -> dict[str, Any]:
     )
 
 
+def load_approved_registry(path: Path | None = None) -> dict[str, Any]:
+    return json.loads(
+        (path or ROOT / "config" / "approved_eval_datasets.json").read_text(encoding="utf-8")
+    )
+
+
 def validate_schema(instance: Any, schema: dict[str, Any]) -> None:
-    validator = jsonschema.Draft202012Validator(schema)
+    validator = jsonschema.Draft202012Validator(schema, format_checker=FORMAT_CHECKER)
     errors = sorted(validator.iter_errors(instance), key=lambda item: list(item.path))
     if errors:
         raise SplitIntegrityError("schema_validation_failed", errors[0].message)
@@ -167,6 +190,21 @@ def derive_allocation_source(record: dict[str, Any]) -> str:
     if dataset == "banking77" and class_name == "far_out_of_domain":
         return "banking77"
     raise SplitIntegrityError("unsupported_class_source_pair", f"{class_name}:{dataset}")
+
+
+def validate_public_registry(record: dict[str, Any], registry: dict[str, Any]) -> None:
+    if public_or_custom(record) != "public":
+        return
+    allocation_key = derive_allocation_source(record)
+    dataset_id = ALLOCATION_TO_DATASET.get(allocation_key)
+    datasets = registry.get("datasets", {})
+    entry = datasets.get(dataset_id) if isinstance(datasets, dict) else None
+    if not isinstance(entry, dict) or entry.get("approved") is not True:
+        raise SplitIntegrityError("public_dataset_not_approved", str(dataset_id))
+    if record.get("source_version") != entry.get("version"):
+        raise SplitIntegrityError("public_source_version_mismatch", str(record["id"]))
+    if not str(record.get("source_record_id", "")).strip():
+        raise SplitIntegrityError("public_source_identity_missing", str(record["id"]))
 
 
 def record_fingerprint(record: dict[str, Any]) -> str:
@@ -300,65 +338,71 @@ def _ngrams(tokens: list[str], size: int = 3) -> set[tuple[str, ...]]:
     return {tuple(tokens[index : index + size]) for index in range(max(0, len(tokens) - size + 1))}
 
 
-def similarity_pair(left: str, right: str) -> dict[str, float]:
+@lru_cache(maxsize=200_000)
+def _similarity_pair_cached(left: str, right: str) -> tuple[float, bool, float | None]:
     left_text, right_text = canonical_text(left), canonical_text(right)
     left_grams, right_grams = _ngrams(_tokens(left_text)), _ngrams(_tokens(right_text))
     union = left_grams | right_grams
-    jaccard = len(left_grams & right_grams) / len(union) if union else 1.0
+    applicable = bool(left_grams and right_grams)
+    jaccard = len(left_grams & right_grams) / len(union) if applicable else None
+    return (
+        difflib.SequenceMatcher(None, left_text, right_text, autojunk=False).ratio(),
+        applicable,
+        jaccard,
+    )
+
+
+def similarity_pair(left: str, right: str) -> dict[str, float | bool | None]:
+    ratio, applicable, jaccard = _similarity_pair_cached(left, right)
     return {
-        "sequence_matcher_ratio": difflib.SequenceMatcher(
-            None, left_text, right_text, autojunk=False
-        ).ratio(),
+        "sequence_matcher_ratio": ratio,
+        "token_3gram_applicable": applicable,
         "token_3gram_jaccard": jaccard,
     }
 
 
 def inspect_near_duplicates(
-    records: list[dict[str, Any]], dispositions: list[dict[str, Any]] | None = None
+    records: list[dict[str, Any]],
+    dispositions: list[dict[str, Any]] | None = None,
+    stats: dict[str, int] | None = None,
 ) -> list[dict[str, Any]]:
-    disposition_map = {
-        str(item.get("pair_fingerprint")): item for item in (dispositions or [])
-    }
+    disposition_map = {str(item.get("pair_fingerprint")): item for item in (dispositions or [])}
     findings: list[dict[str, Any]] = []
     ordered = sorted(records, key=lambda item: str(item["id"]))
-    token_sets = {str(item["id"]): _ngrams(_tokens(str(item["query_text"]))) for item in ordered}
-    gram_index: dict[tuple[str, ...], list[str]] = defaultdict(list)
-    for record_id, grams in token_sets.items():
-        for gram in grams:
-            gram_index[gram].append(record_id)
-    by_id = {str(item["id"]): item for item in ordered}
-    candidate_pairs: set[tuple[str, str]] = set()
-    for ids in gram_index.values():
-        for index, left_id in enumerate(sorted(ids)):
-            for right_id in sorted(ids)[index + 1 :]:
-                candidate_pairs.add((left_id, right_id))
-    for left_id, right_id in sorted(candidate_pairs):
-        left, right = by_id[left_id], by_id[right_id]
-        metrics = similarity_pair(str(left["query_text"]), str(right["query_text"]))
-        ratio, jaccard = metrics["sequence_matcher_ratio"], metrics["token_3gram_jaccard"]
-        same_family = bool(
-            left.get("template_fingerprint")
-            and left.get("template_fingerprint") == right.get("template_fingerprint")
-        )
-        same_class = left.get("class") == right.get("class")
-        hard = ratio >= 0.92 or (jaccard >= 0.85 and (same_class or same_family))
-        review = 0.85 <= ratio < 0.92 or 0.70 <= jaccard < 0.85
-        if hard or review:
-            pair = {
-                "ids": sorted([str(left["id"]), str(right["id"])]),
-                "metrics": metrics,
-                "hard": hard,
-                "review": review,
-                "pair_fingerprint": sha256_value(
-                    sorted([record_fingerprint(left), record_fingerprint(right)])
-                ),
-            }
-            disposition = disposition_map.get(pair["pair_fingerprint"])
-            if review and not hard and not disposition:
-                pair["requires_disposition"] = True
-            elif disposition:
-                pair["disposition"] = disposition.get("disposition")
-            findings.append(pair)
+    pair_evaluations = 0
+    for index, left in enumerate(ordered):
+        for right in ordered[index + 1 :]:
+            pair_evaluations += 1
+            metrics = similarity_pair(str(left["query_text"]), str(right["query_text"]))
+            ratio = metrics["sequence_matcher_ratio"]
+            jaccard = metrics["token_3gram_jaccard"]
+            same_family = bool(
+                left.get("template_fingerprint")
+                and left.get("template_fingerprint") == right.get("template_fingerprint")
+            )
+            same_class = left.get("class") == right.get("class")
+            hard = ratio >= 0.92 or (
+                jaccard is not None and jaccard >= 0.85 and (same_class or same_family)
+            )
+            review = 0.85 <= ratio < 0.92 or (jaccard is not None and 0.70 <= jaccard < 0.85)
+            if hard or review:
+                pair = {
+                    "ids": sorted([str(left["id"]), str(right["id"])]),
+                    "metrics": metrics,
+                    "hard": hard,
+                    "review": review,
+                    "pair_fingerprint": sha256_value(
+                        sorted([record_fingerprint(left), record_fingerprint(right)])
+                    ),
+                }
+                disposition = disposition_map.get(pair["pair_fingerprint"])
+                if review and not hard and not disposition:
+                    pair["requires_disposition"] = True
+                elif disposition:
+                    pair["disposition"] = disposition.get("disposition")
+                findings.append(pair)
+    if stats is not None:
+        stats["pair_evaluations"] = pair_evaluations
     return findings
 
 
@@ -366,6 +410,11 @@ def disposition_links(
     records: list[dict[str, Any]], dispositions: list[dict[str, Any]] | None
 ) -> list[tuple[str, str]]:
     by_fingerprint = {record_fingerprint(record): str(record["id"]) for record in records}
+    valid_pairs = {
+        sha256_value(sorted([left, right]))
+        for index, left in enumerate(sorted(by_fingerprint))
+        for right in sorted(by_fingerprint)[index + 1 :]
+    }
     links: list[tuple[str, str]] = []
     for disposition in dispositions or []:
         left_fp = str(disposition.get("candidate_a_fingerprint", ""))
@@ -373,7 +422,7 @@ def disposition_links(
         pair_fp = str(disposition.get("pair_fingerprint", ""))
         if left_fp not in by_fingerprint or right_fp not in by_fingerprint:
             raise SplitIntegrityError("stale_disposition_fingerprint")
-        if sha256_value(sorted([left_fp, right_fp])) != pair_fp:
+        if pair_fp not in valid_pairs or sha256_value(sorted([left_fp, right_fp])) != pair_fp:
             raise SplitIntegrityError("stale_disposition_fingerprint")
         if disposition.get("disposition") == "same_family":
             links.append((by_fingerprint[left_fp], by_fingerprint[right_fp]))
@@ -381,11 +430,14 @@ def disposition_links(
 
 
 def validate_candidate_manifest(
-    manifest: dict[str, Any], allocation: dict[str, Any] | None = None
+    manifest: dict[str, Any],
+    allocation: dict[str, Any] | None = None,
+    approved_registry: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     validate_schema(manifest, load_candidate_schema())
     records = manifest["records"]
     allocation = allocation or load_allocation()
+    approved_registry = approved_registry or load_approved_registry()
     targets = allocation_targets(allocation)
     seen_ids: set[str] = set()
     seen_text: dict[str, str] = {}
@@ -407,6 +459,7 @@ def validate_candidate_manifest(
         ):
             raise SplitIntegrityError("invalid_query_class_or_behavior", record_id)
         cell = allocation_cell(record)
+        validate_public_registry(record, approved_registry)
         if cell not in targets:
             raise SplitIntegrityError("unexpected_allocation_source", f"{cell[0]}:{cell[1]}")
         counts[cell] += 1
@@ -443,6 +496,7 @@ def validate_candidate_manifest(
         "targets": targets,
         "record_fingerprints": {str(r["id"]): record_fingerprint(r) for r in records},
         "near_duplicate_findings": findings,
+        "near_duplicate_pair_evaluations": len(records) * (len(records) - 1) // 2,
     }
 
 
@@ -474,9 +528,11 @@ def membership_sha(ids: list[str]) -> str:
 
 
 def generate_split(
-    manifest: dict[str, Any], allocation: dict[str, Any] | None = None
+    manifest: dict[str, Any],
+    allocation: dict[str, Any] | None = None,
+    approved_registry: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    checked = validate_candidate_manifest(manifest, allocation)
+    checked = validate_candidate_manifest(manifest, allocation, approved_registry)
     allocation = allocation or load_allocation()
     by_id = {str(record["id"]): record for record in checked["records"]}
     split_by_id: dict[str, str] = {}
@@ -512,7 +568,7 @@ def generate_split(
         "benchmark_version": manifest["benchmark_version"],
         "algorithm_id": ALGORITHM_ID,
         "candidate_manifest_sha256": sha256_value(manifest),
-        "allocation_config_sha256": sha256_value(allocation),
+        "allocation_config_sha256": sha256_file(ROOT / "config" / "query_allocation.yaml"),
         "approved_dataset_config_sha256": sha256_file(
             ROOT / "config" / "approved_eval_datasets.json"
         ),
@@ -544,6 +600,7 @@ def generate_split(
         "holdout_count": split_manifest["holdout_count"],
     }
     return {
+        "candidate_manifest": manifest,
         "split_manifest": split_manifest,
         "immutable_identity": identity,
         "split_identity_sha256": sha256_value(identity),
@@ -575,12 +632,92 @@ def transition_lifecycle(
     return seal
 
 
-def verify_seal(seal: dict[str, Any]) -> None:
+def verify_seal(
+    seal: dict[str, Any],
+    *,
+    seal_dir: Path | None = None,
+    allocation_path: Path | None = None,
+    approved_registry_path: Path | None = None,
+) -> None:
+    if seal_dir:
+        candidate_path = seal_dir / "candidate_manifest.json"
+        split_path = seal_dir / "split_manifest.json"
+        seal_path = seal_dir / "seal.json"
+        if not candidate_path.is_file() or not split_path.is_file() or not seal_path.is_file():
+            raise SplitIntegrityError("sealed_sibling_artifact_missing")
+        if seal_path.resolve() != (seal_dir / "seal.json").resolve():
+            raise SplitIntegrityError("sealed_sibling_artifact_mismatch")
+        candidate_manifest = load_manifest(candidate_path)
+        split_manifest = load_manifest(split_path)
+        disk_seal = load_manifest(seal_path)
+        if disk_seal != seal:
+            raise SplitIntegrityError("sealed_sibling_artifact_mismatch")
+    else:
+        candidate_manifest = seal.get("candidate_manifest")
+        split_manifest = seal.get("split_manifest")
+    if not isinstance(candidate_manifest, dict) or not isinstance(split_manifest, dict):
+        raise SplitIntegrityError("sealed_artifact_payload_missing")
+    validate_schema(split_manifest, load_split_schema())
+    validate_candidate_manifest(
+        candidate_manifest,
+        load_allocation(allocation_path),
+        load_approved_registry(approved_registry_path),
+    )
     identity = seal.get("immutable_identity")
-    if not isinstance(identity, dict) or seal.get("split_identity_sha256") != sha256_value(
-        identity
-    ):
+    if not isinstance(identity, dict):
+        raise SplitIntegrityError("seal_identity_missing")
+    if seal.get("split_identity_sha256") != sha256_value(identity):
         raise SplitIntegrityError("seal_identity_mismatch")
+    actual_candidate_hash = sha256_value(candidate_manifest)
+    actual_split_hash = sha256_value(split_manifest)
+    current_allocation_hash = sha256_file(
+        allocation_path or ROOT / "config" / "query_allocation.yaml"
+    )
+    current_approved_hash = sha256_file(
+        approved_registry_path or ROOT / "config" / "approved_eval_datasets.json"
+    )
+    split_records = split_manifest.get("records", [])
+    candidate_by_id = {str(item["id"]): item for item in candidate_manifest["records"]}
+    split_by_id = {str(item["id"]): item for item in split_records}
+    if set(candidate_by_id) != set(split_by_id):
+        raise SplitIntegrityError("split_membership_drift")
+    for record_id, candidate in candidate_by_id.items():
+        split_record = split_by_id[record_id]
+        expected = {
+            "class": candidate["class"],
+            "allocation_source_key": derive_allocation_source(candidate),
+            "public_or_custom": public_or_custom(candidate),
+            "group_id": candidate["group_id"],
+            "template_fingerprint": candidate.get("template_fingerprint"),
+            "record_fingerprint": record_fingerprint(candidate),
+        }
+        if any(split_record.get(key) != value for key, value in expected.items()):
+            raise SplitIntegrityError("split_record_rebinding_failed", record_id)
+    actual_identity = {
+        "seal_schema_version": SEAL_SCHEMA_VERSION,
+        "benchmark_version": candidate_manifest["benchmark_version"],
+        "algorithm_id": ALGORITHM_ID,
+        "allocation_config_sha256": current_allocation_hash,
+        "approved_dataset_config_sha256": current_approved_hash,
+        "candidate_manifest_sha256": actual_candidate_hash,
+        "split_manifest_sha256": actual_split_hash,
+        "calibration_membership_sha256": membership_sha(
+            [item["id"] for item in split_records if item["split"] == "calibration"]
+        ),
+        "holdout_membership_sha256": membership_sha(
+            [item["id"] for item in split_records if item["split"] == "holdout"]
+        ),
+        "group_membership_sha256": sha256_value(
+            sorted((item["group_id"], item["split"]) for item in split_records)
+        ),
+        "record_count": len(split_records),
+        "calibration_count": sum(item["split"] == "calibration" for item in split_records),
+        "holdout_count": sum(item["split"] == "holdout" for item in split_records),
+    }
+    if identity != actual_identity:
+        raise SplitIntegrityError("seal_artifact_rebinding_failed")
+    if split_manifest["algorithm_id"] != ALGORITHM_ID:
+        raise SplitIntegrityError("algorithm_id_drift")
     events = seal.get("lifecycle", {}).get("events", [])
     previous = "0" * 64
     for event in events:
@@ -589,7 +726,7 @@ def verify_seal(seal: dict[str, Any]) -> None:
         if event.get("previous_event_hash") != previous or actual != sha256_value(expected):
             raise SplitIntegrityError("lifecycle_chain_tampered")
         previous = actual
-    if events and seal["lifecycle"]["state"] != events[-1]["to"]:
+    if events and seal["lifecycle"].get("state") != events[-1]["to"]:
         raise SplitIntegrityError("lifecycle_state_mismatch")
 
 
@@ -619,7 +756,7 @@ def verify_config(allocation_path: Path | None = None) -> dict[str, Any]:
 
 
 def verify_gate0() -> None:
-    result = subprocess.run(  # noqa: S603
+    result = subprocess.run(  # noqa: S603,S607
         [sys.executable, str(ROOT / "scripts" / "verify_gate0_integrity.py"), "--verify"],
         cwd=ROOT,
         capture_output=True,
@@ -679,11 +816,79 @@ def load_manifest(path: Path) -> dict[str, Any]:
     return payload
 
 
+def _fsync_file(path: Path) -> None:
+    with path.open("rb") as handle:
+        os.fsync(handle.fileno())
+
+
+def _fsync_directory(path: Path) -> None:
+    try:
+        descriptor = os.open(path, os.O_RDONLY)
+    except OSError:
+        return
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _write_json_fsync(path: Path, payload: dict[str, Any]) -> None:
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _fsync_file(path)
+
+
+def ensure_private_output_root(output_root: Path) -> bool:
+    resolved = output_root.resolve()
+    try:
+        relative = resolved.relative_to(ROOT.resolve())
+    except ValueError:
+        return True
+    if not relative.parts:
+        raise SplitIntegrityError("output_root_is_repository")
+    result = subprocess.run(  # noqa: S603
+        ["git", "check-ignore", "-q", "--", relative.as_posix()],  # noqa: S607
+        cwd=ROOT,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise SplitIntegrityError("output_root_not_ignored", relative.as_posix())
+    return False
+
+
+def transition_lifecycle_atomic(
+    seal_path: Path, state: str, evidence_sha256: str, *, timestamp: str | None = None
+) -> dict[str, Any]:
+    if not re.fullmatch(r"[0-9a-f]{64}", evidence_sha256):
+        raise SplitIntegrityError("invalid_evidence_sha256")
+    seal_dir = seal_path.parent
+    current = load_manifest(seal_path)
+    verify_seal(current, seal_dir=seal_dir)
+    candidate = load_manifest(seal_dir / "candidate_manifest.json")
+    split_manifest = load_manifest(seal_dir / "split_manifest.json")
+    updated = json.loads(json.dumps(current))
+    transition_lifecycle(updated, state, evidence_sha256, timestamp=timestamp)
+    updated["candidate_manifest"] = candidate
+    updated["split_manifest"] = split_manifest
+    verify_seal(updated)
+    temporary = seal_dir / f".{seal_path.name}.tmp"
+    try:
+        _write_json_fsync(temporary, updated)
+        os.replace(temporary, seal_path)
+        _fsync_directory(seal_dir)
+        reread = load_manifest(seal_path)
+        verify_seal(reread, seal_dir=seal_dir)
+        return reread
+    except Exception:
+        temporary.unlink(missing_ok=True)
+        raise
+
+
 def atomic_generate(
     manifest: dict[str, Any], output_root: Path, *, confirm: bool = False
 ) -> dict[str, Any]:
-    if not confirm or __import__("os").environ.get("NFR_ALLOW_EVAL_WRITES") != "true":
+    if not confirm or os.environ.get("NFR_ALLOW_EVAL_WRITES") != "true":
         raise SplitIntegrityError("write_authorization_required")
+    outside_repository = ensure_private_output_root(output_root)
     output_root.mkdir(parents=True, exist_ok=True)
     final = output_root / f"{manifest['benchmark_version']}-{ALGORITHM_ID}"
     if final.exists():
@@ -691,14 +896,21 @@ def atomic_generate(
     with tempfile.TemporaryDirectory(prefix="stage5-split-", dir=output_root) as temp_name:
         staging = Path(temp_name)
         seal = generate_split(manifest)
-        (staging / "split_manifest.json").write_text(
-            json.dumps(seal["split_manifest"], indent=2, sort_keys=True) + "\n", encoding="utf-8"
-        )
-        (staging / "seal.json").write_text(
-            json.dumps(seal, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-        )
+        _write_json_fsync(staging / "candidate_manifest.json", seal["candidate_manifest"])
+        _write_json_fsync(staging / "split_manifest.json", seal["split_manifest"])
+        _write_json_fsync(staging / "seal.json", seal)
+        reread = load_manifest(staging / "seal.json")
+        verify_seal(reread, seal_dir=staging)
+        _fsync_directory(staging)
         staging.replace(final)
-    return {"verdict": "pass", "output": str(final), "mutation_performed": True}
+    verify_seal(load_manifest(final / "seal.json"), seal_dir=final)
+    _fsync_directory(output_root)
+    return {
+        "verdict": "pass",
+        "output": str(final),
+        "outside_repository": outside_repository,
+        "mutation_performed": True,
+    }
 
 
 def main() -> int:
@@ -731,7 +943,7 @@ def main() -> int:
             }
         elif args.verify_seal:
             seal = load_manifest(args.verify_seal)
-            verify_seal(seal)
+            verify_seal(seal, seal_dir=args.verify_seal.parent)
             report = {
                 "verdict": "pass",
                 "split_identity_sha256": seal["split_identity_sha256"],
@@ -746,7 +958,7 @@ def main() -> int:
             )
         elif args.mark_scored or args.retire:
             seal_path = args.mark_scored or args.retire
-            if __import__("os").environ.get("NFR_ALLOW_EVAL_WRITES") != "true":
+            if os.environ.get("NFR_ALLOW_EVAL_WRITES") != "true":
                 raise SplitIntegrityError("write_authorization_required")
             if not args.evidence_sha256:
                 raise SplitIntegrityError("evidence_sha256_required")
@@ -754,14 +966,10 @@ def main() -> int:
                 raise SplitIntegrityError("holdout_scored_confirmation_required")
             if args.retire and not args.confirm_holdout_retirement:
                 raise SplitIntegrityError("holdout_retirement_confirmation_required")
-            seal = load_manifest(seal_path)
-            transition_lifecycle(
-                seal,
+            seal = transition_lifecycle_atomic(
+                seal_path,
                 "scored_once" if args.mark_scored else "retired_regression",
                 args.evidence_sha256,
-            )
-            seal_path.write_text(
-                json.dumps(seal, indent=2, sort_keys=True) + "\n", encoding="utf-8"
             )
             report = {
                 "verdict": "pass",

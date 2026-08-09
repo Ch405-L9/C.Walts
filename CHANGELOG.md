@@ -3,6 +3,30 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.2 Stage 5-R1 integrity closure
+
+Version advances to `0.4.0-dev.8` for adversarial split-integrity hardening.
+
+### Fixed
+
+- Near-duplicate evaluation is exhaustive across all unordered pairs, including
+  short-query handling without empty-3-gram false positives.
+- Public candidate approval and source-version bindings are validated against
+  the approved dataset registry.
+- Candidate, split, membership, allocation, and approved-dataset hashes are
+  rebound during seal verification.
+- Lifecycle transitions verify first, validate evidence SHA-256 values, and use
+  atomic fsynced replacement with read-back verification.
+- Generation enforces private output roots and writes candidate, split, and seal
+  artifacts with fsync/read-back checks.
+- Candidate schema date-time formats are enforced with strict validation.
+
+### Safety
+
+- No real split, candidate universe, holdout, qrels, evaluation query, or
+  production mutation was performed. Stage 7 operational seal anchoring and
+  `CW-LIM-009` remain open.
+
 ## [Unreleased] — Gate 1.2 Stage 5 split-integrity verifier
 
 Version advances to `0.4.0-dev.7` for fail-closed benchmark split infrastructure.
