@@ -3057,3 +3057,22 @@ verification, and the read-only Harness capture/verify cycle. Coverage measured
 96 Chroma records and 96 BM25 records with exact parity, all 96 assignments,
 zero review-required records, and the expected production ID-list hash. Real
 qrels were not created; population remains deferred to Gate 4.
+
+# Gate 1.2 Stage 5 — Split-integrity verifier
+
+2026-08-09: Stage 5 implementation uses the accepted planning bundle
+`57d70029aa7a1502344b2d8ee779b2006f49d96ccb6c8fcc7db5b2d3e5d5e66f`. Commit
+`73a7c853e5d1f0752c7f849f822a00f49f811a66` adds candidate and private split
+schemas, explicit allocation/acquisition namespace mapping, group/template
+leakage clustering, exact whole-cluster subset allocation, duplicate and
+near-duplicate guards, logical seal identity, lifecycle checks, write
+authorization, atomic private output, and Gate 0-backed non-ingestion checks.
+
+Synthetic validation produced exactly 600 records, 300 calibration records,
+300 holdout records, 315 public records, 285 custom records, four class totals
+of 150, exact configured cells, and deterministic repeated membership. The
+focused Stage 5 suite passed 15 tests; the complete suite passed 548 tests;
+Ruff, diff check, corpus lint, Gate 0, Stage 3 coverage, and read-only Harness
+capture/verify passed. No real candidate universe, split, holdout, qrels, or
+evaluation query was created or accessed. Production remained 96/96 with exact
+parity and unchanged ID/semantic digests. CW-LIM-009 remains open.
