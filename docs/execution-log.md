@@ -29,6 +29,23 @@ temporary snapshot deleted. Production remained Chroma/BM25 **96/96**, exact
 parity true, evaluation_case 0, feedback 2, and unchanged ID-list and semantic
 digests.
 
+## 2026-08-08 — Gate 1.2 Stage 4-R1: report contract correction
+
+Corrected the schema-v2 volatile path to
+`cases[].results[].dense.distance` and made the projection policy explicit as
+`exclude_only_enumerated_volatile_paths`. Strict Draft 2020-12 UUID and
+date-time format checking now rejects malformed run metadata. Verdict and
+assertion fields remain semantic.
+
+This correction did not change retrieval behavior, RRF, thresholds, corpus, or
+production state. The historical evaluation report remained untouched.
+
+Measured results: focused contract tests **28 passed**; complete suite **533
+passed**; Ruff and diff checks passed. Corpus lint, restore verification, source
+snapshots, coverage verification, and the required-quiescence Harness
+capture/verify cycle passed with semantic drift false. No production mutation
+occurred.
+
 ---
 
 ## 2026-08-01 — Checkpoint 1: verified baseline

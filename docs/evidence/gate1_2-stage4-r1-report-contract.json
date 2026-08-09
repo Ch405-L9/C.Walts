@@ -1,0 +1,46 @@
+{
+  "CW-LIM-009": "open",
+  "EVAL_009_accessed_for_R1": false,
+  "correct_volatile_path": "cases[].results[].dense.distance",
+  "corrective_commit": "c004f2f42698f5b78dee2b8de963d5199a41625d",
+  "focused_tests": {
+    "failed": 0,
+    "passed": 28
+  },
+  "full_tests": {
+    "failed": 0,
+    "passed": 533
+  },
+  "harness_semantic_drift": false,
+  "historical_report_touched": false,
+  "holdout_accessed": false,
+  "malformed_datetime_refusal": "pass",
+  "malformed_uuid_refusal": "pass",
+  "obsolete_volatile_path_absent": true,
+  "production": {
+    "bm25": 96,
+    "chroma": 96,
+    "evaluation_case": 0,
+    "feedback": 2,
+    "id_list_sha256": "da637c728f8ef7603b6cb5977401ed6d013187ed7a85173f9d4eb70203cf0a03",
+    "parity": true,
+    "semantic_digest": "60910f5bbb1c8ab0328a0129e80ec740275f9f55c2d9bd95dbae9ad7f66cb83f",
+    "sources": 15
+  },
+  "production_mutation": false,
+  "projection_mode": "exclude_only_enumerated_volatile_paths",
+  "real_qrels_created": false,
+  "retrieval_policy_changed": false,
+  "schema_version": 1,
+  "semantic_policy_implementation_consistency": "pass",
+  "stage4_zip_sha256": "82ae0e51a07f6d97cdee3ac656ed5c660a4ddd74e902b1b51304548d2436ee13",
+  "starting_checkpoint": "16a5e0e99a7204689df0f50e508ea43c5a74ce8f",
+  "strict_format_validation": true,
+  "threshold_fitted": false,
+  "timestamp_utc": "2026-08-09T01:56:51.502164+00:00",
+  "valid_uuid_datetime": "pass",
+  "verdict": "pass",
+  "verdict_field_semantics": "pass",
+  "version": "0.4.0-dev.6",
+  "volatile_path_corrected": true
+}
