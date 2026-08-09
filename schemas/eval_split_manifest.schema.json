@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "C.Walts private evaluation split manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "benchmark_version", "algorithm_id", "candidate_manifest_sha256", "allocation_config_sha256", "approved_dataset_config_sha256", "record_count", "calibration_count", "holdout_count", "records"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "benchmark_version": {"type": "string", "minLength": 1},
+    "algorithm_id": {"const": "group-stratified-exact-subset-v1"},
+    "candidate_manifest_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "allocation_config_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "approved_dataset_config_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "record_count": {"type": "integer", "minimum": 0},
+    "calibration_count": {"type": "integer", "minimum": 0},
+    "holdout_count": {"type": "integer", "minimum": 0},
+    "records": {"type": "array", "items": {"$ref": "#/$defs/record"}}
+  },
+  "$defs": {
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "split", "class", "allocation_source_key", "public_or_custom", "group_id", "template_fingerprint", "record_fingerprint"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^CWQ-[A-Z]+-[0-9]{4}$"},
+        "split": {"enum": ["calibration", "holdout"]},
+        "class": {"enum": ["supported_in_domain", "near_domain_unsupported", "far_out_of_domain", "ambiguous_adversarial_insufficient"]},
+        "allocation_source_key": {"type": "string", "minLength": 1},
+        "public_or_custom": {"enum": ["public", "custom"]},
+        "group_id": {"type": "string", "minLength": 1},
+        "template_fingerprint": {"type": ["string", "null"]},
+        "record_fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    }
+  }
+}

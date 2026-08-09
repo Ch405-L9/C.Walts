@@ -3,6 +3,28 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.2 Stage 5 split-integrity verifier
+
+Version advances to `0.4.0-dev.7` for fail-closed benchmark split infrastructure.
+
+### Added
+
+- Added separate pre-split candidate and private split-manifest schemas without
+  changing the final calibration/holdout query schema.
+- Added the deterministic `group-stratified-exact-subset-v1` solver with exact
+  class/source quotas, group/template atomicity, and impossible-quota refusal.
+- Added explicit allocation/acquisition source-namespace reconciliation,
+  duplicate and near-duplicate guards, logical holdout sealing, one-way
+  lifecycle checks, and Gate 0 production-boundary verification.
+
+### Safety
+
+- Stage 5 implementation uses synthetic data only. No real benchmark query,
+  calibration split, holdout, qrels, Gate 2/3 authoring, or holdout wording was
+  created or accessed.
+- No production corpus, Chroma, BM25, or BADGR Harness state was changed.
+  `CW-LIM-009` remains open.
+
 ## [Unreleased] — Gate 1.2 Stage 4-R1 report contract correction
 
 Version advances to `0.4.0-dev.6`.

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "C.Walts pre-split evaluation candidate manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "benchmark_version", "candidate_set_id", "records"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "benchmark_version": {"type": "string", "minLength": 1},
+    "candidate_set_id": {"type": "string", "minLength": 1},
+    "near_duplicate_review_dispositions": {"type": "array", "items": {"$ref": "#/$defs/disposition"}},
+    "records": {"type": "array", "items": {"$ref": "#/$defs/record"}}
+  },
+  "$defs": {
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "query_text", "class", "expected_behavior", "source_dataset", "source_version", "group_id", "template_fingerprint", "group_basis", "license_ref", "provenance", "constraints", "notes"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^CWQ-[A-Z]+-[0-9]{4}$"},
+        "query_text": {"type": "string", "minLength": 1, "maxLength": 4000},
+        "class": {"enum": ["supported_in_domain", "near_domain_unsupported", "far_out_of_domain", "ambiguous_adversarial_insufficient"]},
+        "expected_behavior": {"enum": ["grounded", "partially_grounded", "exact_lexical", "abstain", "assist_ungrounded_only", "request_clarification"]},
+        "source_dataset": {"type": "string", "minLength": 1},
+        "source_version": {"type": "string", "minLength": 1},
+        "source_record_id": {"type": ["string", "null"]},
+        "source_partition": {"type": ["string", "null"]},
+        "source_intent": {"type": ["string", "null"]},
+        "source_domain": {"type": ["string", "null"]},
+        "group_id": {"type": "string", "minLength": 1},
+        "template_fingerprint": {"type": ["string", "null"]},
+        "group_basis": {"type": "string", "minLength": 1},
+        "license_ref": {"type": "string", "minLength": 1},
+        "provenance": {"type": "object", "required": ["kind"], "properties": {"kind": {"enum": ["public_verbatim", "public_transformed", "owner_authored", "vendor_generated_owner_approved"]}}, "additionalProperties": true},
+        "constraints": {"type": "object"},
+        "notes": {"type": "string"}
+      }
+    },
+    "disposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pair_fingerprint", "candidate_a_fingerprint", "candidate_b_fingerprint", "disposition", "reason", "reviewer_role", "timestamp_utc"],
+      "properties": {
+        "pair_fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "candidate_a_fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "candidate_b_fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "disposition": {"enum": ["distinct_allow", "same_family"]},
+        "reason": {"type": "string", "minLength": 1},
+        "reviewer_role": {"type": "string", "minLength": 1},
+        "timestamp_utc": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}
