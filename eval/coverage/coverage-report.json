@@ -1,0 +1,511 @@
+{
+  "branch": "feat/narration-generalization-v0.4",
+  "categories": [
+    {
+      "category_id": "approved_example_context",
+      "category_name": "Approved example context",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "09c3def680156aa9_14",
+        "27d3937d29900ba3_0",
+        "577c9edc08bd07ea_5",
+        "5adc19066cb9ad3b_0",
+        "bf42450d71ea3076_1",
+        "cd34d70c0e6288a1_11",
+        "eb95f427e277854c_1"
+      ],
+      "cw_ids": [
+        "CW-003",
+        "CW-009",
+        "CW-012"
+      ],
+      "independent_example_count": 7,
+      "record_count": 7,
+      "smoke_floor_bucket": ">=3",
+      "smoke_floor_label": "smoke_test_floor",
+      "source_count": 1,
+      "source_ids": [
+        "owner_examples"
+      ]
+    },
+    {
+      "category_id": "commercial_voiceover",
+      "category_name": "Commercial voice-over",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "199f07c20b210856_10",
+        "1f0e64a69915844e_3",
+        "40376a959e761989_6",
+        "406e1ccf12dbed60_5",
+        "56c24d3d9bb781d5_4",
+        "74410abd397c46f9_6",
+        "836d05b5ca8ce475_2",
+        "d1b4101bef6feb28_12"
+      ],
+      "cw_ids": [
+        "CW-004",
+        "CW-008",
+        "CW-010",
+        "CW-013",
+        "CW-014",
+        "CW-015",
+        "CW-016",
+        "CW-017"
+      ],
+      "independent_example_count": 8,
+      "record_count": 8,
+      "smoke_floor_bucket": ">=3",
+      "smoke_floor_label": "smoke_test_floor",
+      "source_count": 1,
+      "source_ids": [
+        "owner_examples"
+      ]
+    },
+    {
+      "category_id": "contrast_reference",
+      "category_name": "Contrast reference",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "9c1e63263b4b8373_0"
+      ],
+      "cw_ids": [],
+      "independent_example_count": 1,
+      "record_count": 1,
+      "smoke_floor_bucket": "1",
+      "smoke_floor_label": null,
+      "source_count": 1,
+      "source_ids": [
+        "cwalts_negative_patterns"
+      ]
+    },
+    {
+      "category_id": "delivery_policy",
+      "category_name": "Delivery policy",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "75e4b5a7bac4731b_0",
+        "8374bbe097bc0806_2",
+        "970ffb70705c7a90_3",
+        "c398c24d5f0f24ea_1",
+        "f502ab6c15525504_4"
+      ],
+      "cw_ids": [],
+      "independent_example_count": 1,
+      "record_count": 5,
+      "smoke_floor_bucket": "1",
+      "smoke_floor_label": null,
+      "source_count": 1,
+      "source_ids": [
+        "cwalts_style_rules"
+      ]
+    },
+    {
+      "category_id": "delivery_reference_script",
+      "category_name": "Delivery reference script",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "3b18a6b3904ab228_3",
+        "4ea27d2c7f89b103_0",
+        "85448d63374eb83a_4",
+        "8ae750a3d5103fce_2",
+        "d641f61d77da221c_1"
+      ],
+      "cw_ids": [],
+      "independent_example_count": 4,
+      "record_count": 5,
+      "smoke_floor_bucket": ">=3",
+      "smoke_floor_label": "smoke_test_floor",
+      "source_count": 1,
+      "source_ids": [
+        "owner_examples"
+      ]
+    },
+    {
+      "category_id": "dense_nominalization_chain",
+      "category_name": "Dense nominalization chain",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "4be038e8819e8c1e_0"
+      ],
+      "cw_ids": [
+        "CW-040"
+      ],
+      "independent_example_count": 1,
+      "record_count": 1,
+      "smoke_floor_bucket": "1",
+      "smoke_floor_label": null,
+      "source_count": 1,
+      "source_ids": [
+        "labphon-11-ipra"
+      ]
+    },
+    {
+      "category_id": "educational_narration",
+      "category_name": "Educational narration",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "001927782395aaba_21",
+        "2ff052a2db4672f0_22",
+        "3cb9c779246c6dbe_18",
+        "45cfbb1441f8f8bd_19",
+        "a2f64847c986c849_29",
+        "dedbc291a1bf9427_20",
+        "e06863726166d2fc_30",
+        "f519251954bf9b60_23"
+      ],
+      "cw_ids": [
+        "CW-028",
+        "CW-029",
+        "CW-030",
+        "CW-031",
+        "CW-032",
+        "CW-038"
+      ],
+      "independent_example_count": 6,
+      "record_count": 8,
+      "smoke_floor_bucket": ">=3",
+      "smoke_floor_label": "smoke_test_floor",
+      "source_count": 1,
+      "source_ids": [
+        "owner_examples"
+      ]
+    },
+    {
+      "category_id": "embedded_conditional_clause",
+      "category_name": "Embedded conditional clause",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "80d2e5225b05e9e1_0"
+      ],
+      "cw_ids": [
+        "CW-042"
+      ],
+      "independent_example_count": 1,
+      "record_count": 1,
+      "smoke_floor_bucket": "1",
+      "smoke_floor_label": null,
+      "source_count": 1,
+      "source_ids": [
+        "labphon-29-new-methods"
+      ]
+    },
+    {
+      "category_id": "identifier_date_modality_preservation",
+      "category_name": "Identifier and date preservation",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "34b2313e2e1d6a27_0",
+        "5c2a189e56a20f08_0"
+      ],
+      "cw_ids": [
+        "CW-048",
+        "CW-049"
+      ],
+      "independent_example_count": 2,
+      "record_count": 2,
+      "smoke_floor_bucket": "2",
+      "smoke_floor_label": null,
+      "source_count": 2,
+      "source_ids": [
+        "pmc12452892-prosodic-meaning",
+        "pmc12641984-ci-auditory-environment"
+      ]
+    },
+    {
+      "category_id": "numeric_preservation",
+      "category_name": "Numeric preservation",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "8de17b0cbff6c2cb_0",
+        "e70d3e8ae1737bcb_0"
+      ],
+      "cw_ids": [
+        "CW-046",
+        "CW-047"
+      ],
+      "independent_example_count": 2,
+      "record_count": 2,
+      "smoke_floor_bucket": "2",
+      "smoke_floor_label": null,
+      "source_count": 2,
+      "source_ids": [
+        "labphon-48-seoul-korean-focus",
+        "pmc11592126-silent-reading-rhythm"
+      ]
+    },
+    {
+      "category_id": "passive_qualifying_structure",
+      "category_name": "Passive with qualifying structure",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "3803c58ef7081395_0"
+      ],
+      "cw_ids": [
+        "CW-043"
+      ],
+      "independent_example_count": 1,
+      "record_count": 1,
+      "smoke_floor_bucket": "1",
+      "smoke_floor_label": null,
+      "source_count": 1,
+      "source_ids": [
+        "pmc12468771-l2-prosody-perception"
+      ]
+    },
+    {
+      "category_id": "positive_voice_reference",
+      "category_name": "Positive voice reference",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "2071a286c5f46f61_3",
+        "3feebd9110468721_4",
+        "751c859cc4923844_2",
+        "89be0b1b45abd0f6_5",
+        "e63f3e786391197e_0",
+        "e9028ecdd3b8c205_1"
+      ],
+      "cw_ids": [],
+      "independent_example_count": 6,
+      "record_count": 6,
+      "smoke_floor_bucket": ">=3",
+      "smoke_floor_label": "smoke_test_floor",
+      "source_count": 1,
+      "source_ids": [
+        "owner_examples"
+      ]
+    },
+    {
+      "category_id": "procedural_instruction",
+      "category_name": "Procedural instruction",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "51fce7a4cecffd3e_8"
+      ],
+      "cw_ids": [
+        "CW-006"
+      ],
+      "independent_example_count": 1,
+      "record_count": 1,
+      "smoke_floor_bucket": "1",
+      "smoke_floor_label": null,
+      "source_count": 1,
+      "source_ids": [
+        "owner_examples"
+      ]
+    },
+    {
+      "category_id": "professional_introduction",
+      "category_name": "Professional introduction",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "12377642ce1bcc15_14",
+        "24ab2848ffba9d06_4",
+        "4c86251c1069b7d2_13",
+        "997c773a1d2fc28d_17",
+        "bbec2d1179d46e83_16",
+        "bf430ad26b8a66c0_15"
+      ],
+      "cw_ids": [
+        "CW-002",
+        "CW-023",
+        "CW-024",
+        "CW-025",
+        "CW-026",
+        "CW-027"
+      ],
+      "independent_example_count": 6,
+      "record_count": 6,
+      "smoke_floor_bucket": ">=3",
+      "smoke_floor_label": "smoke_test_floor",
+      "source_count": 1,
+      "source_ids": [
+        "owner_examples"
+      ]
+    },
+    {
+      "category_id": "reference_glossary",
+      "category_name": "Reference glossary",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "112fc5e062b5c8c9_7",
+        "1fd1595dd81aa2b8_3",
+        "2c203177b0f09acf_15",
+        "3001a9aaff5a0593_0",
+        "3ce9d6ca127425ed_12",
+        "526c71940ae59b12_10",
+        "56d99b508949198b_4",
+        "582b2043fcee98d1_18",
+        "67e6e250091d55db_14",
+        "8cbaa18ddaa43a90_1",
+        "9464a8f07530d4d3_13",
+        "95c2e375e7c1942f_2",
+        "a35449cfe38dd401_8",
+        "ae7dab64dbdaa0f2_16",
+        "b6ab17f727928f56_5",
+        "e0a8c66deee6c6e3_17",
+        "e4401d7d240fde3d_9",
+        "e47d07119906d37e_6",
+        "ea1f293d1a51cac0_11"
+      ],
+      "cw_ids": [],
+      "independent_example_count": 19,
+      "record_count": 19,
+      "smoke_floor_bucket": ">=3",
+      "smoke_floor_label": "smoke_test_floor",
+      "source_count": 1,
+      "source_ids": [
+        "cwalts_prosody_glossary"
+      ]
+    },
+    {
+      "category_id": "reflective_narration",
+      "category_name": "Reflective narration",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "3fddf030d0a74707_24",
+        "4e4c9f532de05216_27",
+        "56deaf1e06a94744_26",
+        "65e6796ecc56083b_28",
+        "ea843b59eebfb55e_25"
+      ],
+      "cw_ids": [
+        "CW-033",
+        "CW-034",
+        "CW-035",
+        "CW-036",
+        "CW-037"
+      ],
+      "independent_example_count": 5,
+      "record_count": 5,
+      "smoke_floor_bucket": ">=3",
+      "smoke_floor_label": "smoke_test_floor",
+      "source_count": 1,
+      "source_ids": [
+        "owner_examples"
+      ]
+    },
+    {
+      "category_id": "stacked_prepositional_qualifiers",
+      "category_name": "Stacked prepositional qualifiers",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "d4ed381978ee9df0_0"
+      ],
+      "cw_ids": [
+        "CW-041"
+      ],
+      "independent_example_count": 1,
+      "record_count": 1,
+      "smoke_floor_bucket": "1",
+      "smoke_floor_label": null,
+      "source_count": 1,
+      "source_ids": [
+        "labphon-32-introducing-apt"
+      ]
+    },
+    {
+      "category_id": "technical_explanation",
+      "category_name": "Technical explanation",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "088c0a0a495b5942_8",
+        "143b0e980d418cea_32",
+        "2698cce18f295e5a_13",
+        "26e57adf05186f83_11",
+        "35b934c43f1efd4a_10",
+        "37764f3444fdb24e_12",
+        "54a0ff167fcd24a8_7",
+        "7b5b30f5050b5409_31",
+        "82c11e0c02500058_9",
+        "934172b94335f181_9",
+        "bce02a3432730d81_3",
+        "c81bbd3d6ded6f87_7",
+        "ff22742d0e268090_2"
+      ],
+      "cw_ids": [
+        "CW-001",
+        "CW-005",
+        "CW-007",
+        "CW-011",
+        "CW-018",
+        "CW-019",
+        "CW-020",
+        "CW-021",
+        "CW-022",
+        "CW-039"
+      ],
+      "independent_example_count": 10,
+      "record_count": 13,
+      "smoke_floor_bucket": ">=3",
+      "smoke_floor_label": "smoke_test_floor",
+      "source_count": 1,
+      "source_ids": [
+        "owner_examples"
+      ]
+    },
+    {
+      "category_id": "technical_procedural_sequence",
+      "category_name": "Technical procedural sequence",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "00c8de5cea3d7264_1",
+        "de2924affb966cdc_0"
+      ],
+      "cw_ids": [
+        "CW-044",
+        "CW-045"
+      ],
+      "independent_example_count": 2,
+      "record_count": 2,
+      "smoke_floor_bucket": "2",
+      "smoke_floor_label": null,
+      "source_count": 2,
+      "source_ids": [
+        "pmc12468771-l2-prosody-perception",
+        "pmc8092678-prosodic-boundaries"
+      ]
+    },
+    {
+      "category_id": "technical_status_update",
+      "category_name": "Technical status update",
+      "caveat_text": "Counts are descriptive. Independent-example counts use independence_group and are not statistical adequacy claims.",
+      "chunk_ids": [
+        "df50d16e51c460fc_1",
+        "f3340055575f6517_0"
+      ],
+      "cw_ids": [
+        "CW-050",
+        "CW-051"
+      ],
+      "independent_example_count": 2,
+      "record_count": 2,
+      "smoke_floor_bucket": "2",
+      "smoke_floor_label": null,
+      "source_count": 2,
+      "source_ids": [
+        "labphon-29-new-methods",
+        "pmc9887997-intonational-categories"
+      ]
+    }
+  ],
+  "categorized_record_count": 96,
+  "category_count": 20,
+  "commit": "36ac9cbed5b626d00b1b4b5b7838e0f1833102db",
+  "duplicate_assignment_ids": [],
+  "evaluation_case_count": 0,
+  "exact_parity": true,
+  "expected_id_list_sha256": "da637c728f8ef7603b6cb5977401ed6d013187ed7a85173f9d4eb70203cf0a03",
+  "expected_production_count": 96,
+  "findings": [],
+  "generated_at": "2026-08-09T00:08:54.486921+00:00",
+  "measured_bm25_count": 96,
+  "measured_chroma_count": 96,
+  "mutation_performed": false,
+  "production_id_list_sha256": "da637c728f8ef7603b6cb5977401ed6d013187ed7a85173f9d4eb70203cf0a03",
+  "review_required_count": 0,
+  "schema_version": 1,
+  "uncategorized_ids": [],
+  "unknown_assignment_ids": [],
+  "verdict": "pass",
+  "version": "0.4.0-dev.4"
+}

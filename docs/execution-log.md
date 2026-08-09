@@ -3005,3 +3005,12 @@ dense/BM25 candidate-pool infrastructure, and synthetic tests only. The
 canonical query universe remains absent, so real qrels population is deferred
 to Gate 4 after split validation and holdout sealing. No evaluation query,
 holdout text, EVAL-009 wording, or threshold was accessed.
+
+Implementation result: architecture commit `08416ec9503ff08d5c41c34ceef1db49eefeedb2`
+and implementation commit `36ac9cbed5b626d00b1b4b5b7838e0f1833102db` passed the
+focused and complete suites (`12 + 15` focused tests; `505 passed` complete),
+Ruff, diff check, source and candidate validators, corpus lint, restore
+verification, and the read-only Harness capture/verify cycle. Coverage measured
+96 Chroma records and 96 BM25 records with exact parity, all 96 assignments,
+zero review-required records, and the expected production ID-list hash. Real
+qrels were not created; population remains deferred to Gate 4.

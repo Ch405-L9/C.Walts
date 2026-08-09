@@ -30,6 +30,16 @@ canonical 600-query universe does not yet exist.
 - Holdout material, EVAL-009 wording, threshold fitting, and Gate 2/3 work
   remain out of scope. `CW-LIM-009` remains open.
 
+### Validation
+
+- Coverage verifier: pass at exactly 96 Chroma / 96 BM25 records, exact parity,
+  expected ID-list hash, 96 assignments, and zero review-required records.
+- Qrels infrastructure tests: 15 passed; complete suite: 505 passed.
+- Corpus lint, restore verification, source/candidate validation, and the
+  read-only BADGR Harness invariant capture/verify cycle passed.
+- Production mutation: false. Real qrels and real evaluation queries remain
+  absent; population is deferred to Gate 4.
+
 ### Added
 
 - Ten approved CC BY 4.0 Stage 2 public-source `approved_examples.md` files are
