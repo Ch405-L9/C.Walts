@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "timestamp_utc": "2026-08-10T04:00:00Z",
+  "branch": "feat/narration-generalization-v0.4",
+  "starting_checkpoint": "fe178a2e179428bdf2f3fc4e5e0ac51ec6eb3663",
+  "remediation_commit": "2079d0a",
+  "version": "0.4.0-dev.10",
+  "prior_stage7_stop": {
+    "prechange_gitleaks_findings": 0,
+    "original_lock_package_count": 100,
+    "original_version_drift_count": 0,
+    "original_advisories": [
+      "PYSEC-2026-311",
+      "PYSEC-2026-3481",
+      "PYSEC-2026-3482",
+      "PYSEC-2026-3483"
+    ]
+  },
+  "mcp": {
+    "old_version": "1.27.0",
+    "new_version": "1.28.1",
+    "advisories_cleared": [
+      "PYSEC-2026-3481",
+      "PYSEC-2026-3482",
+      "PYSEC-2026-3483"
+    ],
+    "isolated_tests": "34 passed",
+    "project_tests": "34 passed",
+    "stdio_only": true,
+    "http_sse_websocket_task_transport_used": false
+  },
+  "chromadb": {
+    "version": "1.5.8",
+    "advisory_id": "PYSEC-2026-311",
+    "aliases": ["CVE-2026-45829", "GHSA-f4j7-r4q5-qw2c"],
+    "patched_stable_version_available": false,
+    "server_exposed": false,
+    "network_client_used": false,
+    "persistent_client_enforced": true,
+    "explicit_embedding_function_enforced": true,
+    "explicit_query_embeddings_enforced": true,
+    "explicit_write_embeddings_enforced": true
+  },
+  "architecture": {"A3_active": true, "A4_active": true},
+  "exception": {
+    "count": 1,
+    "advisory_ids": ["PYSEC-2026-311"],
+    "disposition": "mitigated_by_enforced_non_exposure",
+    "automatic_version_carryforward": false
+  },
+  "audit": {
+    "unfiltered_detected_vulnerabilities": 1,
+    "unfiltered_detected_ids": ["PYSEC-2026-311"],
+    "policy_mitigated_vulnerabilities": 1,
+    "ignored_advisory_ids": ["PYSEC-2026-311"],
+    "unresolved_actionable_vulnerabilities": 0,
+    "filtered_exit_zero": true,
+    "auditor": "pip-audit",
+    "auditor_version": "2.10.1",
+    "vulnerability_service": "pypi",
+    "automatic_fix_used": false
+  },
+  "verification": {
+    "focused_tests": "45 passed; Stage 5/6 focused 49 passed",
+    "full_tests": "593 passed",
+    "ruff": "pass",
+    "diff_check": "pass",
+    "corpus_lint": "pass",
+    "gate0_stage5_stage6": "pass",
+    "stage3_coverage": "pass",
+    "source_restore_integrity": "pass",
+    "harness_semantic_drift": false,
+    "production_mutation": false
+  },
+  "production": {
+    "chroma_count": 96,
+    "bm25_count": 96,
+    "exact_parity": true,
+    "evaluation_case_count": 0,
+    "feedback_count": 2,
+    "approved_source_count": 15,
+    "id_list_sha256": "da637c728f8ef7603b6cb5977401ed6d013187ed7a85173f9d4eb70203cf0a03",
+    "semantic_digest": "60910f5bbb1c8ab0328a0129e80ec740275f9f55c2d9bd95dbae9ad7f66cb83f"
+  },
+  "stage7_implementation_complete": false,
+  "requirements_lock_committed": false,
+  "uv_lock_present": false,
+  "real_holdout_anchor_created": false,
+  "blocker": {"id": "CW-LIM-009-DENSE-COVERAGE", "status": "deferred", "open": true},
+  "verdict": "pass_remediation_only"
+}

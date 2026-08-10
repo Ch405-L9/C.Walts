@@ -3118,3 +3118,18 @@ is the expected passing behavior. The focused suite passed 24 tests and the
 complete suite passed 582 tests. No blocker closure, Gate 2 work, split,
 holdout, qrels, calibration, threshold fitting, or production mutation
 occurred. Stages 7 and 8 remain available; CW-LIM-009 remains open.
+# Gate 1.2 Stage 7-D dependency remediation
+
+Stage 7 stopped correctly before implementation when the initial audit found
+`PYSEC-2026-311` on ChromaDB and three MCP advisories. Stage 7-D upgraded MCP
+from `1.27.0` to `1.28.1`; isolated and project MCP tests passed. ChromaDB
+`1.5.8` remains subject to the real `PYSEC-2026-311` advisory, with no patched
+stable version reported by the audit. A4 records the narrow
+`mitigated_by_enforced_non_exposure` disposition, and its executable verifier
+passes the local PersistentClient, explicit embedding, vector-only, and path
+containment controls. The unfiltered updated audit found exactly that one
+advisory; the policy audit ignored exactly `PYSEC-2026-311` and exited zero.
+
+No requirements lock was committed. No pre-commit configuration, holdout
+anchor, audio move, Gate 2 work, qrels, calibration, threshold fitting, or
+production mutation occurred. Remediation commit: `2079d0a`.
