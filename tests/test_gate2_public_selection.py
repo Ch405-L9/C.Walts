@@ -117,6 +117,45 @@ def test_selector_has_no_retrieval_dependencies_or_query_mode() -> None:
     assert "reserved_for_gate2_b" in result.stderr + result.stdout
 
 
+def test_exact_base_group_dp_rejects_count_only_capacity() -> None:
+    result = selector.exact_base_group_dp(
+        [("a", 2), ("b", 2)], calibration_target=3, holdout_target=0
+    )
+    assert result["exact_base_group_feasible"] is False
+    assert result["membership_written"] is False
+
+
+def test_exact_base_group_dp_rejects_impossible_split_assignment() -> None:
+    result = selector.exact_base_group_dp(
+        [("a", 2), ("b", 2)], calibration_target=1, holdout_target=3
+    )
+    assert result["exact_base_group_feasible"] is False
+
+
+def test_exact_base_group_dp_accepts_positive_exact_assignment() -> None:
+    result = selector.exact_base_group_dp(
+        [("a", 2), ("b", 1), ("c", 1)], calibration_target=3, holdout_target=1
+    )
+    assert result["exact_base_group_feasible"] is True
+
+
+def test_exact_base_group_dp_is_deterministic() -> None:
+    groups = [("z", 1), ("a", 2), ("m", 1)]
+    assert selector.exact_base_group_dp(groups, 2, 1) == selector.exact_base_group_dp(
+        list(reversed(groups)), 2, 1
+    )
+
+
+def test_real_preselection_uses_exact_base_group_dp_and_final_is_pending() -> None:
+    result = selector.preselection_analysis()
+    assert result["verdict"] == "pass"
+    assert result["final_leakage_cluster_feasibility"] == (
+        "pending_gate2_b_final_candidate_validation"
+    )
+    assert all(item["exact_base_group_feasible"] for item in result["strata"].values())
+    assert all(item["membership_written"] is False for item in result["strata"].values())
+
+
 def test_source_text_is_not_in_policy_or_schema() -> None:
     for path in (POLICY, SCHEMA):
         text = path.read_text()

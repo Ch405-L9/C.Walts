@@ -30,6 +30,37 @@ def canonical_text(value: str) -> str:
     return "\n".join(" ".join(line.split()) for line in value.split("\n")).strip()
 
 
+def exact_base_group_dp(
+    groups: list[tuple[str, int]], calibration_target: int, holdout_target: int
+) -> dict:
+    """Prove exact assignment of whole base groups without writing membership."""
+    ordered = sorted(groups, key=lambda item: (item[0], item[1]))
+    states: dict[tuple[int, int], str] = {(0, 0): ""}
+    for fingerprint, size in ordered:
+        next_states = dict(states)
+        for (calibration, holdout), proof in sorted(states.items()):
+            if calibration + size <= calibration_target:
+                next_states.setdefault((calibration + size, holdout), proof + f"C:{fingerprint};")
+            if holdout + size <= holdout_target:
+                next_states.setdefault((calibration, holdout + size), proof + f"H:{fingerprint};")
+        states = next_states
+    target = (calibration_target, holdout_target)
+    proof_material = {
+        "groups": ordered,
+        "target": [calibration_target, holdout_target],
+        "reachable_state_count": len(states),
+        "target_reachable": target in states,
+    }
+    return {
+        "exact_base_group_feasible": target in states,
+        "target": {"calibration": calibration_target, "holdout": holdout_target},
+        "base_group_count": len(ordered),
+        "reachable_state_count": len(states),
+        "feasibility_proof_sha256": digest(json.dumps(proof_material, sort_keys=True)),
+        "membership_written": False,
+    }
+
+
 def structure() -> dict:
     clinc = json.loads(CLINC.read_text())
     clinc_counts = {
@@ -317,17 +348,27 @@ def preselection_analysis() -> dict:
         sizes = collections.Counter(row["text_sha256"] for row in rows)
         quota = quota_map[key]
         targets = future_map[key]
+        dp = exact_base_group_dp(sorted(sizes.items()), targets[0], targets[1])
         result[f"{key[0]}/{key[1]}"] = {
             "eligible_record_count": len(rows),
             "eligible_label_count": len({row["label"] for row in rows}),
             "eligible_partition_count": len({row["partition"] for row in rows}),
             "exact_duplicate_family_count": sum(1 for size in sizes.values() if size > 1),
+            "base_group_count": len(sizes),
             "eligible_cluster_count": len(sizes),
+            "base_group_definition": (
+                "exact canonical-text duplicate identity; "
+                "final Stage 5 clusters remain pending"
+            ),
             "cluster_size_histogram": dict(sorted(collections.Counter(sizes.values()).items())),
             "public_quota": quota,
             "future_calibration_holdout": targets,
-            "public_quota_feasible": len(rows) >= quota,
-            "future_split_feasible": len(rows) >= sum(targets),
+            "public_quota_feasible": dp["exact_base_group_feasible"],
+            "future_split_feasible": dp["exact_base_group_feasible"],
+            "exact_base_group_feasible": dp["exact_base_group_feasible"],
+            "feasibility_proof_sha256": dp["feasibility_proof_sha256"],
+            "reachable_state_count": dp["reachable_state_count"],
+            "membership_written": False,
         }
     mixed = sum(1 for keys in all_hashes.values() if len(set(keys)) > 1)
     return {
@@ -336,7 +377,9 @@ def preselection_analysis() -> dict:
         "query_text_included": False,
         "strata": result,
         "mixed_stratum_exact_duplicate_families": mixed,
-        "future_split_algorithm": "whole-cluster exact-subset feasibility; no membership written",
+        "preselection_feasibility_level": "exact_whole_base_group_dp",
+        "final_leakage_cluster_feasibility": "pending_gate2_b_final_candidate_validation",
+        "future_split_algorithm": "whole-base-group exact DP; no membership written",
         "verdict": "pass"
         if all(v["public_quota_feasible"] and v["future_split_feasible"] for v in result.values())
         and mixed == 0
