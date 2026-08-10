@@ -6,7 +6,7 @@ embedding function in `collections.schema_str`. That happened because they were
 created with `get_or_create_collection(name=...)` and no `embedding_function`
 argument — and Chroma's signature defaults that parameter to
 `DefaultEmbeddingFunction()` (384-d, MiniLM class). Any later caller using
-`query_texts=` would invoke a 384-d embedder against a 768-d index.
+Chroma's text-based query API would invoke a 384-d embedder against a 768-d index.
 
 Two defences, applied together:
 
@@ -15,8 +15,9 @@ Two defences, applied together:
      stored schema records `nomic-embed-text` rather than "default". That class
      also refuses model changes after creation, which enforces
      `forbid_mixed_models` at the library level.
-  2. Runtime always passes explicit vectors. `query_texts=` is never used, so the
-     recorded function is metadata and provenance, never a hot path.
+  2. Runtime always passes explicit vectors. Chroma's text-based query API is
+     never used, so the recorded function is metadata and provenance, never a
+     hot path.
 """
 
 from __future__ import annotations
@@ -144,7 +145,7 @@ class VectorStore:
         where: dict[str, Any] | None = None,
         name: str | None = None,
     ) -> dict[str, Any]:
-        """Dense search by EXPLICIT vector. `query_texts` is never used here."""
+        """Dense search by EXPLICIT vector; text-based queries are refused."""
         if len(embedding) != self.settings.embedding.vector_dimension:
             raise VectorStoreError(
                 f"refusing to query with a {len(embedding)}-d vector against a "

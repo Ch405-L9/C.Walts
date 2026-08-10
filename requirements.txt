@@ -5,7 +5,7 @@
 # Freeze with:     .venv/bin/pip freeze > requirements.lock
 
 chromadb==1.5.8          # measured working against the existing 768-d stores
-mcp==1.27.0              # official SDK, MIT (verified from installed metadata)
+mcp==1.28.1              # security remediation: PYSEC-2026-3481/3482/3483
 numpy==2.5.1             # exact-cosine oracle for Gate 1.2 determinism probes
 ollama==0.6.1            # HARD dep: Chroma's OllamaEmbeddingFunction calls it
 tiktoken==0.12.0         # A4 default — cl100k_base, verified offline-capable

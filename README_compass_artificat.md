@@ -32,6 +32,23 @@ for audit compatibility. The current deferred blocker applies to
 this scope migration does not close the blocker. Gate 2 remains prohibited while
 the blocker is open, while Stages 7 and 8 may proceed independently.
 
+### Architecture Amendment A3 — Requirements lock ownership
+
+For C.Walts v0.4, `requirements.txt` remains the dependency source of truth and
+`requirements.lock` is the frozen hash-pinned artifact. `pyproject.toml` remains
+metadata/tool configuration; dependencies are not migrated into
+`[project].dependencies`, and `uv.lock` is not used. uv is a compile and
+verification tool only, and lock generation must preserve the tested versions.
+
+### Architecture Amendment A4 — Chroma vulnerability containment
+
+`PYSEC-2026-311` is a real ChromaDB vulnerability, not a false positive. The
+v0.4 disposition is `mitigated_by_enforced_non_exposure`, valid only while the
+project uses a contained local `PersistentClient`, explicit collection embedding
+functions, explicit vector queries and writes, no Chroma network/server paths,
+and project-contained persistence. The exception is exact-version and must be
+invalidated when those controls or the advisory scope changes.
+
 ---
 
 ## How the disputes were settled

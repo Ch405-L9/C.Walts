@@ -3,6 +3,28 @@
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 
+## [Unreleased] — Gate 1.2 Stage 7 dependency remediation
+
+Version advances to `0.4.0-dev.10` for the MCP security correction and A4
+ChromaDB architectural containment.
+
+### Fixed
+
+- Upgraded MCP from `1.27.0` to `1.28.1`, clearing the three MCP advisories.
+- Added the A3 requirements-lock ownership decision and the executable A4
+  exception guard for `PYSEC-2026-311`.
+- Removed text-based Chroma query use from the disposable embedding probe so
+  active executable paths remain explicit-vector-only.
+
+### Security
+
+- ChromaDB `1.5.8` remains subject to the real upstream advisory and is not
+  classified as fixed; its narrow exception is valid only while local-client,
+  explicit-embedding, and project-containment controls pass.
+- No Chroma HTTP/server exposure or production data mutation was introduced.
+- Stage 7 proper remains incomplete: no requirements lock, pre-commit gate,
+  holdout anchor, or audio-manifest move is included in this remediation.
+
 ## [Unreleased] — Gate 1.2 Stage 6 blocker enforcement
 
 Version advances to `0.4.0-dev.9` for Architecture Scope Amendment A2.
