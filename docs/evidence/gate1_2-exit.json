@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "version": "0.4.0-dev.12",
+  "final_checkpoint": "17b3672312ffd914be228727c2fac2aaddf30394",
+  "criteria": [
+    {"criterion":"stage1_determinism","status":"PASS","verifier":"determinism_probe.py","checkpoint":"17b3672"},
+    {"criterion":"stage2_corpus_remediation_freeze","status":"PASS","verifier":"Gate 0 and corpus_lint.py","checkpoint":"17b3672"},
+    {"criterion":"stage3a_coverage_qrels_infrastructure","status":"PASS","verifier":"verify_coverage.py","checkpoint":"17b3672","hash":"da637c728f8ef7603b6cb5977401ed6d013187ed7a85173f9d4eb70203cf0a03"},
+    {"criterion":"stage4_provenance_reporting","status":"PASS","verifier":"reporting/provenance tests","checkpoint":"17b3672"},
+    {"criterion":"stage5_split_integrity","status":"PASS","verifier":"verify_eval_split.py and focused tests","checkpoint":"17b3672"},
+    {"criterion":"stage6_blocker_enforcement","status":"PASS","verifier":"verify_open_blockers.py and authorization adapter","checkpoint":"744fcb8","notes":"resolved blocker has empty active scopes"},
+    {"criterion":"stage7_security","status":"PASS","verifier":"verify_security_baseline.py and A4 verifier","checkpoint":"17b3672","hash":"9c8380fe6a78db9595b5e2436acbb293858661c2df79cc099fb9cf13a73ae653"},
+    {"criterion":"stage8_rollback_revalidation","status":"PASS","verifier":"isolated rehearsal, smoke, MCP, full regression","checkpoint":"17b3672"}
+  ],
+  "technical_stage8_pass": true,
+  "blocker_state": "resolved",
+  "gate1_2_exit_authorized": true,
+  "gate2_authorization_checked": true,
+  "gate2_work_started": false,
+  "final_owner_result": "STAGE8_PASS_GATE1_2_EXIT_AUTHORIZED"
+}

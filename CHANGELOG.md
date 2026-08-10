@@ -4,7 +4,10 @@
 
 - Added the frozen Stage 8 dense-coverage diagnostic protocol, isolated rollback
   rehearsal tooling, strict Gate 1.2 exit schema, and revalidation tests.
-- Stage 8 does not begin Gate 2 work; blocker closure remains evidence-gated.
+- Completed final Gate 1.2 revalidation and isolated rollback rehearsal.
+- Resolved `CW-LIM-009-DENSE-COVERAGE` from frozen multi-round retrieval
+  diversity evidence without changing the corpus or retrieval configuration.
+- Gate 2 remains a separate architect-authorized stage and has not begun.
 
 ## 0.4.0-dev.11
 

@@ -1,8 +1,18 @@
 {
-  "summary": {
-    "generated": "2026-08-02T05:30:54.046514+00:00",
+  "schema_version": 2,
+  "run": {
+    "run_id": "60fd9df6-c258-4a72-b512-d49f6e9dee31",
+    "generated_at": "2026-08-10T09:59:10.168621+00:00",
     "collection": "badgr_natural_flow_v1",
-    "collection_count": 84,
+    "collection_count": 96,
+    "version": "0.4.0-dev.12",
+    "embedding_model": "nomic-embed-text",
+    "embedding_dimension": 768
+  },
+  "summary": {
+    "generated": "2026-08-10T09:59:10.168621+00:00",
+    "collection": "badgr_natural_flow_v1",
+    "collection_count": 96,
     "embedding_model": "nomic-embed-text",
     "dimension": 768,
     "k": 5,
@@ -10,15 +20,15 @@
     "useful_hits": 17,
     "useful_hit_rate": 1.0,
     "exact_term_pass": true,
-    "positive_source_ratio": 0.741,
+    "positive_source_ratio": 0.753,
     "negative_contamination": 0,
     "citation_failures": 0,
     "lexical_degraded": false,
-    "latency_ms_p50": 75,
-    "latency_ms_p95": 94,
+    "latency_ms_p50": 74,
+    "latency_ms_p95": 87,
     "distance_min": 0.1439,
     "distance_max": 0.463614,
-    "distance_median": 0.336552,
+    "distance_median": 0.33595,
     "similarity_min": 0.536386,
     "similarity_max": 0.8561,
     "assertion_failures": 0,
@@ -31,8 +41,10 @@
   "cases": [
     {
       "id": "EVAL-001",
+      "query_id": "EVAL-001",
+      "query_sha256": "47c8a5f96c446e439fd5b9708ae2bcc405194ba69db9230fdd9b2570400bc66e",
       "mode": "retrieval",
-      "latency_ms": 110,
+      "latency_ms": 107,
       "ranked": 5,
       "neighbours": 7,
       "dense_n": 24,
@@ -56,10 +68,358 @@
         "SCR-002 \u2014 Technical security explanation (matche",
         "Pair CW-022 \u2014 Technical: permission boundary",
         "Authoritative working vocabulary for voice direc",
-        "Pair CW-005 \u2014 Technical warning"
+        "Pair CW-018 \u2014 Technical: retry and backoff behav"
       ],
       "min_distance": 0.159409,
       "max_distance": 0.389193,
+      "results": [
+        {
+          "query_id": "EVAL-001",
+          "chunk_id": "ff22742d0e268090_2",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-001 \u2014 Technical security explainer",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.15940916538238525,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 184.65853681064078,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03278688524590164,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-001",
+          "chunk_id": "8ae750a3d5103fce_2",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "SCR-002 \u2014 Technical security explanation (matches POS-002 Jessica, POS-003 Se\u00e1n)",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 2,
+            "distance": 0.17868316173553467,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 162.3135514919578,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.03225806451612903,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-001",
+          "chunk_id": "37764f3444fdb24e_12",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-022 \u2014 Technical: permission boundary",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 3,
+            "distance": 0.3033088445663452,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 8,
+            "score": 34.72429200060935,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.03057889822595705,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-001",
+          "chunk_id": "8cbaa18ddaa43a90_1",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "Authoritative working vocabulary for voice direction",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 6,
+            "distance": 0.38929593563079834,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 5,
+            "score": 37.35681696555947,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.030536130536130537,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-001",
+          "chunk_id": "54a0ff167fcd24a8_7",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-018 \u2014 Technical: retry and backoff behaviour",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 18,
+            "distance": 0.4233611822128296,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 3,
+            "score": 43.077657405796735,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 5,
+            "score": 0.028693528693528692,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-001",
+          "chunk_id": "eb95f427e277854c_1",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Market-facing natural-language and voice-delivery examples",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-001",
+          "chunk_id": "bce02a3432730d81_3",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-001 \u2014 Technical security explainer",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-001",
+          "chunk_id": "d641f61d77da221c_1",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "SCR-001 \u2014 Professional introduction (matches POS-004, B. Lawson)",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-001",
+          "chunk_id": "3b18a6b3904ab228_3",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "SCR-002 \u2014 Technical security explanation (matches POS-002 Jessica, POS-003 Se\u00e1n)",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-001",
+          "chunk_id": "74410abd397c46f9_6",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-017 \u2014 Commercial: closing call to action",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-001",
+          "chunk_id": "088c0a0a495b5942_8",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-018 \u2014 Technical: retry and backoff behaviour",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-001",
+          "chunk_id": "26e57adf05186f83_11",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-021 \u2014 Technical: dense architecture paragraph",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.159409,
+        "max_distance": 0.389193
+      },
       "primary_doc_type": "approved_example",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -67,8 +427,10 @@
     },
     {
       "id": "EVAL-002",
+      "query_id": "EVAL-002",
+      "query_sha256": "cb5c8b583a3eb7e7d4fd79ce2616a5d6885608d1a997dc726382d437d762ab97",
       "mode": "retrieval",
-      "latency_ms": 79,
+      "latency_ms": 78,
       "ranked": 5,
       "neighbours": 5,
       "dense_n": 24,
@@ -96,6 +458,298 @@
       ],
       "min_distance": 0.251363,
       "max_distance": 0.308842,
+      "results": [
+        {
+          "query_id": "EVAL-002",
+          "chunk_id": "24ab2848ffba9d06_4",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-002 \u2014 Professional introduction",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 2,
+            "distance": 0.2812432050704956,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 40.7257463136419,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03252247488101534,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-002",
+          "chunk_id": "d641f61d77da221c_1",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "SCR-001 \u2014 Professional introduction (matches POS-004, B. Lawson)",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.2513629198074341,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 36.56711311504221,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.03252247488101534,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-002",
+          "chunk_id": "75e4b5a7bac4731b_0",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 5,
+            "distance": 0.30884164571762085,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 3,
+            "score": 24.821990148314608,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.03125763125763126,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-002",
+          "chunk_id": "bf430ad26b8a66c0_15",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-025 \u2014 Professional introduction: website about page, read aloud",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 3,
+            "distance": 0.28231537342071533,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 6,
+            "score": 19.293306021167872,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.031024531024531024,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-002",
+          "chunk_id": "40376a959e761989_6",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-004 \u2014 Product explainer opening",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 11,
+            "distance": 0.34105348587036133,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 5,
+            "score": 19.932292146628395,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 5,
+            "score": 0.02946912242686891,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-002",
+          "chunk_id": "bce02a3432730d81_3",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-001 \u2014 Technical security explainer",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-002",
+          "chunk_id": "577c9edc08bd07ea_5",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-003 \u2014 Reflective scholarly narration",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-002",
+          "chunk_id": "c81bbd3d6ded6f87_7",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-005 \u2014 Technical warning",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-002",
+          "chunk_id": "4ea27d2c7f89b103_0",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Approved Delivery-Ready Reference Scripts",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-002",
+          "chunk_id": "8ae750a3d5103fce_2",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "SCR-002 \u2014 Technical security explanation (matches POS-002 Jessica, POS-003 Se\u00e1n)",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.251363,
+        "max_distance": 0.308842
+      },
       "primary_doc_type": "approved_example",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -103,8 +757,10 @@
     },
     {
       "id": "EVAL-003",
+      "query_id": "EVAL-003",
+      "query_sha256": "f8091c2f775fab057760bd5d035c93a909ea306798b8d47ea163ff21399f32fb",
       "mode": "retrieval",
-      "latency_ms": 76,
+      "latency_ms": 77,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -132,6 +788,242 @@
       ],
       "min_distance": 0.198174,
       "max_distance": 0.309504,
+      "results": [
+        {
+          "query_id": "EVAL-003",
+          "chunk_id": "3fddf030d0a74707_24",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-033 \u2014 Reflective narration: holding an open question",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.19817358255386353,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 41.013880741960804,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03252247488101534,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-003",
+          "chunk_id": "577c9edc08bd07ea_5",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-003 \u2014 Reflective scholarly narration",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 2,
+            "distance": 0.22670495510101318,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 47.845004918370705,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.03252247488101534,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-003",
+          "chunk_id": "65e6796ecc56083b_28",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-037 \u2014 Reflective narration: ending without resolution",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 3,
+            "distance": 0.26429134607315063,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 4,
+            "score": 17.68954714271444,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.03149801587301587,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-003",
+          "chunk_id": "f502ab6c15525504_4",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 7,
+            "distance": 0.3399466872215271,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 6,
+            "score": 16.783093192988087,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.03007688828584351,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-003",
+          "chunk_id": "4e4c9f532de05216_27",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-036 \u2014 Reflective narration: qualifying a claim without weakening it",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 4,
+            "distance": 0.2910059690475464,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 13,
+            "score": 15.224805034739335,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 5,
+            "score": 0.0293236301369863,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-003",
+          "chunk_id": "24ab2848ffba9d06_4",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-002 \u2014 Professional introduction",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-003",
+          "chunk_id": "40376a959e761989_6",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-004 \u2014 Product explainer opening",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-003",
+          "chunk_id": "f519251954bf9b60_23",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-032 \u2014 Educational narration: closing a lesson",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.198174,
+        "max_distance": 0.309504
+      },
       "primary_doc_type": "approved_example",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -139,10 +1031,12 @@
     },
     {
       "id": "EVAL-004",
+      "query_id": "EVAL-004",
+      "query_sha256": "8f6a23c7e136b09c95803b9581349af3ce517b34b4fa703ed5468ef9030dd72e",
       "mode": "retrieval",
-      "latency_ms": 72,
+      "latency_ms": 73,
       "ranked": 5,
-      "neighbours": 3,
+      "neighbours": 2,
       "dense_n": 24,
       "lexical_n": 24,
       "lexical_error": null,
@@ -163,11 +1057,219 @@
         "L-L%",
         "ToBI",
         "H*",
-        "Market-facing natural-language and voice-deliver",
-        "Approved Before/After Seed Pairs"
+        "CW-041 \u2014 Stacked prepositional qualifiers",
+        "CW-043 \u2014 Agentless passive plus qualifying struc"
       ],
       "min_distance": 0.253234,
-      "max_distance": 0.362529,
+      "max_distance": 0.362039,
+      "results": [
+        {
+          "query_id": "EVAL-004",
+          "chunk_id": "e4401d7d240fde3d_9",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "L-L%",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.2532336711883545,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 3,
+            "score": 19.077394840648818,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.032266458495966696,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-004",
+          "chunk_id": "b6ab17f727928f56_5",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "ToBI",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 5,
+            "distance": 0.3620392680168152,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 21.41777799832536,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.03177805800756621,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-004",
+          "chunk_id": "112fc5e062b5c8c9_7",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "H*",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 9,
+            "distance": 0.3672485947608948,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 20.85965666297544,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.030621785881252923,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-004",
+          "chunk_id": "d4ed381978ee9df0_0",
+          "source_id": "labphon-32-introducing-apt",
+          "doc_type": "approved_example",
+          "heading": "CW-041 \u2014 Stacked prepositional qualifiers",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 10,
+            "distance": 0.3723640441894531,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 16,
+            "score": 5.784143343199773,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 8,
+            "score": 0.027443609022556388,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-004",
+          "chunk_id": "3803c58ef7081395_0",
+          "source_id": "pmc12468771-l2-prosody-perception",
+          "doc_type": "approved_example",
+          "heading": "CW-043 \u2014 Agentless passive plus qualifying structure",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 4,
+            "distance": 0.36178743839263916,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 13,
+            "score": 0.015625,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-004",
+          "chunk_id": "56d99b508949198b_4",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "acoustic prosody",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-004",
+          "chunk_id": "e47d07119906d37e_6",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "pitch accent",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.253234,
+        "max_distance": 0.362039
+      },
       "exact_terms": {
         "ToBI": {
           "lexical_hits": 3,
@@ -192,8 +1294,10 @@
     },
     {
       "id": "EVAL-005",
+      "query_id": "EVAL-005",
+      "query_sha256": "65da7f5cce03c63d39781f1b93ff116b9674cd96f7db0aad74d5a0b20f2f3b75",
       "mode": "retrieval",
-      "latency_ms": 78,
+      "latency_ms": 79,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -221,6 +1325,242 @@
       ],
       "min_distance": 0.193608,
       "max_distance": 0.322239,
+      "results": [
+        {
+          "query_id": "EVAL-005",
+          "chunk_id": "a2f64847c986c849_29",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-038 \u2014 Educational narration: rewriting around exact numbers",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.19360816478729248,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 87.19050906198223,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03278688524590164,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-005",
+          "chunk_id": "e06863726166d2fc_30",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-038 \u2014 Educational narration: rewriting around exact numbers",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 2,
+            "distance": 0.22606205940246582,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 49.17846608835595,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.03225806451612903,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-005",
+          "chunk_id": "934172b94335f181_9",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-007 \u2014 Feature explanation",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 3,
+            "distance": 0.22623687982559204,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 3,
+            "score": 43.125045893504065,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.031746031746031744,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-005",
+          "chunk_id": "56c24d3d9bb781d5_4",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-015 \u2014 Commercial: fifteen-second product spot",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 9,
+            "distance": 0.3467397689819336,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 6,
+            "score": 17.523285130802435,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.02964426877470356,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-005",
+          "chunk_id": "c398c24d5f0f24ea_1",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 5,
+            "distance": 0.3222386837005615,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 14,
+            "score": 14.889709251768547,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 5,
+            "score": 0.0288981288981289,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-005",
+          "chunk_id": "51fce7a4cecffd3e_8",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-006 \u2014 Setup instruction",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-005",
+          "chunk_id": "199f07c20b210856_10",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-008 \u2014 Service offer",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-005",
+          "chunk_id": "75e4b5a7bac4731b_0",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.193608,
+        "max_distance": 0.322239
+      },
       "primary_doc_type": "approved_example",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -228,8 +1568,10 @@
     },
     {
       "id": "EVAL-006",
+      "query_id": "EVAL-006",
+      "query_sha256": "3483f9547e2ab4d9bb94b91b5c690bf8f3e76acd8dce3fa476f6cdf48da145ea",
       "mode": "retrieval",
-      "latency_ms": 75,
+      "latency_ms": 73,
       "ranked": 5,
       "neighbours": 6,
       "dense_n": 24,
@@ -250,13 +1592,333 @@
       "bad_citations": [],
       "top_headings": [
         "Pair CW-018 \u2014 Technical: retry and backoff behav",
-        "Pair CW-020 \u2014 Technical: migration warning",
         "Depth set added for v0.3.0-rc.2",
         "Pair CW-001 \u2014 Technical security explainer",
+        "Pair CW-020 \u2014 Technical: migration warning",
         "Market Voice-Delivery Rules"
       ],
       "min_distance": 0.374888,
       "max_distance": 0.391989,
+      "results": [
+        {
+          "query_id": "EVAL-006",
+          "chunk_id": "54a0ff167fcd24a8_7",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-018 \u2014 Technical: retry and backoff behaviour",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.37488776445388794,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 5,
+            "score": 15.026015755215587,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03177805800756621,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-006",
+          "chunk_id": "bf42450d71ea3076_1",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Depth set added for v0.3.0-rc.2",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 10,
+            "distance": 0.4126155972480774,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 18.963930374970683,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.030679156908665108,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-006",
+          "chunk_id": "ff22742d0e268090_2",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-001 \u2014 Technical security explainer",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 9,
+            "distance": 0.4086790084838867,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 16.697423635544435,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.030621785881252923,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-006",
+          "chunk_id": "35b934c43f1efd4a_10",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-020 \u2014 Technical: migration warning",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 7,
+            "distance": 0.3965730667114258,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 6,
+            "score": 14.529259346298707,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.03007688828584351,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-006",
+          "chunk_id": "75e4b5a7bac4731b_0",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 6,
+            "distance": 0.3952697515487671,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 10,
+            "score": 13.701608957940795,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 6,
+            "score": 0.029437229437229435,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-006",
+          "chunk_id": "eb95f427e277854c_1",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Market-facing natural-language and voice-delivery examples",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-006",
+          "chunk_id": "bce02a3432730d81_3",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-001 \u2014 Technical security explainer",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-006",
+          "chunk_id": "c398c24d5f0f24ea_1",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-006",
+          "chunk_id": "5adc19066cb9ad3b_0",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Approved Before/After Pairs \u2014 Set 2",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-006",
+          "chunk_id": "836d05b5ca8ce475_2",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-013 \u2014 Commercial: subscription app hook",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-006",
+          "chunk_id": "74410abd397c46f9_6",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-017 \u2014 Commercial: closing call to action",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.374888,
+        "max_distance": 0.391989
+      },
       "primary_doc_type": "approved_example",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -264,10 +1926,12 @@
     },
     {
       "id": "EVAL-007",
+      "query_id": "EVAL-007",
+      "query_sha256": "1aacfa8635385da141bdc67b749f76a543ce42ccf3e4ff5867183b33a236e52f",
       "mode": "retrieval",
-      "latency_ms": 79,
+      "latency_ms": 75,
       "ranked": 5,
-      "neighbours": 1,
+      "neighbours": 2,
       "dense_n": 24,
       "lexical_n": 24,
       "lexical_error": null,
@@ -277,10 +1941,10 @@
         "approved_example",
         "approved_example",
         "approved_example",
-        "style_rule",
-        "glossary"
+        "approved_example",
+        "style_rule"
       ],
-      "positive_chunks": 4,
+      "positive_chunks": 5,
       "negative_chunks": 0,
       "contamination": 0,
       "bad_citations": [],
@@ -288,11 +1952,219 @@
         "Pair CW-036 \u2014 Reflective narration: qualifying a",
         "Pair CW-029 \u2014 Educational narration: correcting ",
         "Pair CW-038 \u2014 Educational narration: rewriting a",
-        "Market Voice-Delivery Rules",
-        "L-L%"
+        "CW-049 \u2014 Identifier, limit, negation, and modali",
+        "Market Voice-Delivery Rules"
       ],
       "min_distance": 0.329982,
       "max_distance": 0.39496,
+      "results": [
+        {
+          "query_id": "EVAL-007",
+          "chunk_id": "4e4c9f532de05216_27",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-036 \u2014 Reflective narration: qualifying a claim without weakening it",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.32998204231262207,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 50.077897434309634,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03278688524590164,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-007",
+          "chunk_id": "dedbc291a1bf9427_20",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-029 \u2014 Educational narration: correcting a common error",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 8,
+            "distance": 0.40934765338897705,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 13,
+            "score": 13.400416499488774,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.028404512489927477,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-007",
+          "chunk_id": "e06863726166d2fc_30",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-038 \u2014 Educational narration: rewriting around exact numbers",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 10,
+            "distance": 0.41385024785995483,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 14,
+            "score": 13.387454918094688,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.027799227799227798,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-007",
+          "chunk_id": "5c2a189e56a20f08_0",
+          "source_id": "pmc12452892-prosodic-meaning",
+          "doc_type": "approved_example",
+          "heading": "CW-049 \u2014 Identifier, limit, negation, and modality preservation",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 9,
+            "distance": 0.4101583957672119,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 17,
+            "score": 12.982203004262287,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.027479766610201392,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-007",
+          "chunk_id": "c398c24d5f0f24ea_1",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 15,
+            "distance": 0.4355326294898987,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 12,
+            "score": 13.49015895994616,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 5,
+            "score": 0.027222222222222224,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-007",
+          "chunk_id": "75e4b5a7bac4731b_0",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-007",
+          "chunk_id": "8374bbe097bc0806_2",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.329982,
+        "max_distance": 0.39496
+      },
       "primary_doc_type": "approved_example",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -300,8 +2172,10 @@
     },
     {
       "id": "EVAL-008",
+      "query_id": "EVAL-008",
+      "query_sha256": "8d8282a2381de572bb49e7d9e4982edfbf822b81ff935e0183bb330819f79049",
       "mode": "retrieval",
-      "latency_ms": 76,
+      "latency_ms": 78,
       "ranked": 5,
       "neighbours": 6,
       "dense_n": 24,
@@ -329,6 +2203,326 @@
       ],
       "min_distance": 0.245723,
       "max_distance": 0.322228,
+      "results": [
+        {
+          "query_id": "EVAL-008",
+          "chunk_id": "40376a959e761989_6",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-004 \u2014 Product explainer opening",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 2,
+            "distance": 0.2670283317565918,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 46.71550586879874,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03252247488101534,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-008",
+          "chunk_id": "56c24d3d9bb781d5_4",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-015 \u2014 Commercial: fifteen-second product spot",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.2457234263420105,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 42.70465684594246,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.03252247488101534,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-008",
+          "chunk_id": "d1b4101bef6feb28_12",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-010 \u2014 Call to action",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 6,
+            "distance": 0.32789498567581177,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 3,
+            "score": 32.29607340880538,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.031024531024531024,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-008",
+          "chunk_id": "8374bbe097bc0806_2",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 3,
+            "distance": 0.3071248531341553,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 7,
+            "score": 16.98701259492827,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.030798389007344232,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-008",
+          "chunk_id": "934172b94335f181_9",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-007 \u2014 Feature explanation",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 7,
+            "distance": 0.3401053547859192,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 5,
+            "score": 18.344608431125117,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 5,
+            "score": 0.030309988518943745,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-008",
+          "chunk_id": "577c9edc08bd07ea_5",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-003 \u2014 Reflective scholarly narration",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-008",
+          "chunk_id": "c81bbd3d6ded6f87_7",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-005 \u2014 Technical warning",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-008",
+          "chunk_id": "51fce7a4cecffd3e_8",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-006 \u2014 Setup instruction",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-008",
+          "chunk_id": "199f07c20b210856_10",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-008 \u2014 Service offer",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-008",
+          "chunk_id": "cd34d70c0e6288a1_11",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-009 \u2014 Educational explanation",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-008",
+          "chunk_id": "2698cce18f295e5a_13",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-011 \u2014 Voice-selection explanation",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.245723,
+        "max_distance": 0.322228
+      },
       "primary_doc_type": "approved_example",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -336,10 +2530,12 @@
     },
     {
       "id": "EVAL-009",
+      "query_id": "EVAL-009",
+      "query_sha256": "3ec2c41c3fa91c02523300d9c00d1b47d77dcc61440014f140b2dbc53ce18366",
       "mode": "retrieval",
       "latency_ms": 76,
       "ranked": 5,
-      "neighbours": 6,
+      "neighbours": 5,
       "dense_n": 24,
       "lexical_n": 24,
       "lexical_error": null,
@@ -358,13 +2554,305 @@
       "bad_citations": [],
       "top_headings": [
         "Pair CW-021 \u2014 Technical: dense architecture para",
+        "CW-042 \u2014 Embedded conditional clause",
         "Pair CW-005 \u2014 Technical warning",
         "Pair CW-027 \u2014 Professional introduction: handove",
-        "Pair CW-020 \u2014 Technical: migration warning",
-        "SCR-002 \u2014 Technical security explanation (matche"
+        "Pair CW-020 \u2014 Technical: migration warning"
       ],
       "min_distance": 0.340864,
-      "max_distance": 0.397646,
+      "max_distance": 0.389315,
+      "results": [
+        {
+          "query_id": "EVAL-009",
+          "chunk_id": "26e57adf05186f83_11",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-021 \u2014 Technical: dense architecture paragraph",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 2,
+            "distance": 0.35012829303741455,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 47.336800620217076,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03252247488101534,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-009",
+          "chunk_id": "80d2e5225b05e9e1_0",
+          "source_id": "labphon-29-new-methods",
+          "doc_type": "approved_example",
+          "heading": "CW-042 \u2014 Embedded conditional clause",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 3,
+            "distance": 0.37702763080596924,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 14.479170821675954,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.03200204813108039,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-009",
+          "chunk_id": "c81bbd3d6ded6f87_7",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-005 \u2014 Technical warning",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 4,
+            "distance": 0.3825845718383789,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 10,
+            "score": 11.105966816145614,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.029910714285714284,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-009",
+          "chunk_id": "997c773a1d2fc28d_17",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-027 \u2014 Professional introduction: handover to a colleague",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 9,
+            "distance": 0.4028280973434448,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 6,
+            "score": 11.77438822786192,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.02964426877470356,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-009",
+          "chunk_id": "35b934c43f1efd4a_10",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-020 \u2014 Technical: migration warning",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 8,
+            "distance": 0.39925616979599,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 12,
+            "score": 10.70178700821842,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 5,
+            "score": 0.028594771241830064,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-009",
+          "chunk_id": "40376a959e761989_6",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-004 \u2014 Product explainer opening",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-009",
+          "chunk_id": "51fce7a4cecffd3e_8",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-006 \u2014 Setup instruction",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-009",
+          "chunk_id": "82c11e0c02500058_9",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-019 \u2014 Technical: what a feature does not do",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-009",
+          "chunk_id": "37764f3444fdb24e_12",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-022 \u2014 Technical: permission boundary",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-009",
+          "chunk_id": "bbec2d1179d46e83_16",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-026 \u2014 Professional introduction: panel self-introduction",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.340864,
+        "max_distance": 0.389315
+      },
       "primary_doc_type": "approved_example",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -372,8 +2860,10 @@
     },
     {
       "id": "EVAL-010",
+      "query_id": "EVAL-010",
+      "query_sha256": "29b33d0e1dbc54dfe05af7240551423e592939f15ac727c95bd05ca0b700a236",
       "mode": "retrieval",
-      "latency_ms": 73,
+      "latency_ms": 74,
       "ranked": 5,
       "neighbours": 7,
       "dense_n": 24,
@@ -401,6 +2891,354 @@
       ],
       "min_distance": 0.247041,
       "max_distance": 0.446719,
+      "results": [
+        {
+          "query_id": "EVAL-010",
+          "chunk_id": "ff22742d0e268090_2",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-001 \u2014 Technical security explainer",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.24704110622406006,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 53.074562453227564,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03278688524590164,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-010",
+          "chunk_id": "8ae750a3d5103fce_2",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "SCR-002 \u2014 Technical security explanation (matches POS-002 Jessica, POS-003 Se\u00e1n)",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 2,
+            "distance": 0.28613197803497314,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 49.624632634968826,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.03225806451612903,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-010",
+          "chunk_id": "37764f3444fdb24e_12",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-022 \u2014 Technical: permission boundary",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 3,
+            "distance": 0.2979414463043213,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 3,
+            "score": 15.863074273041285,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.031746031746031744,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-010",
+          "chunk_id": "c81bbd3d6ded6f87_7",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-005 \u2014 Technical warning",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 4,
+            "distance": 0.3964858651161194,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 6,
+            "score": 14.839053034268266,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.030776515151515152,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-010",
+          "chunk_id": "8cbaa18ddaa43a90_1",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "Authoritative working vocabulary for voice direction",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 9,
+            "distance": 0.47243785858154297,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 11,
+            "score": 13.909236428728551,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 5,
+            "score": 0.028577260665441927,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-010",
+          "chunk_id": "eb95f427e277854c_1",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Market-facing natural-language and voice-delivery examples",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-010",
+          "chunk_id": "bce02a3432730d81_3",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-001 \u2014 Technical security explainer",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-010",
+          "chunk_id": "40376a959e761989_6",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-004 \u2014 Product explainer opening",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-010",
+          "chunk_id": "51fce7a4cecffd3e_8",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-006 \u2014 Setup instruction",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-010",
+          "chunk_id": "d641f61d77da221c_1",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "SCR-001 \u2014 Professional introduction (matches POS-004, B. Lawson)",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-010",
+          "chunk_id": "3b18a6b3904ab228_3",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "SCR-002 \u2014 Technical security explanation (matches POS-002 Jessica, POS-003 Se\u00e1n)",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-010",
+          "chunk_id": "26e57adf05186f83_11",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-021 \u2014 Technical: dense architecture paragraph",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.247041,
+        "max_distance": 0.446719
+      },
       "primary_doc_type": "approved_example",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -408,8 +3246,10 @@
     },
     {
       "id": "EVAL-011",
+      "query_id": "EVAL-011",
+      "query_sha256": "88f7925fbe4b20de40371ad5b16c18864d6c0100ca050b3feaca29a0fb53e5b2",
       "mode": "retrieval",
-      "latency_ms": 75,
+      "latency_ms": 83,
       "ranked": 5,
       "neighbours": 4,
       "dense_n": 24,
@@ -437,6 +3277,270 @@
       ],
       "min_distance": 0.271511,
       "max_distance": 0.363445,
+      "results": [
+        {
+          "query_id": "EVAL-011",
+          "chunk_id": "9c1e63263b4b8373_0",
+          "source_id": "cwalts_negative_patterns",
+          "doc_type": "negative_pattern",
+          "heading": "Rejected and Contrast Voice References",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.27151060104370117,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 3,
+            "score": 17.814807494522643,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.032266458495966696,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-011",
+          "chunk_id": "3feebd9110468721_4",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "POS-004 \u2014 B. Lawson",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 7,
+            "distance": 0.3741452693939209,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 20.869833777213028,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.031054405392392875,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-011",
+          "chunk_id": "eb95f427e277854c_1",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Market-facing natural-language and voice-delivery examples",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 3,
+            "distance": 0.3484365940093994,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 7,
+            "score": 14.474818597077125,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.030798389007344232,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-011",
+          "chunk_id": "8374bbe097bc0806_2",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 6,
+            "distance": 0.37363362312316895,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 5,
+            "score": 15.909320730186124,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.030536130536130537,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-011",
+          "chunk_id": "c398c24d5f0f24ea_1",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 8,
+            "distance": 0.3752624988555908,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 4,
+            "score": 16.61932937849643,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 5,
+            "score": 0.030330882352941176,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-011",
+          "chunk_id": "27d3937d29900ba3_0",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Approved Before/After Seed Pairs",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-011",
+          "chunk_id": "ff22742d0e268090_2",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-001 \u2014 Technical security explainer",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-011",
+          "chunk_id": "2071a286c5f46f61_3",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "POS-003 \u2014 Se\u00e1n",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-011",
+          "chunk_id": "89be0b1b45abd0f6_5",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Shared acceptance characteristics",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.271511,
+        "max_distance": 0.363445
+      },
       "primary_doc_type": "negative_pattern",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -444,10 +3548,12 @@
     },
     {
       "id": "EVAL-012",
+      "query_id": "EVAL-012",
+      "query_sha256": "195bfcc00928b610409f5e41f1e855117d6137896acf6bc1eaf7372d9536a796",
       "mode": "retrieval",
-      "latency_ms": 73,
+      "latency_ms": 87,
       "ranked": 5,
-      "neighbours": 3,
+      "neighbours": 5,
       "dense_n": 24,
       "lexical_n": 24,
       "lexical_error": null,
@@ -457,7 +3563,7 @@
         "style_rule",
         "style_rule",
         "approved_example",
-        "style_rule",
+        "approved_example",
         "approved_example"
       ],
       "positive_chunks": 5,
@@ -468,11 +3574,303 @@
         "Market Voice-Delivery Rules",
         "Market Voice-Delivery Rules",
         "SCR-001 \u2014 Professional introduction (matches POS",
-        "Market Voice-Delivery Rules",
-        "Pair CW-002 \u2014 Professional introduction"
+        "Pair CW-002 \u2014 Professional introduction",
+        "Pair CW-011 \u2014 Voice-selection explanation"
       ],
       "min_distance": 0.307328,
       "max_distance": 0.343104,
+      "results": [
+        {
+          "query_id": "EVAL-012",
+          "chunk_id": "75e4b5a7bac4731b_0",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.3073279857635498,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 4,
+            "score": 12.639473408049257,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.032018442622950824,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-012",
+          "chunk_id": "8374bbe097bc0806_2",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 11,
+            "distance": 0.3515393137931824,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 23.384054154622767,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.03021353930031804,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-012",
+          "chunk_id": "d641f61d77da221c_1",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "SCR-001 \u2014 Professional introduction (matches POS-004, B. Lawson)",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 4,
+            "distance": 0.3403310775756836,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 9,
+            "score": 11.569619779316788,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.030117753623188408,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-012",
+          "chunk_id": "24ab2848ffba9d06_4",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-002 \u2014 Professional introduction",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 7,
+            "distance": 0.3452730178833008,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 7,
+            "score": 11.956411096802032,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.029850746268656716,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-012",
+          "chunk_id": "2698cce18f295e5a_13",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-011 \u2014 Voice-selection explanation",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 3,
+            "distance": 0.3300647735595703,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 12,
+            "score": 10.985004826253409,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 5,
+            "score": 0.02976190476190476,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-012",
+          "chunk_id": "bce02a3432730d81_3",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-001 \u2014 Technical security explainer",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-012",
+          "chunk_id": "577c9edc08bd07ea_5",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-003 \u2014 Reflective scholarly narration",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-012",
+          "chunk_id": "d1b4101bef6feb28_12",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-010 \u2014 Call to action",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-012",
+          "chunk_id": "09c3def680156aa9_14",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-012 \u2014 Honest build status",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-012",
+          "chunk_id": "4ea27d2c7f89b103_0",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Approved Delivery-Ready Reference Scripts",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.307328,
+        "max_distance": 0.343104
+      },
       "primary_doc_type": "style_rule",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -480,8 +3878,10 @@
     },
     {
       "id": "EVAL-016",
+      "query_id": "EVAL-016",
+      "query_sha256": "255ea6d944cfae440d008866bc1a8c091fd1bb9c5081ca7ebad97b71771f105a",
       "mode": "retrieval",
-      "latency_ms": 72,
+      "latency_ms": 75,
       "ranked": 5,
       "neighbours": 4,
       "dense_n": 24,
@@ -504,11 +3904,275 @@
         "ToBI",
         "breath group",
         "intermediate phrase",
-        "Pair CW-029 \u2014 Educational narration: correcting ",
-        "Approved Before/After Seed Pairs"
+        "Approved Before/After Seed Pairs",
+        "Approved Before/After Pairs \u2014 Set 2"
       ],
       "min_distance": 0.243006,
       "max_distance": 0.463614,
+      "results": [
+        {
+          "query_id": "EVAL-016",
+          "chunk_id": "b6ab17f727928f56_5",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "ToBI",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 6,
+            "distance": 0.4663635492324829,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 9.959240860377092,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.031544957774465976,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-016",
+          "chunk_id": "ae7dab64dbdaa0f2_16",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "breath group",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 7,
+            "distance": 0.468505859375,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 7,
+            "score": 5.8655530010322146,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.029850746268656716,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-016",
+          "chunk_id": "ea1f293d1a51cac0_11",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "intermediate phrase",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 9,
+            "distance": 0.48391568660736084,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 10,
+            "score": 5.418914524174656,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.02877846790890269,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-016",
+          "chunk_id": "27d3937d29900ba3_0",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Approved Before/After Seed Pairs",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 2,
+            "distance": 0.28253549337387085,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 10,
+            "score": 0.016129032258064516,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-016",
+          "chunk_id": "5adc19066cb9ad3b_0",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Approved Before/After Pairs \u2014 Set 2",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 3,
+            "distance": 0.3600575923919678,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 12,
+            "score": 0.015873015873015872,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-016",
+          "chunk_id": "eb95f427e277854c_1",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Market-facing natural-language and voice-delivery examples",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-016",
+          "chunk_id": "56d99b508949198b_4",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "acoustic prosody",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-016",
+          "chunk_id": "e47d07119906d37e_6",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "pitch accent",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-016",
+          "chunk_id": "526c71940ae59b12_10",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "break index",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.243006,
+        "max_distance": 0.463614
+      },
       "primary_doc_type": "glossary",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -522,8 +4186,10 @@
     },
     {
       "id": "EVAL-017",
+      "query_id": "EVAL-017",
+      "query_sha256": "d71faa9b337735862eec7a61968422e9ca066d534a9b10c787ba06cee703e639",
       "mode": "retrieval",
-      "latency_ms": 71,
+      "latency_ms": 72,
       "ranked": 5,
       "neighbours": 1,
       "dense_n": 24,
@@ -535,7 +4201,7 @@
         "glossary",
         "glossary",
         "glossary",
-        "style_rule",
+        "approved_example",
         "style_rule"
       ],
       "positive_chunks": 2,
@@ -545,12 +4211,192 @@
       "top_headings": [
         "H*",
         "pitch accent",
-        "intonational phrase",
-        "Market Voice-Delivery Rules",
+        "L-L%",
+        "CW-043 \u2014 Agentless passive plus qualifying struc",
         "Market Voice-Delivery Rules"
       ],
       "min_distance": 0.168468,
-      "max_distance": 0.357543,
+      "max_distance": 0.35309,
+      "results": [
+        {
+          "query_id": "EVAL-017",
+          "chunk_id": "112fc5e062b5c8c9_7",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "H*",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 2,
+            "distance": 0.2632608413696289,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 21.405174923550792,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03252247488101534,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-017",
+          "chunk_id": "e47d07119906d37e_6",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "pitch accent",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.16846799850463867,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 13.72692387700469,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.03252247488101534,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-017",
+          "chunk_id": "e4401d7d240fde3d_9",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "L-L%",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 6,
+            "distance": 0.35754311084747314,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 3,
+            "score": 10.909343336392864,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.031024531024531024,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-017",
+          "chunk_id": "3803c58ef7081395_0",
+          "source_id": "pmc12468771-l2-prosody-perception",
+          "doc_type": "approved_example",
+          "heading": "CW-043 \u2014 Agentless passive plus qualifying structure",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 3,
+            "distance": 0.3432422876358032,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 15,
+            "score": 4.96130699057926,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 6,
+            "score": 0.029206349206349208,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-017",
+          "chunk_id": "75e4b5a7bac4731b_0",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 22,
+            "distance": 0.4440850019454956,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 19,
+            "score": 4.233972988062929,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 13,
+            "score": 0.02485334979932078,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-017",
+          "chunk_id": "c398c24d5f0f24ea_1",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.168468,
+        "max_distance": 0.35309
+      },
       "primary_doc_type": "glossary",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -562,6 +4408,8 @@
     },
     {
       "id": "EVAL-018",
+      "query_id": "EVAL-018",
+      "query_sha256": "bdd563d79e41c1b67d8b676cc56b04e6b29ee8d4f3fff0011bd18b7787e2aa0e",
       "mode": "retrieval",
       "latency_ms": 74,
       "ranked": 5,
@@ -590,7 +4438,271 @@
         "Approved Before/After Seed Pairs"
       ],
       "min_distance": 0.291829,
-      "max_distance": 0.436195,
+      "max_distance": 0.433461,
+      "results": [
+        {
+          "query_id": "EVAL-018",
+          "chunk_id": "e4401d7d240fde3d_9",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "L-L%",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.29182928800582886,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 19.64252425094563,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03278688524590164,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-018",
+          "chunk_id": "112fc5e062b5c8c9_7",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "H*",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 7,
+            "distance": 0.4371982216835022,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 3,
+            "score": 12.404527612588112,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.030798389007344232,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-018",
+          "chunk_id": "2c203177b0f09acf_15",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "information structure",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 11,
+            "distance": 0.4407618045806885,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 5,
+            "score": 11.038405040234018,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.02946912242686891,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-018",
+          "chunk_id": "dedbc291a1bf9427_20",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-029 \u2014 Educational narration: correcting a common error",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 24,
+            "distance": 0.46730440855026245,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 16,
+            "score": 8.502973553274233,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 11,
+            "score": 0.02506265664160401,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-018",
+          "chunk_id": "27d3937d29900ba3_0",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Approved Before/After Seed Pairs",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 2,
+            "distance": 0.39552778005599976,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 12,
+            "score": 0.016129032258064516,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-018",
+          "chunk_id": "eb95f427e277854c_1",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Market-facing natural-language and voice-delivery examples",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-018",
+          "chunk_id": "45cfbb1441f8f8bd_19",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-028 \u2014 Educational narration: explaining a mechanism",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-018",
+          "chunk_id": "001927782395aaba_21",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-030 \u2014 Educational narration: sequence of steps",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-018",
+          "chunk_id": "e47d07119906d37e_6",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "pitch accent",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.291829,
+        "max_distance": 0.433461
+      },
       "primary_doc_type": "glossary",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -604,10 +4716,12 @@
     },
     {
       "id": "EVAL-019",
+      "query_id": "EVAL-019",
+      "query_sha256": "ea09ec2319e7037b8a55fcc13eed33f202f9bcf5be3eedda1ec2b3a7bf285a66",
       "mode": "retrieval",
-      "latency_ms": 73,
+      "latency_ms": 74,
       "ranked": 5,
-      "neighbours": 4,
+      "neighbours": 3,
       "dense_n": 24,
       "lexical_n": 24,
       "lexical_error": null,
@@ -629,10 +4743,246 @@
         "ToBI",
         "intermediate phrase",
         "Pair CW-019 \u2014 Technical: what a feature does not",
-        "SCR-002 \u2014 Technical security explanation (matche"
+        "CW-047 \u2014 Numeric and identifier preservation"
       ],
       "min_distance": 0.205353,
-      "max_distance": 0.441426,
+      "max_distance": 0.438995,
+      "results": [
+        {
+          "query_id": "EVAL-019",
+          "chunk_id": "526c71940ae59b12_10",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "break index",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.2053530216217041,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 16.067061782083222,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03278688524590164,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-019",
+          "chunk_id": "b6ab17f727928f56_5",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "ToBI",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 7,
+            "distance": 0.44142603874206543,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 7,
+            "score": 10.88622258388777,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.029850746268656716,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-019",
+          "chunk_id": "ea1f293d1a51cac0_11",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "intermediate phrase",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 9,
+            "distance": 0.44768190383911133,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 17,
+            "score": 9.006760912547463,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.027479766610201392,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-019",
+          "chunk_id": "82c11e0c02500058_9",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-019 \u2014 Technical: what a feature does not do",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 16,
+            "distance": 0.46036064624786377,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 20,
+            "score": 8.839219477377268,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.025657894736842105,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-019",
+          "chunk_id": "8de17b0cbff6c2cb_0",
+          "source_id": "labphon-48-seoul-korean-focus",
+          "doc_type": "approved_example",
+          "heading": "CW-047 \u2014 Numeric and identifier preservation",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 2,
+            "distance": 0.40726327896118164,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 7,
+            "score": 0.016129032258064516,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-019",
+          "chunk_id": "088c0a0a495b5942_8",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-018 \u2014 Technical: retry and backoff behaviour",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-019",
+          "chunk_id": "35b934c43f1efd4a_10",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-020 \u2014 Technical: migration warning",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-019",
+          "chunk_id": "56d99b508949198b_4",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "acoustic prosody",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.205353,
+        "max_distance": 0.438995
+      },
       "primary_doc_type": "glossary",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -646,8 +4996,10 @@
     },
     {
       "id": "EVAL-020",
+      "query_id": "EVAL-020",
+      "query_sha256": "4c5013253b5ec0e400cb306e7f9cdf24cd6e717789907f2aa8a7512aa05e1a7a",
       "mode": "retrieval",
-      "latency_ms": 71,
+      "latency_ms": 73,
       "ranked": 5,
       "neighbours": 3,
       "dense_n": 24,
@@ -658,8 +5010,8 @@
       "doc_types": [
         "glossary",
         "glossary",
-        "glossary",
         "approved_example",
+        "glossary",
         "approved_example"
       ],
       "positive_chunks": 2,
@@ -669,12 +5021,248 @@
       "top_headings": [
         "contrastive focus",
         "intonational phrase",
-        "H*",
-        "Pair CW-036 \u2014 Reflective narration: qualifying a",
-        "Pair CW-014 \u2014 Commercial: price-objection handli"
+        "CW-043 \u2014 Agentless passive plus qualifying struc",
+        "prominence",
+        "Pair CW-036 \u2014 Reflective narration: qualifying a"
       ],
       "min_distance": 0.1439,
-      "max_distance": 0.294097,
+      "max_distance": 0.285078,
+      "results": [
+        {
+          "query_id": "EVAL-020",
+          "chunk_id": "67e6e250091d55db_14",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "contrastive focus",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.1439003348350525,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 13.637434381619697,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03278688524590164,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-020",
+          "chunk_id": "3ce9d6ca127425ed_12",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "intonational phrase",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 3,
+            "distance": 0.2603060007095337,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 13.193996716984651,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.03200204813108039,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-020",
+          "chunk_id": "3803c58ef7081395_0",
+          "source_id": "pmc12468771-l2-prosody-perception",
+          "doc_type": "approved_example",
+          "heading": "CW-043 \u2014 Agentless passive plus qualifying structure",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 2,
+            "distance": 0.24573755264282227,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 9,
+            "score": 6.869969418280792,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.030621785881252923,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-020",
+          "chunk_id": "9464a8f07530d4d3_13",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "prominence",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 9,
+            "distance": 0.3000054359436035,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 5,
+            "score": 8.346161823849407,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.029877369007803793,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-020",
+          "chunk_id": "4e4c9f532de05216_27",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-036 \u2014 Reflective narration: qualifying a claim without weakening it",
+          "is_neighbor": false,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 4,
+            "score": 8.86860255515707,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 14,
+            "score": 0.015625,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-020",
+          "chunk_id": "56deaf1e06a94744_26",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-035 \u2014 Reflective narration: a scene",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-020",
+          "chunk_id": "65e6796ecc56083b_28",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-037 \u2014 Reflective narration: ending without resolution",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-020",
+          "chunk_id": "ea1f293d1a51cac0_11",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "intermediate phrase",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.1439,
+        "max_distance": 0.285078
+      },
       "primary_doc_type": "glossary",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -686,10 +5274,12 @@
     },
     {
       "id": "EVAL-013",
+      "query_id": "EVAL-013",
+      "query_sha256": "c42aef43f0365f1dac311934f29413460b53ecead4fe26e1cfd68f22877e1685",
       "mode": "behavioural",
-      "latency_ms": 94,
+      "latency_ms": 74,
       "ranked": 5,
-      "neighbours": 5,
+      "neighbours": 6,
       "dense_n": 24,
       "lexical_n": 24,
       "lexical_error": null,
@@ -699,10 +5289,10 @@
         "approved_example",
         "approved_example",
         "approved_example",
-        "glossary",
+        "approved_example",
         "approved_example"
       ],
-      "positive_chunks": 4,
+      "positive_chunks": 5,
       "negative_chunks": 0,
       "contamination": 0,
       "bad_citations": [],
@@ -710,11 +5300,331 @@
         "Pair CW-006 \u2014 Setup instruction",
         "Pair CW-030 \u2014 Educational narration: sequence of",
         "Pair CW-036 \u2014 Reflective narration: qualifying a",
-        "Authoritative working vocabulary for voice direc",
-        "Pair CW-018 \u2014 Technical: retry and backoff behav"
+        "Pair CW-018 \u2014 Technical: retry and backoff behav",
+        "CW-041 \u2014 Stacked prepositional qualifiers"
       ],
       "min_distance": 0.34422,
       "max_distance": 0.434846,
+      "results": [
+        {
+          "query_id": "EVAL-013",
+          "chunk_id": "51fce7a4cecffd3e_8",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-006 \u2014 Setup instruction",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.34421974420547485,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 1,
+            "score": 24.330587495123766,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03278688524590164,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-013",
+          "chunk_id": "001927782395aaba_21",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-030 \u2014 Educational narration: sequence of steps",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 2,
+            "distance": 0.4138537049293518,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 13,
+            "score": 13.606284279428465,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.029827662395050816,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-013",
+          "chunk_id": "4e4c9f532de05216_27",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-036 \u2014 Reflective narration: qualifying a claim without weakening it",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 11,
+            "distance": 0.45116138458251953,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 10,
+            "score": 14.255560030772909,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.028370221327967807,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-013",
+          "chunk_id": "088c0a0a495b5942_8",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-018 \u2014 Technical: retry and backoff behaviour",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 7,
+            "distance": 0.4401981830596924,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 17,
+            "score": 12.924760654565047,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.027912386121341344,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-013",
+          "chunk_id": "d4ed381978ee9df0_0",
+          "source_id": "labphon-32-introducing-apt",
+          "doc_type": "approved_example",
+          "heading": "CW-041 \u2014 Stacked prepositional qualifiers",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 20,
+            "distance": 0.46541643142700195,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 24,
+            "score": 12.39038167756745,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 7,
+            "score": 0.024404761904761905,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-013",
+          "chunk_id": "c81bbd3d6ded6f87_7",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-005 \u2014 Technical warning",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-013",
+          "chunk_id": "934172b94335f181_9",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-007 \u2014 Feature explanation",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-013",
+          "chunk_id": "54a0ff167fcd24a8_7",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-018 \u2014 Technical: retry and backoff behaviour",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-013",
+          "chunk_id": "82c11e0c02500058_9",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-019 \u2014 Technical: what a feature does not do",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-013",
+          "chunk_id": "dedbc291a1bf9427_20",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-029 \u2014 Educational narration: correcting a common error",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-013",
+          "chunk_id": "2ff052a2db4672f0_22",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-031 \u2014 Educational narration: defining a boundary",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.34422,
+        "max_distance": 0.434846
+      },
       "primary_doc_type": "approved_example",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -725,8 +5635,10 @@
     },
     {
       "id": "EVAL-014",
+      "query_id": "EVAL-014",
+      "query_sha256": "f9b3f3f913afd88e07a3c9c7a07df33105a0a0532b3fd340c74199858a2b1e14",
       "mode": "behavioural",
-      "latency_ms": 75,
+      "latency_ms": 74,
       "ranked": 5,
       "neighbours": 1,
       "dense_n": 24,
@@ -753,7 +5665,187 @@
         "Pair CW-015 \u2014 Commercial: fifteen-second product"
       ],
       "min_distance": 0.278559,
-      "max_distance": 0.310504,
+      "max_distance": 0.292483,
+      "results": [
+        {
+          "query_id": "EVAL-014",
+          "chunk_id": "8374bbe097bc0806_2",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 2,
+            "distance": 0.28114432096481323,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 14.588057204671362,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.03225806451612903,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-014",
+          "chunk_id": "970ffb70705c7a90_3",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 3,
+            "distance": 0.284365177154541,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 9,
+            "score": 12.32453982595073,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.03036576949620428,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-014",
+          "chunk_id": "f502ab6c15525504_4",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 12,
+            "distance": 0.33210504055023193,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 3,
+            "score": 13.85785633557562,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.02976190476190476,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-014",
+          "chunk_id": "b6ab17f727928f56_5",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "ToBI",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 5,
+            "distance": 0.29248255491256714,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 13,
+            "score": 11.905148471526351,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.029083245521601686,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-014",
+          "chunk_id": "56c24d3d9bb781d5_4",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-015 \u2014 Commercial: fifteen-second product spot",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 14,
+            "distance": 0.33350586891174316,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 6,
+            "score": 12.933634454557632,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 5,
+            "score": 0.028665028665028666,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-014",
+          "chunk_id": "c398c24d5f0f24ea_1",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.278559,
+        "max_distance": 0.292483
+      },
       "primary_doc_type": "style_rule",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -762,8 +5854,10 @@
     },
     {
       "id": "EVAL-015",
+      "query_id": "EVAL-015",
+      "query_sha256": "14a7834ea22cf14a74209d9fe1e300863d1e044094883720593ce72eaea88a66",
       "mode": "behavioural",
-      "latency_ms": 74,
+      "latency_ms": 73,
       "ranked": 5,
       "neighbours": 2,
       "dense_n": 24,
@@ -790,7 +5884,215 @@
         "Market Voice-Delivery Rules"
       ],
       "min_distance": 0.333224,
-      "max_distance": 0.35428,
+      "max_distance": 0.351646,
+      "results": [
+        {
+          "query_id": "EVAL-015",
+          "chunk_id": "26e57adf05186f83_11",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Pair CW-021 \u2014 Technical: dense architecture paragraph",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 1,
+            "distance": 0.3332241177558899,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 6,
+            "score": 18.548101319605006,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 1,
+            "score": 0.031544957774465976,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-015",
+          "chunk_id": "8374bbe097bc0806_2",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 3,
+            "distance": 0.34103256464004517,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 7,
+            "score": 17.681286348835762,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 2,
+            "score": 0.030798389007344232,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-015",
+          "chunk_id": "bf42450d71ea3076_1",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Depth set added for v0.3.0-rc.2",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 13,
+            "distance": 0.3647106885910034,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 2,
+            "score": 21.12025508762878,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 3,
+            "score": 0.029827662395050816,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-015",
+          "chunk_id": "1fd1595dd81aa2b8_3",
+          "source_id": "cwalts_prosody_glossary",
+          "doc_type": "glossary",
+          "heading": "textual prosody",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 6,
+            "distance": 0.35427963733673096,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 13,
+            "score": 14.856554071622426,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 4,
+            "score": 0.028850145288501453,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-015",
+          "chunk_id": "c398c24d5f0f24ea_1",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": false,
+          "dense": {
+            "present": true,
+            "rank": 19,
+            "distance": 0.3768223524093628,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": true,
+            "rank": 3,
+            "score": 20.50840624272544,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": true,
+            "rank": 5,
+            "score": 0.028531243721117136,
+            "method": "reciprocal_rank_fusion",
+            "rrf_k": 60
+          }
+        },
+        {
+          "query_id": "EVAL-015",
+          "chunk_id": "75e4b5a7bac4731b_0",
+          "source_id": "cwalts_style_rules",
+          "doc_type": "style_rule",
+          "heading": "Market Voice-Delivery Rules",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        },
+        {
+          "query_id": "EVAL-015",
+          "chunk_id": "5adc19066cb9ad3b_0",
+          "source_id": "owner_examples",
+          "doc_type": "approved_example",
+          "heading": "Approved Before/After Pairs \u2014 Set 2",
+          "is_neighbor": true,
+          "dense": {
+            "present": false,
+            "rank": null,
+            "distance": null,
+            "metric": "cosine_distance",
+            "direction": "lower_is_better"
+          },
+          "bm25": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "direction": "higher_is_better"
+          },
+          "fused": {
+            "present": false,
+            "rank": null,
+            "score": null,
+            "method": null,
+            "rrf_k": null
+          }
+        }
+      ],
+      "diagnostic": {
+        "source": "separate_raw_vector_query",
+        "metric": "cosine_distance",
+        "direction": "lower_is_better",
+        "query_embedding_recomputed": true,
+        "verdict_input": false,
+        "calibration_input": false,
+        "min_distance": 0.333224,
+        "max_distance": 0.351646
+      },
       "primary_doc_type": "approved_example",
       "primary_doc_type_pass": true,
       "forbidden_doc_types_returned": [],
@@ -886,5 +6188,65 @@
       "correct": true,
       "violations": []
     }
-  ]
+  ],
+  "report_semantics": {
+    "canonical_result_identity": "chunk_id",
+    "heading_role": "display_only",
+    "diagnostic_distance_verdict_input": false,
+    "diagnostic_distance_calibration_input": false,
+    "stable_paths": [
+      "schema_version",
+      "run.collection",
+      "run.collection_count",
+      "run.version",
+      "run.embedding_model",
+      "run.embedding_dimension",
+      "cases[].query_id",
+      "cases[].query_sha256",
+      "cases[].results[].chunk_id",
+      "cases[].results[].source_id",
+      "cases[].results[].doc_type",
+      "cases[].results[].dense.present",
+      "cases[].results[].dense.rank",
+      "cases[].results[].bm25.present",
+      "cases[].results[].bm25.rank",
+      "cases[].results[].bm25.score",
+      "cases[].results[].fused.present",
+      "cases[].results[].fused.rank",
+      "cases[].results[].fused.score",
+      "cases[].results[].fused.method",
+      "cases[].results[].fused.rrf_k",
+      "cases[].useful_hit",
+      "cases[].exact_term_pass",
+      "cases[].primary_doc_type_pass",
+      "cases[].primary_source_pass",
+      "cases[].definition_pass",
+      "cases[].forbidden_doc_types_pass",
+      "summary.exact_term_pass",
+      "summary.assertion_failures",
+      "summary.failed_assertions",
+      "summary.evaluation_case_chunks_returned",
+      "summary.negative_contamination",
+      "summary.citation_failures",
+      "summary.preservation_correct",
+      "summary.preservation_total"
+    ],
+    "semantic_projection_mode": "exclude_only_enumerated_volatile_paths",
+    "volatile_paths": [
+      "run.run_id",
+      "run.generated_at",
+      "summary.generated",
+      "summary.latency_ms_p50",
+      "summary.latency_ms_p95",
+      "cases[].latency_ms",
+      "cases[].results[].dense.distance",
+      "cases[].diagnostic.min_distance",
+      "cases[].diagnostic.max_distance",
+      "summary.distance_min",
+      "summary.distance_median",
+      "summary.distance_max",
+      "summary.similarity_min",
+      "summary.similarity_max"
+    ]
+  }
 }

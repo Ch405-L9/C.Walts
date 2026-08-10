@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-02T05:30:56.261254+00:00",
+  "generated": "2026-08-10T09:59:20.392839+00:00",
   "total": 43,
   "failed": 0,
   "checks": [
@@ -49,7 +49,7 @@
       "section": "11.2 static quality",
       "check": "pytest passes",
       "passed": true,
-      "detail": ".................................                                        [100%]"
+      "detail": "........................................                                 [100%]"
     },
     {
       "section": "11.2 static quality",
@@ -73,13 +73,13 @@
       "section": "11.4 collection",
       "check": "count matches the corpus on disk",
       "passed": true,
-      "detail": "collection=84 corpus=84"
+      "detail": "collection=96 corpus=96"
     },
     {
       "section": "11.4 collection",
       "check": "lexical index covers the same chunks",
       "passed": true,
-      "detail": "lexical=84 collection=84"
+      "detail": "lexical=96 collection=96"
     },
     {
       "section": "11.4 collection",
@@ -277,7 +277,7 @@
       "section": "11.7 rollback",
       "check": "a verified backup exists",
       "passed": true,
-      "detail": "20260802T010613Z"
+      "detail": "chroma"
     },
     {
       "section": "11.7 rollback",
@@ -290,9 +290,15 @@
     },
     {
       "section": "11.7 rollback",
-      "check": "BADGR Harness production store unchanged",
+      "check": "BADGR Harness production store semantically unchanged during smoke test",
       "passed": true,
-      "detail": "bdcbe32b706c6ccce1f62e8e9f2d2c49"
+      "detail": {
+        "baseline_valid": true,
+        "comparison_performed": true,
+        "physical_drift": false,
+        "semantic_drift": false,
+        "findings": []
+      }
     },
     {
       "section": "11.7 rollback",

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "starting_checkpoint": "d2083b2ee3b81509c4d03696cbde2574410efb62",
+  "protocol_commit": "ff7cef0ffc85a1cacf32d9a550b0d6daf8ae1804",
+  "implementation_commits":["ff7cef0ffc85a1cacf32d9a550b0d6daf8ae1804","73da6f7aa6ffcd3fe93540d863d9a130b28dd963","744fcb8737cde6fc380254b143fd32996f6acb92","17b3672312ffd914be228727c2fac2aaddf30394"],
+  "version":"0.4.0-dev.12",
+  "stage8p_sha256":"3cfb8f220ffda59431ee864af3fb3d8e10a83ed59131acd9b3b8fb8c736767bc",
+  "snapshot":{"path":"var/snapshots/20260810T095040Z","manifest_sha256":"6109b40852709323b53354b481769832df292948ec52e08eebaf0645718d2e6c","rollback_rehearsal_pass":true,"rehearsal_root_cleaned":true},
+  "restored":{"chroma":96,"bm25":96,"feedback":2,"exact_parity":true,"id_sha256":"da637c728f8ef7603b6cb5977401ed6d013187ed7a85173f9d4eb70203cf0a03","semantic_digest":"60910f5bbb1c8ab0328a0129e80ec740275f9f55c2d9bd95dbae9ad7f66cb83f","evaluation_case":0,"dense":true,"lexical":true,"hybrid":true},
+  "live_production":{"mutation":false,"chroma":96,"bm25":96,"feedback":2,"exact_parity":true,"id_sha256":"da637c728f8ef7603b6cb5977401ed6d013187ed7a85173f9d4eb70203cf0a03","semantic_digest":"60910f5bbb1c8ab0328a0129e80ec740275f9f55c2d9bd95dbae9ad7f66cb83f","evaluation_case":0,"sources":15},
+  "diagnostic":{"protocol_sha256":"2b98aae8790891059012309f9668fb30b16b2e7390bbf305e98ad9b61f38cd29","searches":12,"rounds":3,"all_rounds_passed":true,"outcome":"closure_proven","tuning":false},
+  "stages":{"stage1":"PASS","stage3a":"PASS","stage4":"PASS","stage5":"PASS","stage6":"PASS","stage7":"PASS","smoke":"43/43","mcp":"23/23","pytest":"616 passed","security":"PASS","harness_drift":false},
+  "blocker":{"id":"CW-LIM-009-DENSE-COVERAGE","status":"resolved","active_scopes":[]},
+  "gate2_work":false,
+  "real_split":false,
+  "holdout":false,
+  "qrels":false,
+  "thresholds":false,
+  "verdict":"STAGE8_PASS_GATE1_2_EXIT_AUTHORIZED"
+}

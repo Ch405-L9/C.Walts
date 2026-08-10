@@ -3156,3 +3156,22 @@ tests and the complete suite passed 611 tests. Production remained 96/96 with
 exact parity and unchanged identity digests; `CW-LIM-009-DENSE-COVERAGE` remains
 deferred and all four Stage 6 authorization scopes continue to refuse. Stage 8
 has not begun.
+
+# Gate 1.2 Stage 8 — Final revalidation and exit
+
+2026-08-10: Stage 8 protocol commit `ff7cef0` froze four diagnostic probes,
+`k=5`, and three complete rounds before measurement. The verified snapshot
+`var/snapshots/20260810T095040Z` passed whole-store verification. The isolated
+rehearsal reopened Chroma and BM25 at 96 records each, verified exact ID parity,
+semantic identity, evaluation exclusion, dense retrieval, lexical retrieval,
+hybrid retrieval, and cleanup without changing live production.
+
+The frozen diagnostic executed exactly 12 searches. All three rounds met the
+qualifying approved-example and independent-group criteria. The blocker was
+resolved with preserved historical booleans and empty active scopes; no corpus,
+retrieval configuration, or production index changed.
+
+Stage 1 determinism, Stage 3A coverage, Stage 4 reporting/provenance, Stage 5,
+Stage 6, Stage 7 security, 43/43 smoke checks, 23/23 fresh MCP checks, and the
+complete 616-test suite passed. Gate 1.2 exit is authorized. Gate 2 has not
+begun.
