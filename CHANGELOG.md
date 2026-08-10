@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0-dev.13
+
+- Began canonical Gate 2 with A5 public-selection policy freeze.
+- Added complete source-label and expected-behavior policy, read-only acquisition
+  verification, and deterministic metadata-only selector tooling.
+- Gate 2 remains public-verbatim-only; no public candidates, split, holdout, or
+  qrels were created, and production data was unchanged.
+
 ## 0.4.0-dev.12
 
 - Added the frozen Stage 8 dense-coverage diagnostic protocol, isolated rollback

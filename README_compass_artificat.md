@@ -202,6 +202,11 @@ Backup + rollback rehearsal after the corpus/report changes; full regression, sm
 
 ## Gate 1.2 exit criteria (all must hold before Gate 2 opens)
 
+Gate 2-A freezes the public source-label policy, expected behaviors, grouping,
+and deterministic selector before any canonical public record is selected.
+Architecture Amendment A5 is recorded in
+`docs/architecture-decisions/gate2-public-selection-a5.md`.
+
 1. Wobble root-caused and disposed (Stage 1.4).
 2. Corpus remediated, re-indexed, frozen; EVAL-009 no longer one-chunk (Stage 2).
 3. Stage 3A coverage histogram and qrels infrastructure pass; real qrels are
