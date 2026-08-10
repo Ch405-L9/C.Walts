@@ -262,8 +262,8 @@ def test_the_rename_did_not_loosen_the_evaluation_ban(candidate: str) -> None:
         settings.resolve_ingest_path(candidate)
 
 
-def test_the_remaining_evaluation_directory_holds_no_ingestible_corpus() -> None:
-    """corpus/raw/evaluation/ still exists, holding only the audio manifest.
+def test_the_residual_evaluation_directory_is_gone() -> None:
+    """The metadata-only manifest no longer creates an evaluation corpus path.
 
     Gate 1.1 §2 renamed one directory; it did not delete the tree. What is left
     is ``audio_reference_manifest.yaml`` — a manifest of hashes with no audio
@@ -272,10 +272,10 @@ def test_the_remaining_evaluation_directory_holds_no_ingestible_corpus() -> None
     evaluation tree is gone".
     """
     remaining = PROJECT_ROOT / "corpus" / "raw" / "evaluation"
-    if not remaining.exists():
-        return
-    files = sorted(p.name for p in remaining.rglob("*") if p.is_file())
-    assert files == ["audio_reference_manifest.yaml"], files
+    assert not remaining.exists()
+    manifest = PROJECT_ROOT / "corpus" / "manifests" / "audio_reference_manifest.yaml"
+    assert manifest.is_file()
+    assert yaml.safe_load(manifest.read_text()) is not None
 
     sources = load_sources().get("sources", []) or []
     assert not any("evaluation" in str(s.get("path") or "") for s in sources)
@@ -298,9 +298,9 @@ def test_the_gitignore_tracks_the_new_directory() -> None:
 
 
 def test_the_audio_manifest_is_still_tracked() -> None:
-    """The surviving re-include must not have been dropped along with the move."""
+    """The moved manifest remains tracked metadata under the manifest tree."""
     text = (PROJECT_ROOT / ".gitignore").read_text()
-    assert "!corpus/raw/evaluation/" in text
-    manifest = PROJECT_ROOT / "corpus" / "raw" / "evaluation" / "audio_reference_manifest.yaml"
-    if manifest.exists():
-        assert yaml.safe_load(manifest.read_text()) is not None
+    assert "!corpus/raw/evaluation/" not in text
+    manifest = PROJECT_ROOT / "corpus" / "manifests" / "audio_reference_manifest.yaml"
+    assert manifest.is_file()
+    assert yaml.safe_load(manifest.read_text()) is not None

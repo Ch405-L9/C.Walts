@@ -66,9 +66,7 @@ def _boundary_root(tmp_path: Path, source: str) -> Path:
     (root / "mcp").mkdir()
     (root / "scripts").mkdir()
     (root / "config").mkdir()
-    (root / "src" / "natural_flow_rag" / "vector_store.py").write_text(
-        source, encoding="utf-8"
-    )
+    (root / "src" / "natural_flow_rag" / "vector_store.py").write_text(source, encoding="utf-8")
     (root / "config" / "rag.yaml").write_text(
         "collection:\n  persistence_path: ./var/chroma\n", encoding="utf-8"
     )
@@ -122,11 +120,72 @@ def test_text_query_api_is_detected(tmp_path: Path) -> None:
 
 
 def test_missing_explicit_embedding_function_fails(tmp_path: Path) -> None:
-    source = _valid_vector_store_source().replace(
-        "name='x', embedding_function=ef", "name='x'"
+    source = _valid_vector_store_source().replace("name='x', embedding_function=ef", "name='x'")
+    root = _boundary_root(tmp_path, source)
+    with pytest.raises(verifier.ExceptionVerificationError, match="boundary_incomplete"):
+        verifier.verify_chroma_boundary(root)
+
+
+def test_embedding_function_must_be_on_the_same_get_collection_call(tmp_path: Path) -> None:
+    source = (
+        _valid_vector_store_source()
+        .replace("name='x', embedding_function=ef", "name='x'")
+        .replace(
+            "c.query(query_embeddings=[embedding])",
+            "client.create_collection(name='later', embedding_function=ef)\n"
+            "        c.query(query_embeddings=[embedding])",
+        )
     )
     root = _boundary_root(tmp_path, source)
     with pytest.raises(verifier.ExceptionVerificationError, match="boundary_incomplete"):
+        verifier.verify_chroma_boundary(root)
+
+
+def test_comments_and_dead_strings_do_not_satisfy_call_site_controls(tmp_path: Path) -> None:
+    source = (
+        _valid_vector_store_source()
+        .replace("name='x', embedding_function=ef", "name='x'")
+        .replace(
+            "c.query(query_embeddings=[embedding])",
+            "note = 'query_embeddings= and embedding_function= are required'\n        c.query()",
+        )
+    )
+    root = _boundary_root(tmp_path, source)
+    with pytest.raises(verifier.ExceptionVerificationError, match="boundary_incomplete"):
+        verifier.verify_chroma_boundary(root)
+
+
+def test_query_texts_on_the_call_fails(tmp_path: Path) -> None:
+    source = _valid_vector_store_source().replace(
+        "query_embeddings=[embedding]", "query_texts=['x']"
+    )
+    root = _boundary_root(tmp_path, source)
+    with pytest.raises(verifier.ExceptionVerificationError):
+        verifier.verify_chroma_boundary(root)
+
+
+def test_upsert_requires_embeddings_on_the_same_call(tmp_path: Path) -> None:
+    source = _valid_vector_store_source().replace("ids=['x'], embeddings=[embedding]", "ids=['x']")
+    root = _boundary_root(tmp_path, source)
+    with pytest.raises(verifier.ExceptionVerificationError, match="boundary_incomplete"):
+        verifier.verify_chroma_boundary(root)
+
+
+def test_persistent_client_requires_containment_before_construction(tmp_path: Path) -> None:
+    source = _valid_vector_store_source().replace(
+        "path = settings.resolve_inside_project(settings.collection.persistence_path)\n        ", ""
+    )
+    root = _boundary_root(tmp_path, source)
+    with pytest.raises(verifier.ExceptionVerificationError, match="boundary_incomplete"):
+        verifier.verify_chroma_boundary(root)
+
+
+def test_persistent_client_is_required(tmp_path: Path) -> None:
+    source = _valid_vector_store_source().replace(
+        "chromadb.PersistentClient", "chromadb.HttpClient"
+    )
+    root = _boundary_root(tmp_path, source)
+    with pytest.raises(verifier.ExceptionVerificationError):
         verifier.verify_chroma_boundary(root)
 
 

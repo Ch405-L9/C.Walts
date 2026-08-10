@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "C.Walts external holdout anchor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "benchmark_version", "algorithm_id", "sequence", "split_identity_sha256", "lifecycle_state", "lifecycle_event_tip_sha256", "prior_anchor_sha256", "created_at", "anchor_sha256"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "benchmark_version": {"type": "string", "minLength": 1},
+    "algorithm_id": {"const": "group-stratified-exact-subset-v1"},
+    "sequence": {"type": "integer", "minimum": 1},
+    "split_identity_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "lifecycle_state": {"enum": ["sealed_unused", "scored_once", "retired_regression"]},
+    "lifecycle_event_tip_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "prior_anchor_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "anchor_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

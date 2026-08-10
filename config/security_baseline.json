@@ -1,0 +1,32 @@
+{
+  "audio_manifest_path": "corpus/manifests/audio_reference_manifest.yaml",
+  "audit": {
+    "architecture_mitigated": 1,
+    "auditor": "pip-audit",
+    "detected_vulnerabilities": 1,
+    "permitted_advisory": "PYSEC-2026-311",
+    "service": "pypi",
+    "unresolved_actionable": 0,
+    "version": "2.10.1"
+  },
+  "baseline_version": "stage7-security-baseline-v1",
+  "exception_registry_sha256": "b035512d6e7b16d39fa7ee84749ad0e7f362f9e768cc3a3b049ce013b06b19ff",
+  "gitleaks_binary_sha256": "88f91962aa2f93ac6ab281d553b9e125f5197bbbce38f9f2437f7299c32e5509",
+  "holdout_anchor_policy_version": "external-anchor-v1",
+  "lock_package_count": 100,
+  "old_evaluation_audio_manifest_path_absent": true,
+  "pre_commit_config_path": ".pre-commit-config.yaml",
+  "pre_commit_wrapper_path": "scripts/run_gitleaks_precommit.py",
+  "real_holdout_anchor_status": "not_applicable_until_gate4",
+  "requirements_lock_sha256": "9c8380fe6a78db9595b5e2436acbb293858661c2df79cc099fb9cf13a73ae653",
+  "requirements_source": "requirements.txt",
+  "requirements_txt_sha256": "0cf578d64aaacb2d76821957e496e98d7b41c6a7100c2aaedac1d12bf6ba6a02",
+  "schema_version": 1,
+  "tools": {
+    "gitleaks": "8.30.1",
+    "pip_audit": "2.10.1",
+    "pre_commit": "4.6.0",
+    "uv": "0.12.0"
+  },
+  "version_drift_count": 0
+}

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0-dev.11
+
+- Completed the Stage 7 security baseline with A3/A4 preservation, a hash-pinned
+  `requirements.lock`, MCP 1.28.1, and policy-accounted Chroma advisory containment.
+- Added redacted Gitleaks history/pre-commit gates, read-only security verification,
+  and synthetic external holdout-anchor controls.
+- Moved the audio reference manifest to `corpus/manifests/` and removed the residual
+  `corpus/raw/evaluation/` path without changing production data.
+
 All notable changes to this project. Format follows Keep a Changelog; versioning
 is Semantic Versioning as required by Prompt C §4.3.
 

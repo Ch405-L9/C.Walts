@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "C.Walts security baseline",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "baseline_version", "tools", "requirements_source", "requirements_txt_sha256", "requirements_lock_sha256", "lock_package_count", "version_drift_count", "audit", "exception_registry_sha256", "pre_commit_config_path", "pre_commit_wrapper_path", "audio_manifest_path", "old_evaluation_audio_manifest_path_absent", "holdout_anchor_policy_version", "real_holdout_anchor_status"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "baseline_version": {"type": "string", "minLength": 1},
+    "tools": {"type": "object", "additionalProperties": {"type": "string"}},
+    "requirements_source": {"const": "requirements.txt"},
+    "requirements_txt_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "requirements_lock_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "lock_package_count": {"const": 100},
+    "version_drift_count": {"const": 0},
+    "audit": {"type": "object", "additionalProperties": false, "required": ["auditor", "version", "service", "detected_vulnerabilities", "architecture_mitigated", "unresolved_actionable", "permitted_advisory"], "properties": {"auditor": {"const": "pip-audit"}, "version": {"const": "2.10.1"}, "service": {"type": "string", "minLength": 1}, "detected_vulnerabilities": {"const": 1}, "architecture_mitigated": {"const": 1}, "unresolved_actionable": {"const": 0}, "permitted_advisory": {"const": "PYSEC-2026-311"}}},
+    "exception_registry_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "pre_commit_config_path": {"const": ".pre-commit-config.yaml"},
+    "pre_commit_wrapper_path": {"const": "scripts/run_gitleaks_precommit.py"},
+    "audio_manifest_path": {"const": "corpus/manifests/audio_reference_manifest.yaml"},
+    "old_evaluation_audio_manifest_path_absent": {"const": true},
+    "holdout_anchor_policy_version": {"type": "string", "minLength": 1},
+    "real_holdout_anchor_status": {"const": "not_applicable_until_gate4"},
+    "gitleaks_binary_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}
