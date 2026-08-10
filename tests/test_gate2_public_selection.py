@@ -114,7 +114,7 @@ def test_selector_has_no_retrieval_dependencies_or_query_mode() -> None:
         text=True,
     )
     assert result.returncode != 0
-    assert "reserved_for_gate2_b" in result.stderr + result.stdout
+    assert "explicit_selection_confirmation_required" in result.stderr + result.stdout
 
 
 def test_exact_base_group_dp_rejects_count_only_capacity() -> None:

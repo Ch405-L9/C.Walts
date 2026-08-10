@@ -7,7 +7,10 @@ import argparse
 import collections
 import hashlib
 import json
+import os
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import jsonschema
@@ -139,6 +142,20 @@ MASSIVE_LABEL_OVERRIDES = {
     "play_music": "near_domain_unsupported",
     "weather_query": "ineligible_for_gate2_public",
     "recommendation_locations": "ineligible_for_gate2_public",
+}
+POLICY_SHA256 = "9ff553075b16f352fb6f47794dbfe433c9ef2514b074eb52d7b5c840e7b5e07b"
+START_CHECKPOINT = "a1280dde4315894c51fa5ae78abf5b1ecf9ca5b7"
+SELECTED_MANIFEST = ROOT / "var/eval_sources/selected_public/gate2_public_candidates.json"
+SELECTED_SEAL = ROOT / "var/eval_sources/selected_public/gate2_public_candidates.seal.json"
+LICENSE_REFS = {
+    "clinc150": "config/approved_eval_datasets.json#/datasets/clinc150",
+    "massive_1_0_en_us": "config/approved_eval_datasets.json#/datasets/massive_1_0_en_us",
+    "banking77": "config/approved_eval_datasets.json#/datasets/banking77",
+}
+VERSIONS = {
+    "clinc150": "UCI-570-data_full",
+    "massive_1_0_en_us": "1.0",
+    "banking77": "PolyAI-master-snapshot",
 }
 
 
@@ -357,8 +374,7 @@ def preselection_analysis() -> dict:
             "base_group_count": len(sizes),
             "eligible_cluster_count": len(sizes),
             "base_group_definition": (
-                "exact canonical-text duplicate identity; "
-                "final Stage 5 clusters remain pending"
+                "exact canonical-text duplicate identity; final Stage 5 clusters remain pending"
             ),
             "cluster_size_histogram": dict(sorted(collections.Counter(sizes.values()).items())),
             "public_quota": quota,
@@ -387,6 +403,329 @@ def preselection_analysis() -> dict:
     }
 
 
+def load_policy() -> dict:
+    policy_path = ROOT / "config/gate2_public_selection_policy.yaml"
+    actual = hashlib.sha256(policy_path.read_bytes()).hexdigest()
+    if actual != POLICY_SHA256:
+        raise RuntimeError("frozen_policy_sha256_mismatch")
+    return yaml.safe_load(policy_path.read_text())
+
+
+def source_rows(policy: dict) -> list[dict]:
+    rows: list[dict] = []
+    clinc = json.loads(CLINC.read_text())
+
+    def add_row(
+        dataset: str,
+        allocation: str,
+        label: str,
+        partition: str,
+        text: str,
+        native_id: str | None,
+        domain: str | None,
+    ) -> None:
+        label_key = partition if allocation == "clinc150_oos" else label
+        policy_dataset = "clinc150_oos" if allocation == "clinc150_oos" else dataset
+        disposition = policy["label_policy"][policy_dataset][label_key]
+        if disposition == "ineligible_for_gate2_public":
+            return
+        canonical = canonical_text(text)
+        text_sha = digest(canonical)
+        source_id = native_id or digest(
+            "|".join((dataset, VERSIONS[dataset], partition, label, text_sha))
+        )
+        priority = digest(
+            json.dumps(
+                {
+                    "policy_sha256": POLICY_SHA256,
+                    "class": disposition,
+                    "allocation_source_key": allocation,
+                    "source_dataset": dataset,
+                    "source_label": label,
+                    "source_partition": partition,
+                    "source_record_id": source_id,
+                    "canonical_text_sha256": text_sha,
+                },
+                sort_keys=True,
+            )
+        )
+        short = {"clinc150": "clinc", "massive_1_0_en_us": "massive", "banking77": "bank"}[dataset]
+        rows.append(
+            {
+                "source_dataset": dataset,
+                "allocation_source_key": allocation,
+                "source_version": VERSIONS[dataset],
+                "source_record_id": source_id,
+                "source_partition": partition,
+                "source_intent": label,
+                "source_domain": domain,
+                "query_text": text,
+                "canonical_text": canonical,
+                "canonical_text_sha256": text_sha,
+                "source_label": label,
+                "class": disposition,
+                "expected_behavior": policy["expected_behavior_by_label"][policy_dataset][
+                    label_key
+                ],
+                "license_ref": LICENSE_REFS[dataset],
+                "group_id": f"G2-{short}-{text_sha[:24]}",
+                "template_fingerprint": None,
+                "priority": priority,
+            }
+        )
+
+    for partition in ("train", "val", "test"):
+        for text, label in clinc[partition]:
+            add_row("clinc150", "clinc150", label, partition, text, None, None)
+    for partition in ("oos_train", "oos_val", "oos_test"):
+        for text, _label in clinc[partition]:
+            add_row("clinc150", "clinc150_oos", "oos", partition, text, None, "out_of_scope")
+    for line in MASSIVE.read_text().splitlines():
+        row = json.loads(line)
+        add_row(
+            "massive_1_0_en_us",
+            "massive_en_us",
+            row["intent"],
+            row["partition"],
+            row["utt"],
+            str(row["id"]),
+            row["scenario"],
+        )
+    import csv
+
+    for partition in ("train", "test"):
+        with (BANK_ROOT / f"{partition}.csv").open(newline="") as handle:
+            for row in csv.DictReader(handle):
+                add_row(
+                    "banking77",
+                    "banking77",
+                    row["category"],
+                    partition,
+                    row["text"],
+                    None,
+                    "banking77",
+                )
+    return rows
+
+
+def public_counts(records: list[dict]) -> dict[str, int]:
+    return dict(
+        sorted(
+            collections.Counter(
+                f"{row['class']}/{row['allocation_source_key']}" for row in records
+            ).items()
+        )
+    )
+
+
+def source_rows_to_allocation(record: dict) -> str:
+    if record["source_dataset"] == "clinc150" and record["source_partition"].startswith("oos_"):
+        return "clinc150_oos"
+    if record["source_dataset"] == "massive_1_0_en_us":
+        return "massive_en_us"
+    return record["source_dataset"]
+
+
+def source_pool_representatives(policy: dict) -> list[dict]:
+    rows = source_rows(policy)
+    by_text: dict[str, list[dict]] = collections.defaultdict(list)
+    for row in rows:
+        by_text[row["canonical_text_sha256"]].append(row)
+    representatives: list[dict] = []
+    for text_sha, family in sorted(by_text.items()):
+        strata = {(row["class"], row["allocation_source_key"]) for row in family}
+        if len(strata) > 1:
+            raise RuntimeError(f"mixed_stratum_exact_duplicate:{text_sha}")
+        representatives.append(min(family, key=lambda row: row["priority"]))
+    return representatives
+
+
+def stage5_near_conflict(left: dict, right: dict) -> bool:
+    from verify_eval_split import similarity_pair
+
+    metrics = similarity_pair(left["query_text"], right["query_text"])
+    ratio = metrics["sequence_matcher_ratio"]
+    jaccard = metrics["token_3gram_jaccard"]
+    same_class = left["class"] == right["class"]
+    hard = ratio >= 0.92 or (jaccard is not None and jaccard >= 0.85 and same_class)
+    review = 0.85 <= ratio < 0.92 or (jaccard is not None and 0.70 <= jaccard < 0.85)
+    return bool(hard or review)
+
+
+def selection_protocol_order(policy: dict) -> list[tuple[str, str]]:
+    return sorted(
+        [
+            (class_name, allocation)
+            for class_name, allocations in policy["quotas"].items()
+            if class_name != "public_total"
+            for allocation in allocations
+        ],
+        key=lambda cell: digest(POLICY_SHA256 + "|" + cell[0] + "|" + cell[1]),
+    )
+
+
+def select_records(policy: dict, *, allow_existing: bool = False) -> list[dict]:
+    if not allow_existing and os.environ.get("NFR_ALLOW_EVAL_WRITES") != "true":
+        raise RuntimeError("eval_write_authorization_missing")
+    if not allow_existing and (SELECTED_MANIFEST.exists() or SELECTED_SEAL.exists()):
+        raise RuntimeError("canonical_manifest_overwrite_refused")
+    head = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"],  # noqa: S607
+        cwd=ROOT,
+        text=True,
+    ).strip()
+    if head == START_CHECKPOINT and not allow_existing:
+        raise RuntimeError("selection_protocol_not_pushed")
+    policy = load_policy()
+    representatives = source_pool_representatives(policy)
+    accepted: list[dict] = []
+    quotas = {
+        (class_name, allocation): count
+        for class_name, allocations in policy["quotas"].items()
+        if class_name != "public_total"
+        for allocation, count in allocations.items()
+    }
+    for cell in selection_protocol_order(policy):
+        candidates = [
+            row for row in representatives if (row["class"], row["allocation_source_key"]) == cell
+        ]
+        by_label: dict[str, list[dict]] = collections.defaultdict(list)
+        for row in candidates:
+            by_label[row["source_label"]].append(row)
+        labels = sorted(
+            by_label,
+            key=lambda label: digest(f"{POLICY_SHA256}|{cell[0]}|{cell[1]}|{label}"),
+        )
+        for label in labels:
+            by_label[label].sort(key=lambda row: row["priority"])
+        accepted_cell: list[dict] = []
+        cursor = 0
+        while len(accepted_cell) < quotas[cell]:
+            progressed = False
+            for _ in range(len(labels)):
+                if not labels:
+                    break
+                label = labels[cursor % len(labels)]
+                cursor += 1
+                while by_label[label]:
+                    candidate = by_label[label].pop(0)
+                    if any(stage5_near_conflict(candidate, prior) for prior in accepted):
+                        continue
+                    accepted.append(candidate)
+                    accepted_cell.append(candidate)
+                    progressed = True
+                    break
+                if len(accepted_cell) >= quotas[cell]:
+                    break
+            if not progressed:
+                raise RuntimeError(f"quota_unreachable_after_stage5_filter:{cell}")
+        if len(accepted_cell) != quotas[cell]:
+            raise RuntimeError(f"quota_mismatch:{cell}")
+    accepted.sort(
+        key=lambda row: digest(
+            json.dumps(
+                {
+                    "policy_sha256": POLICY_SHA256,
+                    "class": row["class"],
+                    "allocation_source_key": row["allocation_source_key"],
+                    "source_dataset": row["source_dataset"],
+                    "source_record_id": row["source_record_id"],
+                    "canonical_text_sha256": row["canonical_text_sha256"],
+                },
+                sort_keys=True,
+            )
+        )
+    )
+    result = []
+    for index, row in enumerate(accepted, start=1):
+        result.append(
+            {
+                "id": f"CWQ-PUB-{index:04d}",
+                "query_text": row["query_text"],
+                "class": row["class"],
+                "expected_behavior": row["expected_behavior"],
+                "source_dataset": row["source_dataset"],
+                "source_version": row["source_version"],
+                "source_record_id": row["source_record_id"],
+                "source_partition": row["source_partition"],
+                "source_intent": row["source_intent"],
+                "source_domain": row["source_domain"],
+                "group_id": row["group_id"],
+                "template_fingerprint": None,
+                "group_basis": "Gate 2 exact source/canonical-text base group",
+                "license_ref": row["license_ref"],
+                "provenance": {
+                    "kind": "public_verbatim",
+                    "acquisition_dataset_id": row["source_dataset"],
+                    "allocation_source_key": row["allocation_source_key"],
+                    "policy_id": policy["policy_id"],
+                    "policy_sha256": POLICY_SHA256,
+                    "source_identity_method": (
+                        "native_id_or_version_partition_label_canonical_sha256"
+                    ),
+                },
+                "constraints": {
+                    "pre_split": True,
+                    "production_ingestion_forbidden": True,
+                    "qrels_not_created": True,
+                },
+                "notes": "Selected deterministically under Gate 2 A5 public-selection policy.",
+            }
+        )
+    return result
+
+
+def write_private_manifest(manifest: dict, protocol_commit: str) -> dict:
+    from verify_eval_split import sha256_value
+
+    target = SELECTED_MANIFEST
+    target.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(manifest, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=target.parent, delete=False
+    ) as handle:
+        handle.write(payload)
+        handle.flush()
+        os.fsync(handle.fileno())
+        temp_path = Path(handle.name)
+    try:
+        if target.exists():
+            raise RuntimeError("canonical_manifest_overwrite_refused")
+        temp_path.replace(target)
+    finally:
+        if temp_path.exists():
+            temp_path.unlink()
+    read_back = target.read_text(encoding="utf-8")
+    if read_back != payload:
+        raise RuntimeError("manifest_readback_mismatch")
+    seal = {
+        "schema_version": 1,
+        "candidate_set_id": manifest["candidate_set_id"],
+        "candidate_manifest_sha256": sha256_value(manifest),
+        "policy_sha256": POLICY_SHA256,
+        "selection_protocol_commit": protocol_commit,
+        "acquisition_datasets": ["clinc150", "massive_1_0_en_us", "banking77"],
+        "candidate_count": 315,
+        "created_at": "gate2-selection-run",
+        "split_assigned": False,
+        "qrels_created": False,
+    }
+    seal_payload = json.dumps(seal, sort_keys=True, separators=(",", ":"))
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=target.parent, delete=False
+    ) as handle:
+        handle.write(seal_payload)
+        handle.flush()
+        os.fsync(handle.fileno())
+        seal_temp = Path(handle.name)
+    try:
+        seal_temp.replace(SELECTED_SEAL)
+    finally:
+        if seal_temp.exists():
+            seal_temp.unlink()
+    return seal
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--inventory", action="store_true")
@@ -395,9 +734,10 @@ def main() -> int:
     parser.add_argument("--feasibility", action="store_true")
     parser.add_argument("--freeze-policy", action="store_true")
     parser.add_argument("--select", action="store_true")
+    parser.add_argument("--confirm-gate2-public-selection", action="store_true")
     args = parser.parse_args()
-    if args.select:
-        raise SystemExit("canonical_selection_reserved_for_gate2_b")
+    if args.select and not args.confirm_gate2_public_selection:
+        raise SystemExit("explicit_selection_confirmation_required")
     if args.freeze_policy:
         freeze_policy()
         print("policy frozen")
@@ -425,6 +765,38 @@ def main() -> int:
         print(json.dumps(structure(), sort_keys=True, indent=2))
     if args.feasibility:
         print(json.dumps(preselection_analysis(), sort_keys=True, indent=2))
+    if args.select:
+        if not args.confirm_gate2_public_selection:
+            raise SystemExit("explicit_selection_confirmation_required")
+        records = select_records(load_policy())
+        manifest = {
+            "schema_version": 1,
+            "benchmark_version": "0.4",
+            "candidate_set_id": "gate2-public-315-v0.4-a5",
+            "records": records,
+        }
+        protocol_commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],  # noqa: S607
+            cwd=ROOT,
+            text=True,
+        ).strip()
+        seal = write_private_manifest(manifest, protocol_commit)
+        from verify_eval_split import sha256_value
+
+        print(
+            json.dumps(
+                {
+                    "candidate_count": len(records),
+                    "candidate_manifest_sha256": sha256_value(manifest),
+                    "seal_sha256": digest(json.dumps(seal, sort_keys=True)),
+                    "split_assigned": False,
+                    "qrels_created": False,
+                    "performance_peek": False,
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
     if not any(
         (args.inventory, args.verify_policy, args.verify_acquisition, args.feasibility, args.select)
     ):
