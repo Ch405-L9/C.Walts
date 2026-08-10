@@ -9,6 +9,10 @@
   guards.
 - Added synthetic-only model qualification and validation tooling. No real
   custom query, draft, split, holdout, qrels, or production mutation occurred.
+- Completed Gate 3-A-R1 shared-prompt qualification across 24 synthetic cases,
+  bounded parameter comparison, failure-path tests, and canonical 43-check smoke.
+- Selected local qwen3:8b parameters at temperature 0.25 and top-p 0.95; Ollama
+  schema-object output was not supported, so strict local JSON-schema validation remains authoritative.
 
 ## 0.4.0-dev.13
 

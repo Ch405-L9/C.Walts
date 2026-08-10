@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-10T09:59:20.392839+00:00",
+  "generated": "2026-08-10T16:46:50.870969+00:00",
   "total": 43,
   "failed": 0,
   "checks": [
@@ -49,7 +49,7 @@
       "section": "11.2 static quality",
       "check": "pytest passes",
       "passed": true,
-      "detail": "........................................                                 [100%]"
+      "detail": "....                                                                     [100%]"
     },
     {
       "section": "11.2 static quality",
