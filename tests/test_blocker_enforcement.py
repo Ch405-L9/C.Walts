@@ -58,27 +58,32 @@ def test_canonical_registry_and_a2_scope_policy() -> None:
     registry = verifier.load_registry()
     entries = {entry["id"]: entry for entry in registry["entries"]}
     current = entries[CANONICAL_ID]
-    assert current["status"] == "deferred"
+    assert current["status"] == "resolved"
     assert current["blocks_gate2"] is False
-    assert current["blocking_scopes"] == SCOPES
-    assert verifier.list_open_blockers(registry) == [CANONICAL_ID]
+    assert current["blocking_scopes"] == []
+    assert current["resolved_by"] == "docs/evidence/gate1_2-stage8-dense-coverage.json"
+    assert verifier.list_open_blockers(registry) == []
 
 
 @pytest.mark.parametrize("scope", SCOPES)
-def test_current_real_scope_refuses(scope: str) -> None:
-    with pytest.raises(verifier.BlockerRegistryError, match="open_blocker_present"):
-        verifier.verify_scope(scope)
+def test_current_real_scope_clears(scope: str) -> None:
+    result = verifier.verify_scope(scope)
+    assert result["verdict"] == "pass"
 
 
 @pytest.mark.parametrize("scope", SCOPES)
-def test_adapter_refuses_current_real_scope(scope: str) -> None:
-    with pytest.raises(adapter.AuthorizationError, match="open_blocker_present"):
-        adapter.authorize_gate_transition(scope)
+def test_adapter_authorizes_current_real_scope(scope: str) -> None:
+    result = adapter.authorize_gate_transition(scope)
+    assert result["mutation_performed"] is False
 
 
-def test_legacy_gate2_false_does_not_override_explicit_scope() -> None:
+def test_legacy_gate2_false_does_not_override_explicit_scope(tmp_path: Path) -> None:
+    path = _write_registry(
+        tmp_path / "registry.md",
+        [_entry(status="deferred", scopes=SCOPES, legacy_gate2=False)],
+    )
     with pytest.raises(verifier.BlockerRegistryError, match="open_blocker_present"):
-        verifier.verify_scope("gate2_authorization")
+        verifier.verify_scope("gate2_authorization", path)
 
 
 def test_synthetic_closed_fixture_authorizes_all_scopes(tmp_path: Path) -> None:
@@ -189,7 +194,7 @@ def test_cli_output_is_machine_only_and_read_only() -> None:
         check=True,
     )
     payload = json.loads(result.stdout)
-    assert payload["open_blocker_ids"] == [CANONICAL_ID]
+    assert payload["open_blocker_ids"] == []
     assert payload["mutation_performed"] is False
     assert "blocking_scopes" not in payload
 

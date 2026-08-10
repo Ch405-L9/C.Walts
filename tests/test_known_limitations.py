@@ -52,7 +52,7 @@ def test_every_entry_parses_as_yaml() -> None:
     ("field", "expected"),
     [
         ("id", EVAL_009),
-        ("status", "deferred"),
+        ("status", "resolved"),
         ("severity", "medium"),
         ("blocks_gate2", False),
         ("blocks_threshold_calibration", True),
@@ -74,7 +74,9 @@ def test_the_eval_009_entry_is_a_release_blocker() -> None:
     """
     entry = _entries()[EVAL_009]
     assert entry["blocks_release_candidate"] is True
-    assert entry["status"] == "deferred"
+    assert entry["status"] == "resolved"
+    assert entry["blocking_scopes"] == []
+    assert entry["resolved_by"] == "docs/evidence/gate1_2-stage8-dense-coverage.json"
 
 
 def test_an_open_blocker_is_discoverable_without_reading_prose() -> None:
@@ -83,7 +85,7 @@ def test_an_open_blocker_is_discoverable_without_reading_prose() -> None:
         for key, entry in _entries().items()
         if entry.get("status") == "deferred" and entry.get("blocks_release_candidate") is True
     ]
-    assert EVAL_009 in open_blockers
+    assert EVAL_009 not in open_blockers
 
 
 # ── the five required statements ─────────────────────────────────────────────

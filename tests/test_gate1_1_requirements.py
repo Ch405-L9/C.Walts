@@ -416,11 +416,13 @@ def test_r11_eval_009_blocks_calibration_but_not_gate_2() -> None:
     assert entry["blocks_gate2"] is False
 
 
-def test_r11_eval_009_is_registered_as_a_deferred_medium_release_blocker() -> None:
+def test_r11_eval_009_is_registered_as_a_resolved_medium_historical_blocker() -> None:
     entry = _register_entry("CW-LIM-009-DENSE-COVERAGE")
-    assert entry["status"] == "deferred"
+    assert entry["status"] == "resolved"
     assert entry["severity"] == "medium"
     assert entry["blocks_release_candidate"] is True
+    assert entry["blocking_scopes"] == []
+    assert entry["resolved_by"] == "docs/evidence/gate1_2-stage8-dense-coverage.json"
 
 
 def test_r11_the_registered_limitation_matches_the_live_evaluation_result() -> None:

@@ -278,7 +278,16 @@ def main() -> int:  # noqa: PLR0915 — a checklist reads better flat than split
            inspect_payload.get("source_id"))
 
     # ── 11.7 rollback ─────────────────────────────────────────────────────────
-    backups = sorted((ROOT / "var" / "backups").glob("*/chroma.sqlite3"))
+    # Prefer a verified whole-store snapshot. Older single-file backups may use
+    # a Chroma schema that predates the current collections table and are not a
+    # valid rollback source by themselves.
+    backups = sorted(
+        [
+            *((ROOT / "var" / "snapshots").glob("*/chroma/chroma.sqlite3")),
+            *((ROOT / "var" / "backups").glob("*/chroma.sqlite3")),
+        ],
+        key=lambda path: path.stat().st_mtime,
+    )
     record("11.7 rollback", "a verified backup exists", bool(backups),
            str(backups[-1].parent.name) if backups else "none")
     if backups:
@@ -289,7 +298,10 @@ def main() -> int:  # noqa: PLR0915 — a checklist reads better flat than split
         import sqlite3
 
         connection = sqlite3.connect(f"file:{restore / 'chroma.sqlite3'}?mode=ro", uri=True)
-        names = [r[0] for r in connection.execute("SELECT name FROM collections")]
+        try:
+            names = [r[0] for r in connection.execute("SELECT name FROM collections")]
+        except sqlite3.OperationalError:
+            names = []
         connection.close()
         shutil.rmtree(restore, ignore_errors=True)
         record("11.7 rollback", "backup restores and holds the collection",
