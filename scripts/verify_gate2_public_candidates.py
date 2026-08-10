@@ -126,7 +126,8 @@ def verify_manifest(path: Path = selector.SELECTED_MANIFEST) -> dict:
     cluster_sizes = collections.Counter()
     feasibility = {}
     for cell, target in HOLDOUT_TARGETS.items():
-        cell_clusters = [cluster for cluster in clusters if cluster.strata == (cell,)]
+        expected_stratum = (cell[0], cell[1], "public")
+        cell_clusters = [cluster for cluster in clusters if cluster.strata == (expected_stratum,)]
         sizes = collections.Counter(cluster.size for cluster in cell_clusters)
         cluster_sizes[f"{cell[0]}/{cell[1]}"] = dict(sorted(sizes.items()))
         if target:
