@@ -3176,6 +3176,24 @@ Stage 6, Stage 7 security, 43/43 smoke checks, 23/23 fresh MCP checks, and the
 complete 616-test suite passed. Gate 1.2 exit is authorized. Gate 2 has not
 begun.
 
+# Gate 2-B — Deterministic public candidate selection
+
+2026-08-10: The frozen A5 selection protocol was pushed as `fae26e4` before
+canonical selection. Exactly 315 public, pre-split, `public_verbatim`
+candidates were selected once from the verified local acquisitions. The private
+manifest remains under the ignored evaluation boundary; only sanitized
+fingerprints and aggregate evidence are tracked.
+
+The public-only verifier confirmed all five quota cells, 315/315 source
+round-trips, zero exact duplicates, 49,455 exhaustive Stage 5 pair
+comparisons, zero hard findings, zero unresolved review-band findings, and
+whole-cluster feasibility for every future public holdout target. Deterministic
+reproduction matched the private manifest. A verifier-only cluster-stratum
+correction was pushed as `9b6ec10`; the frozen policy SHA remained unchanged.
+
+No C.Walts retrieval, scoring, thresholding, qrels, split, holdout, or Gate 3
+work occurred. Production remained 96/96 with unchanged identity hashes.
+
 # Gate 2-A-R1 — Pre-selection feasibility contract correction
 
 2026-08-10: The Gate 2-A policy was valid and had already been frozen before
