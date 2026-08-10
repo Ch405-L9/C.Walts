@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0-dev.12
+
+- Added the frozen Stage 8 dense-coverage diagnostic protocol, isolated rollback
+  rehearsal tooling, strict Gate 1.2 exit schema, and revalidation tests.
+- Stage 8 does not begin Gate 2 work; blocker closure remains evidence-gated.
+
 ## 0.4.0-dev.11
 
 - Completed the Stage 7 security baseline with A3/A4 preservation, a hash-pinned

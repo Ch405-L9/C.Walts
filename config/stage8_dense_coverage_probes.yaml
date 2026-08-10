@@ -1,0 +1,26 @@
+schema_version: 1
+protocol_id: gate1_2-stage8-dense-coverage-v1
+purpose: blocker_closure_diagnostic_only
+benchmark_record: false
+holdout_record: false
+qrels_eligible: false
+tuning_permitted: false
+retrieval_k: 5
+rounds: 3
+
+probes:
+  - id: S8-DENSE-01
+    structural_family: nominalized_action_chain
+    query: "How should a technical explanation packed with nominalized actions be rewritten so the action sequence is easier to follow aloud without changing the facts?"
+
+  - id: S8-DENSE-02
+    structural_family: stacked_prepositional_qualifiers
+    query: "How should a technical sentence with several stacked prepositional qualifiers be reorganized for clearer spoken delivery while preserving every relationship?"
+
+  - id: S8-DENSE-03
+    structural_family: embedded_conditional_clause
+    query: "How should a technical explanation with an embedded conditional clause be restructured so the condition and resulting action are clear aloud without changing when either applies?"
+
+  - id: S8-DENSE-04
+    structural_family: agentless_passive
+    query: "How should an agentless passive technical statement be made easier to understand aloud without inventing an actor or changing the meaning?"

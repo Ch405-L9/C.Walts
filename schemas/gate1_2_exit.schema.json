@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "version", "final_checkpoint", "criteria", "technical_stage8_pass", "blocker_state", "gate1_2_exit_authorized", "gate2_authorization_checked", "gate2_work_started", "final_owner_result"],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "version": {"type": "string", "pattern": "^0\\.4\\.0-dev\\.\\d+$"},
+    "final_checkpoint": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "criteria": {"type": "array", "items": {"type": "object"}},
+    "technical_stage8_pass": {"type": "boolean"},
+    "blocker_state": {"type": "string", "enum": ["deferred", "resolved"]},
+    "gate1_2_exit_authorized": {"type": "boolean"},
+    "gate2_authorization_checked": {"type": "boolean"},
+    "gate2_work_started": {"type": "boolean", "const": false},
+    "final_owner_result": {"type": "string", "enum": ["STAGE8_PASS_GATE1_2_EXIT_AUTHORIZED", "STAGE8_PASS_GATE1_2_EXIT_BLOCKED", "STAGE8_FAIL"]}
+  }
+}
