@@ -66,8 +66,14 @@ def validate_manifest(path: Path) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("manifest", type=Path)
+    parser.add_argument("--draft-pool", action="store_true")
     args = parser.parse_args()
     try:
+        if args.draft_pool:
+            from scripts.verify_gate3_private_draft_pool import validate_pool
+
+            print(json.dumps(validate_pool(args.manifest), sort_keys=True))
+            return 0
         print(json.dumps(validate_manifest(args.manifest), sort_keys=True))
         return 0
     except (OSError, ValueError, KeyError, TypeError, jsonschema.ValidationError) as exc:

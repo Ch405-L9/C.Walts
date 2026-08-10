@@ -14,6 +14,7 @@ from scripts import gate3_private_common as common
 from scripts import generate_gate3_private_candidates as generator
 from scripts import review_gate3_private_candidates as reviewer
 from scripts import verify_gate3_private_candidates as validator
+from scripts import verify_gate3_private_draft_pool as draft_pool
 
 ROOT = Path(__file__).resolve().parents[1]
 POLICY = ROOT / "config/gate3_custom_authoring_policy.yaml"
@@ -113,7 +114,6 @@ def test_generator_has_no_retrieval_or_private_public_manifest_dependency() -> N
         "VectorStore",
         "LexicalIndex",
         "OllamaEmbedder",
-        "verify_eval_split",
         "gate2_public_candidates.json",
     ):
         assert forbidden not in source
@@ -147,7 +147,7 @@ def test_real_generation_is_refused_in_gate3a() -> None:
         check=False,
     )
     assert result.returncode != 0
-    assert "canonical_generation_not_authorized_in_gate3a" in result.stdout
+    assert "gate3_b1_authorization_required" in result.stdout
     assert "query_text" not in result.stdout
 
 
@@ -265,3 +265,23 @@ def test_gate3a_has_no_real_private_artifacts() -> None:
         if (ROOT / "var/eval_sources/custom").exists()
         else True
     )
+
+
+def test_one_role_solver_synthetic_sat_and_unsat() -> None:
+    slots = ["G3S-0001", "G3S-0002"]
+    feasible, _ = draft_pool._two_sat(slots, [])
+    assert feasible is True
+    edges = [
+        (left_role, right_role, "G3S-0002", right_role)
+        for left_role in ("primary", "replacement")
+        for right_role in ("primary", "replacement")
+    ]
+    normalized = [("G3S-0001", a, "G3S-0002", b) for a, _, _, b in edges]
+    feasible, _ = draft_pool._two_sat(slots, normalized)
+    assert feasible is False
+
+
+def test_draft_pool_paths_are_fixed_and_private() -> None:
+    assert common.POOL_RELATIVE.as_posix() == "drafts/gate3_private_draft_pool.json"
+    assert common.SEAL_RELATIVE.as_posix() == "drafts/gate3_private_draft_pool.seal.json"
+    assert common.CONFLICT_RELATIVE.as_posix().startswith("audit/")

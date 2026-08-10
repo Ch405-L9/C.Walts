@@ -2,6 +2,10 @@
 
 ## 0.4.0-dev.14
 
+- Added Gate 3-B1 activation tooling for sequential, dual-authorized private
+  draft-pool generation, conflict analysis, and local owner-review readiness.
+- Canonical generation remains a separate authorized event; no private drafts
+  or custom manifest are included in this commit.
 - Began Gate 3-A with Architecture Amendment A6, an all-285 private authoring
   firewall, and local-only hybrid authoring controls.
 - Froze the custom allocation, metadata-only slot plan, local model/prompt/

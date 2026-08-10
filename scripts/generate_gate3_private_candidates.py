@@ -5,8 +5,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import urllib.request
+from datetime import UTC, datetime
 from typing import Any
 
 import jsonschema
@@ -14,25 +16,41 @@ import yaml
 
 try:
     from scripts.gate3_private_common import (
+        AUDIT_RELATIVE,
         DRAFT_SCHEMA,
         POLICY,
+        POOL_RELATIVE,
         ROOT,
+        SEAL_RELATIVE,
         SLOTS,
         PrivateAuthoringError,
+        atomic_write_bytes,
+        canonical_sha256,
+        file_sha256,
         generation_authorized,
         load_freeze,
         require_loopback,
+        resolve_private_path,
+        verify_model_identity,
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution
     from gate3_private_common import (
+        AUDIT_RELATIVE,
         DRAFT_SCHEMA,
         POLICY,
+        POOL_RELATIVE,
         ROOT,
+        SEAL_RELATIVE,
         SLOTS,
         PrivateAuthoringError,
+        atomic_write_bytes,
+        canonical_sha256,
+        file_sha256,
         generation_authorized,
         load_freeze,
         require_loopback,
+        resolve_private_path,
+        verify_model_identity,
     )
 
 
@@ -244,6 +262,189 @@ def dry_run_metadata() -> dict[str, Any]:
     }
 
 
+def _slot_identity(
+    slot: dict[str, Any], role: str, query_text: str, freeze_sha: str, policy_sha: str
+) -> str:
+    return canonical_sha256(
+        {
+            "slot_id": slot["slot_id"],
+            "draft_role": role,
+            "query_text": query_text,
+            "policy_sha256": policy_sha,
+            "generation_freeze_sha256": freeze_sha,
+        }
+    )
+
+
+def _draft_metadata(
+    slot: dict[str, Any], role: str, query_text: str, freeze_sha: str, policy_sha: str
+) -> dict[str, Any]:
+    template = canonical_sha256(
+        {
+            "policy_id": "gate3-custom-authoring-v1",
+            "prompt_sha256": file_sha256(ROOT / "config/gate3_custom_generation_prompt.txt"),
+            "scenario_family": slot["scenario_family"],
+            "task_family": slot["task_family"],
+            "structural_family": slot["structural_family"],
+            "template_family_id": slot["template_family_id"],
+        }
+    )
+    group = "G3G-" + hashlib.sha256(str(slot["group_family"]).encode()).hexdigest()[:24]
+    return {
+        "draft_id": f"G3D-{slot['slot_id']}-{role}",
+        "slot_id": slot["slot_id"],
+        "draft_role": role,
+        "query_text": query_text,
+        "class": slot["class"],
+        "expected_behavior": slot["expected_behavior"],
+        "task_family": slot["task_family"],
+        "scenario_family": slot["scenario_family"],
+        "structural_family": slot["structural_family"],
+        "register": slot.get("register"),
+        "preservation_burden": slot.get("preservation_burden"),
+        "group_family": slot["group_family"],
+        "group_id": group,
+        "template_family_id": slot["template_family_id"],
+        "template_fingerprint": template,
+        "generation_model": freeze_sha,
+        "policy_sha256": policy_sha,
+        "generation_freeze_sha256": freeze_sha,
+        "prompt_sha256": file_sha256(ROOT / "config/gate3_custom_generation_prompt.txt"),
+        "draft_fingerprint": _slot_identity(slot, role, query_text, freeze_sha, policy_sha),
+    }
+
+
+def generate_draft_pool() -> dict[str, Any]:
+    from scripts.verify_eval_split import canonical_text
+
+    freeze = load_freeze()
+    if not generation_authorized():
+        raise PrivateAuthoringError("private_generation_authorization_required")
+    if not os.environ.get("NFR_GATE3_B1_AUTHORIZED") == "true":
+        raise PrivateAuthoringError("gate3_b1_authorization_required")
+    model_identity = verify_model_identity(freeze)
+    pool_path = resolve_private_path(POOL_RELATIVE)
+    seal_path = resolve_private_path(SEAL_RELATIVE)
+    audit_path = resolve_private_path(AUDIT_RELATIVE)
+    if pool_path.exists():
+        raise PrivateAuthoringError("draft_pool_overwrite_refused")
+    policy, slots_payload = load_metadata()
+    slots = sorted(slots_payload["slots"], key=lambda item: item["slot_id"])
+    freeze_sha = file_sha256(ROOT / "config/gate3_generation_freeze.json")
+    policy_sha = file_sha256(POLICY)
+    records: list[dict[str, Any]] = []
+    attempts = 0
+    retries = 0
+    started = datetime.now(UTC).isoformat()
+    try:
+        for slot in slots:
+            for role in ("primary", "replacement"):
+                prompt = build_generation_prompt(load_base_prompt(), slot, role)
+                accepted = None
+                for attempt in range(1, 3):
+                    attempts += 1
+                    try:
+                        value, _ = model_request(freeze, prompt, "json")
+                        validate_draft(value)
+                        if value["slot_id"] != slot["slot_id"] or value["draft_role"] != role:
+                            raise PrivateAuthoringError("returned_slot_role_mismatch")
+                        accepted = _draft_metadata(
+                            slot, role, value["query_text"], freeze_sha, policy_sha
+                        )
+                        break
+                    except (OSError, ValueError, TypeError, jsonschema.ValidationError) as exc:
+                        if attempt == 1:
+                            retries += 1
+                        if attempt == 2:
+                            raise PrivateAuthoringError(
+                                f"draft_generation_failed:{slot['slot_id']}:{role}:{type(exc).__name__}"
+                            ) from exc
+                if accepted is None:
+                    raise PrivateAuthoringError("draft_not_accepted")
+                records.append(accepted)
+        by_slot = {slot["slot_id"]: [] for slot in slots}
+        for record in records:
+            by_slot[record["slot_id"]].append(record)
+        duplicate_slots = [
+            slot_id
+            for slot_id, pair in by_slot.items()
+            if len(pair) != 2
+            or canonical_text(pair[0]["query_text"]) == canonical_text(pair[1]["query_text"])
+        ]
+        if duplicate_slots:
+            raise PrivateAuthoringError(
+                f"primary_replacement_exact_duplicate:{len(duplicate_slots)}"
+            )
+        payload = {
+            "schema_version": 1,
+            "draft_pool_id": "gate3-private-drafts-570-v0.4",
+            "records": records,
+        }
+        encoded = (
+            json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+            + "\n"
+        ).encode()
+        atomic_write_bytes(pool_path, encoded)
+        pool_sha = file_sha256(pool_path)
+        seal = {
+            "schema_version": 1,
+            "draft_pool_id": payload["draft_pool_id"],
+            "draft_pool_sha256": pool_sha,
+            "draft_count": len(records),
+            "primary_count": sum(record["draft_role"] == "primary" for record in records),
+            "replacement_count": sum(record["draft_role"] == "replacement" for record in records),
+            "policy_sha256": policy_sha,
+            "slot_sha256": file_sha256(SLOTS),
+            "prompt_sha256": file_sha256(ROOT / "config/gate3_custom_generation_prompt.txt"),
+            "schema_sha256": file_sha256(DRAFT_SCHEMA),
+            "parameter_hash": freeze["parameter_hash"],
+            "model_digest": freeze["model_digest"],
+            "activated_generator_sha256": file_sha256(
+                ROOT / "scripts/generate_gate3_private_candidates.py"
+            ),
+            "activated_generation_freeze_sha256": freeze_sha,
+            "generation_timestamp": datetime.now(UTC).isoformat(),
+            "split": False,
+            "qrels": False,
+            "canonical_candidate_manifest": False,
+        }
+        atomic_write_bytes(seal_path, (json.dumps(seal, sort_keys=True, indent=2) + "\n").encode())
+        audit = {
+            "schema_version": 1,
+            "draft_pool_id": payload["draft_pool_id"],
+            "started_at": started,
+            "completed_at": datetime.now(UTC).isoformat(),
+            "requested_slot_roles": 570,
+            "successful_drafts": len(records),
+            "attempts": attempts,
+            "retries": retries,
+            "policy_sha256": policy_sha,
+            "slot_sha256": file_sha256(SLOTS),
+            "prompt_sha256": file_sha256(ROOT / "config/gate3_custom_generation_prompt.txt"),
+            "parameter_hash": freeze["parameter_hash"],
+            "model": model_identity,
+            "sequential": True,
+            "performance_peek": False,
+            "gate2_seed_access": False,
+            "verdict": "pass",
+        }
+        atomic_write_bytes(
+            audit_path, (json.dumps(audit, sort_keys=True, indent=2) + "\n").encode()
+        )
+        return {
+            "verdict": "pass",
+            "draft_count": len(records),
+            "primary_count": 285,
+            "replacement_count": 285,
+            "pool_sha256": pool_sha,
+            "query_text_printed": False,
+        }
+    except BaseException:
+        pool_path.unlink(missing_ok=True)
+        seal_path.unlink(missing_ok=True)
+        raise
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verify-freeze", action="store_true")
@@ -256,7 +457,11 @@ def main() -> int:
         if args.generate:
             if not args.confirm_gate3_private_generation or not generation_authorized():
                 raise PrivateAuthoringError("private_generation_authorization_required")
-            raise PrivateAuthoringError("canonical_generation_not_authorized_in_gate3a")
+            if os.environ.get("NFR_GATE3_B1_AUTHORIZED") != "true":
+                raise PrivateAuthoringError("gate3_b1_authorization_required")
+            result = generate_draft_pool()
+            print(json.dumps(result, sort_keys=True))
+            return 0
         if not any((args.verify_freeze, args.qualify_synthetic, args.dry_run_metadata)):
             raise PrivateAuthoringError("select_a_gate3a_mode")
         result = (

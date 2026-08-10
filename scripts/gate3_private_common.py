@@ -5,7 +5,9 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
 import socket
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +19,12 @@ PROMPT = ROOT / "config/gate3_custom_generation_prompt.txt"
 DRAFT_SCHEMA = ROOT / "schemas/gate3_generated_draft.schema.json"
 FREEZE = ROOT / "config/gate3_generation_freeze.json"
 GENERATOR = ROOT / "scripts/generate_gate3_private_candidates.py"
+GENERATION_ACTIVATION = "gate3-b1-activation"
+POOL_RELATIVE = Path("drafts/gate3_private_draft_pool.json")
+SEAL_RELATIVE = Path("drafts/gate3_private_draft_pool.seal.json")
+AUDIT_RELATIVE = Path("audit/gate3_b1_generation_audit.json")
+CONFLICT_RELATIVE = Path("audit/gate3_b1_conflict_graph.json")
+READINESS_RELATIVE = Path("audit/gate3_b1_review_readiness.json")
 
 
 class PrivateAuthoringError(ValueError):
@@ -95,6 +103,61 @@ def generation_authorized() -> bool:
         os.environ.get("NFR_ALLOW_PRIVATE_EVAL_GENERATION") == "true"
         and os.environ.get("NFR_GATE3_B_AUTHORIZED") == "true"
     )
+
+
+def atomic_write_bytes(path: Path, payload: bytes) -> None:
+    """Write a private artifact atomically, never exposing a partial canonical file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    temporary_path = Path(temporary)
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        if path.exists():
+            raise PrivateAuthoringError("private_artifact_overwrite_refused")
+        temporary_path.replace(path)
+    except BaseException:
+        temporary_path.unlink(missing_ok=True)
+        raise
+
+
+def verify_model_identity(freeze: dict[str, Any]) -> dict[str, str]:
+    """Verify the installed Ollama model without pulling or changing it."""
+    import subprocess
+
+    require_loopback(freeze["endpoint"])
+    executable = shutil.which("ollama")
+    if not executable:
+        raise PrivateAuthoringError("ollama_missing")
+    result = subprocess.run(  # noqa: S603
+        [executable, "show", freeze["model"], "--modelfile"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise PrivateAuthoringError("model_identity_unavailable")
+    digest = next(
+        (
+            line.split("sha256-", 1)[1].split()[0]
+            for line in result.stdout.splitlines()
+            if "sha256-" in line
+        ),
+        "",
+    )
+    actual = f"sha256-{digest}" if digest else ""
+    if actual != freeze["model_digest"]:
+        raise PrivateAuthoringError("model_digest_mismatch")
+    version = subprocess.run(  # noqa: S603
+        [executable, "--version"], capture_output=True, text=True, check=False
+    )
+    return {
+        "model": freeze["model"],
+        "model_digest": actual,
+        "ollama_version": version.stdout.strip(),
+    }
 
 
 def forbidden_output_keys(value: Any) -> set[str]:
