@@ -3133,3 +3133,26 @@ advisory; the policy audit ignored exactly `PYSEC-2026-311` and exited zero.
 No requirements lock was committed. No pre-commit configuration, holdout
 anchor, audio move, Gate 2 work, qrels, calibration, threshold fitting, or
 production mutation occurred. Remediation commit: `2079d0a`.
+
+## Gate 1.2 Stage 7 security baseline
+
+On 2026-08-10, Stage 7 resumed from `70d9acc` and completed as implementation
+commit `44417cf`. The A4 verifier was hardened with AST call-site checks for
+PersistentClient, containment, collection embedding functions, vector-only
+queries, explicit write embeddings, and prohibited network/server surfaces.
+
+`requirements.lock` contains 100 hash-pinned packages with zero version drift;
+MCP remains at 1.28.1 and ChromaDB at 1.5.8. The unfiltered pip-audit found
+exactly `PYSEC-2026-311`; the A4-policy audit ignored exactly that advisory and
+reported zero unresolved actionable findings. Resume and post-implementation
+redacted Gitleaks history scans found zero findings, and the staged local hook
+passed.
+
+The synthetic external holdout-anchor tests passed, with the real anchor
+explicitly `not_applicable_until_gate4`. The audio reference manifest moved
+byte-identically to `corpus/manifests/audio_reference_manifest.yaml`, and the
+residual `corpus/raw/evaluation/` path was removed. The focused suite passed 53
+tests and the complete suite passed 611 tests. Production remained 96/96 with
+exact parity and unchanged identity digests; `CW-LIM-009-DENSE-COVERAGE` remains
+deferred and all four Stage 6 authorization scopes continue to refuse. Stage 8
+has not begun.

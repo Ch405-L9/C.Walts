@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "stage": "gate1_2_stage7",
+  "timestamp_utc": "2026-08-10T08:45:00Z",
+  "branch": "feat/narration-generalization-v0.4",
+  "starting_checkpoint": "70d9accffb95fb06969f819dfaa58c074fae9833",
+  "remediation_checkpoint": "70d9accffb95fb06969f819dfaa58c074fae9833",
+  "implementation_commit": "44417cf",
+  "version": "0.4.0-dev.11",
+  "stage7_package_shas": {
+    "stage7_p": "547fb23d2ef5c1bcad68d3126499c9d71372d64f98c410cb522ad193f5da3031",
+    "stage7_b": "0df0331f09bfbfcc648309a9de242f5446ac7d9612a3e542b11e0e1da0da49d0",
+    "stage7_d": "ddd1bcac9ab0182020aebac758a8480d2404b83b866b5275ec1fc3fa88bbd655"
+  },
+  "architecture_amendments": {"A1": true, "A2": true, "A3": true, "A4": true},
+  "a4_hardening_pass": true,
+  "requirements_source": "requirements.txt",
+  "requirements_txt_sha256": "0cf578d64aaacb2d76821957e496e98d7b41c6a7100c2aaedac1d12bf6ba6a02",
+  "requirements_lock_sha256": "9c8380fe6a78db9595b5e2436acbb293858661c2df79cc099fb9cf13a73ae653",
+  "lock_package_count": 100,
+  "version_drift_count": 0,
+  "mcp_version": "1.28.1",
+  "chromadb_version": "1.5.8",
+  "detected_vulnerabilities": 1,
+  "detected_vulnerability_ids": ["PYSEC-2026-311"],
+  "architecture_mitigated": 1,
+  "unresolved_actionable": 0,
+  "automatic_fixes_used": false,
+  "gitleaks": {
+    "version": "8.30.1",
+    "binary_sha256": "88f91962aa2f93ac6ab281d553b9e125f5197bbbce38f9f2437f7299c32e5509",
+    "resume_prechange_findings": 0,
+    "staged_hook_pass": true,
+    "postimplementation_history_findings": 0,
+    "redaction": true,
+    "hook_installed": true
+  },
+  "security_baseline_verifier_pass": true,
+  "holdout_anchor": {
+    "synthetic_tests_pass": true,
+    "real_holdout_anchor_status": "not_applicable_until_gate4"
+  },
+  "audio_manifest": {
+    "old_path_absent": true,
+    "new_path": "corpus/manifests/audio_reference_manifest.yaml",
+    "old_sha256": "0b8be62d22251e3ff0dd3cafa57af72b466cdc13a6540021c71d2d4388c546fc",
+    "new_sha256": "0b8be62d22251e3ff0dd3cafa57af72b466cdc13a6540021c71d2d4388c546fc",
+    "content_unchanged": true
+  },
+  "residual_evaluation_corpus_path_closed": true,
+  "focused_tests": {"passed": 53},
+  "full_tests": {"passed": 611},
+  "production": {
+    "chroma_count": 96,
+    "bm25_count": 96,
+    "exact_parity": true,
+    "evaluation_case_count": 0,
+    "feedback_count": 2,
+    "source_count": 15,
+    "id_list_sha256": "da637c728f8ef7603b6cb5977401ed6d013187ed7a85173f9d4eb70203cf0a03",
+    "semantic_digest": "60910f5bbb1c8ab0328a0129e80ec740275f9f55c2d9bd95dbae9ad7f66cb83f",
+    "mutation_performed": false
+  },
+  "blocker": {
+    "id": "CW-LIM-009-DENSE-COVERAGE",
+    "status": "deferred",
+    "all_four_stage6_scopes_refuse": true
+  },
+  "gate2_work": false,
+  "split_generated": false,
+  "holdout_created": false,
+  "qrels_created": false,
+  "calibration_performed": false,
+  "thresholds_fitted": false,
+  "harness_semantic_drift": false,
+  "verdict": "pass"
+}
