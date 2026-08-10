@@ -33,15 +33,21 @@ def canonical_sha256(value: Any) -> str:
 
 
 def resolve_private_path(relative: str | Path) -> Path:
-    candidate = (PRIVATE_ROOT / Path(relative)).resolve()
+    raw = Path(relative)
+    if raw.is_absolute() or any(part in {"..", ""} for part in raw.parts):
+        raise PrivateAuthoringError("private_path_traversal")
+    current = PRIVATE_ROOT
+    for part in raw.parts:
+        current = current / part
+        if current.is_symlink():
+            raise PrivateAuthoringError("private_symlink_component")
+    candidate = current.resolve()
     try:
         candidate.relative_to(PRIVATE_ROOT)
     except ValueError as exc:
         raise PrivateAuthoringError("private_path_escape") from exc
     if candidate.exists() and candidate.is_symlink():
         raise PrivateAuthoringError("private_symlink_destination")
-    if any(part in {"..", ""} for part in Path(relative).parts):
-        raise PrivateAuthoringError("private_path_traversal")
     if str(candidate).startswith(str(ROOT / "corpus")):
         raise PrivateAuthoringError("corpus_destination_forbidden")
     if (

@@ -1,4 +1,4 @@
-You are realizing one synthetic benchmark request from supplied slot metadata.
+You are realizing one atomic user request from supplied slot metadata.
 Return only one JSON object with exactly: slot_id, draft_role, query_text.
 
 Write one atomic user request that matches the supplied task and scenario

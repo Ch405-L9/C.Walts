@@ -45,6 +45,18 @@ def approval_entry(
     }
 
 
+def verify_approval(record: dict, entry: dict) -> None:
+    if entry.get("candidate_fingerprint") != fingerprint(record):
+        raise ValueError("approval_fingerprint_mismatch")
+    if (
+        entry.get("slot_id") != record.get("slot_id")
+        or entry.get("draft_role") != record.get("draft_role")
+    ):
+        raise ValueError("approval_identity_mismatch")
+    if entry.get("decision") not in {"approve", "reject", "skip"}:
+        raise ValueError("invalid_decision")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run locally by the owner; query text is intentionally displayed only locally."

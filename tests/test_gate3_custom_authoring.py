@@ -80,6 +80,8 @@ def test_freeze_and_model_identity() -> None:
 def test_loopback_guard_rejects_remote_endpoint() -> None:
     with pytest.raises(common.PrivateAuthoringError, match="non_loopback_generation_endpoint"):
         common.require_loopback("https://example.invalid:443")
+    with pytest.raises(common.PrivateAuthoringError, match="non_loopback_generation_endpoint"):
+        common.require_loopback("ftp://127.0.0.1:11434")
 
 
 def test_private_path_guard_rejects_escape_and_accepts_private_path(tmp_path: Path) -> None:
@@ -91,6 +93,15 @@ def test_private_path_guard_rejects_escape_and_accepts_private_path(tmp_path: Pa
             common.resolve_private_path("../outside.json")
         with pytest.raises(common.PrivateAuthoringError):
             common.resolve_private_path("/absolute_escape.json")
+        (tmp_path / "intermediate").mkdir()
+        (tmp_path / "intermediate" / "link").symlink_to(
+            tmp_path / "outside", target_is_directory=True
+        )
+        with pytest.raises(common.PrivateAuthoringError, match="private_symlink_component"):
+            common.resolve_private_path("intermediate/link/file.json")
+        (tmp_path / "final-link").symlink_to(tmp_path / "outside.json")
+        with pytest.raises(common.PrivateAuthoringError, match="private_symlink_component"):
+            common.resolve_private_path("final-link")
     finally:
         common.PRIVATE_ROOT = original
 
@@ -106,6 +117,8 @@ def test_generator_has_no_retrieval_or_private_public_manifest_dependency() -> N
         "gate2_public_candidates.json",
     ):
         assert forbidden not in source
+    assert "build_generation_prompt" in source
+    assert "load_base_prompt" in source
 
 
 def test_generator_has_no_cloud_sdk_or_remote_endpoint() -> None:
@@ -152,6 +165,40 @@ def test_synthetic_valid_draft_and_rejections() -> None:
     ):
         with pytest.raises((common.PrivateAuthoringError, jsonschema.ValidationError)):
             generator.validate_draft(bad)
+    for bad_text in ("", "\x01bad", "https://example.invalid", "Run bash /tmp/x"):
+        with pytest.raises((common.PrivateAuthoringError, jsonschema.ValidationError)):
+            generator.validate_draft({**valid, "query_text": bad_text})
+    with pytest.raises(common.PrivateAuthoringError, match="obvious_compound_request"):
+        generator.validate_draft({**valid, "query_text": "What is X? And then explain Y?"})
+
+
+def test_shared_prompt_composition_uses_frozen_prompt() -> None:
+    prompt = generator.build_generation_prompt(
+        generator.load_base_prompt(), {"slot_id": "G3S-9001", "synthetic_only": True}, "primary"
+    )
+    assert "one atomic user request from supplied slot metadata" in prompt
+    assert '"slot_id":"G3S-9001"' in prompt
+
+
+def test_synthetic_qualification_uses_shared_prompt_path(monkeypatch: pytest.MonkeyPatch) -> None:
+    prompts: list[str] = []
+
+    def fake_request(freeze: dict, prompt: str, output_format: object) -> tuple[dict, int]:
+        prompts.append(prompt)
+        return {
+            "slot_id": "G3S-9001",
+            "draft_role": "primary",
+            "query_text": "Arrange three fictional blocks in order.",
+        }, 1
+
+    monkeypatch.setattr(generator, "model_request", fake_request)
+    result = generator.qualify_synthetic()
+    assert result["verdict"] == "pass"
+    assert result["prompt_composition"] == "shared"
+    assert len(prompts) == 24
+    assert all(
+        "one atomic user request from supplied slot metadata" in prompt for prompt in prompts
+    )
 
 
 def test_validator_rejects_split_and_unapproved_provenance(tmp_path: Path) -> None:
@@ -190,6 +237,25 @@ def test_approval_binds_exact_fingerprint() -> None:
     entry = reviewer.approval_entry(record, "approve", "synthetic_pass", "a" * 64, "b" * 64)
     assert entry["candidate_fingerprint"] == reviewer.fingerprint(record)
     assert entry["decision"] == "approve"
+    reviewer.verify_approval(record, entry)
+    with pytest.raises(ValueError, match="approval_fingerprint_mismatch"):
+        reviewer.verify_approval({**record, "query_text": "changed"}, entry)
+
+
+@pytest.mark.parametrize(
+    "field",
+    ["policy_sha256", "slot_sha256", "prompt_sha256", "output_schema_sha256", "generator_sha256"],
+)
+def test_freeze_hash_mismatch_fails_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, field: str
+) -> None:
+    freeze = json.loads(FREEZE.read_text())
+    freeze[field] = "0" * 64
+    path = tmp_path / "freeze.json"
+    path.write_text(json.dumps(freeze))
+    monkeypatch.setattr(common, "FREEZE", path)
+    with pytest.raises(common.PrivateAuthoringError, match=f"freeze_hash_mismatch:{field}"):
+        common.load_freeze()
 
 
 def test_gate3a_has_no_real_private_artifacts() -> None:
