@@ -1,0 +1,37 @@
+{
+  "canonical_generation_executed": false,
+  "endpoint": "http://127.0.0.1:11434",
+  "generator_sha256": "245eb7b0d5b5b6e356d2bf001c50ebd21f0db613af1d6149311be5215153cfa5",
+  "model": "qwen3:8b",
+  "model_digest": "sha256-a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f",
+  "output_schema_sha256": "18d4a79f57af457ddd7ad7bd2530a5b89907ca15203cf8072259d151409a88bd",
+  "parameter_hash": "04620824b95ab64862a2f1ccbde3d5e4067fcfacf703f4cec9c9f4290605c06b",
+  "parameters": {
+    "format": "json",
+    "hidethinking": true,
+    "nowordwrap": true,
+    "num_predict": 96,
+    "seed": 17,
+    "stream": false,
+    "temperature": 0.35,
+    "think": false,
+    "top_p": 0.9
+  },
+  "policy_sha256": "e23904c95a7b0390574862a74d3c450857104fdc6f19ded1c2dc3c017bf1f113",
+  "private_root": "var/eval_sources/custom",
+  "prompt_sha256": "31bbe90d525408371e44dd081c80c671b1f4eb985abd2051342995b29f2b6092",
+  "qualification_verdict": "pass",
+  "retry_policy": {
+    "allowed": [
+      "loopback_transport_failure",
+      "malformed_json",
+      "schema_violation",
+      "empty_query_text",
+      "format_safety_failure"
+    ],
+    "max_attempts": 2
+  },
+  "runtime": "ollama 0.24.0",
+  "schema_version": 1,
+  "slot_sha256": "dc3036227e268914ea049eae49db8c5eba0077dbee9dadb07aa880bfa413e4fa"
+}

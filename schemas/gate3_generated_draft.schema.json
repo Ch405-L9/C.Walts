@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Gate 3 generated private draft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["slot_id", "draft_role", "query_text"],
+  "properties": {
+    "slot_id": {"type": "string", "pattern": "^G3S-[0-9]{4}$"},
+    "draft_role": {"enum": ["primary", "replacement"]},
+    "query_text": {"type": "string", "minLength": 1, "maxLength": 4000}
+  }
+}

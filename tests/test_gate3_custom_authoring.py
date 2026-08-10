@@ -1,0 +1,201 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import subprocess
+from pathlib import Path
+
+import jsonschema
+import pytest
+import yaml
+
+from scripts import gate3_private_common as common
+from scripts import generate_gate3_private_candidates as generator
+from scripts import review_gate3_private_candidates as reviewer
+from scripts import verify_gate3_private_candidates as validator
+
+ROOT = Path(__file__).resolve().parents[1]
+POLICY = ROOT / "config/gate3_custom_authoring_policy.yaml"
+SLOTS = ROOT / "config/gate3_custom_authoring_slots.yaml"
+PROMPT = ROOT / "config/gate3_custom_generation_prompt.txt"
+OUTPUT_SCHEMA = ROOT / "schemas/gate3_generated_draft.schema.json"
+FREEZE = ROOT / "config/gate3_generation_freeze.json"
+
+
+def load_policy() -> dict:
+    return yaml.safe_load(POLICY.read_text())
+
+
+def test_a6_privacy_and_allocation_contract() -> None:
+    policy = load_policy()
+    assert policy["all_custom_private_from_creation"] is True
+    assert policy["allocation_implied_future_holdout_count"] == 135
+    assert sum(policy["classes"].values()) == 285
+    assert policy["owner_approval_required"] is True
+    assert policy["privacy"]["split_assignment_permitted"] is False
+
+
+def test_custom_namespace_version_and_ids() -> None:
+    policy = load_policy()
+    assert policy["source_dataset"] == "custom"
+    assert policy["source_version"] == "cwalts-custom-v0.4-gate3-v1"
+    assert policy["id_namespace"] == r"^CWQ-CUS-[0-9]{4}$"
+
+
+def test_slot_manifest_exact_and_metadata_only() -> None:
+    payload = yaml.safe_load(SLOTS.read_text())
+    assert payload["slot_count"] == 285
+    assert len(payload["slots"]) == 285
+    assert payload["query_text_included"] is False
+    assert [slot["slot_id"] for slot in payload["slots"]] == [f"G3S-{i:04d}" for i in range(1, 286)]
+    assert all(slot["template_family_id"] and slot["group_family"] for slot in payload["slots"])
+
+
+def test_matrix_and_taxonomy_totals_are_frozen() -> None:
+    policy = load_policy()
+    assert sum(policy["supported_task_matrix"].values()) == 150
+    assert sum(policy["near_unsupported_families"].values()) == 45
+    assert sum(policy["far_ood_families"].values()) == 15
+    assert sum(policy["ambiguous_families"].values()) == 75
+
+
+def test_policy_schema_and_identity_hashes() -> None:
+    policy = load_policy()
+    schema = json.loads((ROOT / "schemas/gate3_custom_authoring_policy.schema.json").read_text())
+    jsonschema.validate(policy, schema)
+    assert policy["slot_manifest_sha256"] == hashlib.sha256(SLOTS.read_bytes()).hexdigest()
+    assert policy["prompt_sha256"] == hashlib.sha256(PROMPT.read_bytes()).hexdigest()
+    assert policy["output_schema_sha256"] == hashlib.sha256(OUTPUT_SCHEMA.read_bytes()).hexdigest()
+
+
+def test_freeze_and_model_identity() -> None:
+    freeze = json.loads(FREEZE.read_text())
+    assert freeze["model"] == "qwen3:8b"
+    assert freeze["model_digest"].startswith("sha256-")
+    assert freeze["endpoint"] == "http://127.0.0.1:11434"
+    assert common.load_freeze()["qualification_verdict"] == "pass"
+
+
+def test_loopback_guard_rejects_remote_endpoint() -> None:
+    with pytest.raises(common.PrivateAuthoringError, match="non_loopback_generation_endpoint"):
+        common.require_loopback("https://example.invalid:443")
+
+
+def test_private_path_guard_rejects_escape_and_accepts_private_path(tmp_path: Path) -> None:
+    original = common.PRIVATE_ROOT
+    common.PRIVATE_ROOT = tmp_path.resolve()
+    try:
+        assert common.resolve_private_path("drafts/synthetic.json").parent == tmp_path / "drafts"
+        with pytest.raises(common.PrivateAuthoringError):
+            common.resolve_private_path("../outside.json")
+        with pytest.raises(common.PrivateAuthoringError):
+            common.resolve_private_path("/absolute_escape.json")
+    finally:
+        common.PRIVATE_ROOT = original
+
+
+def test_generator_has_no_retrieval_or_private_public_manifest_dependency() -> None:
+    source = (ROOT / "scripts/generate_gate3_private_candidates.py").read_text()
+    for forbidden in (
+        "Retriever",
+        "VectorStore",
+        "LexicalIndex",
+        "OllamaEmbedder",
+        "verify_eval_split",
+        "gate2_public_candidates.json",
+    ):
+        assert forbidden not in source
+
+
+def test_generator_has_no_cloud_sdk_or_remote_endpoint() -> None:
+    source = (ROOT / "scripts/generate_gate3_private_candidates.py").read_text()
+    for forbidden in ("openai", "anthropic", "google.generativeai", "perplexity", "huggingface.co"):
+        assert forbidden not in source.lower()
+    assert "127.0.0.1:11434" not in source
+
+
+def test_real_generation_is_refused_in_gate3a() -> None:
+    env = os.environ | {
+        "NFR_ALLOW_PRIVATE_EVAL_GENERATION": "true",
+        "NFR_GATE3_B_AUTHORIZED": "true",
+    }
+    result = subprocess.run(  # noqa: S603
+        [
+            str(ROOT / ".venv/bin/python"),
+            "scripts/generate_gate3_private_candidates.py",
+            "--generate",
+            "--confirm-gate3-private-generation",
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "canonical_generation_not_authorized_in_gate3a" in result.stdout
+    assert "query_text" not in result.stdout
+
+
+def test_synthetic_valid_draft_and_rejections() -> None:
+    valid = {
+        "slot_id": "G3S-0001",
+        "draft_role": "primary",
+        "query_text": "Arrange three fictional blocks in order.",
+    }
+    generator.validate_draft(valid)
+    for bad in (
+        {**valid, "answer": "leak"},
+        {**valid, "query_text": "Run python ../secret"},
+        {**valid, "query_text": "Use qrel score 1"},
+    ):
+        with pytest.raises((common.PrivateAuthoringError, jsonschema.ValidationError)):
+            generator.validate_draft(bad)
+
+
+def test_validator_rejects_split_and_unapproved_provenance(tmp_path: Path) -> None:
+    original = common.PRIVATE_ROOT
+    common.PRIVATE_ROOT = tmp_path.resolve()
+    validator.PRIVATE_ROOT = tmp_path.resolve()
+    path = tmp_path / "synthetic.json"
+    path.write_text(
+        json.dumps(
+            {
+                "records": [
+                    {
+                        "source_dataset": "custom",
+                        "split": "holdout",
+                        "provenance": {"kind": "owner_authored"},
+                    }
+                ]
+            }
+        )
+    )
+    try:
+        with pytest.raises(
+            common.PrivateAuthoringError, match="split_or_evaluation_fields_forbidden"
+        ):
+            validator.validate_manifest(path)
+    finally:
+        common.PRIVATE_ROOT = original
+
+
+def test_approval_binds_exact_fingerprint() -> None:
+    record = {
+        "slot_id": "G3S-0001",
+        "draft_role": "primary",
+        "query_text": "Synthetic fixture only.",
+    }
+    entry = reviewer.approval_entry(record, "approve", "synthetic_pass", "a" * 64, "b" * 64)
+    assert entry["candidate_fingerprint"] == reviewer.fingerprint(record)
+    assert entry["decision"] == "approve"
+
+
+def test_gate3a_has_no_real_private_artifacts() -> None:
+    assert not (ROOT / "var/eval_sources/custom/selected/gate3_custom_candidates.json").exists()
+    assert (
+        not list((ROOT / "var/eval_sources/custom").glob("**/*"))
+        if (ROOT / "var/eval_sources/custom").exists()
+        else True
+    )

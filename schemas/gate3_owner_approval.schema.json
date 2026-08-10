@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Gate 3 owner approval ledger entry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["candidate_fingerprint", "slot_id", "draft_role", "decision", "reason_code", "reviewer_role", "timestamp_utc", "policy_sha256", "freeze_sha256"],
+  "properties": {
+    "candidate_fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "slot_id": {"type": "string", "pattern": "^G3S-[0-9]{4}$"},
+    "draft_role": {"enum": ["primary", "replacement"]},
+    "decision": {"enum": ["approve", "reject", "skip"]},
+    "reason_code": {"type": "string", "minLength": 1},
+    "reviewer_role": {"type": "string", "minLength": 1},
+    "timestamp_utc": {"type": "string", "format": "date-time"},
+    "policy_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "freeze_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}

@@ -6,6 +6,11 @@
 **Scope discipline:** local/FOSS-first. No corpus, private, or holdout data leaves the machine. No cloud eval services.
 **Gate numbering:** unchanged from the committed handoff at ce4c2b3 (Gate 2 = select 315 public · Gate 3 = author 285 custom · Gate 4 = assemble/seal · Gate 5 = calibrate/holdout-once). This document is **Gate 1.2**, a stabilization pass *before* Gate 2.
 
+Gate 3-A is governed by Architecture Amendment A6: all 285 custom query texts
+are local-only private evaluation material from creation, with local-model
+generation and local owner approval only. Gate 3 remains pre-split; Gate 4
+owns formal split and sealing.
+
 ## Architecture Ordering Amendment A1 — Stage 3A
 
 Approved for the `feat/narration-generalization-v0.4` branch on 2026-08-08.

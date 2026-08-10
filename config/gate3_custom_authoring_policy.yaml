@@ -1,0 +1,117 @@
+schema_version: 1
+policy_id: gate3-custom-authoring-v1
+benchmark_version: '0.4'
+source_dataset: custom
+source_version: cwalts-custom-v0.4-gate3-v1
+id_namespace: ^CWQ-CUS-[0-9]{4}$
+id_range:
+- 1
+- 285
+all_custom_private_from_creation: true
+allocation_implied_future_holdout_count: 135
+owner_approval_required: true
+provenance:
+  direct_owner: owner_authored
+  local_model: vendor_generated_owner_approved
+generation_method: hybrid
+model:
+  name: qwen3:8b
+  digest: sha256-a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f
+  ollama_version: 0.24.0
+  endpoint: http://127.0.0.1:11434
+prompt_path: config/gate3_custom_generation_prompt.txt
+output_schema_path: schemas/gate3_generated_draft.schema.json
+generation_parameters:
+  temperature: 0.35
+  top_p: 0.9
+  seed: 17
+  num_predict: 96
+  format: json
+  stream: false
+  think: false
+  hidethinking: true
+  nowordwrap: true
+retry_policy:
+  max_attempts: 2
+  allowed:
+  - loopback_transport_failure
+  - malformed_json
+  - schema_violation
+  - empty_query_text
+  - format_safety_failure
+classes:
+  supported_in_domain: 150
+  near_domain_unsupported: 45
+  far_out_of_domain: 15
+  ambiguous_adversarial_insufficient: 75
+future_split_targets:
+  supported_in_domain:
+    calibration: 75
+    holdout: 75
+  near_domain_unsupported:
+    calibration: 0
+    holdout: 45
+  far_out_of_domain:
+    calibration: 0
+    holdout: 15
+  ambiguous_adversarial_insufficient:
+    calibration: 0
+    holdout: 75
+supported_task_matrix:
+  narration_rewrite: 35
+  preservation_heavy_rewrite: 25
+  narration_analysis: 20
+  technical_explanation: 20
+  glossary_definition: 15
+  exact_linguistic_notation: 15
+  source_inspection: 10
+  delivery_register: 10
+near_unsupported_families:
+  unsupported_translation_localization: 10
+  voice_audio_generation: 10
+  external_factual_research: 10
+  non_cwalts_content_editing: 10
+  domain_specific_advice: 5
+far_ood_families:
+  code_execution_or_debugging: 5
+  financial_legal_medical_advice: 5
+  travel_commerce_operations: 5
+ambiguous_families:
+  missing_referent: 10
+  missing_source_text: 10
+  missing_operation: 10
+  conflicting_instructions: 10
+  insufficient_factual_context: 10
+  ambiguous_entity_or_scope: 10
+  impossible_preservation: 5
+  unsupported_citation_request: 5
+  pressure_to_invent_evidence: 5
+draft_pool:
+  roles:
+  - primary
+  - replacement
+  maximum_drafts: 570
+  replacement_policy: frozen_slot replacement only
+group_policy:
+  group_id_algorithm: sha256(policy_id|slot_family|template_family|structural_family|generation_family)
+  template_fingerprint_required_for_model_output: true
+  mixed_stratum_clusters: fail
+privacy:
+  private_root: var/eval_sources/custom
+  cloud_generation_permitted: false
+  external_network_permitted: false
+  loopback_host: 127.0.0.1
+  split_assignment_permitted: false
+  performance_peek_permitted: false
+  gate2_seed_access_permitted: false
+quality:
+  atomicity_required: true
+  answer_leakage_forbidden: true
+  qrel_fields_forbidden: true
+  shell_path_injection_forbidden: true
+  no_query_text_stdout: true
+slot_manifest_path: config/gate3_custom_authoring_slots.yaml
+slot_manifest_sha256: dc3036227e268914ea049eae49db8c5eba0077dbee9dadb07aa880bfa413e4fa
+prompt_sha256: 31bbe90d525408371e44dd081c80c671b1f4eb985abd2051342995b29f2b6092
+output_schema_sha256: 18d4a79f57af457ddd7ad7bd2530a5b89907ca15203cf8072259d151409a88bd
+generation_parameter_hash: 04620824b95ab64862a2f1ccbde3d5e4067fcfacf703f4cec9c9f4290605c06b

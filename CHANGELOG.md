@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0-dev.14
+
+- Began Gate 3-A with Architecture Amendment A6, an all-285 private authoring
+  firewall, and local-only hybrid authoring controls.
+- Froze the custom allocation, metadata-only slot plan, local model/prompt/
+  schema identities, retry policy, owner approval contract, and private path
+  guards.
+- Added synthetic-only model qualification and validation tooling. No real
+  custom query, draft, split, holdout, qrels, or production mutation occurred.
+
 ## 0.4.0-dev.13
 
 - Began canonical Gate 2 with A5 public-selection policy freeze.
