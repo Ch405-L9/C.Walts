@@ -3175,3 +3175,19 @@ Stage 1 determinism, Stage 3A coverage, Stage 4 reporting/provenance, Stage 5,
 Stage 6, Stage 7 security, 43/43 smoke checks, 23/23 fresh MCP checks, and the
 complete 616-test suite passed. Gate 1.2 exit is authorized. Gate 2 has not
 begun.
+
+# Gate 2-A-R1 — Pre-selection feasibility contract correction
+
+2026-08-10: The Gate 2-A policy was valid and had already been frozen before
+selection, but review found that its feasibility evidence used record-capacity
+comparisons rather than an exact whole-base-group subset proof. No candidate had
+been selected. The policy, label maps, behaviors, quotas, and A5 decision remain
+unchanged.
+
+Corrective commit `83e9e95` adds deterministic DP over
+`(calibration_total, holdout_total)` using whole known base groups. The old
+count-only adversarial cases now fail correctly, the positive exact-subset case
+passes, and all five real source strata pass base-group feasibility. Final
+Stage 5 leakage-cluster feasibility remains pending Gate 2-B candidate
+validation. No benchmark failure, candidate manifest, split, holdout, qrels, or
+production mutation occurred.
