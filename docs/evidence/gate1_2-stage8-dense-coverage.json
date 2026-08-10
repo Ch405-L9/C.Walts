@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "0.4.0-dev.12",
+  "protocol_id": "gate1_2-stage8-dense-coverage-v1",
+  "protocol_commit": "ff7cef0ffc85a1cacf32d9a550b0d6daf8ae1804",
+  "protocol_sha256": "2b98aae8790891059012309f9668fb30b16b2e7390bbf305e98ad9b61f38cd29",
+  "search_count": 12,
+  "retrieval_k": 5,
+  "rounds": [
+    {"round": 1, "passed": true, "qualifying_group_count": 6, "primary_group_count": 4, "qualifying_support":[{"probe_id":"S8-DENSE-01","chunk_id":"001927782395aaba_21","rank":2,"source_id":"owner_examples","cw_id":"CW-030","category_id":"educational_narration"},{"probe_id":"S8-DENSE-01","chunk_id":"2ff052a2db4672f0_22","rank":5,"source_id":"owner_examples","cw_id":"CW-031","category_id":"educational_narration"},{"probe_id":"S8-DENSE-02","chunk_id":"d4ed381978ee9df0_0","rank":1,"source_id":"labphon-32-introducing-apt","cw_id":"CW-041","category_id":"stacked_prepositional_qualifiers"},{"probe_id":"S8-DENSE-03","chunk_id":"80d2e5225b05e9e1_0","rank":1,"source_id":"labphon-29-new-methods","cw_id":"CW-042","category_id":"embedded_conditional_clause"},{"probe_id":"S8-DENSE-03","chunk_id":"143b0e980d418cea_32","rank":5,"source_id":"owner_examples","cw_id":"CW-039","category_id":"technical_explanation"},{"probe_id":"S8-DENSE-04","chunk_id":"3803c58ef7081395_0","rank":3,"source_id":"pmc12468771-l2-prosody-perception","cw_id":"CW-043","category_id":"passive_qualifying_structure"}],"primary_qualifying_groups":["CW-030","CW-041","CW-042","CW-043"]},
+    {"round": 2, "passed": true, "qualifying_group_count": 6, "primary_group_count": 4, "qualifying_support":[{"probe_id":"S8-DENSE-01","chunk_id":"001927782395aaba_21","rank":2,"source_id":"owner_examples","cw_id":"CW-030","category_id":"educational_narration"},{"probe_id":"S8-DENSE-01","chunk_id":"2ff052a2db4672f0_22","rank":5,"source_id":"owner_examples","cw_id":"CW-031","category_id":"educational_narration"},{"probe_id":"S8-DENSE-02","chunk_id":"d4ed381978ee9df0_0","rank":1,"source_id":"labphon-32-introducing-apt","cw_id":"CW-041","category_id":"stacked_prepositional_qualifiers"},{"probe_id":"S8-DENSE-03","chunk_id":"80d2e5225b05e9e1_0","rank":1,"source_id":"labphon-29-new-methods","cw_id":"CW-042","category_id":"embedded_conditional_clause"},{"probe_id":"S8-DENSE-03","chunk_id":"143b0e980d418cea_32","rank":5,"source_id":"owner_examples","cw_id":"CW-039","category_id":"technical_explanation"},{"probe_id":"S8-DENSE-04","chunk_id":"3803c58ef7081395_0","rank":3,"source_id":"pmc12468771-l2-prosody-perception","cw_id":"CW-043","category_id":"passive_qualifying_structure"}],"primary_qualifying_groups":["CW-030","CW-041","CW-042","CW-043"]},
+    {"round": 3, "passed": true, "qualifying_group_count": 6, "primary_group_count": 4, "qualifying_support":[{"probe_id":"S8-DENSE-01","chunk_id":"001927782395aaba_21","rank":2,"source_id":"owner_examples","cw_id":"CW-030","category_id":"educational_narration"},{"probe_id":"S8-DENSE-01","chunk_id":"2ff052a2db4672f0_22","rank":5,"source_id":"owner_examples","cw_id":"CW-031","category_id":"educational_narration"},{"probe_id":"S8-DENSE-02","chunk_id":"d4ed381978ee9df0_0","rank":1,"source_id":"labphon-32-introducing-apt","cw_id":"CW-041","category_id":"stacked_prepositional_qualifiers"},{"probe_id":"S8-DENSE-03","chunk_id":"80d2e5225b05e9e1_0","rank":1,"source_id":"labphon-29-new-methods","cw_id":"CW-042","category_id":"embedded_conditional_clause"},{"probe_id":"S8-DENSE-03","chunk_id":"143b0e980d418cea_32","rank":5,"source_id":"owner_examples","cw_id":"CW-039","category_id":"technical_explanation"},{"probe_id":"S8-DENSE-04","chunk_id":"3803c58ef7081395_0","rank":3,"source_id":"pmc12468771-l2-prosody-perception","cw_id":"CW-043","category_id":"passive_qualifying_structure"}],"primary_qualifying_groups":["CW-030","CW-041","CW-042","CW-043"]}
+  ],
+  "qualifying_independence_groups": 6,
+  "independence_group_registry": [
+    "corpus/raw/owner_examples/approved_before_after_pairs_v2.md::pair cw-030",
+    "corpus/raw/owner_examples/approved_before_after_pairs_v2.md::pair cw-031",
+    "corpus/raw/owner_examples/approved_before_after_pairs_v2.md::pair cw-039",
+    "corpus/raw/stage2_public_examples/labphon-29-new-methods/approved_examples.md::cw-042",
+    "corpus/raw/stage2_public_examples/labphon-32-introducing-apt/approved_examples.md::cw-041",
+    "corpus/raw/stage2_public_examples/pmc12468771-l2-prosody-perception/approved_examples.md::cw-043"
+  ],
+  "style_rule_only_support": false,
+  "evaluation_case_count": 0,
+  "tuning_performed": false,
+  "corpus_mutation": false,
+  "retrieval_configuration_mutation": false,
+  "production_mutation": false,
+  "verdict": "closure_proven"
+}

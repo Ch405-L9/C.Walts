@@ -23,20 +23,29 @@ Status vocabulary:
 
 ```yaml
 id: CW-LIM-009-DENSE-COVERAGE
-status: deferred
+status: resolved
 severity: medium
 blocks_gate2: false
 blocks_threshold_calibration: true
 blocks_release_candidate: true
 blocking_scopes:
-  - gate2_authorization
-  - calibration
-  - rc_creation
-  - release_promotion
+resolved_at: 0.4.0-dev.12
+resolved_by: docs/evidence/gate1_2-stage8-dense-coverage.json
+blocking_scopes: []
 ```
 
 Stage 6 explicit `blocking_scopes` are authoritative for current enforcement;
 the historical boolean fields above remain unchanged for audit compatibility.
+
+### Stage 8 closure evidence
+
+The frozen Stage 8 diagnostic protocol ran twelve read-only searches across four
+predefined structural probes and three complete rounds. Every probe in every
+round returned qualifying accepted `approved_example` support. Each round
+returned multiple independent groups and multiple distinct primary groups. The
+diagnostic evidence is recorded in
+`docs/evidence/gate1_2-stage8-dense-coverage.json`. No corpus, retrieval
+configuration, or production index was changed.
 
 ### Statements of record
 
