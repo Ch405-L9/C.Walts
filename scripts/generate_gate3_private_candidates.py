@@ -315,7 +315,10 @@ def _draft_metadata(
 
 
 def generate_draft_pool() -> dict[str, Any]:
-    from scripts.verify_eval_split import canonical_text
+    try:
+        from scripts.verify_eval_split import canonical_text
+    except ModuleNotFoundError:  # pragma: no cover - direct script execution
+        from verify_eval_split import canonical_text
 
     freeze = load_freeze()
     if not generation_authorized():
