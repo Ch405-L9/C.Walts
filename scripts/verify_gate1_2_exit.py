@@ -8,6 +8,7 @@ import hashlib
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -90,10 +91,70 @@ def evaluate_round(results: list[list[dict]]) -> dict:
     }
 
 
+def run_diagnostic() -> dict[str, Any]:
+    """Run the frozen 4x3 protocol exactly once against the live read-only store."""
+    from natural_flow_rag.embeddings import OllamaEmbedder
+    from natural_flow_rag.lexical_search import LexicalIndex
+    from natural_flow_rag.retrieval import Retriever
+    from natural_flow_rag.settings import load_settings
+    from natural_flow_rag.vector_store import VectorStore
+
+    protocol = load_protocol()
+    taxonomy = load_taxonomy()
+    settings = load_settings()
+    store = VectorStore(settings)
+    lexical = LexicalIndex(ROOT / "var" / "bm25" / "index.json")
+    retriever = Retriever(settings, store, OllamaEmbedder(settings.embedding), lexical)
+    rounds: list[dict[str, Any]] = []
+    for round_number in range(1, int(protocol["rounds"]) + 1):
+        probe_reports: list[list[dict]] = []
+        for probe in protocol["probes"]:
+            result = retriever.search(probe["query"], k=int(protocol["retrieval_k"]))
+            classified = [
+                classify_result(
+                    {
+                        "chunk_id": chunk.chunk_id,
+                        "rank": chunk.rank,
+                        "metadata": chunk.metadata,
+                        "is_neighbor": chunk.is_neighbor,
+                        "evaluation_case": chunk.metadata.get("doc_type") == "evaluation_case",
+                    },
+                    taxonomy,
+                )
+                for chunk in result.chunks
+            ]
+            probe_reports.append(classified)
+        round_report = evaluate_round(probe_reports)
+        round_report["round"] = round_number
+        round_report["probes"] = [
+            {
+                "probe_id": protocol["probes"][index]["id"],
+                "results": values,
+                "qualifying_group_count": len({
+                    value["independence_group"]
+                    for value in values
+                    if value["qualifying"]
+                }),
+            }
+            for index, values in enumerate(probe_reports)
+        ]
+        rounds.append(round_report)
+    return {
+        "protocol_id": protocol["protocol_id"],
+        "protocol_sha256": sha256(PROTOCOL),
+        "search_count": len(rounds) * len(protocol["probes"]),
+        "rounds": rounds,
+        "closure_proven": all(round_report["passed"] for round_report in rounds),
+        "tuning_performed": False,
+        "mutation_performed": False,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--verify-protocol", action="store_true")
     parser.add_argument("--diagnostic-results", type=Path)
+    parser.add_argument("--run-diagnostic", action="store_true")
     args = parser.parse_args()
     try:
         protocol = load_protocol()
@@ -102,6 +163,9 @@ def main() -> int:
             "protocol_id": protocol["protocol_id"],
             "verified": True,
         }
+        if args.run_diagnostic:
+            print(json.dumps(run_diagnostic(), indent=2))
+            return 0
         if args.diagnostic_results:
             payload = json.loads(args.diagnostic_results.read_text(encoding="utf-8"))
             report["rounds"] = payload["rounds"]

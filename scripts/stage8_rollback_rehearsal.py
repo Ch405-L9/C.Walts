@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import shutil
 import sys
@@ -38,6 +39,17 @@ def id_sha(ids: set[str]) -> str:
     return hashlib.sha256((json.dumps(sorted(ids), indent=2) + "\n").encode()).hexdigest()
 
 
+def semantic_digest(records: list[dict]) -> str:
+    spec = importlib.util.spec_from_file_location(
+        "stage2_activation", ROOT / "scripts" / "activate_stage2.py"
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load accepted semantic-digest helper")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.semantic_digest(records)
+
+
 def copy_snapshot(snapshot: Path, root: Path) -> tuple[Path, Path]:
     chroma = root / "restored" / "chroma"
     bm25 = root / "restored" / "bm25" / "index.json"
@@ -63,7 +75,7 @@ def rehearse(snapshot: Path, keep: bool = False) -> dict[str, object]:
         settings = _settings(root, chroma)
         store = VectorStore(settings)
         collection = store.get()
-        records = collection.get(include=["metadatas"])
+        records = collection.get(include=["documents", "metadatas"])
         ids = set(records["ids"])
         bm25 = LexicalIndex(bm25_path)
         bm25.load()
@@ -79,6 +91,12 @@ def rehearse(snapshot: Path, keep: bool = False) -> dict[str, object]:
             if (m or {}).get("doc_type") == "evaluation_case"
         )
         feedback = store.client.get_collection(FEEDBACK).count()
+        semantic_records = [
+            {"id": cid, "text": text, "metadata": metadata or {}}
+            for cid, text, metadata in zip(
+                records["ids"], records["documents"], records["metadatas"], strict=False
+            )
+        ]
         report = {
             "snapshot": str(snapshot.relative_to(ROOT)),
             "root": str(root.relative_to(ROOT)),
@@ -87,7 +105,7 @@ def rehearse(snapshot: Path, keep: bool = False) -> dict[str, object]:
             "bm25_count": len(bm25_ids),
             "exact_parity": ids == bm25_ids,
             "id_sha256": id_sha(ids),
-            "semantic_digest": None,
+            "semantic_digest": semantic_digest(semantic_records),
             "evaluation_case_count": forbidden,
             "dense_hits": len(dense.get("ids", [[]])[0]),
             "lexical_hits": lexical_hits,
@@ -104,6 +122,7 @@ def rehearse(snapshot: Path, keep: bool = False) -> dict[str, object]:
             report["bm25_count"] == EXPECTED_COUNT,
             report["exact_parity"],
             report["id_sha256"] == EXPECTED_ID_SHA,
+            report["semantic_digest"] == EXPECTED_SEMANTIC,
             report["evaluation_case_count"] == 0,
             report["dense_hits"] > 0,
             report["lexical_hits"] > 0,
