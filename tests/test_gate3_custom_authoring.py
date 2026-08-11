@@ -493,3 +493,105 @@ def test_shadow_shape_is_noncanonical() -> None:
     shadow_ids = [f"G3S-{9000 + i:04d}" for i in range(1, 286)]
     assert len(shadow_ids) == len(set(shadow_ids)) == 285
     assert not any(item in {f"G3S-{i:04d}" for i in range(1, 286)} for item in shadow_ids)
+
+
+def _synthetic_runner_inputs() -> tuple[dict, dict]:
+    policy = load_policy()
+    slot = yaml.safe_load(SLOTS.read_text())["slots"][0].copy()
+    slot["slot_id"] = "G3S-9001"
+    return common.load_freeze(), {"policy": policy, "slot": slot}
+
+
+def test_retry_classifier_has_explicit_retry_contract() -> None:
+    for error in (
+        common.PrivateAuthoringError("internal_benchmark_leakage"),
+        common.PrivateAuthoringError("obvious_compound_request"),
+        json.JSONDecodeError("bad", "{}", 0),
+        jsonschema.ValidationError("bad"),
+        OSError("loopback"),
+    ):
+        _, retryable = generator.classify_generation_error(error)
+        assert retryable is True
+    for error in (
+        common.PrivateAuthoringError("generation_endpoint_mismatch"),
+        common.PrivateAuthoringError("private_path_escape"),
+    ):
+        _, retryable = generator.classify_generation_error(error)
+        assert retryable is False
+
+
+def test_shared_attempt_runner_succeeds_on_third_attempt(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    freeze, values = _synthetic_runner_inputs()
+    policy, slot = values["policy"], values["slot"]
+    seeds: list[int] = []
+
+    def fake_request(freeze_arg, prompt, output_format, request_seed):
+        seeds.append(request_seed)
+        if len(seeds) == 1:
+            return {
+                "slot_id": slot["slot_id"],
+                "draft_role": "primary",
+                "query_text": "Use qrel.",
+            }, 1
+        if len(seeds) == 2:
+            raise json.JSONDecodeError("bad", "{}", 0)
+        return {
+            "slot_id": slot["slot_id"],
+            "draft_role": "primary",
+            "query_text": "Describe one fictional operation.",
+        }, 1
+
+    monkeypatch.setattr(generator, "model_request", fake_request)
+    result = generator.generate_one_slot_role(freeze, policy, slot, "primary")
+    assert result.attempts_used == 3
+    assert result.retries_used == 2
+    assert len(set(seeds)) == 3
+    assert result.intermediate_error_codes == ("internal_benchmark_leakage", "malformed_json")
+
+
+def test_shared_attempt_runner_stops_after_three_failures(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    freeze, values = _synthetic_runner_inputs()
+    policy, slot = values["policy"], values["slot"]
+    calls: list[int] = []
+
+    def fake_request(freeze_arg, prompt, output_format, request_seed):
+        calls.append(request_seed)
+        return {"slot_id": slot["slot_id"], "draft_role": "primary", "query_text": "Use qrel."}, 1
+
+    monkeypatch.setattr(generator, "model_request", fake_request)
+    with pytest.raises(generator.GenerationTerminalError) as caught:
+        generator.generate_one_slot_role(freeze, policy, slot, "primary")
+    error = caught.value
+    assert len(calls) == 3
+    assert error.slot_id == "G3S-9001"
+    assert error.role == "primary"
+    assert error.attempt == 3
+    assert error.seed == calls[-1]
+    assert error.stable_code == "internal_benchmark_leakage"
+
+
+def test_non_retryable_generation_precondition_stops_immediately(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    freeze, values = _synthetic_runner_inputs()
+    calls: list[int] = []
+
+    def fake_request(freeze_arg, prompt, output_format, request_seed):
+        calls.append(request_seed)
+        raise common.PrivateAuthoringError("generation_endpoint_mismatch")
+
+    monkeypatch.setattr(generator, "model_request", fake_request)
+    with pytest.raises(common.PrivateAuthoringError, match="generation_endpoint_mismatch"):
+        generator.generate_one_slot_role(freeze, values["policy"], values["slot"], "primary")
+    assert len(calls) == 1
+
+
+def test_shadow_and_canonical_use_same_attempt_runner() -> None:
+    source = (ROOT / "scripts/generate_gate3_private_candidates.py").read_text()
+    assert source.count("generate_one_slot_role(") >= 3
+    assert "def classify_generation_error" in source
+    assert "locals().get" not in source

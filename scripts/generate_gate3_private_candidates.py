@@ -7,6 +7,7 @@ import json
 import os
 import re
 import urllib.request
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
 
@@ -174,12 +175,97 @@ def _stable_failure_code(error: BaseException) -> str:
     return type(error).__name__
 
 
+_RETRYABLE_PRIVATE_CODES = frozenset(
+    {
+        "control_character_in_query_text",
+        "internal_benchmark_leakage",
+        "obvious_compound_request",
+        "returned_slot_role_mismatch",
+    }
+)
+
+
+@dataclass(frozen=True)
+class AttemptRunResult:
+    value: dict[str, Any]
+    attempts_used: int
+    retries_used: int
+    final_seed: int
+    intermediate_error_codes: tuple[str, ...]
+
+
+class GenerationTerminalError(PrivateAuthoringError):
+    """A sanitized terminal result after the frozen attempt ceiling."""
+
+    def __init__(self, stable_code: str, slot_id: str, role: str, attempt: int, seed: int):
+        super().__init__(f"draft_generation_failed:{stable_code}")
+        self.stable_code = stable_code
+        self.slot_id = slot_id
+        self.role = role
+        self.attempt = attempt
+        self.seed = seed
+
+
+def classify_generation_error(error: BaseException) -> tuple[str, bool]:
+    """Classify one model-response failure under the frozen retry contract."""
+    code = _stable_failure_code(error)
+    if isinstance(error, PrivateAuthoringError):
+        return code, code in _RETRYABLE_PRIVATE_CODES
+    if isinstance(error, jsonschema.ValidationError):
+        return "schema_violation", True
+    if isinstance(error, json.JSONDecodeError):
+        return "malformed_json", True
+    if isinstance(error, (OSError, TimeoutError)):
+        return "loopback_transport_failure", True
+    if isinstance(error, (ValueError, TypeError)):
+        return "malformed_response", True
+    return code, False
+
+
+def generate_one_slot_role(
+    freeze: dict[str, Any],
+    policy: dict[str, Any],
+    slot: dict[str, Any],
+    role: str,
+) -> AttemptRunResult:
+    """Run the sole retry state machine shared by shadow and canonical modes."""
+    prompt = build_generation_prompt(load_base_prompt(), slot, role)
+    intermediate_errors: list[str] = []
+    max_attempts = int(policy["retry_policy"]["max_attempts"])
+    for attempt in range(1, max_attempts + 1):
+        request_seed = derive_request_seed(
+            policy["policy_id"], slot["slot_id"], role, attempt,
+            policy["seed_strategy"]["base_seed"],
+        )
+        try:
+            value, _ = model_request(freeze, prompt, "json", request_seed)
+            if value.get("slot_id") != slot["slot_id"] or value.get("draft_role") != role:
+                raise PrivateAuthoringError("returned_slot_role_mismatch")
+            validate_draft(value)
+            return AttemptRunResult(
+                value=value,
+                attempts_used=attempt,
+                retries_used=attempt - 1,
+                final_seed=request_seed,
+                intermediate_error_codes=tuple(intermediate_errors),
+            )
+        except BaseException as error:
+            stable_code, retryable = classify_generation_error(error)
+            if not retryable:
+                raise
+            intermediate_errors.append(stable_code)
+            if attempt == max_attempts:
+                raise GenerationTerminalError(
+                    stable_code, slot["slot_id"], role, attempt, request_seed
+                ) from error
+    raise PrivateAuthoringError("retry_state_machine_unreachable")
+
+
 def qualify_synthetic() -> dict[str, Any]:
     """Qualify the exact v3 stack on all 285 slot shapes x two roles."""
     freeze = load_freeze()
     require_loopback(freeze["endpoint"])
     slots = yaml.safe_load(SLOTS.read_text(encoding="utf-8"))["slots"]
-    schema = json.loads(DRAFT_SCHEMA.read_text(encoding="utf-8"))
     metrics = {
         "cases_attempted": len(slots) * 2,
         "transport_success": 0,
@@ -194,6 +280,7 @@ def qualify_synthetic() -> dict[str, Any]:
     }
     failures: list[dict[str, str]] = []
     intermediate_errors: dict[str, int] = {}
+    policy = yaml.safe_load(POLICY.read_text(encoding="utf-8"))
     for index, slot in enumerate(slots, start=1):
         for role in ("primary", "replacement"):
             shadow_slot = dict(slot)
@@ -202,43 +289,23 @@ def qualify_synthetic() -> dict[str, Any]:
                 **shadow_slot,
                 "synthetic_only": True,
             }
-            prompt = build_generation_prompt(load_base_prompt(), metadata, role)
-            passed = False
-            for attempt in range(1, 4):
-                request_seed = derive_request_seed(
-                    yaml.safe_load(POLICY.read_text(encoding="utf-8"))["policy_id"],
-                    metadata["slot_id"], role, attempt
+            try:
+                result = generate_one_slot_role(freeze, policy, metadata, role)
+                metrics["transport_success"] += result.attempts_used
+                metrics["json_parse_pass"] += result.attempts_used
+                metrics["schema_pass"] += result.attempts_used
+                metrics["atomicity_pass"] += 1
+                metrics["successful_cases"] += 1
+                metrics["retry_count"] += result.retries_used
+                for code in result.intermediate_error_codes:
+                    intermediate_errors[code] = intermediate_errors.get(code, 0) + 1
+            except GenerationTerminalError as exc:
+                intermediate_errors[exc.stable_code] = (
+                    intermediate_errors.get(exc.stable_code, 0) + 1
                 )
-                try:
-                    value, _ = model_request(freeze, prompt, "json", request_seed)
-                    metrics["transport_success"] += 1
-                    metrics["json_parse_pass"] += 1
-                    jsonschema.validate(value, schema)
-                    metrics["schema_pass"] += 1
-                    if value["slot_id"] != metadata["slot_id"] or value["draft_role"] != role:
-                        raise PrivateAuthoringError("synthetic_slot_role_mismatch")
-                    validate_draft(value)
-                    metrics["atomicity_pass"] += 1
-                    metrics["successful_cases"] += 1
-                    passed = True
-                    break
-                except jsonschema.ValidationError as exc:
-                    instance = getattr(exc, "instance", None)
-                    if isinstance(instance, dict) and set(instance) - {
-                        "slot_id", "draft_role", "query_text"
-                    }:
-                        metrics["extra_field_failures"] += 1
-                except PrivateAuthoringError as exc:
-                    if str(exc).startswith("internal_benchmark_leakage"):
-                        metrics["internal_leakage_failures"] += 1
-                    elif str(exc) == "synthetic_slot_role_mismatch":
-                        metrics["inert_text_safety_failures"] += 1
-                except (OSError, ValueError, TypeError):
-                    pass
-                if attempt == 1:
-                    metrics["retry_count"] += 1
-            if not passed:
-                code = "qualification_failure"
+                failures.append({"fixture_id": metadata["slot_id"], "draft_role": role})
+            except BaseException as exc:
+                code, _ = classify_generation_error(exc)
                 intermediate_errors[code] = intermediate_errors.get(code, 0) + 1
                 failures.append({"fixture_id": metadata["slot_id"], "draft_role": role})
     if failures or metrics["successful_cases"] != metrics["cases_attempted"]:
@@ -347,45 +414,27 @@ def generate_draft_pool() -> dict[str, Any]:
     current_role: str | None = None
     current_attempt: int | None = None
     current_seed: int | None = None
+    terminal_error_code: str | None = None
     try:
         for slot in slots:
             for role in ("primary", "replacement"):
                 current_slot_id = slot["slot_id"]
                 current_role = role
-                prompt = build_generation_prompt(load_base_prompt(), slot, role)
-                accepted = None
-                last_error_code = None
-                for attempt in range(1, 4):
-                    current_attempt = attempt
-                    current_seed = derive_request_seed(
-                        policy["policy_id"], slot["slot_id"], role, attempt,
-                        policy["seed_strategy"]["base_seed"],
-                    )
-                    attempts += 1
-                    try:
-                        value, _ = model_request(freeze, prompt, "json", current_seed)
-                        validate_draft(value)
-                        if value["slot_id"] != slot["slot_id"] or value["draft_role"] != role:
-                            raise PrivateAuthoringError("returned_slot_role_mismatch")
-                        accepted = _draft_metadata(
-                            slot,
-                            role,
-                            value["query_text"],
-                            freeze_sha,
-                            policy_sha,
-                            freeze["model"],
-                            freeze["model_digest"],
-                            freeze.get("model_tag_digest"),
-                        )
-                        break
-                    except (OSError, ValueError, TypeError, jsonschema.ValidationError) as exc:
-                        last_error_code = _stable_failure_code(exc)
-                        if attempt == 1:
-                            retries += 1
-                        if attempt == 3:
-                            raise PrivateAuthoringError(
-                                f"draft_generation_failed:{last_error_code}"
-                            ) from exc
+                result = generate_one_slot_role(freeze, policy, slot, role)
+                attempts += result.attempts_used
+                retries += result.retries_used
+                current_attempt = result.attempts_used
+                current_seed = result.final_seed
+                accepted = _draft_metadata(
+                    slot,
+                    role,
+                    result.value["query_text"],
+                    freeze_sha,
+                    policy_sha,
+                    freeze["model"],
+                    freeze["model_digest"],
+                    freeze.get("model_tag_digest"),
+                )
                 if accepted is None:
                     raise PrivateAuthoringError("draft_not_accepted")
                 records.append(accepted)
@@ -474,6 +523,14 @@ def generate_draft_pool() -> dict[str, Any]:
             "query_text_printed": False,
         }
     except BaseException as exc:
+        if isinstance(exc, GenerationTerminalError):
+            current_slot_id = exc.slot_id
+            current_role = exc.role
+            current_attempt = exc.attempt
+            current_seed = exc.seed
+            terminal_error_code = exc.stable_code
+        else:
+            terminal_error_code, _ = classify_generation_error(exc)
         failure_path = resolve_private_path(FAILURE_AUDIT_RELATIVE)
         failure = {
             "schema_version": 1,
@@ -491,7 +548,7 @@ def generate_draft_pool() -> dict[str, Any]:
             "model_blob_digest": freeze.get("model_blob_digest", freeze.get("model_digest")),
             "timestamp": datetime.now(UTC).isoformat(),
             "error_category": type(exc).__name__,
-            "error_code": locals().get("last_error_code") or _stable_failure_code(exc),
+            "error_code": terminal_error_code,
             "raw_response_recorded": False,
             "query_text_recorded": False,
         }
