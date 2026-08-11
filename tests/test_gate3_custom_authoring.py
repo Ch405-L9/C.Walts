@@ -324,3 +324,95 @@ def test_draft_pool_paths_are_fixed_and_private() -> None:
     assert common.POOL_RELATIVE.as_posix() == "drafts/gate3_private_draft_pool.json"
     assert common.SEAL_RELATIVE.as_posix() == "drafts/gate3_private_draft_pool.seal.json"
     assert common.CONFLICT_RELATIVE.as_posix().startswith("audit/")
+
+
+def _synthetic_draft_record() -> tuple[dict, dict, dict, str]:
+    policy = load_policy()
+    slots = yaml.safe_load(SLOTS.read_text())["slots"]
+    slot = slots[0]
+    freeze = common.load_freeze()
+    freeze_sha = common.file_sha256(FREEZE)
+    record = generator._draft_metadata(
+        slot,
+        "primary",
+        "Explain this Python configuration fragment without executing it.",
+        freeze_sha,
+        common.file_sha256(POLICY),
+        freeze["model"],
+        freeze["model_digest"],
+    )
+    return record, slot, policy, freeze_sha
+
+
+def test_provenance_fields_are_separate_and_rebindable() -> None:
+    record, slot, policy, freeze_sha = _synthetic_draft_record()
+    assert record["generation_model"] == "qwen3:8b"
+    assert record["generation_model_digest"] == common.load_freeze()["model_digest"]
+    assert record["generation_freeze_sha256"] == freeze_sha
+    draft_pool.validate_record_integrity(record, slot, policy, common.load_freeze(), freeze_sha)
+
+
+def test_group_id_matches_frozen_pipe_algorithm_and_pair_relationship() -> None:
+    record, slot, policy, _ = _synthetic_draft_record()
+    expected_input = "|".join(
+        [policy["policy_id"], slot["group_family"], slot["template_family_id"],
+         slot["structural_family"], slot["task_family"]]
+    )
+    expected = "G3G-" + hashlib.sha256(expected_input.encode()).hexdigest()[:24]
+    assert record["group_id"] == expected == common.derive_group_id(slot, policy)
+    replacement = generator._draft_metadata(
+        slot, "replacement", "Use this Python fragment as inert text.",
+        common.file_sha256(FREEZE), common.file_sha256(POLICY),
+        common.load_freeze()["model"], common.load_freeze()["model_digest"],
+    )
+    assert replacement["group_id"] == record["group_id"]
+    assert replacement["template_fingerprint"] == record["template_fingerprint"]
+
+
+@pytest.mark.parametrize(
+    ("field", "error"),
+    [
+        ("group_id", "draft_group_id_mismatch"),
+        ("template_fingerprint", "draft_template_fingerprint_mismatch"),
+        ("draft_fingerprint", "draft_fingerprint_mismatch"),
+        ("class", "slot_metadata_mismatch:class"),
+        ("expected_behavior", "slot_metadata_mismatch:expected_behavior"),
+        ("task_family", "slot_metadata_mismatch:task_family"),
+        ("scenario_family", "slot_metadata_mismatch:scenario_family"),
+        ("structural_family", "slot_metadata_mismatch:structural_family"),
+        ("register", "slot_metadata_mismatch:register"),
+        ("preservation_burden", "slot_metadata_mismatch:preservation_burden"),
+        ("template_family_id", "slot_metadata_mismatch:template_family_id"),
+        ("generation_model", "draft_model_mismatch"),
+        ("generation_model_digest", "draft_model_digest_mismatch"),
+        ("generation_freeze_sha256", "draft_freeze_identity_mismatch"),
+    ],
+)
+def test_draft_integrity_tampering_fails_closed(field: str, error: str) -> None:
+    record, slot, policy, freeze_sha = _synthetic_draft_record()
+    record[field] = "tampered"
+    with pytest.raises(common.PrivateAuthoringError, match=error):
+        draft_pool.validate_record_integrity(record, slot, policy, common.load_freeze(), freeze_sha)
+
+
+def test_query_text_tampering_invalidates_fingerprint() -> None:
+    record, slot, policy, freeze_sha = _synthetic_draft_record()
+    record["query_text"] = "Changed inert text."
+    with pytest.raises(common.PrivateAuthoringError, match="draft_fingerprint_mismatch"):
+        draft_pool.validate_record_integrity(record, slot, policy, common.load_freeze(), freeze_sha)
+
+
+def test_gate2_manifest_sha_guard_precedes_json_access(tmp_path: Path) -> None:
+    path = tmp_path / "public.json"
+    path.write_text('{"records": [{"query_text": "synthetic only"}]}')
+    with pytest.raises(common.PrivateAuthoringError, match="gate2_manifest_sha256_mismatch"):
+        common.verify_gate2_manifest_identity(path)
+
+
+def test_v2_generation_seal_contract_is_present_in_writer() -> None:
+    source = (ROOT / "scripts/generate_gate3_private_candidates.py").read_text()
+    for field in (
+        "generation_model", "generation_run_version", "generation_activation_commit",
+        "activated_generator_sha256", "activated_generation_freeze_sha256",
+    ):
+        assert f'"{field}"' in source

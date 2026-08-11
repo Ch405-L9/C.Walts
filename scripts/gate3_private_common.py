@@ -7,6 +7,7 @@ import json
 import os
 import shutil
 import socket
+import subprocess
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -22,6 +23,8 @@ GENERATOR = ROOT / "scripts/generate_gate3_private_candidates.py"
 GENERATION_ACTIVATION = "gate3-b1-v2"
 GENERATION_V2_AUTHORIZATION = "NFR_GATE3_B1_V2_AUTHORIZED"
 FAILURE_AUDIT_RELATIVE = Path("audit/gate3_generation_failure.json")
+GATE2_PUBLIC_MANIFEST = ROOT / "var/eval_sources/selected_public/gate2_public_candidates.json"
+GATE2_PUBLIC_MANIFEST_SHA256 = "60d9ac4be6fc217cbfb42283c50ed86aab626dc4c4ef68dfc3f137a66721c39e"
 POOL_RELATIVE = Path("drafts/gate3_private_draft_pool.json")
 SEAL_RELATIVE = Path("drafts/gate3_private_draft_pool.seal.json")
 AUDIT_RELATIVE = Path("audit/gate3_b1_generation_audit.json")
@@ -40,6 +43,71 @@ def file_sha256(path: Path) -> str:
 def canonical_sha256(value: Any) -> str:
     payload = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode()).hexdigest()
+
+
+def derive_group_id(slot: dict[str, Any], policy: dict[str, Any]) -> str:
+    """Derive the frozen group ID from metadata, never query text."""
+    fields = (
+        policy["policy_id"],
+        slot["group_family"],
+        slot["template_family_id"],
+        slot["structural_family"],
+        slot["task_family"],
+    )
+    return "G3G-" + hashlib.sha256("|".join(fields).encode("utf-8")).hexdigest()[:24]
+
+
+def derive_template_fingerprint(
+    slot: dict[str, Any], policy: dict[str, Any], prompt_sha256: str
+) -> str:
+    return canonical_sha256(
+        {
+            "policy_id": policy["policy_id"],
+            "prompt_sha256": prompt_sha256,
+            "scenario_family": slot["scenario_family"],
+            "task_family": slot["task_family"],
+            "structural_family": slot["structural_family"],
+            "template_family_id": slot["template_family_id"],
+        }
+    )
+
+
+def derive_draft_fingerprint(
+    slot_id: str,
+    draft_role: str,
+    query_text: str,
+    policy_sha256: str,
+    generation_freeze_sha256: str,
+) -> str:
+    return canonical_sha256(
+        {
+            "slot_id": slot_id,
+            "draft_role": draft_role,
+            "query_text": query_text,
+            "policy_sha256": policy_sha256,
+            "generation_freeze_sha256": generation_freeze_sha256,
+        }
+    )
+
+
+def verify_gate2_manifest_identity(path: Path = GATE2_PUBLIC_MANIFEST) -> str:
+    """Hash the public manifest before any caller reads its JSON/query text."""
+    actual = file_sha256(path)
+    if actual != GATE2_PUBLIC_MANIFEST_SHA256:
+        raise PrivateAuthoringError("gate2_manifest_sha256_mismatch")
+    return actual
+
+
+def current_git_head() -> str:
+    git = shutil.which("git")
+    if not git:
+        raise PrivateAuthoringError("git_unavailable")
+    result = subprocess.run(  # noqa: S603 — executable is resolved from PATH and args are fixed
+        [git, "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=False
+    )
+    if result.returncode != 0:
+        raise PrivateAuthoringError("git_head_unavailable")
+    return result.stdout.strip()
 
 
 def resolve_private_path(relative: str | Path) -> Path:

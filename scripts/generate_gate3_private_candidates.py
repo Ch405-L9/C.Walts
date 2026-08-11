@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import re
@@ -27,6 +26,10 @@ try:
         PrivateAuthoringError,
         atomic_write_bytes,
         canonical_sha256,
+        current_git_head,
+        derive_draft_fingerprint,
+        derive_group_id,
+        derive_template_fingerprint,
         file_sha256,
         generation_authorized,
         generation_v2_authorized,
@@ -48,6 +51,10 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution
         PrivateAuthoringError,
         atomic_write_bytes,
         canonical_sha256,
+        current_git_head,
+        derive_draft_fingerprint,
+        derive_group_id,
+        derive_template_fingerprint,
         file_sha256,
         generation_authorized,
         generation_v2_authorized,
@@ -263,31 +270,22 @@ def dry_run_metadata() -> dict[str, Any]:
 def _slot_identity(
     slot: dict[str, Any], role: str, query_text: str, freeze_sha: str, policy_sha: str
 ) -> str:
-    return canonical_sha256(
-        {
-            "slot_id": slot["slot_id"],
-            "draft_role": role,
-            "query_text": query_text,
-            "policy_sha256": policy_sha,
-            "generation_freeze_sha256": freeze_sha,
-        }
-    )
+    return derive_draft_fingerprint(slot["slot_id"], role, query_text, policy_sha, freeze_sha)
 
 
 def _draft_metadata(
-    slot: dict[str, Any], role: str, query_text: str, freeze_sha: str, policy_sha: str
+    slot: dict[str, Any],
+    role: str,
+    query_text: str,
+    freeze_sha: str,
+    policy_sha: str,
+    model: str,
+    model_digest: str,
 ) -> dict[str, Any]:
-    template = canonical_sha256(
-        {
-            "policy_id": "gate3-custom-authoring-v2",
-            "prompt_sha256": file_sha256(ROOT / "config/gate3_custom_generation_prompt.txt"),
-            "scenario_family": slot["scenario_family"],
-            "task_family": slot["task_family"],
-            "structural_family": slot["structural_family"],
-            "template_family_id": slot["template_family_id"],
-        }
-    )
-    group = "G3G-" + hashlib.sha256(str(slot["group_family"]).encode()).hexdigest()[:24]
+    policy = yaml.safe_load(POLICY.read_text(encoding="utf-8"))
+    prompt_sha = file_sha256(ROOT / "config/gate3_custom_generation_prompt.txt")
+    template = derive_template_fingerprint(slot, policy, prompt_sha)
+    group = derive_group_id(slot, policy)
     return {
         "draft_id": f"G3D-{slot['slot_id']}-{role}",
         "slot_id": slot["slot_id"],
@@ -304,10 +302,11 @@ def _draft_metadata(
         "group_id": group,
         "template_family_id": slot["template_family_id"],
         "template_fingerprint": template,
-        "generation_model": freeze_sha,
+        "generation_model": model,
+        "generation_model_digest": model_digest,
         "policy_sha256": policy_sha,
         "generation_freeze_sha256": freeze_sha,
-        "prompt_sha256": file_sha256(ROOT / "config/gate3_custom_generation_prompt.txt"),
+        "prompt_sha256": prompt_sha,
         "draft_fingerprint": _slot_identity(slot, role, query_text, freeze_sha, policy_sha),
     }
 
@@ -351,7 +350,13 @@ def generate_draft_pool() -> dict[str, Any]:
                         if value["slot_id"] != slot["slot_id"] or value["draft_role"] != role:
                             raise PrivateAuthoringError("returned_slot_role_mismatch")
                         accepted = _draft_metadata(
-                            slot, role, value["query_text"], freeze_sha, policy_sha
+                            slot,
+                            role,
+                            value["query_text"],
+                            freeze_sha,
+                            policy_sha,
+                            freeze["model"],
+                            freeze["model_digest"],
                         )
                         break
                     except (OSError, ValueError, TypeError, jsonschema.ValidationError) as exc:
@@ -402,6 +407,9 @@ def generate_draft_pool() -> dict[str, Any]:
             "schema_sha256": file_sha256(DRAFT_SCHEMA),
             "parameter_hash": freeze["parameter_hash"],
             "model_digest": freeze["model_digest"],
+            "generation_run_version": freeze["generation_run_version"],
+            "generation_model": freeze["model"],
+            "generation_activation_commit": current_git_head(),
             "activated_generator_sha256": file_sha256(
                 ROOT / "scripts/generate_gate3_private_candidates.py"
             ),
@@ -426,6 +434,8 @@ def generate_draft_pool() -> dict[str, Any]:
             "prompt_sha256": file_sha256(ROOT / "config/gate3_custom_generation_prompt.txt"),
             "parameter_hash": freeze["parameter_hash"],
             "model": model_identity,
+            "generation_run_version": freeze["generation_run_version"],
+            "generation_activation_commit": current_git_head(),
             "sequential": True,
             "performance_peek": False,
             "gate2_seed_access": False,
@@ -448,9 +458,14 @@ def generate_draft_pool() -> dict[str, Any]:
             "schema_version": 1,
             "run_version": "gate3-b1-v2",
             "run_id": canonical_sha256({"started_at": started, "policy_sha256": policy_sha}),
+            "head": current_git_head(),
+            "generator_sha256": file_sha256(ROOT / "scripts/generate_gate3_private_candidates.py"),
+            "generation_freeze_sha256": freeze_sha,
+            "policy_sha256": policy_sha,
             "terminal_slot": locals().get("slot", {}).get("slot_id"),
             "terminal_role": locals().get("role"),
             "attempt": locals().get("attempt"),
+            "timestamp": datetime.now(UTC).isoformat(),
             "error_category": type(exc).__name__,
             "error_code": locals().get("last_error_code") or _stable_failure_code(exc),
             "raw_response_recorded": False,

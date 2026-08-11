@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "policy_id": "gate3-custom-authoring-v2",
+  "symbolic_algorithm": "sha256(policy_id|slot_family|template_family|structural_family|generation_family)",
+  "field_mapping": {
+    "policy_id": "policy.policy_id",
+    "slot_family": "slot.group_family",
+    "template_family": "slot.template_family_id",
+    "structural_family": "slot.structural_family",
+    "generation_family": "slot.task_family"
+  },
+  "canonical_serialization": "UTF-8 pipe-delimited values in listed order; no query text",
+  "output_format": "G3G- plus first 24 lowercase hexadecimal SHA-256 characters",
+  "synthetic_sample": {
+    "slot_id": "G3S-9001",
+    "group_family": "synthetic_group",
+    "template_family_id": "synthetic_template",
+    "structural_family": "synthetic_structure",
+    "task_family": "synthetic_task",
+    "query_text_used": false
+  }
+}

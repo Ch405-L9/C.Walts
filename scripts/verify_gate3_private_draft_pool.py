@@ -17,15 +17,21 @@ try:
         CONFLICT_RELATIVE,
         DRAFT_SCHEMA,
         FREEZE,
+        GATE2_PUBLIC_MANIFEST,
+        GENERATOR,
         POLICY,
         READINESS_RELATIVE,
         SLOTS,
         PrivateAuthoringError,
         atomic_write_bytes,
         canonical_sha256,
+        derive_draft_fingerprint,
+        derive_group_id,
+        derive_template_fingerprint,
         file_sha256,
         load_freeze,
         resolve_private_path,
+        verify_gate2_manifest_identity,
     )
 except ModuleNotFoundError:  # pragma: no cover
     import verify_eval_split as split
@@ -33,15 +39,21 @@ except ModuleNotFoundError:  # pragma: no cover
         CONFLICT_RELATIVE,
         DRAFT_SCHEMA,
         FREEZE,
+        GATE2_PUBLIC_MANIFEST,
+        GENERATOR,
         POLICY,
         READINESS_RELATIVE,
         SLOTS,
         PrivateAuthoringError,
         atomic_write_bytes,
         canonical_sha256,
+        derive_draft_fingerprint,
+        derive_group_id,
+        derive_template_fingerprint,
         file_sha256,
         load_freeze,
         resolve_private_path,
+        verify_gate2_manifest_identity,
     )
 
 EXPECTED_ROLES = ("primary", "replacement")
@@ -137,11 +149,97 @@ def _two_sat(slot_ids: list[str], edges: list[tuple[str, str, str, str]]) -> tup
     return feasible, proof
 
 
+def validate_record_integrity(
+    record: dict[str, Any],
+    slot: dict[str, Any],
+    policy: dict[str, Any],
+    freeze: dict[str, Any],
+    freeze_sha: str,
+) -> None:
+    """Rebind every stored identity to frozen metadata and current freeze state."""
+    for field in (
+        "slot_id", "class", "expected_behavior", "task_family", "scenario_family",
+        "structural_family", "register", "preservation_burden", "group_family",
+        "template_family_id",
+    ):
+        if record.get(field) != slot.get(field):
+            raise PrivateAuthoringError(f"slot_metadata_mismatch:{field}")
+    if record["draft_id"] != f"G3D-{record['slot_id']}-{record['draft_role']}":
+        raise PrivateAuthoringError("draft_id_mismatch")
+    if record["policy_sha256"] != file_sha256(POLICY) or record[
+        "generation_freeze_sha256"
+    ] != freeze_sha:
+        raise PrivateAuthoringError("draft_freeze_identity_mismatch")
+    if record["prompt_sha256"] != file_sha256(
+        Path(__file__).parents[1] / "config/gate3_custom_generation_prompt.txt"
+    ):
+        raise PrivateAuthoringError("draft_prompt_identity_mismatch")
+    if record["generation_model"] != freeze["model"]:
+        raise PrivateAuthoringError("draft_model_mismatch")
+    if record["generation_model_digest"] != freeze["model_digest"]:
+        raise PrivateAuthoringError("draft_model_digest_mismatch")
+    if record["group_id"] != derive_group_id(slot, policy):
+        raise PrivateAuthoringError("draft_group_id_mismatch")
+    if record["template_fingerprint"] != derive_template_fingerprint(
+        slot, policy, record["prompt_sha256"]
+    ):
+        raise PrivateAuthoringError("draft_template_fingerprint_mismatch")
+    if record["draft_fingerprint"] != derive_draft_fingerprint(
+        record["slot_id"], record["draft_role"], record["query_text"],
+        record["policy_sha256"], record["generation_freeze_sha256"],
+    ):
+        raise PrivateAuthoringError("draft_fingerprint_mismatch")
+
+
 def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
     expected = resolve_private_path("drafts/gate3_private_draft_pool.json")
     if path.resolve() != expected.resolve():
         raise PrivateAuthoringError("canonical_pool_path_required")
-    load_freeze()
+    freeze = load_freeze()
+    freeze_sha = file_sha256(FREEZE)
+    policy = yaml.safe_load(POLICY.read_text(encoding="utf-8"))
+    seal_path = resolve_private_path("drafts/gate3_private_draft_pool.seal.json")
+    if not seal_path.exists():
+        raise PrivateAuthoringError("draft_pool_seal_missing")
+    seal = json.loads(seal_path.read_text(encoding="utf-8"))
+    required_seal_fields = {
+        "schema_version", "draft_pool_id", "draft_pool_sha256", "draft_count",
+        "primary_count", "replacement_count", "policy_sha256", "slot_sha256",
+        "prompt_sha256", "schema_sha256", "parameter_hash", "model_digest",
+        "generation_model", "generation_run_version", "generation_activation_commit",
+        "activated_generator_sha256", "activated_generation_freeze_sha256",
+        "split", "qrels", "canonical_candidate_manifest",
+    }
+    if not required_seal_fields.issubset(seal):
+        raise PrivateAuthoringError("draft_pool_seal_contract_invalid")
+    if file_sha256(path) != seal["draft_pool_sha256"]:
+        raise PrivateAuthoringError("draft_pool_seal_sha256_mismatch")
+    seal_expectations = {
+        "draft_count": 570,
+        "primary_count": 285,
+        "replacement_count": 285,
+        "policy_sha256": file_sha256(POLICY),
+        "slot_sha256": file_sha256(SLOTS),
+        "prompt_sha256": file_sha256(
+            Path(__file__).parents[1] / "config/gate3_custom_generation_prompt.txt"
+        ),
+        "schema_sha256": file_sha256(DRAFT_SCHEMA),
+        "parameter_hash": freeze["parameter_hash"],
+        "model_digest": freeze["model_digest"],
+        "generation_model": freeze["model"],
+        "generation_run_version": "gate3-b1-v2",
+        "activated_generator_sha256": file_sha256(GENERATOR),
+        "activated_generation_freeze_sha256": freeze_sha,
+        "split": False,
+        "qrels": False,
+        "canonical_candidate_manifest": False,
+    }
+    if any(seal.get(key) != value for key, value in seal_expectations.items()):
+        raise PrivateAuthoringError("draft_pool_seal_identity_mismatch")
+    if not isinstance(seal["generation_activation_commit"], str) or not seal[
+        "generation_activation_commit"
+    ]:
+        raise PrivateAuthoringError("generation_activation_commit_missing")
     data = json.loads(path.read_text(encoding="utf-8"))
     records = data.get("records")
     if data.get("draft_pool_id") != "gate3-private-drafts-570-v0.4" or not isinstance(
@@ -151,6 +249,7 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
     if len(records) != 570:
         raise PrivateAuthoringError("draft_count_mismatch")
     slots_payload = yaml.safe_load(SLOTS.read_text())
+    slot_by_id = {slot["slot_id"]: slot for slot in slots_payload["slots"]}
     slot_ids = sorted(slot["slot_id"] for slot in slots_payload["slots"])
     by_slot: dict[str, list[dict[str, Any]]] = defaultdict(list)
     schema = json.loads(DRAFT_SCHEMA.read_text(encoding="utf-8"))
@@ -172,6 +271,7 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
             "template_family_id",
             "template_fingerprint",
             "generation_model",
+            "generation_model_digest",
             "policy_sha256",
             "generation_freeze_sha256",
             "prompt_sha256",
@@ -181,14 +281,8 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
         jsonschema.validate({k: record[k] for k in ("slot_id", "draft_role", "query_text")}, schema)
         if record["slot_id"] not in slot_ids or record["draft_role"] not in EXPECTED_ROLES:
             raise PrivateAuthoringError("draft_slot_role_invalid")
-        if record["policy_sha256"] != file_sha256(POLICY) or record[
-            "generation_freeze_sha256"
-        ] != file_sha256(FREEZE):
-            raise PrivateAuthoringError("draft_freeze_identity_mismatch")
-        if record["prompt_sha256"] != file_sha256(
-            Path(__file__).parents[1] / "config/gate3_custom_generation_prompt.txt"
-        ):
-            raise PrivateAuthoringError("draft_prompt_identity_mismatch")
+        slot = slot_by_id[record["slot_id"]]
+        validate_record_integrity(record, slot, policy, freeze, freeze_sha)
         by_slot[record["slot_id"]].append(record)
     if set(by_slot) != set(slot_ids) or any(len(items) != 2 for items in by_slot.values()):
         raise PrivateAuthoringError("slot_role_coverage_invalid")
@@ -201,9 +295,8 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
             raise PrivateAuthoringError("primary_replacement_exact_duplicate")
 
     views = [_draft_view(record) for record in records]
-    public_path = (
-        Path(__file__).parents[1] / "var/eval_sources/selected_public/gate2_public_candidates.json"
-    )
+    public_path = GATE2_PUBLIC_MANIFEST
+    verify_gate2_manifest_identity(public_path)
     public_records = json.loads(public_path.read_text(encoding="utf-8"))["records"]
     exact_cross = 0
     gate2_conflicts: list[dict[str, Any]] = []
