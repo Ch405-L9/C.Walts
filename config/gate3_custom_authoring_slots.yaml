@@ -1,5 +1,5 @@
 schema_version: 1
-policy_id: gate3-custom-authoring-v2
+policy_id: gate3-custom-authoring-v3
 slot_count: 285
 query_text_included: false
 slots:

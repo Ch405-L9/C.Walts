@@ -20,8 +20,8 @@ PROMPT = ROOT / "config/gate3_custom_generation_prompt.txt"
 DRAFT_SCHEMA = ROOT / "schemas/gate3_generated_draft.schema.json"
 FREEZE = ROOT / "config/gate3_generation_freeze.json"
 GENERATOR = ROOT / "scripts/generate_gate3_private_candidates.py"
-GENERATION_ACTIVATION = "gate3-b1-v2"
-GENERATION_V2_AUTHORIZATION = "NFR_GATE3_B1_V2_AUTHORIZED"
+GENERATION_ACTIVATION = "gate3-b1-v3"
+GENERATION_V3_AUTHORIZATION = "NFR_GATE3_B1_V3_AUTHORIZED"
 FAILURE_AUDIT_RELATIVE = Path("audit/gate3_generation_failure.json")
 GATE2_PUBLIC_MANIFEST = ROOT / "var/eval_sources/selected_public/gate2_public_candidates.json"
 GATE2_PUBLIC_MANIFEST_SHA256 = "60d9ac4be6fc217cbfb42283c50ed86aab626dc4c4ef68dfc3f137a66721c39e"
@@ -43,6 +43,16 @@ def file_sha256(path: Path) -> str:
 def canonical_sha256(value: Any) -> str:
     payload = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode()).hexdigest()
+
+
+def derive_request_seed(
+    policy_id: str, slot_id: str, draft_role: str, attempt_number: int, base_seed: int = 17
+) -> int:
+    """Derive a stable request-local Ollama seed without mutating frozen options."""
+    material = f"{policy_id}|{slot_id}|{draft_role}|{attempt_number}|{base_seed}"
+    value = int.from_bytes(hashlib.sha256(material.encode("utf-8")).digest()[:4], "big")
+    value &= 0x7FFFFFFF
+    return value or 17
 
 
 def derive_group_id(slot: dict[str, Any], policy: dict[str, Any]) -> str:
@@ -153,6 +163,10 @@ def load_freeze() -> dict[str, Any]:
     if not FREEZE.exists():
         raise PrivateAuthoringError("generation_freeze_missing")
     freeze = json.loads(FREEZE.read_text(encoding="utf-8"))
+    if freeze.get("generation_run_version") != GENERATION_ACTIVATION:
+        raise PrivateAuthoringError("generation_run_version_mismatch")
+    if freeze.get("model_blob_digest") != freeze.get("model_digest"):
+        raise PrivateAuthoringError("model_blob_digest_binding_mismatch")
     if freeze.get("endpoint") != "http://127.0.0.1:11434":
         raise PrivateAuthoringError("generation_endpoint_mismatch")
     require_loopback(freeze["endpoint"])
@@ -176,7 +190,10 @@ def generation_authorized() -> bool:
 
 
 def generation_v2_authorized() -> bool:
-    return generation_authorized() and os.environ.get(GENERATION_V2_AUTHORIZATION) == "true"
+    return generation_authorized() and os.environ.get(GENERATION_V3_AUTHORIZATION) == "true"
+
+
+generation_v3_authorized = generation_v2_authorized
 
 
 def atomic_write_bytes(path: Path, payload: bytes) -> None:
@@ -224,12 +241,29 @@ def verify_model_identity(freeze: dict[str, Any]) -> dict[str, str]:
     actual = f"sha256-{digest}" if digest else ""
     if actual != freeze["model_digest"]:
         raise PrivateAuthoringError("model_digest_mismatch")
+    tag_digest = freeze.get("model_tag_digest", "")
+    if tag_digest:
+        import urllib.request
+
+        request = urllib.request.Request(  # noqa: S310
+            freeze["endpoint"] + "/api/tags", headers={"Accept": "application/json"}
+        )
+        with urllib.request.urlopen(request, timeout=10) as response:  # noqa: S310
+            models = json.loads(response.read()).get("models", [])
+        actual_tag = next(
+            (item.get("digest", "") for item in models if item.get("name") == freeze["model"]),
+            "",
+        )
+        if actual_tag != tag_digest:
+            raise PrivateAuthoringError("model_tag_digest_mismatch")
     version = subprocess.run(  # noqa: S603
         [executable, "--version"], capture_output=True, text=True, check=False
     )
     return {
         "model": freeze["model"],
         "model_digest": actual,
+        "model_blob_digest": actual,
+        "model_tag_digest": tag_digest,
         "ollama_version": version.stdout.strip(),
     }
 

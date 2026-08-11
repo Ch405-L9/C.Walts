@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0-dev.16
+
+- Retired the aborted Gate 3-B1-v2 generation attempt without accepting any
+  private draft material.
+- Froze the v3 positive-only authoring prompt, deterministic per-slot/role/
+  attempt seed strategy, three-attempt retry contract, and explicit failure
+  context.
+- Qualified the full 570-shape local v3 stack with synthetic shadow metadata;
+  no canonical private query or draft was generated.
+
 ## 0.4.0-dev.15
 
 - Retired the aborted Gate 3-B1-v1 private authoring contract after its

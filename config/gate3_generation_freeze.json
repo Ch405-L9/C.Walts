@@ -1,27 +1,29 @@
 {
   "canonical_generation_executed": false,
-  "generation_run_version": "gate3-b1-v2",
-  "generation_authorization_env": "NFR_GATE3_B1_V2_AUTHORIZED",
+  "generation_run_version": "gate3-b1-v3",
+  "generation_authorization_env": "NFR_GATE3_B1_V3_AUTHORIZED",
   "endpoint": "http://127.0.0.1:11434",
-  "generator_sha256": "0759a47d534dc44ef23ae9fecbdbaadf879dd909aec29db136d7c0481a1e625e",
+  "generator_sha256": "a094daa967b759fe34674313ffaf3bc935b8f1c1a1f456c5351c989642d222e9",
   "model": "qwen3:8b",
+  "model_tag_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+  "model_blob_digest": "sha256-a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f",
   "model_digest": "sha256-a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f",
   "output_schema_sha256": "18d4a79f57af457ddd7ad7bd2530a5b89907ca15203cf8072259d151409a88bd",
-  "parameter_hash": "754792961d8e44f2684be7730a298cf530ee12a4421bcf2b8bf7d51fcf32f3ce",
+  "parameter_hash": "15d29fc7b64faf33d191b42ca4646470f696c691f811632430a8880e10e549f1",
+  "base_seed": 17,
+  "seed_strategy": "gate3-slot-role-attempt-sha256-v1",
+  "max_attempts": 3,
   "parameters": {
     "format": "json",
-    "hidethinking": true,
-    "nowordwrap": true,
     "num_predict": 96,
-    "seed": 17,
     "stream": false,
     "temperature": 0.25,
     "think": false,
     "top_p": 0.95
   },
-  "policy_sha256": "3dc39bffb61e22b0502ac4164994a59bd515c1e99159367081e70014b71f4c2b",
+  "policy_sha256": "89cf83db5d137735991dbc5dbe4256838c39d9c1d62f22859f4a236c26b4c186",
   "private_root": "var/eval_sources/custom",
-  "prompt_sha256": "084df7a87e15ae7f0188ec0a80537c14d1a791067e3d73e46331355e2916a542",
+  "prompt_sha256": "e48d79b4b7599e291e495dcbd87af6f96953c19de99fbe46d0de989c5b638ba7",
   "qualification_verdict": "pass",
   "retry_policy": {
     "allowed": [
@@ -31,9 +33,9 @@
       "empty_query_text",
       "format_safety_failure"
     ],
-    "max_attempts": 2
+    "max_attempts": 3
   },
   "runtime": "ollama 0.24.0",
   "schema_version": 1,
-  "slot_sha256": "0882d0d965a1b542ef9c89c83be0d6b5b5de52a25c625f7887c67e3032a17fa1"
+  "slot_sha256": "7137cbbb6d2117d2c78bdba35de9ca62a7697c5d4736ec1c736b6e2aab15d910"
 }

@@ -1,5 +1,5 @@
 schema_version: 1
-policy_id: gate3-custom-authoring-v2
+policy_id: gate3-custom-authoring-v3
 query_text_included: false
 families:
   - {family_id: supported_narration_rewrite, class: supported_in_domain, expected_behavior: partially_grounded, fixture_id: G3S-9001}

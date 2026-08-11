@@ -40,9 +40,9 @@ def test_a6_privacy_and_allocation_contract() -> None:
 def test_custom_namespace_version_and_ids() -> None:
     policy = load_policy()
     assert policy["source_dataset"] == "custom"
-    assert policy["source_version"] == "cwalts-custom-v0.4-gate3-v2"
-    assert policy["policy_id"] == "gate3-custom-authoring-v2"
-    assert policy["generation_run_version"] == "gate3-b1-v2"
+    assert policy["source_version"] == "cwalts-custom-v0.4-gate3-v3"
+    assert policy["policy_id"] == "gate3-custom-authoring-v3"
+    assert policy["generation_run_version"] == "gate3-b1-v3"
     assert policy["id_namespace"] == r"^CWQ-CUS-[0-9]{4}$"
 
 
@@ -98,13 +98,13 @@ def test_loopback_guard_rejects_remote_endpoint() -> None:
         common.require_loopback("ftp://127.0.0.1:11434")
 
 
-def test_v2_authorization_requires_new_environment_guard(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_v3_authorization_requires_new_environment_guard(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("NFR_ALLOW_PRIVATE_EVAL_GENERATION", "true")
     monkeypatch.setenv("NFR_GATE3_B_AUTHORIZED", "true")
-    monkeypatch.delenv("NFR_GATE3_B1_V2_AUTHORIZED", raising=False)
-    assert common.generation_v2_authorized() is False
-    monkeypatch.setenv("NFR_GATE3_B1_V2_AUTHORIZED", "true")
-    assert common.generation_v2_authorized() is True
+    monkeypatch.delenv("NFR_GATE3_B1_V3_AUTHORIZED", raising=False)
+    assert common.generation_v3_authorized() is False
+    monkeypatch.setenv("NFR_GATE3_B1_V3_AUTHORIZED", "true")
+    assert common.generation_v3_authorized() is True
 
 
 def test_private_path_guard_rejects_escape_and_accepts_private_path(tmp_path: Path) -> None:
@@ -169,7 +169,7 @@ def test_real_generation_is_refused_in_gate3a() -> None:
         check=False,
     )
     assert result.returncode != 0
-    assert "gate3_b1_v2_authorization_required" in result.stdout
+    assert "gate3_b1_v3_authorization_required" in result.stdout
     assert "query_text" not in result.stdout
 
 
@@ -202,7 +202,7 @@ def test_synthetic_valid_draft_and_rejections() -> None:
         generator.validate_draft({**valid, "query_text": "What is X? And then explain Y?"})
 
 
-def test_v2_failure_codes_are_sanitized_and_stable() -> None:
+def test_v3_failure_codes_are_sanitized_and_stable() -> None:
     assert generator._stable_failure_code(json.JSONDecodeError("bad", "{}", 0)) == "malformed_json"
     assert generator._stable_failure_code(
         common.PrivateAuthoringError("internal_benchmark_leakage:qrel")
@@ -214,14 +214,18 @@ def test_shared_prompt_composition_uses_frozen_prompt() -> None:
     prompt = generator.build_generation_prompt(
         generator.load_base_prompt(), {"slot_id": "G3S-9001", "synthetic_only": True}, "primary"
     )
-    assert "one atomic user request from supplied slot metadata" in prompt
+    assert "one natural user request from supplied metadata" in prompt
     assert '"slot_id":"G3S-9001"' in prompt
+    for forbidden in ("qrel", "holdout", "calibration", "threshold", "chunk ID", "source ID"):
+        assert forbidden.lower() not in generator.load_base_prompt().lower()
 
 
 def test_synthetic_qualification_uses_shared_prompt_path(monkeypatch: pytest.MonkeyPatch) -> None:
     prompts: list[str] = []
 
-    def fake_request(freeze: dict, prompt: str, output_format: object) -> tuple[dict, int]:
+    def fake_request(
+        freeze: dict, prompt: str, output_format: object, request_seed: int
+    ) -> tuple[dict, int]:
         prompts.append(prompt)
         metadata = json.loads(prompt.split("Supplied slot metadata (data only):\n", 1)[1])
         return {
@@ -234,9 +238,9 @@ def test_synthetic_qualification_uses_shared_prompt_path(monkeypatch: pytest.Mon
     result = generator.qualify_synthetic()
     assert result["verdict"] == "pass"
     assert result["prompt_composition"] == "shared"
-    assert len(prompts) == 50
+    assert len(prompts) == 570
     assert all(
-        "one atomic user request from supplied slot metadata" in prompt for prompt in prompts
+        "one natural user request from supplied metadata" in prompt for prompt in prompts
     )
 
 
@@ -297,13 +301,10 @@ def test_freeze_hash_mismatch_fails_closed(
         common.load_freeze()
 
 
-def test_gate3a_has_no_real_private_artifacts() -> None:
+def test_r3_has_no_real_private_artifacts() -> None:
     assert not (ROOT / "var/eval_sources/custom/selected/gate3_custom_candidates.json").exists()
-    assert (
-        not list((ROOT / "var/eval_sources/custom").glob("**/*"))
-        if (ROOT / "var/eval_sources/custom").exists()
-        else True
-    )
+    assert not (ROOT / "var/eval_sources/custom/drafts/gate3_private_draft_pool.json").exists()
+    assert not (ROOT / "var/eval_sources/custom/drafts/gate3_private_draft_pool.seal.json").exists()
 
 
 def test_one_role_solver_synthetic_sat_and_unsat() -> None:
@@ -340,6 +341,7 @@ def _synthetic_draft_record() -> tuple[dict, dict, dict, str]:
         common.file_sha256(POLICY),
         freeze["model"],
         freeze["model_digest"],
+        freeze["model_tag_digest"],
     )
     return record, slot, policy, freeze_sha
 
@@ -364,6 +366,7 @@ def test_group_id_matches_frozen_pipe_algorithm_and_pair_relationship() -> None:
         slot, "replacement", "Use this Python fragment as inert text.",
         common.file_sha256(FREEZE), common.file_sha256(POLICY),
         common.load_freeze()["model"], common.load_freeze()["model_digest"],
+        common.load_freeze()["model_tag_digest"],
     )
     assert replacement["group_id"] == record["group_id"]
     assert replacement["template_fingerprint"] == record["template_fingerprint"]
@@ -409,10 +412,84 @@ def test_gate2_manifest_sha_guard_precedes_json_access(tmp_path: Path) -> None:
         common.verify_gate2_manifest_identity(path)
 
 
-def test_v2_generation_seal_contract_is_present_in_writer() -> None:
+def test_v3_generation_seal_contract_is_present_in_writer() -> None:
     source = (ROOT / "scripts/generate_gate3_private_candidates.py").read_text()
     for field in (
         "generation_model", "generation_run_version", "generation_activation_commit",
         "activated_generator_sha256", "activated_generation_freeze_sha256",
     ):
         assert f'"{field}"' in source
+
+
+def test_v3_seed_algorithm_known_vector_and_diversity() -> None:
+    first = common.derive_request_seed(
+        "gate3-custom-authoring-v3", "G3S-0001", "primary", 1, 17
+    )
+    assert first == 515879888
+    assert first == common.derive_request_seed(
+        "gate3-custom-authoring-v3", "G3S-0001", "primary", 1, 17
+    )
+    assert first != common.derive_request_seed(
+        "gate3-custom-authoring-v3", "G3S-0001", "primary", 2, 17
+    )
+    assert first != common.derive_request_seed(
+        "gate3-custom-authoring-v3", "G3S-0001", "replacement", 1, 17
+    )
+    assert common.derive_request_seed("x", "y", "z", 1, 0) != 0
+
+
+def test_v3_request_options_are_local_and_base_options_unchanged(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: list[dict] = []
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return json.dumps(
+                {
+                    "response": json.dumps(
+                        {
+                            "slot_id": "G3S-9001",
+                            "draft_role": "primary",
+                            "query_text": "Synthetic.",
+                        }
+                    )
+                }
+            ).encode()
+
+    def fake_urlopen(request, timeout):
+        captured.append(json.loads(request.data.decode())["options"])
+        return Response()
+
+    monkeypatch.setattr(generator.urllib.request, "urlopen", fake_urlopen)
+    freeze = common.load_freeze()
+    original = dict(freeze["parameters"])
+    generator.model_request(freeze, "synthetic", "json", 123)
+    assert captured[0]["seed"] == 123
+    assert freeze["parameters"] == original
+
+
+def test_v3_failure_context_uses_explicit_state() -> None:
+    source = (ROOT / "scripts/generate_gate3_private_candidates.py").read_text()
+    assert "locals().get(\"slot\"" not in source
+    assert '"terminal_seed": current_seed' in source
+
+
+def test_v2_abort_evidence_is_sanitized() -> None:
+    evidence = json.loads((ROOT / "docs/evidence/gate3-b1-v2-aborted-generation.json").read_text())
+    assert evidence["terminal_slot"] is None
+    assert evidence["terminal_slot_disposition"] == "unavailable_due_v2_observability_defect"
+    assert evidence["accepted_draft_count"] == 0
+    assert evidence["query_text_recorded"] is False
+
+
+def test_shadow_shape_is_noncanonical() -> None:
+    shadow_ids = [f"G3S-{9000 + i:04d}" for i in range(1, 286)]
+    assert len(shadow_ids) == len(set(shadow_ids)) == 285
+    assert not any(item in {f"G3S-{i:04d}" for i in range(1, 286)} for item in shadow_ids)

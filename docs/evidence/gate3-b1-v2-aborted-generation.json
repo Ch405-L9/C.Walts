@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "starting_checkpoint": "29c3c04ef8ad2bc2baa08ffe8cca282a41e59090",
+  "generation_attempted": true,
+  "generation_run_version": "gate3-b1-v2",
+  "failure_code": "internal_benchmark_leakage",
+  "terminal_attempt": 2,
+  "terminal_slot": null,
+  "terminal_role": null,
+  "terminal_slot_disposition": "unavailable_due_v2_observability_defect",
+  "accepted_draft_pool": false,
+  "accepted_draft_count": 0,
+  "owner_approval_count": 0,
+  "canonical_manifest_present": false,
+  "performance_peek": false,
+  "production_mutation": false,
+  "query_text_recorded": false,
+  "raw_response_recorded": false,
+  "architect_classification": "generation_prompt_leakage_and_retry_determinism_contract_defect",
+  "v2_retired": true
+}

@@ -29,10 +29,11 @@ try:
         current_git_head,
         derive_draft_fingerprint,
         derive_group_id,
+        derive_request_seed,
         derive_template_fingerprint,
         file_sha256,
         generation_authorized,
-        generation_v2_authorized,
+        generation_v3_authorized,
         load_freeze,
         require_loopback,
         resolve_private_path,
@@ -54,10 +55,11 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution
         current_git_head,
         derive_draft_fingerprint,
         derive_group_id,
+        derive_request_seed,
         derive_template_fingerprint,
         file_sha256,
         generation_authorized,
-        generation_v2_authorized,
+        generation_v3_authorized,
         load_freeze,
         require_loopback,
         resolve_private_path,
@@ -83,15 +85,17 @@ def load_base_prompt() -> str:
 
 
 def model_request(
-    freeze: dict[str, Any], prompt: str, output_format: Any
+    freeze: dict[str, Any], prompt: str, output_format: Any, request_seed: int
 ) -> tuple[dict[str, Any], int]:
+    options = dict(freeze["parameters"])
+    options["seed"] = request_seed
     payload = {
         "model": freeze["model"],
         "prompt": prompt,
         "format": output_format,
         "stream": False,
         "think": False,
-        "options": freeze["parameters"],
+        "options": options,
     }
     request = urllib.request.Request(  # noqa: S310
         freeze["endpoint"] + "/api/generate",
@@ -171,16 +175,13 @@ def _stable_failure_code(error: BaseException) -> str:
 
 
 def qualify_synthetic() -> dict[str, Any]:
-    """Qualify the exact v2 prompt/validator path on 25 synthetic families x 2 roles."""
+    """Qualify the exact v3 stack on all 285 slot shapes x two roles."""
     freeze = load_freeze()
     require_loopback(freeze["endpoint"])
-    compatibility = yaml.safe_load(
-        (ROOT / "config/gate3_taxonomy_validator_compatibility.yaml").read_text(encoding="utf-8")
-    )
-    fixtures = compatibility["families"]
+    slots = yaml.safe_load(SLOTS.read_text(encoding="utf-8"))["slots"]
     schema = json.loads(DRAFT_SCHEMA.read_text(encoding="utf-8"))
     metrics = {
-        "cases_attempted": len(fixtures) * 2,
+        "cases_attempted": len(slots) * 2,
         "transport_success": 0,
         "json_parse_pass": 0,
         "schema_pass": 0,
@@ -192,21 +193,24 @@ def qualify_synthetic() -> dict[str, Any]:
         "successful_cases": 0,
     }
     failures: list[dict[str, str]] = []
-    for fixture in fixtures:
+    intermediate_errors: dict[str, int] = {}
+    for index, slot in enumerate(slots, start=1):
         for role in ("primary", "replacement"):
+            shadow_slot = dict(slot)
+            shadow_slot["slot_id"] = f"G3S-{9000 + index:04d}"
             metadata = {
-                "slot_id": fixture["fixture_id"],
-                "family_id": fixture["family_id"],
-                "task_family": "synthetic_" + fixture["family_id"],
-                "scenario_family": "synthetic_fixture_only",
+                **shadow_slot,
                 "synthetic_only": True,
-                "inert_data_note": "python bash /tmp/example https://example.invalid config text",
             }
             prompt = build_generation_prompt(load_base_prompt(), metadata, role)
             passed = False
-            for attempt in range(1, 3):
+            for attempt in range(1, 4):
+                request_seed = derive_request_seed(
+                    yaml.safe_load(POLICY.read_text(encoding="utf-8"))["policy_id"],
+                    metadata["slot_id"], role, attempt
+                )
                 try:
-                    value, _ = model_request(freeze, prompt, "json")
+                    value, _ = model_request(freeze, prompt, "json", request_seed)
                     metrics["transport_success"] += 1
                     metrics["json_parse_pass"] += 1
                     jsonschema.validate(value, schema)
@@ -234,21 +238,22 @@ def qualify_synthetic() -> dict[str, Any]:
                 if attempt == 1:
                     metrics["retry_count"] += 1
             if not passed:
-                failures.append({"fixture_id": fixture["fixture_id"], "draft_role": role})
+                code = "qualification_failure"
+                intermediate_errors[code] = intermediate_errors.get(code, 0) + 1
+                failures.append({"fixture_id": metadata["slot_id"], "draft_role": role})
     if failures or metrics["successful_cases"] != metrics["cases_attempted"]:
         raise PrivateAuthoringError("synthetic_qualification_threshold_failed")
     return {
         "verdict": "pass",
-        "synthetic_family_count": len(fixtures),
-        "synthetic_primary_count": len(fixtures),
-        "synthetic_replacement_count": len(fixtures),
+        "synthetic_slot_count": len(slots),
+        "synthetic_primary_count": len(slots),
+        "synthetic_replacement_count": len(slots),
         "synthetic_cases_per_configuration": metrics["cases_attempted"],
-        "configuration": {
-            "temperature": freeze["parameters"]["temperature"],
-            "top_p": freeze["parameters"]["top_p"],
-        },
+        "configuration": freeze["parameters"],
         "metrics": metrics,
         "failures": failures,
+        "intermediate_error_counts": intermediate_errors,
+        "total_attempts": metrics["cases_attempted"] + metrics["retry_count"],
         "raw_output_printed": False,
         "canonical_generation_executed": False,
         "prompt_composition": "shared",
@@ -281,6 +286,7 @@ def _draft_metadata(
     policy_sha: str,
     model: str,
     model_digest: str,
+    model_tag_digest: str | None = None,
 ) -> dict[str, Any]:
     policy = yaml.safe_load(POLICY.read_text(encoding="utf-8"))
     prompt_sha = file_sha256(ROOT / "config/gate3_custom_generation_prompt.txt")
@@ -304,6 +310,7 @@ def _draft_metadata(
         "template_fingerprint": template,
         "generation_model": model,
         "generation_model_digest": model_digest,
+        "generation_model_tag_digest": model_tag_digest,
         "policy_sha256": policy_sha,
         "generation_freeze_sha256": freeze_sha,
         "prompt_sha256": prompt_sha,
@@ -320,8 +327,8 @@ def generate_draft_pool() -> dict[str, Any]:
     freeze = load_freeze()
     if not generation_authorized():
         raise PrivateAuthoringError("private_generation_authorization_required")
-    if not generation_v2_authorized():
-        raise PrivateAuthoringError("gate3_b1_v2_authorization_required")
+    if not generation_v3_authorized():
+        raise PrivateAuthoringError("gate3_b1_v3_authorization_required")
     model_identity = verify_model_identity(freeze)
     pool_path = resolve_private_path(POOL_RELATIVE)
     seal_path = resolve_private_path(SEAL_RELATIVE)
@@ -336,16 +343,27 @@ def generate_draft_pool() -> dict[str, Any]:
     attempts = 0
     retries = 0
     started = datetime.now(UTC).isoformat()
+    current_slot_id: str | None = None
+    current_role: str | None = None
+    current_attempt: int | None = None
+    current_seed: int | None = None
     try:
         for slot in slots:
             for role in ("primary", "replacement"):
+                current_slot_id = slot["slot_id"]
+                current_role = role
                 prompt = build_generation_prompt(load_base_prompt(), slot, role)
                 accepted = None
                 last_error_code = None
-                for attempt in range(1, 3):
+                for attempt in range(1, 4):
+                    current_attempt = attempt
+                    current_seed = derive_request_seed(
+                        policy["policy_id"], slot["slot_id"], role, attempt,
+                        policy["seed_strategy"]["base_seed"],
+                    )
                     attempts += 1
                     try:
-                        value, _ = model_request(freeze, prompt, "json")
+                        value, _ = model_request(freeze, prompt, "json", current_seed)
                         validate_draft(value)
                         if value["slot_id"] != slot["slot_id"] or value["draft_role"] != role:
                             raise PrivateAuthoringError("returned_slot_role_mismatch")
@@ -357,13 +375,14 @@ def generate_draft_pool() -> dict[str, Any]:
                             policy_sha,
                             freeze["model"],
                             freeze["model_digest"],
+                            freeze.get("model_tag_digest"),
                         )
                         break
                     except (OSError, ValueError, TypeError, jsonschema.ValidationError) as exc:
                         last_error_code = _stable_failure_code(exc)
                         if attempt == 1:
                             retries += 1
-                        if attempt == 2:
+                        if attempt == 3:
                             raise PrivateAuthoringError(
                                 f"draft_generation_failed:{last_error_code}"
                             ) from exc
@@ -407,6 +426,8 @@ def generate_draft_pool() -> dict[str, Any]:
             "schema_sha256": file_sha256(DRAFT_SCHEMA),
             "parameter_hash": freeze["parameter_hash"],
             "model_digest": freeze["model_digest"],
+            "model_blob_digest": freeze["model_blob_digest"],
+            "model_tag_digest": freeze["model_tag_digest"],
             "generation_run_version": freeze["generation_run_version"],
             "generation_model": freeze["model"],
             "generation_activation_commit": current_git_head(),
@@ -456,15 +477,18 @@ def generate_draft_pool() -> dict[str, Any]:
         failure_path = resolve_private_path(FAILURE_AUDIT_RELATIVE)
         failure = {
             "schema_version": 1,
-            "run_version": "gate3-b1-v2",
+            "run_version": "gate3-b1-v3",
             "run_id": canonical_sha256({"started_at": started, "policy_sha256": policy_sha}),
             "head": current_git_head(),
             "generator_sha256": file_sha256(ROOT / "scripts/generate_gate3_private_candidates.py"),
             "generation_freeze_sha256": freeze_sha,
             "policy_sha256": policy_sha,
-            "terminal_slot": locals().get("slot", {}).get("slot_id"),
-            "terminal_role": locals().get("role"),
-            "attempt": locals().get("attempt"),
+            "terminal_slot": current_slot_id,
+            "terminal_role": current_role,
+            "attempt": current_attempt,
+            "terminal_seed": current_seed,
+            "model_tag_digest": freeze.get("model_tag_digest"),
+            "model_blob_digest": freeze.get("model_blob_digest", freeze.get("model_digest")),
             "timestamp": datetime.now(UTC).isoformat(),
             "error_category": type(exc).__name__,
             "error_code": locals().get("last_error_code") or _stable_failure_code(exc),
@@ -492,8 +516,8 @@ def main() -> int:
         if args.generate:
             if not args.confirm_gate3_private_generation or not generation_authorized():
                 raise PrivateAuthoringError("private_generation_authorization_required")
-            if os.environ.get("NFR_GATE3_B1_V2_AUTHORIZED") != "true":
-                raise PrivateAuthoringError("gate3_b1_v2_authorization_required")
+            if os.environ.get("NFR_GATE3_B1_V3_AUTHORIZED") != "true":
+                raise PrivateAuthoringError("gate3_b1_v3_authorization_required")
             result = generate_draft_pool()
             print(json.dumps(result, sort_keys=True))
             return 0

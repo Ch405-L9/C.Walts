@@ -66,7 +66,7 @@ def _draft_view(record: dict[str, Any]) -> dict[str, Any]:
         "class": record["class"],
         "expected_behavior": record["expected_behavior"],
         "source_dataset": "custom",
-        "source_version": "cwalts-custom-v0.4-gate3-v2",
+        "source_version": "cwalts-custom-v0.4-gate3-v3",
         "source_record_id": record["slot_id"],
         "group_id": record["group_id"],
         "template_fingerprint": record["template_fingerprint"],
@@ -178,6 +178,8 @@ def validate_record_integrity(
         raise PrivateAuthoringError("draft_model_mismatch")
     if record["generation_model_digest"] != freeze["model_digest"]:
         raise PrivateAuthoringError("draft_model_digest_mismatch")
+    if record["generation_model_tag_digest"] != freeze["model_tag_digest"]:
+        raise PrivateAuthoringError("draft_model_tag_digest_mismatch")
     if record["group_id"] != derive_group_id(slot, policy):
         raise PrivateAuthoringError("draft_group_id_mismatch")
     if record["template_fingerprint"] != derive_template_fingerprint(
@@ -208,7 +210,7 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
         "prompt_sha256", "schema_sha256", "parameter_hash", "model_digest",
         "generation_model", "generation_run_version", "generation_activation_commit",
         "activated_generator_sha256", "activated_generation_freeze_sha256",
-        "split", "qrels", "canonical_candidate_manifest",
+        "model_blob_digest", "model_tag_digest", "split", "qrels", "canonical_candidate_manifest",
     }
     if not required_seal_fields.issubset(seal):
         raise PrivateAuthoringError("draft_pool_seal_contract_invalid")
@@ -226,8 +228,10 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
         "schema_sha256": file_sha256(DRAFT_SCHEMA),
         "parameter_hash": freeze["parameter_hash"],
         "model_digest": freeze["model_digest"],
+        "model_blob_digest": freeze["model_blob_digest"],
+        "model_tag_digest": freeze["model_tag_digest"],
         "generation_model": freeze["model"],
-        "generation_run_version": "gate3-b1-v2",
+        "generation_run_version": "gate3-b1-v3",
         "activated_generator_sha256": file_sha256(GENERATOR),
         "activated_generation_freeze_sha256": freeze_sha,
         "split": False,
