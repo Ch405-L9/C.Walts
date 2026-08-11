@@ -1,7 +1,9 @@
 {
   "canonical_generation_executed": false,
+  "generation_run_version": "gate3-b1-v2",
+  "generation_authorization_env": "NFR_GATE3_B1_V2_AUTHORIZED",
   "endpoint": "http://127.0.0.1:11434",
-  "generator_sha256": "62448362dd1854356545b62bf5482f8b85d4106f16f77249150f64f0dae7874b",
+  "generator_sha256": "ced63de3b7762402d5bfd4f58c475a8ed8686c05ab16882c29025c6c3747ab61",
   "model": "qwen3:8b",
   "model_digest": "sha256-a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f",
   "output_schema_sha256": "18d4a79f57af457ddd7ad7bd2530a5b89907ca15203cf8072259d151409a88bd",
@@ -17,9 +19,9 @@
     "think": false,
     "top_p": 0.95
   },
-  "policy_sha256": "bad5ce80d9c2c6992ffeafb825debff43af0da7c863e82797d2b597d3b368617",
+  "policy_sha256": "3dc39bffb61e22b0502ac4164994a59bd515c1e99159367081e70014b71f4c2b",
   "private_root": "var/eval_sources/custom",
-  "prompt_sha256": "2945ce218c62d01868c877804a90bb4a90ad75390ca923557a22aa9709642975",
+  "prompt_sha256": "084df7a87e15ae7f0188ec0a80537c14d1a791067e3d73e46331355e2916a542",
   "qualification_verdict": "pass",
   "retry_policy": {
     "allowed": [
@@ -33,5 +35,5 @@
   },
   "runtime": "ollama 0.24.0",
   "schema_version": 1,
-  "slot_sha256": "dc3036227e268914ea049eae49db8c5eba0077dbee9dadb07aa880bfa413e4fa"
+  "slot_sha256": "0882d0d965a1b542ef9c89c83be0d6b5b5de52a25c625f7887c67e3032a17fa1"
 }

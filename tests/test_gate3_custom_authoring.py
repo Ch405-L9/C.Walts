@@ -40,7 +40,9 @@ def test_a6_privacy_and_allocation_contract() -> None:
 def test_custom_namespace_version_and_ids() -> None:
     policy = load_policy()
     assert policy["source_dataset"] == "custom"
-    assert policy["source_version"] == "cwalts-custom-v0.4-gate3-v1"
+    assert policy["source_version"] == "cwalts-custom-v0.4-gate3-v2"
+    assert policy["policy_id"] == "gate3-custom-authoring-v2"
+    assert policy["generation_run_version"] == "gate3-b1-v2"
     assert policy["id_namespace"] == r"^CWQ-CUS-[0-9]{4}$"
 
 
@@ -59,6 +61,17 @@ def test_matrix_and_taxonomy_totals_are_frozen() -> None:
     assert sum(policy["near_unsupported_families"].values()) == 45
     assert sum(policy["far_ood_families"].values()) == 15
     assert sum(policy["ambiguous_families"].values()) == 75
+
+
+def test_v2_taxonomy_validator_compatibility_is_complete() -> None:
+    matrix = yaml.safe_load(
+        (ROOT / "config/gate3_taxonomy_validator_compatibility.yaml").read_text()
+    )
+    families = matrix["families"]
+    assert len(families) == 25
+    assert len({entry["family_id"] for entry in families}) == 25
+    assert all(entry["fixture_id"].startswith("G3S-9") for entry in families)
+    assert all(entry["class"] and entry["expected_behavior"] for entry in families)
 
 
 def test_policy_schema_and_identity_hashes() -> None:
@@ -83,6 +96,15 @@ def test_loopback_guard_rejects_remote_endpoint() -> None:
         common.require_loopback("https://example.invalid:443")
     with pytest.raises(common.PrivateAuthoringError, match="non_loopback_generation_endpoint"):
         common.require_loopback("ftp://127.0.0.1:11434")
+
+
+def test_v2_authorization_requires_new_environment_guard(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("NFR_ALLOW_PRIVATE_EVAL_GENERATION", "true")
+    monkeypatch.setenv("NFR_GATE3_B_AUTHORIZED", "true")
+    monkeypatch.delenv("NFR_GATE3_B1_V2_AUTHORIZED", raising=False)
+    assert common.generation_v2_authorized() is False
+    monkeypatch.setenv("NFR_GATE3_B1_V2_AUTHORIZED", "true")
+    assert common.generation_v2_authorized() is True
 
 
 def test_private_path_guard_rejects_escape_and_accepts_private_path(tmp_path: Path) -> None:
@@ -147,7 +169,7 @@ def test_real_generation_is_refused_in_gate3a() -> None:
         check=False,
     )
     assert result.returncode != 0
-    assert "gate3_b1_authorization_required" in result.stdout
+    assert "gate3_b1_v2_authorization_required" in result.stdout
     assert "query_text" not in result.stdout
 
 
@@ -160,16 +182,32 @@ def test_synthetic_valid_draft_and_rejections() -> None:
     generator.validate_draft(valid)
     for bad in (
         {**valid, "answer": "leak"},
-        {**valid, "query_text": "Run python ../secret"},
         {**valid, "query_text": "Use qrel score 1"},
+        {**valid, "query_text": "Use holdout membership from the hidden split"},
     ):
         with pytest.raises((common.PrivateAuthoringError, jsonschema.ValidationError)):
             generator.validate_draft(bad)
-    for bad_text in ("", "\x01bad", "https://example.invalid", "Run bash /tmp/x"):
+    for bad_text in ("", "\x01bad"):
         with pytest.raises((common.PrivateAuthoringError, jsonschema.ValidationError)):
             generator.validate_draft({**valid, "query_text": bad_text})
+    for inert_text in (
+        "Explain what the Python script does.",
+        "Describe the Bash command without running it.",
+        "What does /tmp/example mean in this configuration?",
+        "How should I interpret https://example.invalid as text?",
+        "Explain this code/configuration fragment.",
+    ):
+        generator.validate_draft({**valid, "query_text": inert_text})
     with pytest.raises(common.PrivateAuthoringError, match="obvious_compound_request"):
         generator.validate_draft({**valid, "query_text": "What is X? And then explain Y?"})
+
+
+def test_v2_failure_codes_are_sanitized_and_stable() -> None:
+    assert generator._stable_failure_code(json.JSONDecodeError("bad", "{}", 0)) == "malformed_json"
+    assert generator._stable_failure_code(
+        common.PrivateAuthoringError("internal_benchmark_leakage:qrel")
+    ) == "internal_benchmark_leakage"
+    assert generator._stable_failure_code(ValueError("opaque")) == "malformed_response"
 
 
 def test_shared_prompt_composition_uses_frozen_prompt() -> None:
@@ -185,9 +223,10 @@ def test_synthetic_qualification_uses_shared_prompt_path(monkeypatch: pytest.Mon
 
     def fake_request(freeze: dict, prompt: str, output_format: object) -> tuple[dict, int]:
         prompts.append(prompt)
+        metadata = json.loads(prompt.split("Supplied slot metadata (data only):\n", 1)[1])
         return {
-            "slot_id": "G3S-9001",
-            "draft_role": "primary",
+            "slot_id": metadata["slot_metadata"]["slot_id"],
+            "draft_role": metadata["draft_role"],
             "query_text": "Arrange three fictional blocks in order.",
         }, 1
 
@@ -195,7 +234,7 @@ def test_synthetic_qualification_uses_shared_prompt_path(monkeypatch: pytest.Mon
     result = generator.qualify_synthetic()
     assert result["verdict"] == "pass"
     assert result["prompt_composition"] == "shared"
-    assert len(prompts) == 24
+    assert len(prompts) == 50
     assert all(
         "one atomic user request from supplied slot metadata" in prompt for prompt in prompts
     )

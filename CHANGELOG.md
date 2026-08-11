@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0-dev.15
+
+- Retired the aborted Gate 3-B1-v1 private authoring contract after its
+  taxonomy/validator incompatibility was identified.
+- Froze Gate 3 authoring contract v2 with inert untrusted query text handling,
+  family compatibility metadata, and sanitized failure observability.
+- Kept the 285 semantic slots, local-only generation boundary, owner approval
+  requirement, and no-real-generation state unchanged.
+
 ## 0.4.0-dev.14
 
 - Added Gate 3-B1 activation tooling for sequential, dual-authorized private
@@ -1145,3 +1154,11 @@ Isolated collection, ingestion, and the embedding contract are operational.
 - `python -m pip check` reports no broken requirements.
 - Ollama reachable; `nomic-embed-text:latest` present with digest `0a109f422b47`.
 - `badgr_natural_flow_v1` not yet created; `var/chroma/` empty; writes disabled.
+## 0.4.0-dev.15
+
+- Retired the aborted Gate 3-B1-v1 private authoring contract after its
+  taxonomy/validator incompatibility was identified.
+- Froze Gate 3 authoring contract v2 with inert untrusted query text handling,
+  family compatibility metadata, and sanitized failure observability.
+- Kept the 285 semantic slots, local-only generation boundary, owner approval
+  requirement, and no-real-generation state unchanged.

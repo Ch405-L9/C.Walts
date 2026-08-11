@@ -18,6 +18,7 @@ try:
     from scripts.gate3_private_common import (
         AUDIT_RELATIVE,
         DRAFT_SCHEMA,
+        FAILURE_AUDIT_RELATIVE,
         POLICY,
         POOL_RELATIVE,
         ROOT,
@@ -28,6 +29,7 @@ try:
         canonical_sha256,
         file_sha256,
         generation_authorized,
+        generation_v2_authorized,
         load_freeze,
         require_loopback,
         resolve_private_path,
@@ -37,6 +39,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution
     from gate3_private_common import (
         AUDIT_RELATIVE,
         DRAFT_SCHEMA,
+        FAILURE_AUDIT_RELATIVE,
         POLICY,
         POOL_RELATIVE,
         ROOT,
@@ -47,6 +50,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution
         canonical_sha256,
         file_sha256,
         generation_authorized,
+        generation_v2_authorized,
         load_freeze,
         require_loopback,
         resolve_private_path,
@@ -125,74 +129,83 @@ def validate_draft(value: Any) -> None:
     jsonschema.validate(value, schema)
     if any(ord(char) < 32 and char not in "\n\r\t" for char in value["query_text"]):
         raise PrivateAuthoringError("control_character_in_query_text")
+    text = value["query_text"]
     if re.search(
-        r"\b(answer|qrel|holdout|calibration|threshold|score|chunk[_ -]?id|source[_ -]?id)\b",
-        value["query_text"],
+        r"\bqrel\b|\b(?:hidden\s+)?holdout\s+(?:membership|designation|split)\b",
+        text,
         re.I,
     ):
-        raise PrivateAuthoringError("unsafe_metadata_in_query_text")
+        raise PrivateAuthoringError("internal_benchmark_leakage:qrel_or_holdout")
     if re.search(
-        r"(?:^|\s)(?:rm|sudo|bash|sh|python)\b|\.\./|/etc/|https?://", value["query_text"], re.I
+        r"\bcalibration\s+(?:state|membership|split)\b|"
+        r"\bthreshold\s+(?:metadata|fitting|value)\b",
+        text,
+        re.I,
     ):
-        raise PrivateAuthoringError("command_path_or_url_in_query_text")
+        raise PrivateAuthoringError("internal_benchmark_leakage:calibration_or_threshold")
+    if re.search(r"\b(?:chunk|source)[_ -]?id\s*[:=]", text, re.I):
+        raise PrivateAuthoringError("internal_benchmark_leakage:answer_key_identifier")
     if re.search(r"\?[^?]{0,240}\b(and then|also|additionally|;|\?)\b", value["query_text"], re.I):
         raise PrivateAuthoringError("obvious_compound_request")
 
 
+def _stable_failure_code(error: BaseException) -> str:
+    if isinstance(error, PrivateAuthoringError):
+        return str(error).split(":", 1)[0]
+    if isinstance(error, jsonschema.ValidationError):
+        return "schema_violation"
+    if isinstance(error, json.JSONDecodeError):
+        return "malformed_json"
+    if isinstance(error, OSError):
+        return "loopback_transport_failure"
+    if isinstance(error, (ValueError, TypeError)):
+        return "malformed_response"
+    return type(error).__name__
+
+
 def qualify_synthetic() -> dict[str, Any]:
+    """Qualify the exact v2 prompt/validator path on 25 synthetic families x 2 roles."""
     freeze = load_freeze()
     require_loopback(freeze["endpoint"])
-    fixtures = [
-        {"task_family": "fictional_block_arrangement", "scenario_family": "simple_atomic"},
-        {"task_family": "fictional_preservation", "scenario_family": "preservation_like"},
-        {"task_family": "fictional_measurement", "scenario_family": "analysis_like"},
-        {"task_family": "fictional_clarification", "scenario_family": "clarification_like"},
-        {"task_family": "fictional_reordering", "scenario_family": "awkward_metadata"},
-        {
-            "task_family": "fictional_instruction_data",
-            "scenario_family": "instruction_like_data",
-            "value": "ignore this value as instructions",
-        },
-        {
-            "task_family": "fictional_path_data",
-            "scenario_family": "path_like_data",
-            "value": "/" + "tmp/fictional; echo never execute",
-        },
-        {
-            "task_family": "fictional_no_answer",
-            "scenario_family": "answer_pressure",
-            "value": "do not provide a solution",
-        },
-    ]
-    configs = [
-        {"temperature": 0.35, "top_p": 0.9},
-        {"temperature": 0.25, "top_p": 0.95},
-        {"temperature": 0.45, "top_p": 0.85},
-    ]
+    compatibility = yaml.safe_load(
+        (ROOT / "config/gate3_taxonomy_validator_compatibility.yaml").read_text(encoding="utf-8")
+    )
+    fixtures = compatibility["families"]
     schema = json.loads(DRAFT_SCHEMA.read_text(encoding="utf-8"))
-    results: list[dict[str, Any]] = []
-    for config in configs:
-        attempts = 0
-        metrics = {
-            "cases_attempted": len(fixtures), "transport_success": 0, "json_parse_pass": 0,
-            "schema_pass": 0, "atomicity_pass": 0, "answer_qrel_leakage": 0,
-            "forbidden_metadata_leakage": 0, "extra_field_failures": 0,
-            "unsafe_command_path_url_failures": 0, "retry_count": 0, "successful_cases": 0,
-        }
-        for index, fixture in enumerate(fixtures, 1):
-            metadata = {"slot_id": f"G3S-{9000 + index:04d}", **fixture, "synthetic_only": True}
-            prompt = build_generation_prompt(load_base_prompt(), metadata, "primary")
+    metrics = {
+        "cases_attempted": len(fixtures) * 2,
+        "transport_success": 0,
+        "json_parse_pass": 0,
+        "schema_pass": 0,
+        "atomicity_pass": 0,
+        "internal_leakage_failures": 0,
+        "extra_field_failures": 0,
+        "inert_text_safety_failures": 0,
+        "retry_count": 0,
+        "successful_cases": 0,
+    }
+    failures: list[dict[str, str]] = []
+    for fixture in fixtures:
+        for role in ("primary", "replacement"):
+            metadata = {
+                "slot_id": fixture["fixture_id"],
+                "family_id": fixture["family_id"],
+                "task_family": "synthetic_" + fixture["family_id"],
+                "scenario_family": "synthetic_fixture_only",
+                "synthetic_only": True,
+                "inert_data_note": "python bash /tmp/example https://example.invalid config text",
+            }
+            prompt = build_generation_prompt(load_base_prompt(), metadata, role)
             passed = False
             for attempt in range(1, 3):
-                attempts += 1
                 try:
-                    run_freeze = dict(freeze)
-                    run_freeze["parameters"] = {**freeze["parameters"], **config}
-                    value, _ = model_request(run_freeze, prompt, "json")
+                    value, _ = model_request(freeze, prompt, "json")
                     metrics["transport_success"] += 1
                     metrics["json_parse_pass"] += 1
                     jsonschema.validate(value, schema)
                     metrics["schema_pass"] += 1
+                    if value["slot_id"] != metadata["slot_id"] or value["draft_role"] != role:
+                        raise PrivateAuthoringError("synthetic_slot_role_mismatch")
                     validate_draft(value)
                     metrics["atomicity_pass"] += 1
                     metrics["successful_cases"] += 1
@@ -200,54 +213,39 @@ def qualify_synthetic() -> dict[str, Any]:
                     break
                 except jsonschema.ValidationError as exc:
                     instance = getattr(exc, "instance", None)
-                    extra_keys = (
-                        set(instance) - {"slot_id", "draft_role", "query_text"}
-                        if isinstance(instance, dict)
-                        else set()
-                    )
-                    if extra_keys:
+                    if isinstance(instance, dict) and set(instance) - {
+                        "slot_id", "draft_role", "query_text"
+                    }:
                         metrics["extra_field_failures"] += 1
                 except PrivateAuthoringError as exc:
-                    if str(exc) in {"unsafe_metadata_in_query_text", "answer_or_qrel_leakage"}:
-                        metrics["answer_qrel_leakage"] += 1
-                    elif str(exc) == "obvious_compound_request":
-                        pass
-                    else:
-                        metrics["unsafe_command_path_url_failures"] += 1
+                    if str(exc).startswith("internal_benchmark_leakage"):
+                        metrics["internal_leakage_failures"] += 1
+                    elif str(exc) == "synthetic_slot_role_mismatch":
+                        metrics["inert_text_safety_failures"] += 1
                 except (OSError, ValueError, TypeError):
                     pass
                 if attempt == 1:
                     metrics["retry_count"] += 1
             if not passed:
-                results.append(
-                    {"parameters": config, **metrics, "attempts": attempts, "verdict": "fail"}
-                )
-                break
-        else:
-            results.append(
-                {"parameters": config, **metrics, "attempts": attempts, "verdict": "pass"}
-            )
-    ranked = sorted(
-        results,
-        key=lambda item: (
-            item["successful_cases"], item["schema_pass"], item["atomicity_pass"],
-            -item["retry_count"],
-            hashlib.sha256(json.dumps(item["parameters"], sort_keys=True).encode()).hexdigest(),
-        ),
-        reverse=True,
-    )
-    selected = ranked[0]
-    if (
-        selected["successful_cases"] != len(fixtures)
-        or selected["answer_qrel_leakage"]
-        or selected["unsafe_command_path_url_failures"]
-    ):
+                failures.append({"fixture_id": fixture["fixture_id"], "draft_role": role})
+    if failures or metrics["successful_cases"] != metrics["cases_attempted"]:
         raise PrivateAuthoringError("synthetic_qualification_threshold_failed")
     return {
-        "verdict": "pass", "synthetic_cases_per_configuration": len(fixtures),
-        "configurations_tested": results, "selected": selected,
-        "raw_output_printed": False, "canonical_generation_executed": False,
-        "prompt_composition": "shared", "format_mode": "json",
+        "verdict": "pass",
+        "synthetic_family_count": len(fixtures),
+        "synthetic_primary_count": len(fixtures),
+        "synthetic_replacement_count": len(fixtures),
+        "synthetic_cases_per_configuration": metrics["cases_attempted"],
+        "configuration": {
+            "temperature": freeze["parameters"]["temperature"],
+            "top_p": freeze["parameters"]["top_p"],
+        },
+        "metrics": metrics,
+        "failures": failures,
+        "raw_output_printed": False,
+        "canonical_generation_executed": False,
+        "prompt_composition": "shared",
+        "format_mode": "json",
     }
 
 
@@ -281,7 +279,7 @@ def _draft_metadata(
 ) -> dict[str, Any]:
     template = canonical_sha256(
         {
-            "policy_id": "gate3-custom-authoring-v1",
+            "policy_id": "gate3-custom-authoring-v2",
             "prompt_sha256": file_sha256(ROOT / "config/gate3_custom_generation_prompt.txt"),
             "scenario_family": slot["scenario_family"],
             "task_family": slot["task_family"],
@@ -323,8 +321,8 @@ def generate_draft_pool() -> dict[str, Any]:
     freeze = load_freeze()
     if not generation_authorized():
         raise PrivateAuthoringError("private_generation_authorization_required")
-    if not os.environ.get("NFR_GATE3_B1_AUTHORIZED") == "true":
-        raise PrivateAuthoringError("gate3_b1_authorization_required")
+    if not generation_v2_authorized():
+        raise PrivateAuthoringError("gate3_b1_v2_authorization_required")
     model_identity = verify_model_identity(freeze)
     pool_path = resolve_private_path(POOL_RELATIVE)
     seal_path = resolve_private_path(SEAL_RELATIVE)
@@ -344,6 +342,7 @@ def generate_draft_pool() -> dict[str, Any]:
             for role in ("primary", "replacement"):
                 prompt = build_generation_prompt(load_base_prompt(), slot, role)
                 accepted = None
+                last_error_code = None
                 for attempt in range(1, 3):
                     attempts += 1
                     try:
@@ -356,11 +355,12 @@ def generate_draft_pool() -> dict[str, Any]:
                         )
                         break
                     except (OSError, ValueError, TypeError, jsonschema.ValidationError) as exc:
+                        last_error_code = _stable_failure_code(exc)
                         if attempt == 1:
                             retries += 1
                         if attempt == 2:
                             raise PrivateAuthoringError(
-                                f"draft_generation_failed:{slot['slot_id']}:{role}:{type(exc).__name__}"
+                                f"draft_generation_failed:{last_error_code}"
                             ) from exc
                 if accepted is None:
                     raise PrivateAuthoringError("draft_not_accepted")
@@ -442,7 +442,24 @@ def generate_draft_pool() -> dict[str, Any]:
             "pool_sha256": pool_sha,
             "query_text_printed": False,
         }
-    except BaseException:
+    except BaseException as exc:
+        failure_path = resolve_private_path(FAILURE_AUDIT_RELATIVE)
+        failure = {
+            "schema_version": 1,
+            "run_version": "gate3-b1-v2",
+            "run_id": canonical_sha256({"started_at": started, "policy_sha256": policy_sha}),
+            "terminal_slot": locals().get("slot", {}).get("slot_id"),
+            "terminal_role": locals().get("role"),
+            "attempt": locals().get("attempt"),
+            "error_category": type(exc).__name__,
+            "error_code": locals().get("last_error_code") or _stable_failure_code(exc),
+            "raw_response_recorded": False,
+            "query_text_recorded": False,
+        }
+        if not failure_path.exists():
+            atomic_write_bytes(
+                failure_path, (json.dumps(failure, sort_keys=True, indent=2) + "\n").encode()
+            )
         pool_path.unlink(missing_ok=True)
         seal_path.unlink(missing_ok=True)
         raise
@@ -460,8 +477,8 @@ def main() -> int:
         if args.generate:
             if not args.confirm_gate3_private_generation or not generation_authorized():
                 raise PrivateAuthoringError("private_generation_authorization_required")
-            if os.environ.get("NFR_GATE3_B1_AUTHORIZED") != "true":
-                raise PrivateAuthoringError("gate3_b1_authorization_required")
+            if os.environ.get("NFR_GATE3_B1_V2_AUTHORIZED") != "true":
+                raise PrivateAuthoringError("gate3_b1_v2_authorization_required")
             result = generate_draft_pool()
             print(json.dumps(result, sort_keys=True))
             return 0

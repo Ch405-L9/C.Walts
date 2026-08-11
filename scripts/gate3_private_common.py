@@ -19,7 +19,9 @@ PROMPT = ROOT / "config/gate3_custom_generation_prompt.txt"
 DRAFT_SCHEMA = ROOT / "schemas/gate3_generated_draft.schema.json"
 FREEZE = ROOT / "config/gate3_generation_freeze.json"
 GENERATOR = ROOT / "scripts/generate_gate3_private_candidates.py"
-GENERATION_ACTIVATION = "gate3-b1-activation"
+GENERATION_ACTIVATION = "gate3-b1-v2"
+GENERATION_V2_AUTHORIZATION = "NFR_GATE3_B1_V2_AUTHORIZED"
+FAILURE_AUDIT_RELATIVE = Path("audit/gate3_generation_failure.json")
 POOL_RELATIVE = Path("drafts/gate3_private_draft_pool.json")
 SEAL_RELATIVE = Path("drafts/gate3_private_draft_pool.seal.json")
 AUDIT_RELATIVE = Path("audit/gate3_b1_generation_audit.json")
@@ -103,6 +105,10 @@ def generation_authorized() -> bool:
         os.environ.get("NFR_ALLOW_PRIVATE_EVAL_GENERATION") == "true"
         and os.environ.get("NFR_GATE3_B_AUTHORIZED") == "true"
     )
+
+
+def generation_v2_authorized() -> bool:
+    return generation_authorized() and os.environ.get(GENERATION_V2_AUTHORIZATION) == "true"
 
 
 def atomic_write_bytes(path: Path, payload: bytes) -> None:

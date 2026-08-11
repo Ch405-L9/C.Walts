@@ -1,8 +1,8 @@
 schema_version: 1
-policy_id: gate3-custom-authoring-v1
+policy_id: gate3-custom-authoring-v2
 benchmark_version: '0.4'
 source_dataset: custom
-source_version: cwalts-custom-v0.4-gate3-v1
+source_version: cwalts-custom-v0.4-gate3-v2
 id_namespace: ^CWQ-CUS-[0-9]{4}$
 id_range:
 - 1
@@ -108,10 +108,16 @@ quality:
   atomicity_required: true
   answer_leakage_forbidden: true
   qrel_fields_forbidden: true
-  shell_path_injection_forbidden: true
+  shell_path_injection_forbidden: false
+  query_text_is_inert_data: true
+  execution_from_query_text_forbidden: true
   no_query_text_stdout: true
 slot_manifest_path: config/gate3_custom_authoring_slots.yaml
-slot_manifest_sha256: dc3036227e268914ea049eae49db8c5eba0077dbee9dadb07aa880bfa413e4fa
-prompt_sha256: 2945ce218c62d01868c877804a90bb4a90ad75390ca923557a22aa9709642975
+slot_manifest_sha256: 0882d0d965a1b542ef9c89c83be0d6b5b5de52a25c625f7887c67e3032a17fa1
+prompt_sha256: 084df7a87e15ae7f0188ec0a80537c14d1a791067e3d73e46331355e2916a542
 output_schema_sha256: 18d4a79f57af457ddd7ad7bd2530a5b89907ca15203cf8072259d151409a88bd
 generation_parameter_hash: 754792961d8e44f2684be7730a298cf530ee12a4421bcf2b8bf7d51fcf32f3ce
+generation_run_version: gate3-b1-v2
+taxonomy_validator_compatibility_path: config/gate3_taxonomy_validator_compatibility.yaml
+failure_audit_path: var/eval_sources/custom/audit/gate3_generation_failure.json
+generation_authorization_env: NFR_GATE3_B1_V2_AUTHORIZED

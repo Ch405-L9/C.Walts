@@ -54,7 +54,7 @@ def _draft_view(record: dict[str, Any]) -> dict[str, Any]:
         "class": record["class"],
         "expected_behavior": record["expected_behavior"],
         "source_dataset": "custom",
-        "source_version": "cwalts-custom-v0.4-gate3-v1",
+        "source_version": "cwalts-custom-v0.4-gate3-v2",
         "source_record_id": record["slot_id"],
         "group_id": record["group_id"],
         "template_fingerprint": record["template_fingerprint"],

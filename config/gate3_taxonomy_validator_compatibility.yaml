@@ -1,0 +1,29 @@
+schema_version: 1
+policy_id: gate3-custom-authoring-v2
+query_text_included: false
+families:
+  - {family_id: supported_narration_rewrite, class: supported_in_domain, expected_behavior: partially_grounded, fixture_id: G3S-9001}
+  - {family_id: supported_preservation, class: supported_in_domain, expected_behavior: partially_grounded, fixture_id: G3S-9002}
+  - {family_id: supported_narration_analysis, class: supported_in_domain, expected_behavior: partially_grounded, fixture_id: G3S-9003}
+  - {family_id: supported_technical_explanation, class: supported_in_domain, expected_behavior: partially_grounded, fixture_id: G3S-9004}
+  - {family_id: supported_glossary_definition, class: supported_in_domain, expected_behavior: assist_ungrounded_only, fixture_id: G3S-9005}
+  - {family_id: supported_exact_linguistic_notation, class: supported_in_domain, expected_behavior: exact_lexical, fixture_id: G3S-9006}
+  - {family_id: supported_source_inspection, class: supported_in_domain, expected_behavior: partially_grounded, fixture_id: G3S-9007}
+  - {family_id: supported_delivery_register, class: supported_in_domain, expected_behavior: assist_ungrounded_only, fixture_id: G3S-9008}
+  - {family_id: unsupported_translation_localization, class: near_domain_unsupported, expected_behavior: abstain, fixture_id: G3S-9009}
+  - {family_id: unsupported_voice_audio_generation, class: near_domain_unsupported, expected_behavior: abstain, fixture_id: G3S-9010}
+  - {family_id: unsupported_external_factual_research, class: near_domain_unsupported, expected_behavior: assist_ungrounded_only, fixture_id: G3S-9011}
+  - {family_id: unsupported_non_cwalts_content_editing, class: near_domain_unsupported, expected_behavior: abstain, fixture_id: G3S-9012}
+  - {family_id: unsupported_domain_specific_advice, class: near_domain_unsupported, expected_behavior: abstain, fixture_id: G3S-9013}
+  - {family_id: code_execution_or_debugging, class: far_out_of_domain, expected_behavior: abstain, fixture_id: G3S-9014}
+  - {family_id: financial_legal_medical_advice, class: far_out_of_domain, expected_behavior: abstain, fixture_id: G3S-9015}
+  - {family_id: travel_commerce_operations, class: far_out_of_domain, expected_behavior: assist_ungrounded_only, fixture_id: G3S-9016}
+  - {family_id: missing_referent, class: ambiguous_adversarial_insufficient, expected_behavior: request_clarification, fixture_id: G3S-9017}
+  - {family_id: missing_source_text, class: ambiguous_adversarial_insufficient, expected_behavior: request_clarification, fixture_id: G3S-9018}
+  - {family_id: missing_operation, class: ambiguous_adversarial_insufficient, expected_behavior: request_clarification, fixture_id: G3S-9019}
+  - {family_id: conflicting_instructions, class: ambiguous_adversarial_insufficient, expected_behavior: request_clarification, fixture_id: G3S-9020}
+  - {family_id: insufficient_factual_context, class: ambiguous_adversarial_insufficient, expected_behavior: request_clarification, fixture_id: G3S-9021}
+  - {family_id: ambiguous_entity_or_scope, class: ambiguous_adversarial_insufficient, expected_behavior: request_clarification, fixture_id: G3S-9022}
+  - {family_id: impossible_preservation, class: ambiguous_adversarial_insufficient, expected_behavior: abstain, fixture_id: G3S-9023}
+  - {family_id: unsupported_citation_request, class: ambiguous_adversarial_insufficient, expected_behavior: abstain, fixture_id: G3S-9024}
+  - {family_id: pressure_to_invent_evidence, class: ambiguous_adversarial_insufficient, expected_behavior: abstain, fixture_id: G3S-9025}

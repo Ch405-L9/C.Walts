@@ -50,11 +50,14 @@ def validate_manifest(path: Path) -> dict[str, Any]:
             raise PrivateAuthoringError("forbidden_record_key")
         text = str(record.get("query_text", ""))
         if re.search(
-            r"\b(answer|qrel|holdout|calibration|threshold|score|chunk[_ -]?id|source[_ -]?id)\b",
+            r"\bqrel\b|\b(?:hidden\s+)?holdout\s+(?:membership|designation|split)\b|"
+            r"\bcalibration\s+(?:state|membership|split)\b|"
+            r"\bthreshold\s+(?:metadata|fitting|value)\b|"
+            r"\b(?:chunk|source)[_ -]?id\s*[:=]",
             text,
             re.I,
         ):
-            raise PrivateAuthoringError("answer_or_qrel_leakage")
+            raise PrivateAuthoringError("internal_benchmark_leakage")
     return {
         "verdict": "pass",
         "record_count": len(data["records"]),
