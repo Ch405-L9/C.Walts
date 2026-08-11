@@ -181,6 +181,7 @@ _RETRYABLE_PRIVATE_CODES = frozenset(
         "internal_benchmark_leakage",
         "obvious_compound_request",
         "returned_slot_role_mismatch",
+        "format_safety_failure",
     }
 )
 
@@ -194,12 +195,46 @@ class AttemptRunResult:
     intermediate_error_codes: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class SlotPairResult:
+    primary: AttemptRunResult
+    replacement: AttemptRunResult
+
+    @property
+    def attempts_used(self) -> int:
+        return self.primary.attempts_used + self.replacement.attempts_used
+
+    @property
+    def retries_used(self) -> int:
+        return self.primary.retries_used + self.replacement.retries_used
+
+    @property
+    def pair_duplicate_retries(self) -> int:
+        return sum(
+            code == "format_safety_failure:replacement_exact_duplicate"
+            for code in self.replacement.intermediate_error_codes
+        )
+
+    @property
+    def intermediate_error_codes(self) -> tuple[str, ...]:
+        return self.primary.intermediate_error_codes + self.replacement.intermediate_error_codes
+
+
 class GenerationTerminalError(PrivateAuthoringError):
     """A sanitized terminal result after the frozen attempt ceiling."""
 
-    def __init__(self, stable_code: str, slot_id: str, role: str, attempt: int, seed: int):
+    def __init__(
+        self,
+        stable_code: str,
+        slot_id: str,
+        role: str,
+        attempt: int,
+        seed: int,
+        detail_code: str | None = None,
+    ):
         super().__init__(f"draft_generation_failed:{stable_code}")
         self.stable_code = stable_code
+        self.detail_code = detail_code
         self.slot_id = slot_id
         self.role = role
         self.attempt = attempt
@@ -222,11 +257,28 @@ def classify_generation_error(error: BaseException) -> tuple[str, bool]:
     return code, False
 
 
+def _canonical_text(query_text: str) -> str:
+    """Use the repository's Stage 5 canonical text normalization."""
+    try:
+        from scripts.verify_eval_split import canonical_text
+    except ModuleNotFoundError:  # pragma: no cover - direct script execution
+        from verify_eval_split import canonical_text
+
+    return canonical_text(query_text)
+
+
+def _error_detail_code(error: BaseException) -> str | None:
+    if isinstance(error, PrivateAuthoringError) and ":" in str(error):
+        return str(error).split(":", 1)[1]
+    return None
+
+
 def generate_one_slot_role(
     freeze: dict[str, Any],
     policy: dict[str, Any],
     slot: dict[str, Any],
     role: str,
+    pair_exclusion_text: str | None = None,
 ) -> AttemptRunResult:
     """Run the sole retry state machine shared by shadow and canonical modes."""
     prompt = build_generation_prompt(load_base_prompt(), slot, role)
@@ -242,6 +294,12 @@ def generate_one_slot_role(
             if value.get("slot_id") != slot["slot_id"] or value.get("draft_role") != role:
                 raise PrivateAuthoringError("returned_slot_role_mismatch")
             validate_draft(value)
+            if (
+                role == "replacement"
+                and pair_exclusion_text is not None
+                and _canonical_text(value["query_text"]) == _canonical_text(pair_exclusion_text)
+            ):
+                raise PrivateAuthoringError("format_safety_failure:replacement_exact_duplicate")
             return AttemptRunResult(
                 value=value,
                 attempts_used=attempt,
@@ -253,12 +311,38 @@ def generate_one_slot_role(
             stable_code, retryable = classify_generation_error(error)
             if not retryable:
                 raise
-            intermediate_errors.append(stable_code)
+            diagnostic_code = (
+                "format_safety_failure:replacement_exact_duplicate"
+                if stable_code == "format_safety_failure"
+                and _error_detail_code(error) == "replacement_exact_duplicate"
+                else stable_code
+            )
+            intermediate_errors.append(diagnostic_code)
             if attempt == max_attempts:
                 raise GenerationTerminalError(
-                    stable_code, slot["slot_id"], role, attempt, request_seed
+                    stable_code,
+                    slot["slot_id"],
+                    role,
+                    attempt,
+                    request_seed,
+                    _error_detail_code(error),
                 ) from error
     raise PrivateAuthoringError("retry_state_machine_unreachable")
+
+
+def generate_slot_pair(
+    freeze: dict[str, Any], policy: dict[str, Any], slot: dict[str, Any]
+) -> SlotPairResult:
+    """Generate one primary/replacement pair with local-only distinctness checks."""
+    primary = generate_one_slot_role(freeze, policy, slot, "primary")
+    replacement = generate_one_slot_role(
+        freeze,
+        policy,
+        slot,
+        "replacement",
+        pair_exclusion_text=primary.value["query_text"],
+    )
+    return SlotPairResult(primary=primary, replacement=replacement)
 
 
 def qualify_synthetic() -> dict[str, Any]:
@@ -282,32 +366,30 @@ def qualify_synthetic() -> dict[str, Any]:
     intermediate_errors: dict[str, int] = {}
     policy = yaml.safe_load(POLICY.read_text(encoding="utf-8"))
     for index, slot in enumerate(slots, start=1):
-        for role in ("primary", "replacement"):
-            shadow_slot = dict(slot)
-            shadow_slot["slot_id"] = f"G3S-{9000 + index:04d}"
-            metadata = {
-                **shadow_slot,
-                "synthetic_only": True,
-            }
-            try:
-                result = generate_one_slot_role(freeze, policy, metadata, role)
-                metrics["transport_success"] += result.attempts_used
-                metrics["json_parse_pass"] += result.attempts_used
-                metrics["schema_pass"] += result.attempts_used
-                metrics["atomicity_pass"] += 1
-                metrics["successful_cases"] += 1
-                metrics["retry_count"] += result.retries_used
-                for code in result.intermediate_error_codes:
-                    intermediate_errors[code] = intermediate_errors.get(code, 0) + 1
-            except GenerationTerminalError as exc:
-                intermediate_errors[exc.stable_code] = (
-                    intermediate_errors.get(exc.stable_code, 0) + 1
-                )
-                failures.append({"fixture_id": metadata["slot_id"], "draft_role": role})
-            except BaseException as exc:
-                code, _ = classify_generation_error(exc)
+        shadow_slot = dict(slot)
+        shadow_slot["slot_id"] = f"G3S-{9000 + index:04d}"
+        metadata = {**shadow_slot, "synthetic_only": True}
+        try:
+            pair = generate_slot_pair(freeze, policy, metadata)
+            metrics["transport_success"] += pair.attempts_used
+            metrics["json_parse_pass"] += pair.attempts_used
+            metrics["schema_pass"] += pair.attempts_used
+            metrics["atomicity_pass"] += 2
+            metrics["successful_cases"] += 2
+            metrics["retry_count"] += pair.retries_used
+            metrics.setdefault("distinct_pairs", 0)
+            metrics["distinct_pairs"] += 1
+            metrics.setdefault("pair_duplicate_retries", 0)
+            metrics["pair_duplicate_retries"] += pair.pair_duplicate_retries
+            for code in pair.intermediate_error_codes:
                 intermediate_errors[code] = intermediate_errors.get(code, 0) + 1
-                failures.append({"fixture_id": metadata["slot_id"], "draft_role": role})
+        except GenerationTerminalError as exc:
+            intermediate_errors[exc.stable_code] = intermediate_errors.get(exc.stable_code, 0) + 1
+            failures.append({"fixture_id": metadata["slot_id"], "draft_role": exc.role})
+        except BaseException as exc:
+            code, _ = classify_generation_error(exc)
+            intermediate_errors[code] = intermediate_errors.get(code, 0) + 1
+            failures.append({"fixture_id": metadata["slot_id"], "draft_role": "pair"})
     if failures or metrics["successful_cases"] != metrics["cases_attempted"]:
         raise PrivateAuthoringError("synthetic_qualification_threshold_failed")
     return {
@@ -315,6 +397,7 @@ def qualify_synthetic() -> dict[str, Any]:
         "synthetic_slot_count": len(slots),
         "synthetic_primary_count": len(slots),
         "synthetic_replacement_count": len(slots),
+        "synthetic_distinct_pair_count": metrics["distinct_pairs"],
         "synthetic_cases_per_configuration": metrics["cases_attempted"],
         "configuration": freeze["parameters"],
         "metrics": metrics,
@@ -386,11 +469,6 @@ def _draft_metadata(
 
 
 def generate_draft_pool() -> dict[str, Any]:
-    try:
-        from scripts.verify_eval_split import canonical_text
-    except ModuleNotFoundError:  # pragma: no cover - direct script execution
-        from verify_eval_split import canonical_text
-
     freeze = load_freeze()
     if not generation_authorized():
         raise PrivateAuthoringError("private_generation_authorization_required")
@@ -417,23 +495,17 @@ def generate_draft_pool() -> dict[str, Any]:
     terminal_error_code: str | None = None
     try:
         for slot in slots:
-            for role in ("primary", "replacement"):
-                current_slot_id = slot["slot_id"]
+            current_slot_id = slot["slot_id"]
+            pair = generate_slot_pair(freeze, policy, slot)
+            attempts += pair.attempts_used
+            retries += pair.retries_used
+            for role, result in (("primary", pair.primary), ("replacement", pair.replacement)):
                 current_role = role
-                result = generate_one_slot_role(freeze, policy, slot, role)
-                attempts += result.attempts_used
-                retries += result.retries_used
                 current_attempt = result.attempts_used
                 current_seed = result.final_seed
                 accepted = _draft_metadata(
-                    slot,
-                    role,
-                    result.value["query_text"],
-                    freeze_sha,
-                    policy_sha,
-                    freeze["model"],
-                    freeze["model_digest"],
-                    freeze.get("model_tag_digest"),
+                    slot, role, result.value["query_text"], freeze_sha, policy_sha,
+                    freeze["model"], freeze["model_digest"], freeze.get("model_tag_digest"),
                 )
                 if accepted is None:
                     raise PrivateAuthoringError("draft_not_accepted")
@@ -445,7 +517,7 @@ def generate_draft_pool() -> dict[str, Any]:
             slot_id
             for slot_id, pair in by_slot.items()
             if len(pair) != 2
-            or canonical_text(pair[0]["query_text"]) == canonical_text(pair[1]["query_text"])
+            or _canonical_text(pair[0]["query_text"]) == _canonical_text(pair[1]["query_text"])
         ]
         if duplicate_slots:
             raise PrivateAuthoringError(
@@ -529,8 +601,10 @@ def generate_draft_pool() -> dict[str, Any]:
             current_attempt = exc.attempt
             current_seed = exc.seed
             terminal_error_code = exc.stable_code
+            terminal_detail_code = exc.detail_code
         else:
             terminal_error_code, _ = classify_generation_error(exc)
+            terminal_detail_code = _error_detail_code(exc)
         failure_path = resolve_private_path(FAILURE_AUDIT_RELATIVE)
         failure = {
             "schema_version": 1,
@@ -549,6 +623,7 @@ def generate_draft_pool() -> dict[str, Any]:
             "timestamp": datetime.now(UTC).isoformat(),
             "error_category": type(exc).__name__,
             "error_code": terminal_error_code,
+            "error_detail_code": terminal_detail_code,
             "raw_response_recorded": False,
             "query_text_recorded": False,
         }

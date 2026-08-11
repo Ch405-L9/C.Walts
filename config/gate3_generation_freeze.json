@@ -3,7 +3,7 @@
   "generation_run_version": "gate3-b1-v3",
   "generation_authorization_env": "NFR_GATE3_B1_V3_AUTHORIZED",
   "endpoint": "http://127.0.0.1:11434",
-  "generator_sha256": "252e555b6ffee378e02f3e4d6004e6186ee6694b88d24482b7a89db447a06532",
+  "generator_sha256": "3d387044da9201e1317ffdea84a725e993b4148a7da04ef8bb277b8114abcd59",
   "model": "qwen3:8b",
   "model_tag_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
   "model_blob_digest": "sha256-a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f",

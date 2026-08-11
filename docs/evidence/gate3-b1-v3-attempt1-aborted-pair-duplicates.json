@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "starting_checkpoint": "2576a4f259f91b988d36f70bec0d48615bbbb43f",
+  "generation_run_version": "gate3-b1-v3",
+  "canonical_generation_attempted": true,
+  "accepted_draft_pool": false,
+  "duplicate_pair_count": 44,
+  "accepted_draft_count": 0,
+  "owner_approval_count": 0,
+  "canonical_manifest_present": false,
+  "performance_peek": false,
+  "production_mutation": false,
+  "query_text_recorded": false,
+  "root_cause_classification": "replacement_pair_distinctness_not_integrated_into_attempt_state_machine",
+  "disposition": "ABORTED_NO_ACCEPTED_DRAFT_POOL"
+}

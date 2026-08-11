@@ -231,7 +231,7 @@ def test_synthetic_qualification_uses_shared_prompt_path(monkeypatch: pytest.Mon
         return {
             "slot_id": metadata["slot_metadata"]["slot_id"],
             "draft_role": metadata["draft_role"],
-            "query_text": "Arrange three fictional blocks in order.",
+            "query_text": f"Arrange three fictional blocks in {metadata['draft_role']} order.",
         }, 1
 
     monkeypatch.setattr(generator, "model_request", fake_request)
@@ -506,6 +506,7 @@ def test_retry_classifier_has_explicit_retry_contract() -> None:
     for error in (
         common.PrivateAuthoringError("internal_benchmark_leakage"),
         common.PrivateAuthoringError("obvious_compound_request"),
+        common.PrivateAuthoringError("format_safety_failure:replacement_exact_duplicate"),
         json.JSONDecodeError("bad", "{}", 0),
         jsonschema.ValidationError("bad"),
         OSError("loopback"),
@@ -572,6 +573,119 @@ def test_shared_attempt_runner_stops_after_three_failures(
     assert error.attempt == 3
     assert error.seed == calls[-1]
     assert error.stable_code == "internal_benchmark_leakage"
+
+
+def _pair_response(prompt: str, query_text: str) -> dict:
+    metadata = json.loads(prompt.split("Supplied slot metadata (data only):\n", 1)[1])
+    return {
+        "slot_id": metadata["slot_metadata"]["slot_id"],
+        "draft_role": metadata["draft_role"],
+        "query_text": query_text,
+    }
+
+
+def test_pair_immediate_distinct_has_no_pair_retry(monkeypatch: pytest.MonkeyPatch) -> None:
+    freeze, values = _synthetic_runner_inputs()
+    calls: list[int] = []
+
+    def fake_request(freeze_arg, prompt, output_format, request_seed):
+        calls.append(request_seed)
+        role = json.loads(prompt.split("Supplied slot metadata (data only):\n", 1)[1])["draft_role"]
+        return _pair_response(prompt, f"Synthetic {role} request."), 1
+
+    monkeypatch.setattr(generator, "model_request", fake_request)
+    result = generator.generate_slot_pair(freeze, values["policy"], values["slot"])
+    assert result.retries_used == 0
+    assert result.pair_duplicate_retries == 0
+    assert result.primary.attempts_used == 1
+    assert result.replacement.attempts_used == 1
+    assert len(calls) == 2
+
+
+def test_pair_duplicate_then_distinct_retries_replacement_only(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    freeze, values = _synthetic_runner_inputs()
+    calls: list[tuple[str, int]] = []
+
+    def fake_request(freeze_arg, prompt, output_format, request_seed):
+        metadata = json.loads(prompt.split("Supplied slot metadata (data only):\n", 1)[1])
+        role = metadata["draft_role"]
+        calls.append((role, request_seed))
+        if role == "primary":
+            return _pair_response(prompt, "Same synthetic request."), 1
+        if len([role for role, _ in calls if role == "replacement"]) == 1:
+            return _pair_response(prompt, "Same synthetic request."), 1
+        return _pair_response(prompt, "Different synthetic request."), 1
+
+    monkeypatch.setattr(generator, "model_request", fake_request)
+    result = generator.generate_slot_pair(freeze, values["policy"], values["slot"])
+    replacement_seeds = [seed for role, seed in calls if role == "replacement"]
+    assert result.retries_used == 1
+    assert result.pair_duplicate_retries == 1
+    assert len(replacement_seeds) == 2
+    assert replacement_seeds[0] != replacement_seeds[1]
+    assert len([role for role, _ in calls if role == "primary"]) == 1
+
+
+def test_pair_two_duplicates_then_distinct_succeeds_on_third_attempt(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    freeze, values = _synthetic_runner_inputs()
+    replacement_calls = 0
+
+    def fake_request(freeze_arg, prompt, output_format, request_seed):
+        nonlocal replacement_calls
+        role = json.loads(prompt.split("Supplied slot metadata (data only):\n", 1)[1])["draft_role"]
+        if role == "primary":
+            return _pair_response(prompt, "Same synthetic request."), 1
+        replacement_calls += 1
+        text = "Same synthetic request." if replacement_calls < 3 else "Different synthetic request."
+        return _pair_response(prompt, text), 1
+
+    monkeypatch.setattr(generator, "model_request", fake_request)
+    result = generator.generate_slot_pair(freeze, values["policy"], values["slot"])
+    assert result.replacement.attempts_used == 3
+    assert result.retries_used == 2
+    assert result.pair_duplicate_retries == 2
+
+
+def test_pair_three_duplicates_terminal_without_fourth_call(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    freeze, values = _synthetic_runner_inputs()
+    calls: list[tuple[str, int]] = []
+
+    def fake_request(freeze_arg, prompt, output_format, request_seed):
+        metadata = json.loads(prompt.split("Supplied slot metadata (data only):\n", 1)[1])
+        calls.append((metadata["draft_role"], request_seed))
+        return _pair_response(prompt, "Same synthetic request."), 1
+
+    monkeypatch.setattr(generator, "model_request", fake_request)
+    with pytest.raises(generator.GenerationTerminalError) as caught:
+        generator.generate_slot_pair(freeze, values["policy"], values["slot"])
+    error = caught.value
+    assert len(calls) == 4
+    assert error.role == "replacement"
+    assert error.attempt == 3
+    assert error.seed == calls[-1][1]
+    assert error.stable_code == "format_safety_failure"
+    assert error.detail_code == "replacement_exact_duplicate"
+
+
+def test_pair_replacement_prompt_excludes_primary_text(monkeypatch: pytest.MonkeyPatch) -> None:
+    freeze, values = _synthetic_runner_inputs()
+    prompts: list[str] = []
+
+    def fake_request(freeze_arg, prompt, output_format, request_seed):
+        prompts.append(prompt)
+        role = json.loads(prompt.split("Supplied slot metadata (data only):\n", 1)[1])["draft_role"]
+        return _pair_response(prompt, f"Synthetic {role} request."), 1
+
+    monkeypatch.setattr(generator, "model_request", fake_request)
+    generator.generate_slot_pair(freeze, values["policy"], values["slot"])
+    assert len(prompts) == 2
+    assert "Synthetic primary request." not in prompts[1]
 
 
 def test_non_retryable_generation_precondition_stops_immediately(
