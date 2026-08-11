@@ -3209,3 +3209,13 @@ passes, and all five real source strata pass base-group feasibility. Final
 Stage 5 leakage-cluster feasibility remains pending Gate 2-B candidate
 validation. No benchmark failure, candidate manifest, split, holdout, qrels, or
 production mutation occurred.
+## Gate 3-A-R2
+
+- Gate 3-B1-v1 was aborted with no accepted draft pool after the canonical
+  attempt terminated at `G3S-0196:primary`.
+- The sanitized disposition is an authoring taxonomy/validator contract
+  conflict; the underlying v1 exception was not recoverable because v1 masked
+  it.
+- Gate 3 authoring contract v2 is frozen with the 285 semantic slots unchanged,
+  inert query-text handling, family compatibility metadata, and failure
+  observability. No v2 private generation occurred.

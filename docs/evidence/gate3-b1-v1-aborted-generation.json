@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "gate": "gate3-b1-v1",
+  "starting_checkpoint": "299483fdf1e430cff585a2832002a5d749c8cf3a",
+  "activation_commit": "095f6f576cd1c7ed77ec39088a320e39355185b5",
+  "activation_correction_commit": "b2989789b295bfcab7c086a3e40ba21e98f28d60",
+  "canonical_attempt_occurred": true,
+  "terminal_slot": "G3S-0196",
+  "terminal_role": "primary",
+  "accepted_draft_pool": false,
+  "accepted_draft_count": 0,
+  "owner_approval_count": 0,
+  "canonical_manifest_present": false,
+  "performance_peek": false,
+  "production_mutation": false,
+  "underlying_error": "UNKNOWN_UNRECOVERABLE_DUE_V1_EXCEPTION_MASKING",
+  "root_cause_classification": "authoring_taxonomy_validator_contract_conflict",
+  "root_cause_metadata": {
+    "class": "far_out_of_domain",
+    "task_family": "far_ood",
+    "scenario": "code_execution_or_debugging",
+    "expected_behavior": "abstain"
+  },
+  "v1_retired": true,
+  "query_text_recorded": false
+}
