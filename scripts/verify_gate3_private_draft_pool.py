@@ -59,6 +59,37 @@ except ModuleNotFoundError:  # pragma: no cover
     )
 
 EXPECTED_ROLES = ("primary", "replacement")
+ALLOWED_DRAFT_RECORD_FIELDS = frozenset(
+    {
+        "draft_id",
+        "slot_id",
+        "draft_role",
+        "query_text",
+        "class",
+        "expected_behavior",
+        "task_family",
+        "scenario_family",
+        "structural_family",
+        "register",
+        "preservation_burden",
+        "group_family",
+        "group_id",
+        "template_family_id",
+        "template_fingerprint",
+        "generation_model",
+        "generation_model_digest",
+        "generation_model_tag_digest",
+        "policy_sha256",
+        "generation_freeze_sha256",
+        "prompt_sha256",
+        "draft_fingerprint",
+    }
+)
+
+
+def validate_record_field_set(record: dict[str, Any]) -> None:
+    if set(record) - ALLOWED_DRAFT_RECORD_FIELDS:
+        raise PrivateAuthoringError("unexpected_draft_metadata")
 
 
 def _draft_view(record: dict[str, Any]) -> dict[str, Any]:
@@ -336,30 +367,7 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
     by_slot: dict[str, list[dict[str, Any]]] = defaultdict(list)
     schema = json.loads(DRAFT_SCHEMA.read_text(encoding="utf-8"))
     for record in records:
-        if set(record) - {
-            "draft_id",
-            "slot_id",
-            "draft_role",
-            "query_text",
-            "class",
-            "expected_behavior",
-            "task_family",
-            "scenario_family",
-            "structural_family",
-            "register",
-            "preservation_burden",
-            "group_family",
-            "group_id",
-            "template_family_id",
-            "template_fingerprint",
-            "generation_model",
-            "generation_model_digest",
-            "policy_sha256",
-            "generation_freeze_sha256",
-            "prompt_sha256",
-            "draft_fingerprint",
-        }:
-            raise PrivateAuthoringError("unexpected_draft_metadata")
+        validate_record_field_set(record)
         jsonschema.validate({k: record[k] for k in ("slot_id", "draft_role", "query_text")}, schema)
         if record["slot_id"] not in slot_ids or record["draft_role"] not in EXPECTED_ROLES:
             raise PrivateAuthoringError("draft_slot_role_invalid")

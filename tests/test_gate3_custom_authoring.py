@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import os
@@ -355,8 +356,44 @@ def test_provenance_fields_are_separate_and_rebindable() -> None:
     record, slot, policy, freeze_sha = _synthetic_draft_record()
     assert record["generation_model"] == "qwen3:8b"
     assert record["generation_model_digest"] == common.load_freeze()["model_digest"]
+    assert record["generation_model_tag_digest"] == common.load_freeze()["model_tag_digest"]
     assert record["generation_freeze_sha256"] == freeze_sha
     draft_pool.validate_record_integrity(record, slot, policy, common.load_freeze(), freeze_sha)
+
+
+def test_generator_and_verifier_draft_metadata_contract_matches() -> None:
+    source = ast.parse((ROOT / "scripts/generate_gate3_private_candidates.py").read_text())
+    metadata_function = next(
+        node
+        for node in ast.walk(source)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == "_draft_metadata"
+    )
+    returns = [node for node in ast.walk(metadata_function) if isinstance(node, ast.Return)]
+    assert len(returns) == 1
+    returned = returns[0].value
+    assert isinstance(returned, ast.Dict)
+    emitted_fields = {
+        key.value
+        for key in returned.keys
+        if isinstance(key, ast.Constant) and isinstance(key.value, str)
+    }
+    assert emitted_fields == set(draft_pool.ALLOWED_DRAFT_RECORD_FIELDS)
+    assert "generation_model_tag_digest" in emitted_fields
+
+
+def test_verifier_rejects_unknown_draft_metadata_field() -> None:
+    record, slot, policy, freeze_sha = _synthetic_draft_record()
+    record["unexpected_metadata"] = "tampered"
+    with pytest.raises(common.PrivateAuthoringError, match="unexpected_draft_metadata"):
+        draft_pool.validate_record_field_set(record)
+
+
+def test_model_tag_digest_tampering_fails_closed() -> None:
+    record, slot, policy, freeze_sha = _synthetic_draft_record()
+    record["generation_model_tag_digest"] = "tampered"
+    with pytest.raises(common.PrivateAuthoringError, match="draft_model_tag_digest_mismatch"):
+        draft_pool.validate_record_integrity(record, slot, policy, common.load_freeze(), freeze_sha)
 
 
 def test_group_id_matches_frozen_pipe_algorithm_and_pair_relationship() -> None:
