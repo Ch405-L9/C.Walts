@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "authoring_revision": "gate3-v3-r1-role-surface",
+  "generation_run_version": "gate3-b1-v3r1",
+  "shadow_slot_count": 285,
+  "shadow_primary_success_count": 285,
+  "shadow_replacement_success_count": 285,
+  "shadow_successful_role_count": 570,
+  "shadow_distinct_pair_count": 285,
+  "shadow_terminal_failure_count": 0,
+  "total_model_attempts": 570,
+  "total_retries": 0,
+  "replacement_exact_duplicate_retries": 0,
+  "profile_distribution": {
+    "primary": {"A": 95, "B": 95, "C": 95},
+    "replacement": {"A": 95, "B": 95, "C": 95}
+  },
+  "query_text_recorded": false,
+  "raw_response_recorded": false,
+  "canonical_generation_count": 0,
+  "owner_approval_count": 0,
+  "canonical_manifest_present": false,
+  "performance_peek": false
+}
