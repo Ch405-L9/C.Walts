@@ -34,7 +34,7 @@ try:
         derive_template_fingerprint,
         file_sha256,
         generation_authorized,
-        generation_v3r1_authorized,
+        generation_v3r1_pool2_authorized,
         load_freeze,
         load_surface_profiles,
         require_loopback,
@@ -62,7 +62,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution
         derive_template_fingerprint,
         file_sha256,
         generation_authorized,
-        generation_v3r1_authorized,
+        generation_v3r1_pool2_authorized,
         load_freeze,
         load_surface_profiles,
         require_loopback,
@@ -212,26 +212,34 @@ class AttemptRunResult:
 @dataclass(frozen=True)
 class SlotPairResult:
     primary: AttemptRunResult
-    replacement: AttemptRunResult
+    replacement: AttemptRunResult | None
+    replacement_omission: dict[str, Any] | None = None
 
     @property
     def attempts_used(self) -> int:
-        return self.primary.attempts_used + self.replacement.attempts_used
+        return self.primary.attempts_used + (
+            self.replacement.attempts_used if self.replacement else 3
+        )
 
     @property
     def retries_used(self) -> int:
-        return self.primary.retries_used + self.replacement.retries_used
+        return self.primary.retries_used + (
+            self.replacement.retries_used if self.replacement else 2
+        )
 
     @property
     def pair_duplicate_retries(self) -> int:
         return sum(
             code == "format_safety_failure:replacement_exact_duplicate"
-            for code in self.replacement.intermediate_error_codes
+            for code in (self.replacement.intermediate_error_codes if self.replacement else ())
         )
 
     @property
     def intermediate_error_codes(self) -> tuple[str, ...]:
-        return self.primary.intermediate_error_codes + self.replacement.intermediate_error_codes
+        return self.primary.intermediate_error_codes + (
+            self.replacement.intermediate_error_codes if self.replacement else
+            ("format_safety_failure:replacement_exact_duplicate",) * 3
+        )
 
 
 class GenerationTerminalError(PrivateAuthoringError):
@@ -359,15 +367,34 @@ def generate_slot_pair(
     primary = generate_one_slot_role(
         freeze, policy, slot, "primary", surface_profile=primary_profile
     )
-    replacement = generate_one_slot_role(
-        freeze,
-        policy,
-        slot,
-        "replacement",
-        surface_profile=replacement_profile,
-        pair_exclusion_text=primary.value["query_text"],
-    )
-    return SlotPairResult(primary=primary, replacement=replacement)
+    try:
+        replacement = generate_one_slot_role(
+            freeze,
+            policy,
+            slot,
+            "replacement",
+            surface_profile=replacement_profile,
+            pair_exclusion_text=primary.value["query_text"],
+        )
+        return SlotPairResult(primary=primary, replacement=replacement)
+    except GenerationTerminalError as error:
+        if (
+            error.stable_code != "format_safety_failure"
+            or error.detail_code != "replacement_exact_duplicate"
+        ):
+            raise
+        return SlotPairResult(
+            primary=primary,
+            replacement=None,
+            replacement_omission={
+                "slot_id": slot["slot_id"],
+                "role": "replacement",
+                "terminal_attempt": error.attempt,
+                "terminal_seed": error.seed,
+                "stable_error_code": error.stable_code,
+                "detail_code": error.detail_code,
+            },
+        )
 
 
 def qualify_synthetic() -> dict[str, Any]:
@@ -519,12 +546,13 @@ def generate_draft_pool() -> dict[str, Any]:
     freeze = load_freeze()
     if not generation_authorized():
         raise PrivateAuthoringError("private_generation_authorization_required")
-    if not generation_v3r1_authorized():
-        raise PrivateAuthoringError("gate3_b1_v3r1_authorization_required")
+    if not generation_v3r1_pool2_authorized():
+        raise PrivateAuthoringError("gate3_b1_v3r1_pool2_authorization_required")
     model_identity = verify_model_identity(freeze)
     pool_path = resolve_private_path(POOL_RELATIVE)
     seal_path = resolve_private_path(SEAL_RELATIVE)
     audit_path = resolve_private_path(AUDIT_RELATIVE)
+    omission_path = resolve_private_path("audit/gate3_replacement_omissions.json")
     if pool_path.exists():
         raise PrivateAuthoringError("draft_pool_overwrite_refused")
     policy, slots_payload = load_metadata()
@@ -540,13 +568,19 @@ def generate_draft_pool() -> dict[str, Any]:
     current_attempt: int | None = None
     current_seed: int | None = None
     terminal_error_code: str | None = None
+    omissions: list[dict[str, Any]] = []
     try:
         for index, slot in enumerate(slots, start=1):
             current_slot_id = slot["slot_id"]
             pair = generate_slot_pair(freeze, policy, slot, slot_ordinal=index)
             attempts += pair.attempts_used
             retries += pair.retries_used
-            for role, result in (("primary", pair.primary), ("replacement", pair.replacement)):
+            if pair.replacement_omission is not None:
+                omissions.append(pair.replacement_omission)
+            generated_results = [("primary", pair.primary)]
+            if pair.replacement is not None:
+                generated_results.append(("replacement", pair.replacement))
+            for role, result in generated_results:
                 current_role = role
                 current_attempt = result.attempts_used
                 current_seed = result.final_seed
@@ -567,10 +601,9 @@ def generate_draft_pool() -> dict[str, Any]:
         for record in records:
             by_slot[record["slot_id"]].append(record)
         duplicate_slots = [
-            slot_id
-            for slot_id, pair in by_slot.items()
-            if len(pair) != 2
-            or _canonical_text(pair[0]["query_text"]) == _canonical_text(pair[1]["query_text"])
+            slot_id for slot_id, pair in by_slot.items()
+            if len(pair) == 2
+            and _canonical_text(pair[0]["query_text"]) == _canonical_text(pair[1]["query_text"])
         ]
         if duplicate_slots:
             raise PrivateAuthoringError(
@@ -578,12 +611,20 @@ def generate_draft_pool() -> dict[str, Any]:
             )
         payload = {
             "schema_version": 1,
-            "draft_pool_id": "gate3-private-drafts-570-v0.4",
+            "draft_pool_id": "gate3-private-drafts-v3r1-pool2-v0.4",
             "records": records,
         }
         encoded = (
             json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
         ).encode()
+        omission_payload = {
+            "schema_version": 1,
+            "run_version": freeze["generation_run_version"],
+            "omissions": omissions,
+            "query_text_included": False,
+        }
+        omission_encoded = (json.dumps(omission_payload, sort_keys=True, indent=2) + "\n").encode()
+        atomic_write_bytes(omission_path, omission_encoded)
         atomic_write_bytes(pool_path, encoded)
         pool_sha = file_sha256(pool_path)
         seal = {
@@ -591,8 +632,11 @@ def generate_draft_pool() -> dict[str, Any]:
             "draft_pool_id": payload["draft_pool_id"],
             "draft_pool_sha256": pool_sha,
             "draft_count": len(records),
+            "slot_count": 285,
             "primary_count": sum(record["draft_role"] == "primary" for record in records),
             "replacement_count": sum(record["draft_role"] == "replacement" for record in records),
+            "replacement_omission_count": len(omissions),
+            "replacement_omission_ledger_sha256": file_sha256(omission_path),
             "policy_sha256": policy_sha,
             "slot_sha256": file_sha256(SLOTS),
             "prompt_sha256": file_sha256(ROOT / "config/gate3_custom_generation_prompt.txt"),
@@ -612,6 +656,8 @@ def generate_draft_pool() -> dict[str, Any]:
             "split": False,
             "qrels": False,
             "canonical_candidate_manifest": False,
+            "surface_contract_sha256": freeze["role_surface_contract_sha256"],
+            "effective_prompt_contract_sha256": freeze["effective_prompt_contract_sha256"],
         }
         atomic_write_bytes(seal_path, (json.dumps(seal, sort_keys=True, indent=2) + "\n").encode())
         audit = {
@@ -621,6 +667,7 @@ def generate_draft_pool() -> dict[str, Any]:
             "completed_at": datetime.now(UTC).isoformat(),
             "requested_slot_roles": 570,
             "successful_drafts": len(records),
+            "replacement_omission_count": len(omissions),
             "attempts": attempts,
             "retries": retries,
             "policy_sha256": policy_sha,
@@ -642,7 +689,8 @@ def generate_draft_pool() -> dict[str, Any]:
             "verdict": "pass",
             "draft_count": len(records),
             "primary_count": 285,
-            "replacement_count": 285,
+            "replacement_count": len(records) - 285,
+            "replacement_omission_count": len(omissions),
             "pool_sha256": pool_sha,
             "query_text_printed": False,
         }
@@ -660,7 +708,7 @@ def generate_draft_pool() -> dict[str, Any]:
         failure_path = resolve_private_path(FAILURE_AUDIT_RELATIVE)
         failure = {
             "schema_version": 1,
-            "run_version": "gate3-b1-v3r1",
+            "run_version": "gate3-b1-v3r1-pool2",
             "run_id": canonical_sha256({"started_at": started, "policy_sha256": policy_sha}),
             "head": current_git_head(),
             "generator_sha256": file_sha256(ROOT / "scripts/generate_gate3_private_candidates.py"),
@@ -685,6 +733,7 @@ def generate_draft_pool() -> dict[str, Any]:
             )
         pool_path.unlink(missing_ok=True)
         seal_path.unlink(missing_ok=True)
+        omission_path.unlink(missing_ok=True)
         raise
 
 
@@ -700,8 +749,8 @@ def main() -> int:
         if args.generate:
             if not args.confirm_gate3_private_generation or not generation_authorized():
                 raise PrivateAuthoringError("private_generation_authorization_required")
-            if os.environ.get("NFR_GATE3_B1_V3R1_AUTHORIZED") != "true":
-                raise PrivateAuthoringError("gate3_b1_v3r1_authorization_required")
+            if os.environ.get("NFR_GATE3_B1_V3R1_POOL2_AUTHORIZED") != "true":
+                raise PrivateAuthoringError("gate3_b1_v3r1_pool2_authorization_required")
             result = generate_draft_pool()
             print(json.dumps(result, sort_keys=True))
             return 0

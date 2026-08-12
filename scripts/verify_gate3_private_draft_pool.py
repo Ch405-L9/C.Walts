@@ -66,7 +66,7 @@ def _draft_view(record: dict[str, Any]) -> dict[str, Any]:
         "class": record["class"],
         "expected_behavior": record["expected_behavior"],
         "source_dataset": "custom",
-        "source_version": "cwalts-custom-v0.4-gate3-v3r1",
+        "source_version": "cwalts-custom-v0.4-gate3-v3r1-pool2",
         "source_record_id": record["slot_id"],
         "group_id": record["group_id"],
         "template_fingerprint": record["template_fingerprint"],
@@ -90,7 +90,11 @@ def _near_kind(left: dict[str, Any], right: dict[str, Any]) -> tuple[bool, bool,
     return hard, review, metrics
 
 
-def _two_sat(slot_ids: list[str], edges: list[tuple[str, str, str, str]]) -> tuple[bool, str]:
+def _two_sat(
+    slot_ids: list[str],
+    edges: list[tuple[str, str, str, str]],
+    available_roles: dict[str, set[str]] | None = None,
+) -> tuple[bool, str]:
     """Solve one-role-per-slot clauses deterministically with SCCs."""
     index = {slot: n for n, slot in enumerate(slot_ids)}
     node_count = len(slot_ids) * 2
@@ -103,12 +107,24 @@ def _two_sat(slot_ids: list[str], edges: list[tuple[str, str, str, str]]) -> tup
     def negate(node: int) -> int:
         return node ^ 1
 
+    available_roles = available_roles or {slot: set(EXPECTED_ROLES) for slot in slot_ids}
+    forced_primary_slots = sorted(
+        slot for slot in slot_ids if available_roles.get(slot) == {"primary"}
+    )
+
     for left_slot, left_role, right_slot, right_role in sorted(edges):
         left = literal(left_slot, left_role)
         right = literal(right_slot, right_role)
         for source, target in ((left, negate(right)), (right, negate(left))):
             graph[source].append(target)
             reverse[target].append(source)
+    # A singleton has no replacement literal available, so its primary is a
+    # unit clause. This also makes conflicts between forced primaries unsat.
+    for slot in forced_primary_slots:
+        primary = literal(slot, "primary")
+        replacement = negate(primary)
+        graph[replacement].append(primary)
+        reverse[primary].append(replacement)
     for adjacency in graph + reverse:
         adjacency.sort()
     visited = [False] * node_count
@@ -142,6 +158,10 @@ def _two_sat(slot_ids: list[str], edges: list[tuple[str, str, str, str]]) -> tup
         {
             "slot_ids": slot_ids,
             "edge_count": len(edges),
+            "forced_primary_slots": forced_primary_slots,
+            "available_roles": {
+                slot: sorted(available_roles.get(slot, set())) for slot in slot_ids
+            },
             "components": components,
             "feasible": feasible,
         }
@@ -238,15 +258,21 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
         "split",
         "qrels",
         "canonical_candidate_manifest",
+        "slot_count",
+        "replacement_omission_count",
+        "replacement_omission_ledger_sha256",
+        "surface_contract_sha256",
+        "effective_prompt_contract_sha256",
     }
     if not required_seal_fields.issubset(seal):
         raise PrivateAuthoringError("draft_pool_seal_contract_invalid")
     if file_sha256(path) != seal["draft_pool_sha256"]:
         raise PrivateAuthoringError("draft_pool_seal_sha256_mismatch")
     seal_expectations = {
-        "draft_count": 570,
+        "draft_count": seal.get("draft_count"),
+        "slot_count": 285,
         "primary_count": 285,
-        "replacement_count": 285,
+        "replacement_count": seal.get("replacement_count"),
         "policy_sha256": file_sha256(POLICY),
         "slot_sha256": file_sha256(SLOTS),
         "prompt_sha256": file_sha256(
@@ -258,12 +284,14 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
         "model_blob_digest": freeze["model_blob_digest"],
         "model_tag_digest": freeze["model_tag_digest"],
         "generation_model": freeze["model"],
-        "generation_run_version": "gate3-b1-v3r1",
+        "generation_run_version": "gate3-b1-v3r1-pool2",
         "activated_generator_sha256": file_sha256(GENERATOR),
         "activated_generation_freeze_sha256": freeze_sha,
         "split": False,
         "qrels": False,
         "canonical_candidate_manifest": False,
+        "surface_contract_sha256": freeze["role_surface_contract_sha256"],
+        "effective_prompt_contract_sha256": freeze["effective_prompt_contract_sha256"],
     }
     if any(seal.get(key) != value for key, value in seal_expectations.items()):
         raise PrivateAuthoringError("draft_pool_seal_identity_mismatch")
@@ -274,12 +302,29 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
         raise PrivateAuthoringError("generation_activation_commit_missing")
     data = json.loads(path.read_text(encoding="utf-8"))
     records = data.get("records")
-    if data.get("draft_pool_id") != "gate3-private-drafts-570-v0.4" or not isinstance(
+    if data.get("draft_pool_id") != "gate3-private-drafts-v3r1-pool2-v0.4" or not isinstance(
         records, list
     ):
         raise PrivateAuthoringError("draft_pool_identity_invalid")
-    if len(records) != 570:
+    if not 285 <= len(records) <= 570:
         raise PrivateAuthoringError("draft_count_mismatch")
+    if seal.get("draft_count") != len(records):
+        raise PrivateAuthoringError("draft_count_mismatch")
+    omission_path = resolve_private_path("audit/gate3_replacement_omissions.json")
+    if not omission_path.exists():
+        raise PrivateAuthoringError("replacement_omission_ledger_missing")
+    omissions_payload = json.loads(omission_path.read_text(encoding="utf-8"))
+    omissions = omissions_payload.get("omissions")
+    if (
+        omissions_payload.get("query_text_included") is not False
+        or omissions_payload.get("run_version") != freeze["generation_run_version"]
+        or not isinstance(omissions, list)
+    ):
+        raise PrivateAuthoringError("replacement_omission_ledger_invalid")
+    if file_sha256(omission_path) != seal["replacement_omission_ledger_sha256"]:
+        raise PrivateAuthoringError("replacement_omission_ledger_sha256_mismatch")
+    if seal.get("replacement_omission_count") != len(omissions):
+        raise PrivateAuthoringError("replacement_omission_count_mismatch")
     slots_payload = yaml.safe_load(SLOTS.read_text())
     slot_by_id = {slot["slot_id"]: slot for slot in slots_payload["slots"]}
     slot_ids = sorted(slot["slot_id"] for slot in slots_payload["slots"])
@@ -316,15 +361,54 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
         slot = slot_by_id[record["slot_id"]]
         validate_record_integrity(record, slot, policy, freeze, freeze_sha)
         by_slot[record["slot_id"]].append(record)
-    if set(by_slot) != set(slot_ids) or any(len(items) != 2 for items in by_slot.values()):
+    if set(by_slot) != set(slot_ids) or any(not 1 <= len(items) <= 2 for items in by_slot.values()):
         raise PrivateAuthoringError("slot_role_coverage_invalid")
-    for items in by_slot.values():
-        if {item["draft_role"] for item in items} != set(EXPECTED_ROLES):
+    omission_by_slot = {item.get("slot_id"): item for item in omissions}
+    if len(omission_by_slot) != len(omissions):
+        raise PrivateAuthoringError("replacement_omission_duplicate_slot")
+    for item in omissions:
+        if (
+            set(item)
+            != {
+                "slot_id",
+                "role",
+                "terminal_attempt",
+                "terminal_seed",
+                "stable_error_code",
+                "detail_code",
+            }
+            or item.get("role") != "replacement"
+            or item.get("terminal_attempt") != 3
+            or item.get("stable_error_code") != "format_safety_failure"
+            or item.get("detail_code") != "replacement_exact_duplicate"
+            or item.get("slot_id") not in slot_ids
+        ):
+            raise PrivateAuthoringError("replacement_omission_reason_invalid")
+    singleton_slots: list[str] = []
+    available_roles: dict[str, set[str]] = {}
+    for slot_id, items in by_slot.items():
+        roles = {item["draft_role"] for item in items}
+        if "primary" not in roles or roles - set(EXPECTED_ROLES):
             raise PrivateAuthoringError("slot_role_pair_invalid")
-        if split.canonical_text(items[0]["query_text"]) == split.canonical_text(
+        if len(items) == 1:
+            if omission_by_slot.get(slot_id) is None or roles != {"primary"}:
+                raise PrivateAuthoringError("replacement_omission_missing")
+            singleton_slots.append(slot_id)
+            available_roles[slot_id] = {"primary"}
+        else:
+            if omission_by_slot.get(slot_id) is not None or roles != set(EXPECTED_ROLES):
+                raise PrivateAuthoringError("replacement_omission_set_mismatch")
+            available_roles[slot_id] = set(EXPECTED_ROLES)
+        if len(items) == 2 and split.canonical_text(items[0]["query_text"]) == split.canonical_text(
             items[1]["query_text"]
         ):
             raise PrivateAuthoringError("primary_replacement_exact_duplicate")
+    if set(omission_by_slot) != set(singleton_slots):
+        raise PrivateAuthoringError("replacement_omission_set_mismatch")
+    if sum(item["draft_role"] == "primary" for item in records) != 285:
+        raise PrivateAuthoringError("primary_count_mismatch")
+    if len(omissions) != 285 - sum(item["draft_role"] == "replacement" for item in records):
+        raise PrivateAuthoringError("replacement_omission_count_mismatch")
 
     views = [_draft_view(record) for record in records]
     public_path = GATE2_PUBLIC_MANIFEST
@@ -385,17 +469,21 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
                 graph_edges.append(
                     (left["slot_id"], left["draft_role"], right["slot_id"], right["draft_role"])
                 )
-    feasible, proof = _two_sat(slot_ids, graph_edges)
+    feasible, proof = _two_sat(slot_ids, graph_edges, available_roles)
     conflict_path = resolve_private_path(CONFLICT_RELATIVE)
     readiness_path = resolve_private_path(READINESS_RELATIVE)
     summary = {
         "schema_version": 1,
-        "draft_count": 570,
+        "draft_count": len(records),
         "slot_count": 285,
-        "gate2_pair_evaluations": 570 * 315,
+        "primary_count": 285,
+        "replacement_count": len(records) - 285,
+        "replacement_omission_count": len(singleton_slots),
+        "singleton_slot_count": len(singleton_slots),
+        "gate2_pair_evaluations": len(records) * 315,
         "gate2_exact_duplicates": exact_cross,
         "gate2_hard_or_review_conflicts": len(gate2_conflicts),
-        "custom_pair_evaluations": 570 * 569 // 2,
+        "custom_pair_evaluations": len(records) * (len(records) - 1) // 2,
         "custom_exact_duplicates": custom_exact,
         "custom_hard_conflicts": custom_hard,
         "custom_unrelated_review_conflicts": custom_review,
@@ -415,6 +503,8 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
             "gate2_conflicts": gate2_conflicts,
             "custom_conflict_edges": [list(edge) for edge in graph_edges],
             "same_family_relations": same_family,
+            "forced_primary_slots": singleton_slots,
+            "available_roles": {slot: sorted(roles) for slot, roles in available_roles.items()},
             "feasibility_proof_sha256": proof,
             "query_text_included": False,
         }

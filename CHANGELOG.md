@@ -1177,3 +1177,9 @@ Isolated collection, ingestion, and the embedding contract are operational.
 - Freeze the Gate 3 v3-R1 generic role-surface diversity contract.
 - Preserve the 285 slot semantics, base prompt, parameters, and seed identity.
 - Keep canonical private generation disabled pending pair-aware qualification.
+## 0.4.0-dev.18
+
+- Freeze the optional-replacement Gate 3 private pool contract.
+- Require one primary per slot, permit only exact-duplicate replacement omissions,
+  and add omission-ledger binding with singleton-aware feasibility validation.
+- Keep canonical generation disabled pending architect authorization.

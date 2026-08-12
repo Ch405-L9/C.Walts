@@ -40,9 +40,10 @@ def test_a6_privacy_and_allocation_contract() -> None:
 def test_custom_namespace_version_and_ids() -> None:
     policy = load_policy()
     assert policy["source_dataset"] == "custom"
-    assert policy["source_version"] == "cwalts-custom-v0.4-gate3-v3r1"
+    assert policy["source_version"] == "cwalts-custom-v0.4-gate3-v3r1-pool2"
     assert policy["policy_id"] == "gate3-custom-authoring-v3"
-    assert policy["generation_run_version"] == "gate3-b1-v3r1"
+    assert policy["generation_run_version"] == "gate3-b1-v3r1-pool2"
+    assert policy["draft_pool_revision"] == "gate3-pool-v2-optional-replacement"
     assert policy["id_namespace"] == r"^CWQ-CUS-[0-9]{4}$"
 
 
@@ -98,14 +99,16 @@ def test_loopback_guard_rejects_remote_endpoint() -> None:
         common.require_loopback("ftp://127.0.0.1:11434")
 
 
-def test_v3r1_authorization_requires_new_environment_guard(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_pool2_authorization_requires_new_environment_guard(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setenv("NFR_ALLOW_PRIVATE_EVAL_GENERATION", "true")
     monkeypatch.setenv("NFR_GATE3_B_AUTHORIZED", "true")
-    monkeypatch.setenv("NFR_GATE3_B1_V3_AUTHORIZED", "true")
-    monkeypatch.delenv("NFR_GATE3_B1_V3R1_AUTHORIZED", raising=False)
-    assert common.generation_v3r1_authorized() is False
     monkeypatch.setenv("NFR_GATE3_B1_V3R1_AUTHORIZED", "true")
-    assert common.generation_v3r1_authorized() is True
+    monkeypatch.delenv("NFR_GATE3_B1_V3R1_POOL2_AUTHORIZED", raising=False)
+    assert common.generation_v3r1_pool2_authorized() is False
+    monkeypatch.setenv("NFR_GATE3_B1_V3R1_POOL2_AUTHORIZED", "true")
+    assert common.generation_v3r1_pool2_authorized() is True
 
 
 def test_private_path_guard_rejects_escape_and_accepts_private_path(tmp_path: Path) -> None:
@@ -170,7 +173,7 @@ def test_real_generation_is_refused_in_gate3a() -> None:
         check=False,
     )
     assert result.returncode != 0
-    assert "gate3_b1_v3r1_authorization_required" in result.stdout
+    assert "gate3_b1_v3r1_pool2_authorization_required" in result.stdout
     assert "query_text" not in result.stdout
 
 
@@ -676,15 +679,17 @@ def test_pair_three_duplicates_terminal_without_fourth_call(
         return _pair_response(prompt, "Same synthetic request."), 1
 
     monkeypatch.setattr(generator, "model_request", fake_request)
-    with pytest.raises(generator.GenerationTerminalError) as caught:
-        generator.generate_slot_pair(freeze, values["policy"], values["slot"])
-    error = caught.value
+    result = generator.generate_slot_pair(freeze, values["policy"], values["slot"])
     assert len(calls) == 4
-    assert error.role == "replacement"
-    assert error.attempt == 3
-    assert error.seed == calls[-1][1]
-    assert error.stable_code == "format_safety_failure"
-    assert error.detail_code == "replacement_exact_duplicate"
+    assert result.replacement is None
+    assert result.replacement_omission == {
+        "slot_id": "G3S-9001",
+        "role": "replacement",
+        "terminal_attempt": 3,
+        "terminal_seed": calls[-1][1],
+        "stable_error_code": "format_safety_failure",
+        "detail_code": "replacement_exact_duplicate",
+    }
 
 
 def test_pair_replacement_prompt_excludes_primary_text(monkeypatch: pytest.MonkeyPatch) -> None:

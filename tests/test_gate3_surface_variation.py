@@ -83,9 +83,9 @@ def test_no_failed_shadow_id_special_cases_in_generation_code() -> None:
     assert "slot_ordinal=index" in source
 
 
-def test_authorization_is_v3r1_only() -> None:
-    assert common.GENERATION_ACTIVATION == "gate3-b1-v3r1"
-    assert common.GENERATION_V3R1_AUTHORIZATION == "NFR_GATE3_B1_V3R1_AUTHORIZED"
+def test_authorization_is_pool2_only() -> None:
+    assert common.GENERATION_ACTIVATION == "gate3-b1-v3r1-pool2"
+    assert common.GENERATION_V3R1_POOL2_AUTHORIZATION == "NFR_GATE3_B1_V3R1_POOL2_AUTHORIZED"
     assert (
         "NFR_GATE3_B1_V3_AUTHORIZED"
         not in (ROOT / "scripts/generate_gate3_private_candidates.py").read_text()

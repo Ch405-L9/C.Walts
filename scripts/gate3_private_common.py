@@ -21,8 +21,8 @@ SURFACE_PROFILES = ROOT / "config/gate3_surface_variation_profiles.yaml"
 DRAFT_SCHEMA = ROOT / "schemas/gate3_generated_draft.schema.json"
 FREEZE = ROOT / "config/gate3_generation_freeze.json"
 GENERATOR = ROOT / "scripts/generate_gate3_private_candidates.py"
-GENERATION_ACTIVATION = "gate3-b1-v3r1"
-GENERATION_V3R1_AUTHORIZATION = "NFR_GATE3_B1_V3R1_AUTHORIZED"
+GENERATION_ACTIVATION = "gate3-b1-v3r1-pool2"
+GENERATION_V3R1_POOL2_AUTHORIZATION = "NFR_GATE3_B1_V3R1_POOL2_AUTHORIZED"
 FAILURE_AUDIT_RELATIVE = Path("audit/gate3_generation_failure.json")
 GATE2_PUBLIC_MANIFEST = ROOT / "var/eval_sources/selected_public/gate2_public_candidates.json"
 GATE2_PUBLIC_MANIFEST_SHA256 = "60d9ac4be6fc217cbfb42283c50ed86aab626dc4c4ef68dfc3f137a66721c39e"
@@ -228,8 +228,8 @@ def generation_authorized() -> bool:
     )
 
 
-def generation_v3r1_authorized() -> bool:
-    return generation_authorized() and os.environ.get(GENERATION_V3R1_AUTHORIZATION) == "true"
+def generation_v3r1_pool2_authorized() -> bool:
+    return generation_authorized() and os.environ.get(GENERATION_V3R1_POOL2_AUTHORIZATION) == "true"
 
 
 def atomic_write_bytes(path: Path, payload: bytes) -> None:
