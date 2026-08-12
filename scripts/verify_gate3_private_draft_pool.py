@@ -27,6 +27,7 @@ try:
         canonical_sha256,
         derive_draft_fingerprint,
         derive_group_id,
+        derive_request_seed,
         derive_template_fingerprint,
         file_sha256,
         load_freeze,
@@ -49,6 +50,7 @@ except ModuleNotFoundError:  # pragma: no cover
         canonical_sha256,
         derive_draft_fingerprint,
         derive_group_id,
+        derive_request_seed,
         derive_template_fingerprint,
         file_sha256,
         load_freeze,
@@ -231,6 +233,9 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
     freeze = load_freeze()
     freeze_sha = file_sha256(FREEZE)
     policy = yaml.safe_load(POLICY.read_text(encoding="utf-8"))
+    omission_condition = policy["draft_pool"]["replacement_omission_condition"]
+    if omission_condition != "format_safety_failure:replacement_exact_duplicate_on_all_3_attempts":
+        raise PrivateAuthoringError("replacement_omission_condition_invalid")
     seal_path = resolve_private_path("drafts/gate3_private_draft_pool.seal.json")
     if not seal_path.exists():
         raise PrivateAuthoringError("draft_pool_seal_missing")
@@ -368,22 +373,56 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
         raise PrivateAuthoringError("replacement_omission_duplicate_slot")
     for item in omissions:
         if (
-            set(item)
-            != {
+            item.get("role") != "replacement"
+            or item.get("terminal_attempt") != 3
+            or item.get("stable_error_code") != "format_safety_failure"
+            or item.get("detail_code") != "replacement_exact_duplicate"
+            or item.get("slot_id") not in slot_ids
+            or set(item) != {
                 "slot_id",
                 "role",
                 "terminal_attempt",
                 "terminal_seed",
                 "stable_error_code",
                 "detail_code",
+                "attempt_history",
             }
-            or item.get("role") != "replacement"
-            or item.get("terminal_attempt") != 3
-            or item.get("stable_error_code") != "format_safety_failure"
-            or item.get("detail_code") != "replacement_exact_duplicate"
-            or item.get("slot_id") not in slot_ids
         ):
             raise PrivateAuthoringError("replacement_omission_reason_invalid")
+        history = item.get("attempt_history")
+        if (
+            not isinstance(history, list)
+            or len(history) != 3
+            or [row.get("attempt") for row in history] != [1, 2, 3]
+            or any(
+                set(row) != {"attempt", "seed", "stable_error_code", "detail_code"}
+                or not isinstance(row["seed"], int)
+                or row["stable_error_code"] != "format_safety_failure"
+                or row["detail_code"] != "replacement_exact_duplicate"
+                for row in history
+            )
+        ):
+            raise PrivateAuthoringError("replacement_omission_history_invalid")
+        expected_seeds = [
+            derive_request_seed(
+                policy["policy_id"],
+                item["slot_id"],
+                "replacement",
+                attempt,
+                policy["seed_strategy"]["base_seed"],
+            )
+            for attempt in (1, 2, 3)
+        ]
+        if [row["seed"] for row in history] != expected_seeds:
+            raise PrivateAuthoringError("replacement_omission_seed_mismatch")
+        if item["terminal_attempt"] != history[-1]["attempt"]:
+            raise PrivateAuthoringError("replacement_omission_terminal_attempt_mismatch")
+        if item["terminal_seed"] != history[-1]["seed"]:
+            raise PrivateAuthoringError("replacement_omission_terminal_seed_mismatch")
+        if item["stable_error_code"] != history[-1]["stable_error_code"]:
+            raise PrivateAuthoringError("replacement_omission_terminal_code_mismatch")
+        if item["detail_code"] != history[-1]["detail_code"]:
+            raise PrivateAuthoringError("replacement_omission_terminal_detail_mismatch")
     singleton_slots: list[str] = []
     available_roles: dict[str, set[str]] = {}
     for slot_id, items in by_slot.items():

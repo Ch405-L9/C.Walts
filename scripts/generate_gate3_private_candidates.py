@@ -207,6 +207,7 @@ class AttemptRunResult:
     retries_used: int
     final_seed: int
     intermediate_error_codes: tuple[str, ...]
+    attempt_history: tuple[dict[str, Any], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -238,7 +239,12 @@ class SlotPairResult:
     def intermediate_error_codes(self) -> tuple[str, ...]:
         return self.primary.intermediate_error_codes + (
             self.replacement.intermediate_error_codes if self.replacement else
-            ("format_safety_failure:replacement_exact_duplicate",) * 3
+            tuple(
+                f"{row['stable_error_code']}:{row['detail_code']}"
+                if row.get("detail_code")
+                else row["stable_error_code"]
+                for row in (self.replacement_omission or {}).get("attempt_history", ())
+            )
         )
 
 
@@ -253,6 +259,7 @@ class GenerationTerminalError(PrivateAuthoringError):
         attempt: int,
         seed: int,
         detail_code: str | None = None,
+        attempt_history: tuple[dict[str, Any], ...] = (),
     ):
         super().__init__(f"draft_generation_failed:{stable_code}")
         self.stable_code = stable_code
@@ -261,6 +268,7 @@ class GenerationTerminalError(PrivateAuthoringError):
         self.role = role
         self.attempt = attempt
         self.seed = seed
+        self.attempt_history = attempt_history
 
 
 def classify_generation_error(error: BaseException) -> tuple[str, bool]:
@@ -306,6 +314,7 @@ def generate_one_slot_role(
     """Run the sole retry state machine shared by shadow and canonical modes."""
     prompt = build_generation_prompt(load_base_prompt(), slot, role, surface_profile)
     intermediate_errors: list[str] = []
+    attempt_history: list[dict[str, Any]] = []
     max_attempts = int(policy["retry_policy"]["max_attempts"])
     for attempt in range(1, max_attempts + 1):
         request_seed = derive_request_seed(
@@ -332,6 +341,7 @@ def generate_one_slot_role(
                 retries_used=attempt - 1,
                 final_seed=request_seed,
                 intermediate_error_codes=tuple(intermediate_errors),
+                attempt_history=tuple(attempt_history),
             )
         except BaseException as error:
             stable_code, retryable = classify_generation_error(error)
@@ -344,6 +354,14 @@ def generate_one_slot_role(
                 else stable_code
             )
             intermediate_errors.append(diagnostic_code)
+            attempt_history.append(
+                {
+                    "attempt": attempt,
+                    "seed": request_seed,
+                    "stable_error_code": stable_code,
+                    "detail_code": _error_detail_code(error),
+                }
+            )
             if attempt == max_attempts:
                 raise GenerationTerminalError(
                     stable_code,
@@ -352,6 +370,7 @@ def generate_one_slot_role(
                     attempt,
                     request_seed,
                     _error_detail_code(error),
+                    tuple(attempt_history),
                 ) from error
     raise PrivateAuthoringError("retry_state_machine_unreachable")
 
@@ -378,9 +397,19 @@ def generate_slot_pair(
         )
         return SlotPairResult(primary=primary, replacement=replacement)
     except GenerationTerminalError as error:
+        omission_authorized = (
+            error.role == "replacement"
+            and error.attempt == 3
+            and len(error.attempt_history) == 3
+            and [row.get("attempt") for row in error.attempt_history] == [1, 2, 3]
+            and all(
+                row.get("stable_error_code") == "format_safety_failure"
+                and row.get("detail_code") == "replacement_exact_duplicate"
+                for row in error.attempt_history
+            )
+        )
         if (
-            error.stable_code != "format_safety_failure"
-            or error.detail_code != "replacement_exact_duplicate"
+            not omission_authorized
         ):
             raise
         return SlotPairResult(
@@ -393,6 +422,7 @@ def generate_slot_pair(
                 "terminal_seed": error.seed,
                 "stable_error_code": error.stable_code,
                 "detail_code": error.detail_code,
+                "attempt_history": list(error.attempt_history),
             },
         )
 

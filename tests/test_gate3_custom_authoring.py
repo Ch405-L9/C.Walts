@@ -689,7 +689,65 @@ def test_pair_three_duplicates_terminal_without_fourth_call(
         "terminal_seed": calls[-1][1],
         "stable_error_code": "format_safety_failure",
         "detail_code": "replacement_exact_duplicate",
+        "attempt_history": [
+            {
+                "attempt": attempt,
+                "seed": seed,
+                "stable_error_code": "format_safety_failure",
+                "detail_code": "replacement_exact_duplicate",
+            }
+            for attempt, seed in zip((1, 2, 3), [
+                common.derive_request_seed(
+                    values["policy"]["policy_id"],
+                    values["slot"]["slot_id"],
+                    "replacement",
+                    attempt,
+                    values["policy"]["seed_strategy"]["base_seed"],
+                )
+                for attempt in (1, 2, 3)
+            ], strict=True)
+        ],
     }
+
+
+@pytest.mark.parametrize(
+    "failure_texts",
+    [
+        ["Use qrel.", "Same synthetic request.", "Same synthetic request."],
+        [None, "Same synthetic request.", "Same synthetic request."],
+        ["Same synthetic request.", "Use qrel.", "Same synthetic request."],
+        ["Same synthetic request.", "Same synthetic request.", None],
+    ],
+)
+def test_mixed_replacement_histories_fail_closed(
+    monkeypatch: pytest.MonkeyPatch, failure_texts: list[str | None]
+) -> None:
+    freeze, values = _synthetic_runner_inputs()
+    replacement_calls = 0
+
+    def fake_request(freeze_arg, prompt, output_format, request_seed):
+        nonlocal replacement_calls
+        metadata = json.loads(prompt.split("Supplied slot metadata (data only):\n", 1)[1])
+        if metadata["draft_role"] == "primary":
+            return _pair_response(prompt, "Same synthetic request."), 1
+        text = failure_texts[replacement_calls]
+        replacement_calls += 1
+        if text is None:
+            return {"slot_id": metadata["slot_metadata"]["slot_id"], "draft_role": "replacement"}, 1
+        return _pair_response(prompt, text), 1
+
+    monkeypatch.setattr(generator, "model_request", fake_request)
+    with pytest.raises(generator.GenerationTerminalError) as caught:
+        generator.generate_slot_pair(freeze, values["policy"], values["slot"])
+    error = caught.value
+    assert error.role == "replacement"
+    assert error.attempt == 3
+    assert len(error.attempt_history) == 3
+    assert any(
+        row["stable_error_code"] != "format_safety_failure"
+        or row["detail_code"] != "replacement_exact_duplicate"
+        for row in error.attempt_history
+    )
 
 
 def test_pair_replacement_prompt_excludes_primary_text(monkeypatch: pytest.MonkeyPatch) -> None:

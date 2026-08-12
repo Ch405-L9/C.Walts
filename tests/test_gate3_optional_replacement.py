@@ -25,7 +25,7 @@ def test_pool2_cardinality_and_omission_contract_is_frozen() -> None:
     assert pool["minimum_draft_count"] == 285
     assert pool["maximum_draft_count"] == 570
     assert pool["replacement_omission_condition"] == (
-        "format_safety_failure:replacement_exact_duplicate_after_attempt_3"
+        "format_safety_failure:replacement_exact_duplicate_on_all_3_attempts"
     )
 
 

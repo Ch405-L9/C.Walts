@@ -102,7 +102,7 @@ draft_pool:
   minimum_draft_count: 285
   maximum_draft_count: 570
   replacement_policy: optional frozen_slot replacement only
-  replacement_omission_condition: format_safety_failure:replacement_exact_duplicate_after_attempt_3
+  replacement_omission_condition: format_safety_failure:replacement_exact_duplicate_on_all_3_attempts
   omission_ledger_path: var/eval_sources/custom/audit/gate3_replacement_omissions.json
 group_policy:
   group_id_algorithm: sha256(policy_id|slot_family|template_family|structural_family|generation_family)

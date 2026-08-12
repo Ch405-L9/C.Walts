@@ -3,7 +3,7 @@
   "generation_run_version": "gate3-b1-v3r1-pool2",
   "generation_authorization_env": "NFR_GATE3_B1_V3R1_POOL2_AUTHORIZED",
   "endpoint": "http://127.0.0.1:11434",
-  "generator_sha256": "cef728a1843321f901e26860a4c45f29d4eae1b17f34490fb06de23e99275983",
+  "generator_sha256": "e8e72f4e88c9dd6c86f850f64c9e12b15eff34ab66eb98a139ca31a826c11bf0",
   "model": "qwen3:8b",
   "model_tag_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
   "model_blob_digest": "sha256-a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f",
@@ -21,7 +21,7 @@
     "think": false,
     "top_p": 0.95
   },
-  "policy_sha256": "ab83b3feee9d6a78391380ceeb852149a897657765ca3db9f669df869e36cdbb",
+  "policy_sha256": "c937d2d877a4fecbe192407beae97311d2e90260354f3563c007df685a39b237",
   "private_root": "var/eval_sources/custom",
   "prompt_sha256": "e48d79b4b7599e291e495dcbd87af6f96953c19de99fbe46d0de989c5b638ba7",
   "role_surface_contract_path": "config/gate3_surface_variation_profiles.yaml",
@@ -31,7 +31,7 @@
   "effective_prompt_contract_sha256": "6a479fcbe769174a5373fafd1f867315109998b73c6ad7856c4ac1740339a388",
   "draft_pool_revision": "gate3-pool-v2-optional-replacement",
   "draft_pool_id": "gate3-private-drafts-v3r1-pool2-v0.4",
-  "replacement_omission_condition": "format_safety_failure:replacement_exact_duplicate_after_attempt_3",
+  "replacement_omission_condition": "format_safety_failure:replacement_exact_duplicate_on_all_3_attempts",
   "replacement_omission_ledger_path": "var/eval_sources/custom/audit/gate3_replacement_omissions.json",
   "qualification_verdict": "pass",
   "retry_policy": {
