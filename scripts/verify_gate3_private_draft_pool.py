@@ -66,7 +66,7 @@ def _draft_view(record: dict[str, Any]) -> dict[str, Any]:
         "class": record["class"],
         "expected_behavior": record["expected_behavior"],
         "source_dataset": "custom",
-        "source_version": "cwalts-custom-v0.4-gate3-v3",
+        "source_version": "cwalts-custom-v0.4-gate3-v3r1",
         "source_record_id": record["slot_id"],
         "group_id": record["group_id"],
         "template_fingerprint": record["template_fingerprint"],
@@ -158,17 +158,25 @@ def validate_record_integrity(
 ) -> None:
     """Rebind every stored identity to frozen metadata and current freeze state."""
     for field in (
-        "slot_id", "class", "expected_behavior", "task_family", "scenario_family",
-        "structural_family", "register", "preservation_burden", "group_family",
+        "slot_id",
+        "class",
+        "expected_behavior",
+        "task_family",
+        "scenario_family",
+        "structural_family",
+        "register",
+        "preservation_burden",
+        "group_family",
         "template_family_id",
     ):
         if record.get(field) != slot.get(field):
             raise PrivateAuthoringError(f"slot_metadata_mismatch:{field}")
     if record["draft_id"] != f"G3D-{record['slot_id']}-{record['draft_role']}":
         raise PrivateAuthoringError("draft_id_mismatch")
-    if record["policy_sha256"] != file_sha256(POLICY) or record[
-        "generation_freeze_sha256"
-    ] != freeze_sha:
+    if (
+        record["policy_sha256"] != file_sha256(POLICY)
+        or record["generation_freeze_sha256"] != freeze_sha
+    ):
         raise PrivateAuthoringError("draft_freeze_identity_mismatch")
     if record["prompt_sha256"] != file_sha256(
         Path(__file__).parents[1] / "config/gate3_custom_generation_prompt.txt"
@@ -187,8 +195,11 @@ def validate_record_integrity(
     ):
         raise PrivateAuthoringError("draft_template_fingerprint_mismatch")
     if record["draft_fingerprint"] != derive_draft_fingerprint(
-        record["slot_id"], record["draft_role"], record["query_text"],
-        record["policy_sha256"], record["generation_freeze_sha256"],
+        record["slot_id"],
+        record["draft_role"],
+        record["query_text"],
+        record["policy_sha256"],
+        record["generation_freeze_sha256"],
     ):
         raise PrivateAuthoringError("draft_fingerprint_mismatch")
 
@@ -205,12 +216,28 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
         raise PrivateAuthoringError("draft_pool_seal_missing")
     seal = json.loads(seal_path.read_text(encoding="utf-8"))
     required_seal_fields = {
-        "schema_version", "draft_pool_id", "draft_pool_sha256", "draft_count",
-        "primary_count", "replacement_count", "policy_sha256", "slot_sha256",
-        "prompt_sha256", "schema_sha256", "parameter_hash", "model_digest",
-        "generation_model", "generation_run_version", "generation_activation_commit",
-        "activated_generator_sha256", "activated_generation_freeze_sha256",
-        "model_blob_digest", "model_tag_digest", "split", "qrels", "canonical_candidate_manifest",
+        "schema_version",
+        "draft_pool_id",
+        "draft_pool_sha256",
+        "draft_count",
+        "primary_count",
+        "replacement_count",
+        "policy_sha256",
+        "slot_sha256",
+        "prompt_sha256",
+        "schema_sha256",
+        "parameter_hash",
+        "model_digest",
+        "generation_model",
+        "generation_run_version",
+        "generation_activation_commit",
+        "activated_generator_sha256",
+        "activated_generation_freeze_sha256",
+        "model_blob_digest",
+        "model_tag_digest",
+        "split",
+        "qrels",
+        "canonical_candidate_manifest",
     }
     if not required_seal_fields.issubset(seal):
         raise PrivateAuthoringError("draft_pool_seal_contract_invalid")
@@ -231,7 +258,7 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
         "model_blob_digest": freeze["model_blob_digest"],
         "model_tag_digest": freeze["model_tag_digest"],
         "generation_model": freeze["model"],
-        "generation_run_version": "gate3-b1-v3",
+        "generation_run_version": "gate3-b1-v3r1",
         "activated_generator_sha256": file_sha256(GENERATOR),
         "activated_generation_freeze_sha256": freeze_sha,
         "split": False,
@@ -240,9 +267,10 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
     }
     if any(seal.get(key) != value for key, value in seal_expectations.items()):
         raise PrivateAuthoringError("draft_pool_seal_identity_mismatch")
-    if not isinstance(seal["generation_activation_commit"], str) or not seal[
-        "generation_activation_commit"
-    ]:
+    if (
+        not isinstance(seal["generation_activation_commit"], str)
+        or not seal["generation_activation_commit"]
+    ):
         raise PrivateAuthoringError("generation_activation_commit_missing")
     data = json.loads(path.read_text(encoding="utf-8"))
     records = data.get("records")

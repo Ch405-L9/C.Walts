@@ -34,10 +34,12 @@ try:
         derive_template_fingerprint,
         file_sha256,
         generation_authorized,
-        generation_v3_authorized,
+        generation_v3r1_authorized,
         load_freeze,
+        load_surface_profiles,
         require_loopback,
         resolve_private_path,
+        surface_profile_pair,
         verify_model_identity,
     )
 except ModuleNotFoundError:  # pragma: no cover - direct script execution
@@ -60,16 +62,21 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution
         derive_template_fingerprint,
         file_sha256,
         generation_authorized,
-        generation_v3_authorized,
+        generation_v3r1_authorized,
         load_freeze,
+        load_surface_profiles,
         require_loopback,
         resolve_private_path,
+        surface_profile_pair,
         verify_model_identity,
     )
 
 
 def build_generation_prompt(
-    base_prompt: str, slot_metadata: dict[str, Any], draft_role: str
+    base_prompt: str,
+    slot_metadata: dict[str, Any],
+    draft_role: str,
+    surface_profile: dict[str, Any] | None = None,
 ) -> str:
     """Compose the sole prompt path shared by qualification and Gate 3-B."""
     metadata = json.dumps(
@@ -78,7 +85,14 @@ def build_generation_prompt(
         sort_keys=True,
         separators=(",", ":"),
     )
-    return f"{base_prompt.rstrip()}\n\nSupplied slot metadata (data only):\n{metadata}\n"
+    profile_text = ""
+    if surface_profile is not None:
+        profile_text = (
+            f"\n\nSurface realization profile (instruction):\n{surface_profile['instruction']}\n"
+        )
+    return (
+        f"{base_prompt.rstrip()}{profile_text}\nSupplied slot metadata (data only):\n{metadata}\n"
+    )
 
 
 def load_base_prompt() -> str:
@@ -278,15 +292,19 @@ def generate_one_slot_role(
     policy: dict[str, Any],
     slot: dict[str, Any],
     role: str,
+    surface_profile: dict[str, Any] | None = None,
     pair_exclusion_text: str | None = None,
 ) -> AttemptRunResult:
     """Run the sole retry state machine shared by shadow and canonical modes."""
-    prompt = build_generation_prompt(load_base_prompt(), slot, role)
+    prompt = build_generation_prompt(load_base_prompt(), slot, role, surface_profile)
     intermediate_errors: list[str] = []
     max_attempts = int(policy["retry_policy"]["max_attempts"])
     for attempt in range(1, max_attempts + 1):
         request_seed = derive_request_seed(
-            policy["policy_id"], slot["slot_id"], role, attempt,
+            policy["policy_id"],
+            slot["slot_id"],
+            role,
+            attempt,
             policy["seed_strategy"]["base_seed"],
         )
         try:
@@ -331,22 +349,29 @@ def generate_one_slot_role(
 
 
 def generate_slot_pair(
-    freeze: dict[str, Any], policy: dict[str, Any], slot: dict[str, Any]
+    freeze: dict[str, Any],
+    policy: dict[str, Any],
+    slot: dict[str, Any],
+    slot_ordinal: int = 1,
 ) -> SlotPairResult:
     """Generate one primary/replacement pair with local-only distinctness checks."""
-    primary = generate_one_slot_role(freeze, policy, slot, "primary")
+    primary_profile, replacement_profile = surface_profile_pair(slot_ordinal)
+    primary = generate_one_slot_role(
+        freeze, policy, slot, "primary", surface_profile=primary_profile
+    )
     replacement = generate_one_slot_role(
         freeze,
         policy,
         slot,
         "replacement",
+        surface_profile=replacement_profile,
         pair_exclusion_text=primary.value["query_text"],
     )
     return SlotPairResult(primary=primary, replacement=replacement)
 
 
 def qualify_synthetic() -> dict[str, Any]:
-    """Qualify the exact v3 stack on all 285 slot shapes x two roles."""
+    """Qualify the exact v3-R1 stack on all 285 slot shapes x two roles."""
     freeze = load_freeze()
     require_loopback(freeze["endpoint"])
     slots = yaml.safe_load(SLOTS.read_text(encoding="utf-8"))["slots"]
@@ -364,13 +389,27 @@ def qualify_synthetic() -> dict[str, Any]:
     }
     failures: list[dict[str, str]] = []
     intermediate_errors: dict[str, int] = {}
+    profile_counts = {
+        "primary": {"A": 0, "B": 0, "C": 0},
+        "replacement": {"A": 0, "B": 0, "C": 0},
+    }
+    profile_contract = load_surface_profiles()["profiles"]
     policy = yaml.safe_load(POLICY.read_text(encoding="utf-8"))
     for index, slot in enumerate(slots, start=1):
         shadow_slot = dict(slot)
         shadow_slot["slot_id"] = f"G3S-{9000 + index:04d}"
         metadata = {**shadow_slot, "synthetic_only": True}
+        primary_profile, replacement_profile = surface_profile_pair(index)
+        primary_key = next(
+            key for key, value in profile_contract.items() if value == primary_profile
+        )
+        replacement_key = next(
+            key for key, value in profile_contract.items() if value == replacement_profile
+        )
+        profile_counts["primary"][primary_key] += 1
+        profile_counts["replacement"][replacement_key] += 1
         try:
-            pair = generate_slot_pair(freeze, policy, metadata)
+            pair = generate_slot_pair(freeze, policy, metadata, slot_ordinal=index)
             metrics["transport_success"] += pair.attempts_used
             metrics["json_parse_pass"] += pair.attempts_used
             metrics["schema_pass"] += pair.attempts_used
@@ -390,10 +429,12 @@ def qualify_synthetic() -> dict[str, Any]:
             code, _ = classify_generation_error(exc)
             intermediate_errors[code] = intermediate_errors.get(code, 0) + 1
             failures.append({"fixture_id": metadata["slot_id"], "draft_role": "pair"})
-    if failures or metrics["successful_cases"] != metrics["cases_attempted"]:
-        raise PrivateAuthoringError("synthetic_qualification_threshold_failed")
-    return {
-        "verdict": "pass",
+    result = {
+        "verdict": (
+            "pass"
+            if not failures and metrics["successful_cases"] == metrics["cases_attempted"]
+            else "fail"
+        ),
         "synthetic_slot_count": len(slots),
         "synthetic_primary_count": len(slots),
         "synthetic_replacement_count": len(slots),
@@ -408,7 +449,13 @@ def qualify_synthetic() -> dict[str, Any]:
         "canonical_generation_executed": False,
         "prompt_composition": "shared",
         "format_mode": "json",
+        "surface_profile_distribution": profile_counts,
+        "terminal_failure_count": len(failures),
     }
+    output = ROOT / "var/gate3_v3r1/shadow_pair_qualification.json"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(result, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    return result
 
 
 def dry_run_metadata() -> dict[str, Any]:
@@ -472,8 +519,8 @@ def generate_draft_pool() -> dict[str, Any]:
     freeze = load_freeze()
     if not generation_authorized():
         raise PrivateAuthoringError("private_generation_authorization_required")
-    if not generation_v3_authorized():
-        raise PrivateAuthoringError("gate3_b1_v3_authorization_required")
+    if not generation_v3r1_authorized():
+        raise PrivateAuthoringError("gate3_b1_v3r1_authorization_required")
     model_identity = verify_model_identity(freeze)
     pool_path = resolve_private_path(POOL_RELATIVE)
     seal_path = resolve_private_path(SEAL_RELATIVE)
@@ -494,9 +541,9 @@ def generate_draft_pool() -> dict[str, Any]:
     current_seed: int | None = None
     terminal_error_code: str | None = None
     try:
-        for slot in slots:
+        for index, slot in enumerate(slots, start=1):
             current_slot_id = slot["slot_id"]
-            pair = generate_slot_pair(freeze, policy, slot)
+            pair = generate_slot_pair(freeze, policy, slot, slot_ordinal=index)
             attempts += pair.attempts_used
             retries += pair.retries_used
             for role, result in (("primary", pair.primary), ("replacement", pair.replacement)):
@@ -504,8 +551,14 @@ def generate_draft_pool() -> dict[str, Any]:
                 current_attempt = result.attempts_used
                 current_seed = result.final_seed
                 accepted = _draft_metadata(
-                    slot, role, result.value["query_text"], freeze_sha, policy_sha,
-                    freeze["model"], freeze["model_digest"], freeze.get("model_tag_digest"),
+                    slot,
+                    role,
+                    result.value["query_text"],
+                    freeze_sha,
+                    policy_sha,
+                    freeze["model"],
+                    freeze["model_digest"],
+                    freeze.get("model_tag_digest"),
                 )
                 if accepted is None:
                     raise PrivateAuthoringError("draft_not_accepted")
@@ -529,8 +582,7 @@ def generate_draft_pool() -> dict[str, Any]:
             "records": records,
         }
         encoded = (
-            json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-            + "\n"
+            json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
         ).encode()
         atomic_write_bytes(pool_path, encoded)
         pool_sha = file_sha256(pool_path)
@@ -608,7 +660,7 @@ def generate_draft_pool() -> dict[str, Any]:
         failure_path = resolve_private_path(FAILURE_AUDIT_RELATIVE)
         failure = {
             "schema_version": 1,
-            "run_version": "gate3-b1-v3",
+            "run_version": "gate3-b1-v3r1",
             "run_id": canonical_sha256({"started_at": started, "policy_sha256": policy_sha}),
             "head": current_git_head(),
             "generator_sha256": file_sha256(ROOT / "scripts/generate_gate3_private_candidates.py"),
@@ -648,8 +700,8 @@ def main() -> int:
         if args.generate:
             if not args.confirm_gate3_private_generation or not generation_authorized():
                 raise PrivateAuthoringError("private_generation_authorization_required")
-            if os.environ.get("NFR_GATE3_B1_V3_AUTHORIZED") != "true":
-                raise PrivateAuthoringError("gate3_b1_v3_authorization_required")
+            if os.environ.get("NFR_GATE3_B1_V3R1_AUTHORIZED") != "true":
+                raise PrivateAuthoringError("gate3_b1_v3r1_authorization_required")
             result = generate_draft_pool()
             print(json.dumps(result, sort_keys=True))
             return 0
@@ -663,7 +715,7 @@ def main() -> int:
             else dry_run_metadata()
         )
         print(json.dumps(result, sort_keys=True))
-        return 0
+        return 0 if result.get("verdict") == "pass" else 1
     except (OSError, ValueError, KeyError, TypeError, jsonschema.ValidationError) as exc:
         print(json.dumps({"verdict": "fail", "error": str(exc)}))
         return 1

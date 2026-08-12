@@ -1172,3 +1172,8 @@ Isolated collection, ingestion, and the embedding contract are operational.
   family compatibility metadata, and sanitized failure observability.
 - Kept the 285 semantic slots, local-only generation boundary, owner approval
   requirement, and no-real-generation state unchanged.
+## 0.4.0-dev.17
+
+- Freeze the Gate 3 v3-R1 generic role-surface diversity contract.
+- Preserve the 285 slot semantics, base prompt, parameters, and seed identity.
+- Keep canonical private generation disabled pending pair-aware qualification.

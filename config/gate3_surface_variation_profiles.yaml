@@ -1,0 +1,35 @@
+schema_version: 1
+contract_id: gate3-surface-variation-v1
+assignment_id: slot-ordinal-mod3-v1
+profiles:
+  A:
+    profile_id: direct_action_first
+    instruction: >-
+      Use a direct, action-first formulation. Lead with the requested operation
+      or question target. Keep the request natural and complete. Avoid a
+      courtesy or context lead-in unless that information is required for
+      completeness. Do not add or remove intent.
+    semantic_preservation_required: true
+    second_task_forbidden: true
+    new_fact_invention_forbidden: true
+  B:
+    profile_id: request_question_frame
+    instruction: >-
+      Express the same single intent using a natural request or question frame.
+      Use a syntactically different opening from a direct action-first
+      formulation. Use only supplied metadata and do not add a second task or
+      new facts.
+    semantic_preservation_required: true
+    second_task_forbidden: true
+    new_fact_invention_forbidden: true
+  C:
+    profile_id: context_goal_first
+    instruction: >-
+      Express the same single intent using a context- or goal-first formulation.
+      Begin with a supplied scenario, object, constraint, or goal when
+      available, then state the requested operation. If no explicit contextual
+      detail exists, use only a brief neutral lead-in derived from the supplied
+      task metadata. Do not invent facts.
+    semantic_preservation_required: true
+    second_task_forbidden: true
+    new_fact_invention_forbidden: true

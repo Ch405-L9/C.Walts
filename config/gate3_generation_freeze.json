@@ -1,9 +1,9 @@
 {
   "canonical_generation_executed": false,
-  "generation_run_version": "gate3-b1-v3",
-  "generation_authorization_env": "NFR_GATE3_B1_V3_AUTHORIZED",
+  "generation_run_version": "gate3-b1-v3r1",
+  "generation_authorization_env": "NFR_GATE3_B1_V3R1_AUTHORIZED",
   "endpoint": "http://127.0.0.1:11434",
-  "generator_sha256": "3d387044da9201e1317ffdea84a725e993b4148a7da04ef8bb277b8114abcd59",
+  "generator_sha256": "8e6489d4e7c5b34f76f255cf0d1e1b781eb947c69bfcaba71b97bf4d6b4c7621",
   "model": "qwen3:8b",
   "model_tag_digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
   "model_blob_digest": "sha256-a3de86cd1c132c822487ededd47a324c50491393e6565cd14bafa40d0b8e686f",
@@ -21,9 +21,14 @@
     "think": false,
     "top_p": 0.95
   },
-  "policy_sha256": "89cf83db5d137735991dbc5dbe4256838c39d9c1d62f22859f4a236c26b4c186",
+  "policy_sha256": "becc3c8caeda32a534dafcfc6a05cc4e7ccaf0e45a4b11564d503dcc3f57a2ff",
   "private_root": "var/eval_sources/custom",
   "prompt_sha256": "e48d79b4b7599e291e495dcbd87af6f96953c19de99fbe46d0de989c5b638ba7",
+  "role_surface_contract_path": "config/gate3_surface_variation_profiles.yaml",
+  "role_surface_contract_id": "gate3-surface-variation-v1",
+  "role_surface_assignment_id": "slot-ordinal-mod3-v1",
+  "role_surface_contract_sha256": "8203dd1ccbdf42f11cd9dbb596fe87efcb33141d97774424d55a2fe2557894e5",
+  "effective_prompt_contract_sha256": "6a479fcbe769174a5373fafd1f867315109998b73c6ad7856c4ac1740339a388",
   "qualification_verdict": "pass",
   "retry_policy": {
     "allowed": [

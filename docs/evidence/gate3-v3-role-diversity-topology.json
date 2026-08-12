@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "diagnostic_pair_successes": 260,
+  "terminal_failures": 25,
+  "actual_primary_successes": 285,
+  "replacement_successes": 260,
+  "retries": 65,
+  "terminal_duplicate_failures": 25,
+  "recovered_duplicate_retries": 15,
+  "classification": "BROAD_ROLE_DIVERSITY_FAILURE",
+  "unique_failed_groups": 14,
+  "unique_failed_templates": 14,
+  "maximum_concentration": 4,
+  "query_text_recorded": false,
+  "model_replay": false
+}

@@ -17,11 +17,12 @@ PRIVATE_ROOT = (ROOT / "var/eval_sources/custom").resolve()
 POLICY = ROOT / "config/gate3_custom_authoring_policy.yaml"
 SLOTS = ROOT / "config/gate3_custom_authoring_slots.yaml"
 PROMPT = ROOT / "config/gate3_custom_generation_prompt.txt"
+SURFACE_PROFILES = ROOT / "config/gate3_surface_variation_profiles.yaml"
 DRAFT_SCHEMA = ROOT / "schemas/gate3_generated_draft.schema.json"
 FREEZE = ROOT / "config/gate3_generation_freeze.json"
 GENERATOR = ROOT / "scripts/generate_gate3_private_candidates.py"
-GENERATION_ACTIVATION = "gate3-b1-v3"
-GENERATION_V3_AUTHORIZATION = "NFR_GATE3_B1_V3_AUTHORIZED"
+GENERATION_ACTIVATION = "gate3-b1-v3r1"
+GENERATION_V3R1_AUTHORIZATION = "NFR_GATE3_B1_V3R1_AUTHORIZED"
 FAILURE_AUDIT_RELATIVE = Path("audit/gate3_generation_failure.json")
 GATE2_PUBLIC_MANIFEST = ROOT / "var/eval_sources/selected_public/gate2_public_candidates.json"
 GATE2_PUBLIC_MANIFEST_SHA256 = "60d9ac4be6fc217cbfb42283c50ed86aab626dc4c4ef68dfc3f137a66721c39e"
@@ -43,6 +44,38 @@ def file_sha256(path: Path) -> str:
 def canonical_sha256(value: Any) -> str:
     payload = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode()).hexdigest()
+
+
+def surface_profile_contract_sha256() -> str:
+    return file_sha256(SURFACE_PROFILES)
+
+
+def effective_prompt_contract_sha256(base_prompt_sha256: str) -> str:
+    contract = {
+        "base_prompt_sha256": base_prompt_sha256,
+        "surface_profile_contract_sha256": surface_profile_contract_sha256(),
+        "surface_assignment_id": "slot-ordinal-mod3-v1",
+        "surface_contract_id": "gate3-surface-variation-v1",
+    }
+    return canonical_sha256(contract)
+
+
+def load_surface_profiles() -> dict[str, Any]:
+    import yaml
+
+    payload = yaml.safe_load(SURFACE_PROFILES.read_text(encoding="utf-8"))
+    if set(payload.get("profiles", {})) != {"A", "B", "C"}:
+        raise PrivateAuthoringError("surface_profile_contract_invalid")
+    return payload
+
+
+def surface_profile_pair(slot_ordinal: int) -> tuple[dict[str, Any], dict[str, Any]]:
+    if not 1 <= slot_ordinal <= 285:
+        raise PrivateAuthoringError("surface_slot_ordinal_invalid")
+    profiles = load_surface_profiles()["profiles"]
+    bucket = (slot_ordinal - 1) % 3
+    primary_key, replacement_key = (("A", "B"), ("B", "C"), ("C", "A"))[bucket]
+    return profiles[primary_key], profiles[replacement_key]
 
 
 def derive_request_seed(
@@ -179,6 +212,12 @@ def load_freeze() -> dict[str, Any]:
     ):
         if freeze.get(key) != file_sha256(path):
             raise PrivateAuthoringError(f"freeze_hash_mismatch:{key}")
+    if freeze.get("role_surface_contract_sha256") != file_sha256(SURFACE_PROFILES):
+        raise PrivateAuthoringError("freeze_hash_mismatch:role_surface_contract")
+    if freeze.get("effective_prompt_contract_sha256") != effective_prompt_contract_sha256(
+        freeze["prompt_sha256"]
+    ):
+        raise PrivateAuthoringError("freeze_hash_mismatch:effective_prompt_contract")
     return freeze
 
 
@@ -189,11 +228,8 @@ def generation_authorized() -> bool:
     )
 
 
-def generation_v2_authorized() -> bool:
-    return generation_authorized() and os.environ.get(GENERATION_V3_AUTHORIZATION) == "true"
-
-
-generation_v3_authorized = generation_v2_authorized
+def generation_v3r1_authorized() -> bool:
+    return generation_authorized() and os.environ.get(GENERATION_V3R1_AUTHORIZATION) == "true"
 
 
 def atomic_write_bytes(path: Path, payload: bytes) -> None:

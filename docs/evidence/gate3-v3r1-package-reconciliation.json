@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "prior_topology_bundle_requested_path": "var/gate3_b1_v3_pre_r2/gate3_b1_v3_pre_r2_review_bundle.zip",
+  "prior_topology_bundle_available_at_requested_path": false,
+  "root_cause": "bundle_constant_used_a_different_filename_and_main_did_not_call_write_bundle",
+  "topology_finding_retained_from": "var/gate3_b1_v3_pre_r2_diag_r1/failure_topology.json",
+  "query_text_recorded": false
+}

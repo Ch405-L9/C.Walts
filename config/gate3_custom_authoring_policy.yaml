@@ -2,7 +2,8 @@ schema_version: 1
 policy_id: gate3-custom-authoring-v3
 benchmark_version: '0.4'
 source_dataset: custom
-source_version: cwalts-custom-v0.4-gate3-v3
+source_version: cwalts-custom-v0.4-gate3-v3r1
+authoring_revision: gate3-v3-r1-role-surface
 id_namespace: ^CWQ-CUS-[0-9]{4}$
 id_range:
 - 1
@@ -120,7 +121,12 @@ slot_manifest_sha256: 7137cbbb6d2117d2c78bdba35de9ca62a7697c5d4736ec1c736b6e2aab
 prompt_sha256: e48d79b4b7599e291e495dcbd87af6f96953c19de99fbe46d0de989c5b638ba7
 output_schema_sha256: 18d4a79f57af457ddd7ad7bd2530a5b89907ca15203cf8072259d151409a88bd
 generation_parameter_hash: 15d29fc7b64faf33d191b42ca4646470f696c691f811632430a8880e10e549f1
-generation_run_version: gate3-b1-v3
+generation_run_version: gate3-b1-v3r1
+role_surface_contract_path: config/gate3_surface_variation_profiles.yaml
+role_surface_contract_id: gate3-surface-variation-v1
+role_surface_assignment_id: slot-ordinal-mod3-v1
+role_surface_contract_sha256: 8203dd1ccbdf42f11cd9dbb596fe87efcb33141d97774424d55a2fe2557894e5
+effective_prompt_contract_sha256: 6a479fcbe769174a5373fafd1f867315109998b73c6ad7856c4ac1740339a388
 taxonomy_validator_compatibility_path: config/gate3_taxonomy_validator_compatibility.yaml
 failure_audit_path: var/eval_sources/custom/audit/gate3_generation_failure.json
-generation_authorization_env: NFR_GATE3_B1_V3_AUTHORIZED
+generation_authorization_env: NFR_GATE3_B1_V3R1_AUTHORIZED
