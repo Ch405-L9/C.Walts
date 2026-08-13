@@ -68,6 +68,9 @@ POOL_RELATIVE = "supplements/gate3_s20_supplement_pool.json"
 SEAL_RELATIVE = "supplements/gate3_s20_supplement_pool.seal.json"
 AUDIT_RELATIVE = "audit/gate3_s20_generation_audit.json"
 FAILURE_RELATIVE = "audit/gate3_s20_generation_failure.json"
+EVENT1_FAILURE_RELATIVE = FAILURE_RELATIVE
+EVENT2_FAILURE_RELATIVE = "audit/gate3_s20_generation_failure_event2.json"
+EVENT1_FAILURE_SHA256 = "b2bce6ed92f21fa7d73baab6540d104883082b44c986ea186226f8a33248e390"
 
 
 def derive_supplement_seed(
@@ -80,6 +83,34 @@ def authorization_status() -> dict[str, bool]:
     return {
         name: os.environ.get(name) == "true" for name in (*REQUIRED_COMMON_ENV, AUTHORIZATION_ENV)
     }
+
+
+def _parameter_contract(freeze: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "format_mode": freeze["format_mode"],
+        "format_schema_sha256": freeze["format_schema_sha256"],
+        "stream": freeze["stream"],
+        "think": freeze["think"],
+        "temperature": freeze["temperature"],
+        "top_p": freeze["top_p"],
+        "num_predict": freeze["num_predict"],
+    }
+
+
+def _parameter_hash(freeze: dict[str, Any]) -> str:
+    encoded = json.dumps(
+        _parameter_contract(freeze), ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _load_schema(freeze: dict[str, Any]) -> dict[str, Any]:
+    schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
+    if freeze.get("format_schema_sha256") != file_sha256(SCHEMA):
+        raise RuntimeError("freeze_identity_mismatch:format_schema")
+    if freeze.get("parameter_hash") != _parameter_hash(freeze):
+        raise RuntimeError("freeze_identity_mismatch:parameter_hash")
+    return schema
 
 
 def _load() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
@@ -148,14 +179,21 @@ def _prompt(slot: dict[str, Any], profile: dict[str, Any]) -> str:
     )
 
 
-def _model_request(freeze: dict[str, Any], prompt: str, seed: int) -> dict[str, Any]:
+def _model_request(
+    freeze: dict[str, Any], prompt: str, seed: int, schema: dict[str, Any]
+) -> dict[str, Any]:
     payload = {
         "model": freeze["model"],
         "prompt": prompt,
-        "format": "json",
-        "stream": False,
-        "think": False,
-        "options": {"temperature": 0.25, "top_p": 0.95, "num_predict": 96, "seed": seed},
+        "format": schema,
+        "stream": freeze["stream"],
+        "think": freeze["think"],
+        "options": {
+            "temperature": freeze["temperature"],
+            "top_p": freeze["top_p"],
+            "num_predict": freeze["num_predict"],
+            "seed": seed,
+        },
     }
     request = urllib.request.Request(  # noqa: S310
         freeze["endpoint"] + "/api/generate",
@@ -207,7 +245,15 @@ def _record(slot: dict[str, Any], value: dict[str, Any], freeze: dict[str, Any])
 
 def _stable_failure(exc: BaseException) -> tuple[str, str]:
     if isinstance(exc, jsonschema.ValidationError):
-        return "format_safety_failure", "schema_failure"
+        details = {
+            "required": "schema_required",
+            "additionalProperties": "schema_additional_properties",
+            "const": "schema_const",
+            "pattern": "schema_pattern",
+            "type": "schema_type",
+            "minLength": "schema_min_length",
+        }
+        return "format_safety_failure", details.get(exc.validator, "schema_failure")
     if isinstance(exc, json.JSONDecodeError):
         return "format_safety_failure", "malformed_json"
     if isinstance(exc, (urllib.error.URLError, TimeoutError, ConnectionError)):
@@ -239,6 +285,7 @@ def _stable_failure(exc: BaseException) -> tuple[str, str]:
         "supplement_artifact_preexists": ("preflight_failure", "artifact_preexists"),
         "supplemental_authorization_missing": ("preflight_failure", "authorization_missing"),
         "freeze_identity_mismatch": ("preflight_failure", "freeze_identity_mismatch"),
+        "prior_failure_audit_mismatch": ("preflight_failure", "prior_failure_audit_mismatch"),
     }
     return mapping.get(marker, ("internal_error", "unclassified"))
 
@@ -291,7 +338,10 @@ def _runtime_state(expected_head: str) -> None:
 
 
 def _guard_absent() -> None:
-    for relative in (POOL_RELATIVE, SEAL_RELATIVE, AUDIT_RELATIVE, FAILURE_RELATIVE):
+    historical = resolve_private_path(EVENT1_FAILURE_RELATIVE)
+    if not historical.exists() or file_sha256(historical) != EVENT1_FAILURE_SHA256:
+        raise RuntimeError("prior_failure_audit_mismatch")
+    for relative in (POOL_RELATIVE, SEAL_RELATIVE, AUDIT_RELATIVE, EVENT2_FAILURE_RELATIVE):
         if resolve_private_path(relative).exists():
             raise RuntimeError("supplement_artifact_preexists")
 
@@ -304,10 +354,11 @@ def _write_failure(
     history: list[dict[str, Any]],
     expected_head: str,
     error: tuple[str, str],
+    freeze: dict[str, Any],
 ) -> None:
     payload = {
         "schema_version": 1,
-        "run_version": "gate3-b1-v3r1-s20",
+        "run_version": freeze["run_version"],
         "generation_activation_commit": expected_head,
         "slot_id": slot_id,
         "terminal_attempt": attempt,
@@ -319,7 +370,7 @@ def _write_failure(
         "query_text_recorded": False,
         "raw_response_recorded": False,
     }
-    path = resolve_private_path(FAILURE_RELATIVE)
+    path = resolve_private_path(EVENT2_FAILURE_RELATIVE)
     atomic_write_bytes(path, (json.dumps(payload, sort_keys=True, indent=2) + "\n").encode())
 
 
@@ -330,6 +381,7 @@ def generate(expected_head: str) -> dict[str, Any]:
     _runtime_state(expected_head)
     _guard_absent()
     freeze, policy, slots_payload = _load()
+    schema = _load_schema(freeze)
     require_loopback(freeze["endpoint"])
     verify_model_identity(
         {
@@ -352,8 +404,8 @@ def generate(expected_head: str) -> dict[str, Any]:
             attempts += 1
             retries += int(attempt > 1)
             try:
-                value = _model_request(freeze, _prompt(slot, _profile_for(slot_id)), seed)
-                jsonschema.validate(value, json.loads(SCHEMA.read_text(encoding="utf-8")))
+                value = _model_request(freeze, _prompt(slot, _profile_for(slot_id)), seed, schema)
+                jsonschema.validate(value, schema)
                 if value["slot_id"] != slot_id or value["draft_role"] != "supplemental":
                     raise ValueError("supplement_identity_invalid")
                 validate_draft(
@@ -375,7 +427,14 @@ def generate(expected_head: str) -> dict[str, Any]:
                 )
                 if attempt == 3:
                     _write_failure(
-                        slot_id, attempt, seed, len(accepted), history, expected_head, error
+                        slot_id,
+                        attempt,
+                        seed,
+                        len(accepted),
+                        history,
+                        expected_head,
+                        error,
+                        freeze,
                     )
                     raise RuntimeError("supplement_generation_failed") from None
     if len(accepted) != 20:

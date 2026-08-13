@@ -144,6 +144,7 @@ def test_runtime_guard_rejects_rename_record(monkeypatch) -> None:
         ("supplement_artifact_preexists", ("preflight_failure", "artifact_preexists")),
         ("supplemental_authorization_missing", ("preflight_failure", "authorization_missing")),
         ("freeze_identity_mismatch:generator", ("preflight_failure", "freeze_identity_mismatch")),
+        ("prior_failure_audit_mismatch", ("preflight_failure", "prior_failure_audit_mismatch")),
     ],
 )
 def test_bounded_preflight_failures_are_classified(marker, expected) -> None:
@@ -244,6 +245,83 @@ def test_cli_failure_boundary_sanitizes_non_runtime_exception(monkeypatch, capsy
     assert "PRIVATE_QUERY_SENTINEL" not in json.dumps({"stable": stable, "detail": detail})
 
 
+def test_schema_validation_subtypes_are_sanitized() -> None:
+    for keyword, detail in (
+        ("required", "schema_required"),
+        ("additionalProperties", "schema_additional_properties"),
+        ("const", "schema_const"),
+        ("pattern", "schema_pattern"),
+        ("type", "schema_type"),
+        ("minLength", "schema_min_length"),
+    ):
+        error = ValidationError(
+            "PRIVATE_QUERY_SENTINEL", instance={"query_text": "PRIVATE_QUERY_SENTINEL"}
+        )
+        error.validator = keyword
+        assert generator._stable_failure(error) == ("format_safety_failure", detail)
+
+
+def test_model_request_uses_exact_frozen_schema_and_sampling(monkeypatch) -> None:
+    freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
+    schema = json.loads((ROOT / "config/gate3_s20_supplement_schema.json").read_text())
+    captured = {}
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return json.dumps({"response": json.dumps({})}).encode()
+
+    def urlopen(request, timeout):
+        captured["payload"] = json.loads(request.data)
+        captured["timeout"] = timeout
+        return Response()
+
+    monkeypatch.setattr(generator.urllib.request, "urlopen", urlopen)
+    generator._model_request(freeze, "synthetic prompt", 123, schema)
+    payload = captured["payload"]
+    assert payload["format"] == schema
+    assert payload["format"] != "json"
+    assert payload["stream"] is False
+    assert payload["think"] is False
+    assert payload["options"] == {
+        "temperature": 0.25,
+        "top_p": 0.95,
+        "num_predict": 96,
+        "seed": 123,
+    }
+
+
+def test_parameter_contract_hash_is_self_consistent() -> None:
+    freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
+    assert generator._parameter_hash(freeze) == freeze["parameter_hash"]
+
+
+def test_historical_failure_guard_accepts_only_untouched_event1(monkeypatch, tmp_path) -> None:
+    historical = ROOT / "var/eval_sources/custom/audit/gate3_s20_generation_failure.json"
+    (tmp_path / "gate3_s20_generation_failure.json").write_bytes(historical.read_bytes())
+    monkeypatch.setattr(generator, "resolve_private_path", lambda rel: tmp_path / Path(rel).name)
+    generator._guard_absent()
+    (tmp_path / "gate3_s20_generation_failure_event2.json").write_text("existing")
+    with pytest.raises(RuntimeError, match="supplement_artifact_preexists"):
+        generator._guard_absent()
+
+
+@pytest.mark.parametrize("historical_bytes", [None, b"altered historical evidence\n"])
+def test_historical_failure_guard_rejects_missing_or_altered_event1(
+    monkeypatch, tmp_path, historical_bytes
+) -> None:
+    if historical_bytes is not None:
+        (tmp_path / "gate3_s20_generation_failure.json").write_bytes(historical_bytes)
+    monkeypatch.setattr(generator, "resolve_private_path", lambda rel: tmp_path / Path(rel).name)
+    with pytest.raises(RuntimeError, match="prior_failure_audit_mismatch"):
+        generator._guard_absent()
+
+
 def _mock_generator(monkeypatch, tmp_path, responses):
     freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
     policy = json.loads(
@@ -266,9 +344,10 @@ def _mock_generator(monkeypatch, tmp_path, responses):
     )
     monkeypatch.setattr(generator, "resolve_private_path", lambda rel: tmp_path / Path(rel).name)
     monkeypatch.setattr(generator, "_runtime_state", lambda _: None)
+    monkeypatch.setattr(generator, "_guard_absent", lambda: None)
     calls = []
 
-    def request(_freeze, _prompt, seed):
+    def request(_freeze, _prompt, seed, _schema):
         calls.append(seed)
         response = responses.pop(0)
         if isinstance(response, BaseException):
@@ -321,14 +400,17 @@ def test_mocked_retry_is_same_slot_and_three_calls(monkeypatch, tmp_path) -> Non
 
 def test_mocked_terminal_failure_writes_only_sanitized_failure(monkeypatch, tmp_path) -> None:
     responses = [ValueError("terminal") for _ in range(3)]
+    historical = ROOT / "var/eval_sources/custom/audit/gate3_s20_generation_failure.json"
+    historical_sha = generator.file_sha256(historical)
     _mock_generator(monkeypatch, tmp_path, responses)
     with pytest.raises(RuntimeError):
         generator.generate("a" * 40)
     assert not (tmp_path / "gate3_s20_supplement_pool.json").exists()
     assert not (tmp_path / "gate3_s20_supplement_pool.seal.json").exists()
-    failure = json.loads((tmp_path / "gate3_s20_generation_failure.json").read_text())
+    failure = json.loads((tmp_path / "gate3_s20_generation_failure_event2.json").read_text())
     assert failure["query_text_recorded"] is False
     assert "query_text" not in failure
+    assert generator.file_sha256(historical) == historical_sha
 
 
 def test_staged_install_rolls_back_without_deleting_preexisting_artifacts(tmp_path) -> None:
