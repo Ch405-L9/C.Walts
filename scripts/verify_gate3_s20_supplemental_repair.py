@@ -36,6 +36,33 @@ EXPECTED_BASE_SEED = 17
 EXPECTED_ROLES = {"primary", "replacement"}
 
 
+def base_exact_edges(records: list[dict[str, Any]]) -> list[tuple[str, str, str, str]]:
+    """Derive the accepted exact-text incompatibilities without retaining text."""
+    by_digest: dict[str, list[dict[str, Any]]] = {}
+    for record in records:
+        digest = hashlib.sha256(
+            split.canonical_text(record["query_text"]).encode("utf-8")
+        ).hexdigest()
+        by_digest.setdefault(digest, []).append(record)
+    edges: set[tuple[str, str, str, str]] = set()
+    for group in by_digest.values():
+        for index, left in enumerate(group):
+            for right in group[index + 1 :]:
+                if left["slot_id"] == right["slot_id"]:
+                    raise ValueError("same_slot_exact_duplicate")
+                endpoint = (
+                    left["slot_id"],
+                    left["draft_role"],
+                    right["slot_id"],
+                    right["draft_role"],
+                )
+                reverse = (endpoint[2], endpoint[3], endpoint[0], endpoint[1])
+                edges.add(min(endpoint, reverse))
+    if len(edges) != 243:
+        raise ValueError("base_exact_edge_count_mismatch")
+    return sorted(edges)
+
+
 def target_payload() -> dict[str, Any]:
     payload = json.loads(TARGETS.read_text(encoding="utf-8"))
     slots = payload["slot_ids"]
@@ -177,14 +204,19 @@ def _conflict(left: dict[str, Any], right: dict[str, Any]) -> tuple[bool, bool, 
     return base_verifier._near_kind(left, right)
 
 
-def validate_supplements(records: list[dict[str, Any]]) -> dict[str, Any]:
+def validate_supplements(
+    records: list[dict[str, Any]], *, require_complete: bool = True
+) -> dict[str, Any]:
     target = target_payload()["slot_ids"]
     metadata = target_metadata()
     if file_sha256(POOL) != EXPECTED_POOL_SHA:
         raise ValueError("base_pool_sha_mismatch")
     if file_sha256(GATE2_PUBLIC_MANIFEST) != GATE2_PUBLIC_MANIFEST_SHA256:
         raise ValueError("gate2_manifest_sha_mismatch")
-    if len(records) != 20 or {item.get("slot_id") for item in records} != set(target):
+    record_slots = {item.get("slot_id") for item in records}
+    if len(records) > 20 or not record_slots <= set(target) or len(record_slots) != len(records):
+        raise ValueError("supplement_cardinality_or_target_mismatch")
+    if require_complete and (len(records) != 20 or record_slots != set(target)):
         raise ValueError("supplement_cardinality_or_target_mismatch")
     schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
     for record in records:
@@ -206,10 +238,15 @@ def validate_supplements(records: list[dict[str, Any]]) -> dict[str, Any]:
     for slot in target:
         available.pop(slot, None)
     exact_seen: set[str] = set()
+    exact_edges = base_exact_edges(pool)
     structural_edges: set[tuple[str, str, str, str]] = {
-        tuple(edge) for edge in graph.get("custom_conflict_edges", [])
+        edge for edge in exact_edges
         if edge[0] not in target_set and edge[2] not in target_set
     }
+    structural_edges.update(
+        tuple(edge) for edge in graph.get("custom_conflict_edges", [])
+        if edge[0] not in target_set and edge[2] not in target_set
+    )
     supplement_views = []
     for record in sorted(records, key=lambda item: item["slot_id"]):
         if record["draft_role"] != "supplemental" or record["slot_id"] not in metadata:
@@ -245,12 +282,14 @@ def validate_supplements(records: list[dict[str, Any]]) -> dict[str, Any]:
             if hard or review:
                 raise ValueError("supplemental_gate2_structural_conflict")
         for other in base_views:
-            if supplement["slot_id"] == other.get("slot_id"):
-                continue
             if split.canonical_text(supplement["query_text"]) == split.canonical_text(
                 other["query_text"]
             ):
                 raise ValueError("supplemental_exact_duplicate")
+            if supplement["slot_id"] == other.get("slot_id"):
+                raise ValueError("supplemental_same_target_conflict")
+            if other.get("slot_id") in target_set:
+                continue
             hard, review, _ = _conflict(supplement, other)
             if not (hard or review):
                 continue

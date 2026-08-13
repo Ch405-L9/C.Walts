@@ -8,6 +8,9 @@
   "target_slot_ids_sha256": "daf9aafc4df9fc70469222889c9697e3eab0eb485d21eaa6d905b89f63a459ca",
   "target_slot_count": 20,
   "source_pool_sha256": "5745b15f0aeee3a1664e8219fec732b194753c2e623d927e8300e7b94edd9735",
+  "base_exact_edge_count": 243,
+  "base_hard_review_edge_count": 193,
+  "base_augmented_edge_count": 436,
   "base_policy_sha256": "c937d2d877a4fecbe192407beae97311d2e90260354f3563c007df685a39b237",
   "base_slot_sha256": "7137cbbb6d2117d2c78bdba35de9ca62a7697c5d4736ec1c736b6e2aab15d910",
   "base_prompt_sha256": "e48d79b4b7599e291e495dcbd87af6f96953c19de99fbe46d0de989c5b638ba7",
@@ -24,11 +27,12 @@
   "seed_strategy": "gate3-slot-role-attempt-sha256-v1",
   "base_seed": 17,
   "max_attempts": 3,
-  "supplement_generator_sha256": "2b0d36be7dc2113e262c081cb0fe1ff5efa10061b14c3d2da81fb5a796ae0e9e",
-  "supplement_validator_sha256": "1abcd4a6879902b45d898ad8d1ab6892baa60af2c7863b56c523ab9e551b6dec",
+  "supplement_generator_sha256": "a2ab36f4156f479e93294357a472094579c89ba3a6d36c80176f8108cd9edbf3",
+  "supplement_validator_sha256": "a9d4d17c0e4c35c1dd324447a0743f807fdb6412f8dcd850704dfb17aa214078",
   "run_version": "gate3-b1-v3r1-s20",
   "source_version": "cwalts-custom-v0.4-gate3-v3r1-s20",
   "authorization_env": "NFR_GATE3_B1_S20_AUTHORIZED",
   "repository_version": "0.4.0-dev.19",
-  "canonical_generation_executed": false
+  "canonical_generation_executed": false,
+  "generation_activation_commit": "39a12a2e0c97435ad8aba3733d31a5bc97a90dd3"
 }
