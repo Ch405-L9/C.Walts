@@ -50,8 +50,8 @@ def _edge_key(edge: Iterable[str]) -> tuple[str, str, str, str]:
     return (*left, *right) if left <= right else (*right, *left)
 
 
-def _literal_index(slot_ids: list[str], slot: str, role: str) -> int:
-    return 2 * slot_ids.index(slot) + (0 if role == "primary" else 1)
+def _literal_index(index: dict[str, int], slot: str, role: str) -> int:
+    return 2 * index[slot] + (0 if role == "primary" else 1)
 
 
 def _implication_graph(
@@ -61,19 +61,20 @@ def _implication_graph(
 ) -> tuple[list[list[int]], list[list[int]]]:
     graph = [[] for _ in range(len(slot_ids) * 2)]
     reverse = [[] for _ in range(len(slot_ids) * 2)]
+    index = {slot: number for number, slot in enumerate(slot_ids)}
 
     def add(source: int, target: int) -> None:
         graph[source].append(target)
         reverse[target].append(source)
 
     for left_slot, left_role, right_slot, right_role in sorted(edges):
-        left = _literal_index(slot_ids, left_slot, left_role)
-        right = _literal_index(slot_ids, right_slot, right_role)
+        left = _literal_index(index, left_slot, left_role)
+        right = _literal_index(index, right_slot, right_role)
         add(left, right ^ 1)
         add(right, left ^ 1)
     for slot in sorted(slot_ids):
         if available_roles.get(slot) == {"primary"}:
-            primary = _literal_index(slot_ids, slot, "primary")
+            primary = _literal_index(index, slot, "primary")
             add(primary ^ 1, primary)
     for adjacency in graph + reverse:
         adjacency.sort()
@@ -141,16 +142,18 @@ def _unsat_cores(
 ) -> tuple[list[tuple[str, ...]], list[str], dict[str, Any]]:
     graph, reverse = _implication_graph(slot_ids, edges, available_roles)
     component = _components(graph, reverse)
+    index = {slot: n for n, slot in enumerate(slot_ids)}
     contradictory = [
         slot
         for slot in slot_ids
-        if component[_literal_index(slot_ids, slot, "primary")]
-        == component[_literal_index(slot_ids, slot, "replacement")]
+        if component[_literal_index(index, slot, "primary")]
+        == component[_literal_index(index, slot, "replacement")]
     ]
     cores: set[tuple[str, ...]] = set()
     for slot in contradictory:
-        primary = _literal_index(slot_ids, slot, "primary")
-        replacement = _literal_index(slot_ids, slot, "replacement")
+        index = {item: n for n, item in enumerate(slot_ids)}
+        primary = _literal_index(index, slot, "primary")
+        replacement = _literal_index(index, slot, "replacement")
         path_one = _shortest_path(graph, primary, replacement, component)
         path_two = _shortest_path(graph, replacement, primary, component)
         slots = {slot_ids[node // 2] for node in [*path_one, *path_two]}
@@ -188,9 +191,10 @@ def _sat_only(
     """Use the shared solver's implication semantics without proof serialization."""
     graph, reverse = _implication_graph(slot_ids, edges, available_roles)
     components = _components(graph, reverse)
+    index = {slot: n for n, slot in enumerate(slot_ids)}
     return all(
-        components[_literal_index(slot_ids, slot, "primary")]
-        != components[_literal_index(slot_ids, slot, "replacement")]
+        components[_literal_index(index, slot, "primary")]
+        != components[_literal_index(index, slot, "replacement")]
         for slot in slot_ids
     )
 
