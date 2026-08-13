@@ -225,6 +225,7 @@ class DeletionSearch:
         self.stats = SearchStats()
         self.failed: set[tuple[frozenset[str], int]] = set()
         self.solutions: set[tuple[str, ...]] = set()
+        self.first_solution: tuple[str, ...] | None = None
 
     def _check(self, repaired: frozenset[str]) -> tuple[bool, str]:
         remaining, edges, roles = _reduced(
@@ -233,6 +234,8 @@ class DeletionSearch:
         return verifier._two_sat(remaining, edges, roles)
 
     def _visit(self, repaired: frozenset[str], budget: int) -> None:
+        if self.first_solution is not None:
+            return
         state = (repaired, budget)
         if state in self.failed:
             self.stats.memoized_failed_states += 1
@@ -241,7 +244,8 @@ class DeletionSearch:
         self.stats.max_depth = max(self.stats.max_depth, len(repaired))
         feasible, _ = self._check(repaired)
         if feasible:
-            self.solutions.add(tuple(sorted(repaired)))
+            self.first_solution = tuple(sorted(repaired))
+            self.solutions.add(self.first_solution)
             return
         if budget == 0:
             self.failed.add((repaired, budget))
@@ -264,6 +268,7 @@ class DeletionSearch:
     def run(self, target: int) -> dict[str, Any]:
         self.target = target
         self.solutions.clear()
+        self.first_solution = None
         self.failed.clear()
         self.stats = SearchStats()
         self._visit(frozenset(), target)
