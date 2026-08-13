@@ -1,13 +1,15 @@
-"""Guarded, local-only Supplemental-20 generator.
-
-The generation entry point is frozen during PRE-R1 but is never invoked here.
-"""
+"""Guarded, local-only canonical Supplemental-20 generator."""
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
+import shutil
+import subprocess
+import tempfile
+import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any
@@ -20,7 +22,6 @@ try:
     from scripts.gate3_private_common import (
         ROOT,
         atomic_write_bytes,
-        current_git_head,
         derive_draft_fingerprint,
         derive_group_id,
         derive_request_seed,
@@ -39,7 +40,6 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution
     from gate3_private_common import (
         ROOT,
         atomic_write_bytes,
-        current_git_head,
         derive_draft_fingerprint,
         derive_group_id,
         derive_request_seed,
@@ -51,16 +51,19 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution
     )
     from generate_gate3_private_candidates import validate_draft
 
+
 AUTHORIZATION_ENV = "NFR_GATE3_B1_S20_AUTHORIZED"
 REQUIRED_COMMON_ENV = ("NFR_ALLOW_PRIVATE_EVAL_GENERATION", "NFR_GATE3_B_AUTHORIZED")
 FREEZE = ROOT / "config/gate3_s20_generation_freeze.json"
 POLICY = ROOT / "config/gate3_s20_supplement_policy.yaml"
 BASE_POLICY = ROOT / "config/gate3_custom_authoring_policy.yaml"
+BASE_PROMPT = ROOT / "config/gate3_custom_generation_prompt.txt"
 PROMPT = ROOT / "config/gate3_s20_supplement_prompt.txt"
 SCHEMA = ROOT / "config/gate3_s20_supplement_schema.json"
 SLOTS = ROOT / "config/gate3_custom_authoring_slots.yaml"
 SURFACE_ASSIGNMENT = ROOT / "config/gate3_s20_surface_assignment.json"
 SURFACE_PROFILES = ROOT / "config/gate3_surface_variation_profiles.yaml"
+TARGETS = ROOT / "config/gate3_s20_target_slots.json"
 POOL_RELATIVE = "supplements/gate3_s20_supplement_pool.json"
 SEAL_RELATIVE = "supplements/gate3_s20_supplement_pool.seal.json"
 AUDIT_RELATIVE = "audit/gate3_s20_generation_audit.json"
@@ -75,8 +78,7 @@ def derive_supplement_seed(
 
 def authorization_status() -> dict[str, bool]:
     return {
-        name: os.environ.get(name) == "true"
-        for name in (*REQUIRED_COMMON_ENV, AUTHORIZATION_ENV)
+        name: os.environ.get(name) == "true" for name in (*REQUIRED_COMMON_ENV, AUTHORIZATION_ENV)
     }
 
 
@@ -84,31 +86,50 @@ def _load() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     freeze = json.loads(FREEZE.read_text(encoding="utf-8"))
     policy = yaml.safe_load(POLICY.read_text(encoding="utf-8"))
     slots = yaml.safe_load(SLOTS.read_text(encoding="utf-8"))
-    if freeze["supplement_generator_sha256"] != file_sha256(Path(__file__)):
-        raise RuntimeError("supplement_freeze_generator_hash_mismatch")
-    if freeze["supplement_validator_sha256"] != file_sha256(Path(validator.__file__)):
-        raise RuntimeError("supplement_freeze_validator_hash_mismatch")
-    if freeze["supplement_policy_sha256"] != file_sha256(POLICY):
-        raise RuntimeError("supplement_freeze_policy_hash_mismatch")
-    if freeze["supplement_instruction_sha256"] != file_sha256(PROMPT):
-        raise RuntimeError("supplement_freeze_prompt_hash_mismatch")
-    if freeze["supplement_schema_sha256"] != file_sha256(SCHEMA):
-        raise RuntimeError("supplement_freeze_schema_hash_mismatch")
-    if freeze["surface_profile_sha256"] != file_sha256(SURFACE_PROFILES):
-        raise RuntimeError("supplement_freeze_surface_hash_mismatch")
-    if freeze["target_slot_ids_sha256"] != json.loads(TARGETS.read_text())["repair_set_sha256"]:
-        raise RuntimeError("supplement_freeze_target_hash_mismatch")
+    checks = {
+        "base_policy_sha256": BASE_POLICY,
+        "base_slot_sha256": SLOTS,
+        "supplement_generator_sha256": Path(__file__),
+        "supplement_validator_sha256": Path(validator.__file__),
+        "supplement_policy_sha256": POLICY,
+        "supplement_instruction_sha256": PROMPT,
+        "supplement_schema_sha256": SCHEMA,
+        "surface_profile_sha256": SURFACE_PROFILES,
+        "supplement_surface_assignment_sha256": SURFACE_ASSIGNMENT,
+        "base_prompt_sha256": BASE_PROMPT,
+    }
+    for key, path in checks.items():
+        if freeze.get(key) != file_sha256(path):
+            raise RuntimeError(f"freeze_identity_mismatch:{key}")
+    target = json.loads(TARGETS.read_text(encoding="utf-8"))
+    if freeze.get("target_slot_ids_sha256") != target["repair_set_sha256"]:
+        raise RuntimeError("freeze_identity_mismatch:target_slots")
     return freeze, policy, slots
 
 
-TARGETS = ROOT / "config/gate3_s20_target_slots.json"
+def _install_staged_artifacts(
+    staged: Path, destinations: tuple[Path, Path, Path]
+) -> None:
+    installed: list[Path] = []
+    try:
+        for destination in destinations:
+            source = staged / destination.name
+            if destination.exists():
+                raise RuntimeError("supplement_artifact_preexists")
+            source.replace(destination)
+            installed.append(destination)
+    except BaseException:
+        for destination in installed:
+            destination.unlink(missing_ok=True)
+        raise
 
 
 def _profile_for(slot_id: str) -> dict[str, Any]:
     profiles = yaml.safe_load(SURFACE_PROFILES.read_text(encoding="utf-8"))["profiles"]
     assignment = json.loads(SURFACE_ASSIGNMENT.read_text(encoding="utf-8"))
-    return profiles[validator.target_surface_profiles()[slot_id]] | {
-        "profile_id": validator.target_surface_profiles()[slot_id],
+    profile_id = validator.target_surface_profiles()[slot_id]
+    return profiles[profile_id] | {
+        "profile_id": profile_id,
         "assignment_id": assignment["assignment_id"],
     }
 
@@ -116,7 +137,9 @@ def _profile_for(slot_id: str) -> dict[str, Any]:
 def _prompt(slot: dict[str, Any], profile: dict[str, Any]) -> str:
     metadata = json.dumps(slot, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return (
-        PROMPT.read_text(encoding="utf-8").rstrip()
+        BASE_PROMPT.read_text(encoding="utf-8").rstrip()
+        + "\n\nSupplemental-20 instruction layer:\n"
+        + PROMPT.read_text(encoding="utf-8").rstrip()
         + "\n\nSurface realization profile (instruction):\n"
         + profile["instruction"]
         + "\n\nSupplied slot metadata (data only):\n"
@@ -173,42 +196,124 @@ def _record(slot: dict[str, Any], value: dict[str, Any], freeze: dict[str, Any])
         "supplement_freeze_sha256": file_sha256(FREEZE),
         "supplement_prompt_sha256": freeze["supplement_instruction_sha256"],
         "supplement_fingerprint": derive_draft_fingerprint(
-            slot["slot_id"], "supplemental", query_text,
-            freeze["supplement_policy_sha256"], file_sha256(FREEZE)
+            slot["slot_id"],
+            "supplemental",
+            query_text,
+            freeze["supplement_policy_sha256"],
+            file_sha256(FREEZE),
         ),
     }
 
 
-def _failure(exc: BaseException, slot_id: str, attempt: int, seed: int, accepted: int) -> None:
-    path = resolve_private_path(FAILURE_RELATIVE)
+def _stable_failure(exc: BaseException) -> tuple[str, str]:
+    if isinstance(exc, jsonschema.ValidationError):
+        return "format_safety_failure", "schema_failure"
+    if isinstance(exc, json.JSONDecodeError):
+        return "format_safety_failure", "malformed_json"
+    if isinstance(exc, (urllib.error.URLError, TimeoutError, ConnectionError)):
+        return "transport_failure", "local_model_transport"
+    marker = str(exc).split(":", 1)[0]
+    mapping = {
+        "supplemental_exact_duplicate_gate2": ("format_safety_failure", "exact_duplicate_gate2"),
+        "supplemental_gate2_exact_duplicate": ("format_safety_failure", "exact_duplicate_gate2"),
+        "supplemental_exact_duplicate_same_target": (
+            "format_safety_failure",
+            "exact_duplicate_same_target",
+        ),
+        "supplemental_exact_duplicate_prior_supplement": (
+            "format_safety_failure",
+            "exact_duplicate_prior_supplement",
+        ),
+        "supplemental_pair_conflict": ("format_safety_failure", "supplement_pair_conflict"),
+        "supplemental_gate2_structural_conflict": (
+            "format_safety_failure",
+            "supplement_gate2_conflict",
+        ),
+        "supplemental_structural_unsat": ("format_safety_failure", "supplemental_structural_unsat"),
+        "supplement_identity_invalid": ("format_safety_failure", "identity_mismatch"),
+        "supplement_same_target_conflict": ("format_safety_failure", "exact_duplicate_same_target"),
+    }
+    return mapping.get(marker, ("internal_error", "unclassified"))
+
+
+def _runtime_state(expected_head: str) -> None:
+    if len(expected_head) != 40 or any(char not in "0123456789abcdef" for char in expected_head):
+        raise RuntimeError("runtime_expected_head_invalid")
+    git = shutil.which("git")
+    if not git:
+        raise RuntimeError("git_unavailable")
+    for command in ([git, "rev-parse", "HEAD"], [git, "rev-parse", "@{upstream}"]):
+        result = subprocess.run(  # noqa: S603
+            command, cwd=ROOT, capture_output=True, text=True, check=False
+        )
+        if result.returncode != 0 or result.stdout.strip() != expected_head:
+            raise RuntimeError("runtime_head_mismatch")
+    result = subprocess.run(  # noqa: S603, S607
+        [git, "status", "--porcelain", "--untracked-files=all"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    allowed = {
+        "?? C.Walts Stage 2.2B-1C Noncompliance Correction.md",
+        "?? C.Walts Stage 2.2B-1C Noncompliance Correction.pdf",
+    }
+    if result.returncode != 0 or any(
+        line not in allowed for line in result.stdout.splitlines() if line
+    ):
+        raise RuntimeError("runtime_worktree_not_clean")
+
+
+def _guard_absent() -> None:
+    for relative in (POOL_RELATIVE, SEAL_RELATIVE, AUDIT_RELATIVE, FAILURE_RELATIVE):
+        if resolve_private_path(relative).exists():
+            raise RuntimeError("supplement_artifact_preexists")
+
+
+def _write_failure(
+    slot_id: str,
+    attempt: int,
+    seed: int,
+    accepted: int,
+    history: list[dict[str, Any]],
+    expected_head: str,
+    error: tuple[str, str],
+) -> None:
     payload = {
         "schema_version": 1,
         "run_version": "gate3-b1-v3r1-s20",
-        "head": current_git_head(),
+        "generation_activation_commit": expected_head,
         "slot_id": slot_id,
-        "attempt": attempt,
-        "seed": seed,
-        "stable_error_code": type(exc).__name__,
-        "detail_code": str(exc).split(":", 1)[1] if ":" in str(exc) else None,
+        "terminal_attempt": attempt,
+        "terminal_seed": seed,
+        "stable_error_code": error[0],
+        "detail_code": error[1],
         "accepted_supplement_count": accepted,
+        "attempt_history": history,
         "query_text_recorded": False,
         "raw_response_recorded": False,
     }
+    path = resolve_private_path(FAILURE_RELATIVE)
     atomic_write_bytes(path, (json.dumps(payload, sort_keys=True, indent=2) + "\n").encode())
 
 
-def generate() -> dict[str, Any]:
+def generate(expected_head: str) -> dict[str, Any]:
     status = authorization_status()
     if not all(status.values()):
         raise RuntimeError("supplemental_authorization_missing")
+    _runtime_state(expected_head)
+    _guard_absent()
     freeze, policy, slots_payload = _load()
     require_loopback(freeze["endpoint"])
-    verify_model_identity({
-        "endpoint": freeze["endpoint"],
-        "model": freeze["model"],
-        "model_digest": freeze["model_blob_digest"],
-        "model_tag_digest": freeze["model_tag_digest"],
-    })
+    verify_model_identity(
+        {
+            "endpoint": freeze["endpoint"],
+            "model": freeze["model"],
+            "model_digest": freeze["model_blob_digest"],
+            "model_tag_digest": freeze["model_tag_digest"],
+        }
+    )
     target_ids = json.loads(TARGETS.read_text(encoding="utf-8"))["slot_ids"]
     by_id = {slot["slot_id"]: slot for slot in slots_payload["slots"]}
     accepted: list[dict[str, Any]] = []
@@ -216,15 +321,16 @@ def generate() -> dict[str, Any]:
     retries = 0
     for slot_id in target_ids:
         slot = by_id[slot_id]
-        last_error: BaseException | None = None
+        history: list[dict[str, Any]] = []
         for attempt in range(1, 4):
             seed = derive_supplement_seed(policy["supplement_policy_id"], slot_id, attempt)
             attempts += 1
+            retries += int(attempt > 1)
             try:
                 value = _model_request(freeze, _prompt(slot, _profile_for(slot_id)), seed)
                 jsonschema.validate(value, json.loads(SCHEMA.read_text(encoding="utf-8")))
                 if value["slot_id"] != slot_id or value["draft_role"] != "supplemental":
-                    raise ValueError("supplement_identity_mismatch")
+                    raise ValueError("supplement_identity_invalid")
                 validate_draft(
                     {"slot_id": slot_id, "draft_role": "primary", "query_text": value["query_text"]}
                 )
@@ -233,30 +339,39 @@ def generate() -> dict[str, Any]:
                 accepted.append(record)
                 break
             except BaseException as exc:
-                last_error = exc
-                retries += int(attempt > 1)
+                error = _stable_failure(exc)
+                history.append(
+                    {
+                        "attempt": attempt,
+                        "seed": seed,
+                        "stable_error_code": error[0],
+                        "detail_code": error[1],
+                    }
+                )
                 if attempt == 3:
-                    _failure(exc, slot_id, attempt, seed, len(accepted))
-                    raise
-        if last_error is not None and len(accepted) < target_ids.index(slot_id) + 1:
-            raise last_error
+                    _write_failure(
+                        slot_id, attempt, seed, len(accepted), history, expected_head, error
+                    )
+                    raise RuntimeError("supplement_generation_failed") from None
+    if len(accepted) != 20:
+        raise RuntimeError("supplement_cardinality_incomplete")
+    final_result = validator.validate_supplements(accepted, require_complete=True)
+    if not final_result["one_role_per_slot_feasible"]:
+        raise RuntimeError("supplemental_structural_unsat")
     payload = {
         "schema_version": 1,
         "supplement_pool_id": "gate3-private-supplements-v3r1-s20-v0.4",
         "records": accepted,
     }
-    pool_path = resolve_private_path(POOL_RELATIVE)
-    seal_path = resolve_private_path(SEAL_RELATIVE)
-    audit_path = resolve_private_path(AUDIT_RELATIVE)
     encoded = (
         json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
     ).encode()
-    atomic_write_bytes(pool_path, encoded)
     audit = {
         "schema_version": 1,
         "run_version": freeze["run_version"],
+        "generation_activation_commit": expected_head,
         "target_count": 20,
-        "accepted_count": len(accepted),
+        "accepted_count": 20,
         "attempts": attempts,
         "retries": retries,
         "query_text_recorded": False,
@@ -264,40 +379,80 @@ def generate() -> dict[str, Any]:
         "verdict": "pass",
     }
     audit_bytes = (json.dumps(audit, sort_keys=True, indent=2) + "\n").encode()
-    atomic_write_bytes(audit_path, audit_bytes)
     seal = {
         "schema_version": 1,
         "supplement_pool_id": payload["supplement_pool_id"],
-        "supplement_pool_sha256": file_sha256(pool_path),
-        "supplement_audit_sha256": file_sha256(audit_path),
+        "supplement_pool_sha256": hashlib.sha256(encoded).hexdigest(),
+        "supplement_audit_sha256": hashlib.sha256(audit_bytes).hexdigest(),
+        "target_frontier_id": freeze["repair_frontier_id"],
         "target_slot_ids_sha256": freeze["target_slot_ids_sha256"],
         "source_pool_sha256": freeze["source_pool_sha256"],
+        "base_exact_edge_count": freeze["base_exact_edge_count"],
+        "base_hard_review_edge_count": freeze["base_hard_review_edge_count"],
+        "base_augmented_edge_count": freeze["base_augmented_edge_count"],
+        "base_augmented_edge_sha256": freeze["base_augmented_edge_sha256"],
         "supplement_policy_sha256": freeze["supplement_policy_sha256"],
+        "base_prompt_sha256": freeze["base_prompt_sha256"],
+        "supplement_instruction_sha256": freeze["supplement_instruction_sha256"],
+        "surface_profile_sha256": freeze["surface_profile_sha256"],
+        "supplement_surface_assignment_sha256": freeze["supplement_surface_assignment_sha256"],
+        "supplement_schema_sha256": freeze["supplement_schema_sha256"],
+        "parameter_hash": freeze["parameter_hash"],
+        "model": freeze["model"],
+        "model_tag_digest": freeze["model_tag_digest"],
+        "model_blob_digest": freeze["model_blob_digest"],
+        "seed_strategy": freeze["seed_strategy"],
+        "base_seed": freeze["base_seed"],
+        "max_attempts": freeze["max_attempts"],
         "supplement_generator_sha256": freeze["supplement_generator_sha256"],
         "supplement_validator_sha256": freeze["supplement_validator_sha256"],
-        "generation_activation_commit": current_git_head(),
+        "supplement_freeze_sha256": file_sha256(FREEZE),
+        "run_version": freeze["run_version"],
+        "source_version": freeze["source_version"],
+        "generation_activation_commit": expected_head,
         "owner_approvals": 0,
         "performance_peek": False,
         "canonical_manifest": False,
     }
-    atomic_write_bytes(seal_path, (json.dumps(seal, sort_keys=True, indent=2) + "\n").encode())
-    return {
-        "verdict": "pass",
-        "accepted_count": len(accepted),
-        "attempts": attempts,
-        "retries": retries,
-    }
+    seal_bytes = (json.dumps(seal, sort_keys=True, indent=2) + "\n").encode()
+    pool_path, seal_path, audit_path = map(
+        resolve_private_path, (POOL_RELATIVE, SEAL_RELATIVE, AUDIT_RELATIVE)
+    )
+    staging_root = resolve_private_path("staging")
+    staging_root.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix=".gate3-s20-stage-", dir=staging_root))
+    try:
+        (staging / pool_path.name).write_bytes(encoded)
+        (staging / audit_path.name).write_bytes(audit_bytes)
+        (staging / seal_path.name).write_bytes(seal_bytes)
+        _install_staged_artifacts(staging, (pool_path, audit_path, seal_path))
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+    return {"verdict": "pass", "accepted_count": 20, "attempts": attempts, "retries": retries}
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--generate", action="store_true")
     parser.add_argument("--confirm-gate3-s20-generation", action="store_true")
+    parser.add_argument("--expected-head")
     args = parser.parse_args()
     if args.generate and not args.confirm_gate3_s20_generation:
         raise SystemExit("supplemental_generation_confirmation_required")
+    if args.generate and not args.expected_head:
+        raise SystemExit("expected_head_required")
     if args.generate:
-        print(json.dumps(generate(), sort_keys=True))
+        try:
+            print(json.dumps(generate(args.expected_head), sort_keys=True))
+        except Exception as exc:
+            stable, detail = _stable_failure(exc)
+            print(
+                json.dumps(
+                    {"verdict": "fail", "stable_error_code": stable, "detail_code": detail},
+                    sort_keys=True,
+                )
+            )
+            return 1
     else:
         print(
             json.dumps(

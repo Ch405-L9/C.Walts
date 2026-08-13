@@ -34,6 +34,28 @@ EXPECTED_POLICY = "c937d2d877a4fecbe192407beae97311d2e90260354f3563c007df685a39b
 EXPECTED_SEED_STRATEGY = "gate3-slot-role-attempt-sha256-v1"
 EXPECTED_BASE_SEED = 17
 EXPECTED_ROLES = {"primary", "replacement"}
+EXPECTED_BASE_EXACT_EDGES = 243
+EXPECTED_BASE_HARD_REVIEW_EDGES = 193
+EXPECTED_BASE_AUGMENTED_EDGES = 436
+EXPECTED_BASE_AUGMENTED_EDGE_SHA = (
+    "f38c52344273857695c172fff218435899fd849370699a9a9e29c86dc4eefdd4"
+)
+
+
+def exact_base_action(
+    supplement_slot: str,
+    other_slot: str,
+    target_slots: set[str],
+    equal: bool,
+) -> str:
+    """Return the structural disposition of an exact base match."""
+    if not equal:
+        return "none"
+    if supplement_slot == other_slot:
+        return "fatal_same_target"
+    if other_slot in target_slots:
+        return "ignore_repaired_target"
+    return "remove_role"
 
 
 def base_exact_edges(records: list[dict[str, Any]]) -> list[tuple[str, str, str, str]]:
@@ -58,7 +80,7 @@ def base_exact_edges(records: list[dict[str, Any]]) -> list[tuple[str, str, str,
                 )
                 reverse = (endpoint[2], endpoint[3], endpoint[0], endpoint[1])
                 edges.add(min(endpoint, reverse))
-    if len(edges) != 243:
+    if len(edges) != EXPECTED_BASE_EXACT_EDGES:
         raise ValueError("base_exact_edge_count_mismatch")
     return sorted(edges)
 
@@ -99,8 +121,7 @@ def target_role_counts() -> dict[str, int]:
 
 def target_surface_profiles() -> dict[str, str]:
     slots = sorted(
-        item["slot_id"]
-        for item in yaml.safe_load(SLOTS.read_text(encoding="utf-8"))["slots"]
+        item["slot_id"] for item in yaml.safe_load(SLOTS.read_text(encoding="utf-8"))["slots"]
     )
     profiles = json.loads(SURFACE.read_text(encoding="utf-8"))
     assignment: dict[str, str] = {}
@@ -169,8 +190,7 @@ def _two_sat_generalized(
             assign(node, component)
             component += 1
     feasible = all(
-        components[2 * index[slot]] != components[2 * index[slot] + 1]
-        for slot in slot_ids
+        components[2 * index[slot]] != components[2 * index[slot] + 1] for slot in slot_ids
     )
     return feasible, canonical_sha256(
         {
@@ -230,7 +250,6 @@ def validate_supplements(
         )
     pool = json.loads(POOL.read_text(encoding="utf-8"))["records"]
     public = json.loads(GATE2_PUBLIC_MANIFEST.read_text(encoding="utf-8"))["records"]
-    base_views = [base_verifier._draft_view(record) for record in pool]
     public_views = public
     graph = json.loads(GRAPH.read_text(encoding="utf-8"))
     available = {slot: set(roles) for slot, roles in graph["available_roles"].items()}
@@ -238,13 +257,28 @@ def validate_supplements(
     for slot in target:
         available.pop(slot, None)
     exact_seen: set[str] = set()
+    base_digests = [
+        (
+            item,
+            hashlib.sha256(split.canonical_text(item["query_text"]).encode("utf-8")).hexdigest(),
+        )
+        for item in pool
+    ]
     exact_edges = base_exact_edges(pool)
+    hard_review_edges = {tuple(edge) for edge in graph.get("custom_conflict_edges", [])}
+    augmented_edges = sorted(set(exact_edges) | hard_review_edges)
+    if len(hard_review_edges) != EXPECTED_BASE_HARD_REVIEW_EDGES:
+        raise ValueError("base_hard_review_edge_count_mismatch")
+    if len(augmented_edges) != EXPECTED_BASE_AUGMENTED_EDGES:
+        raise ValueError("base_augmented_edge_count_mismatch")
+    if canonical_sha256(augmented_edges) != EXPECTED_BASE_AUGMENTED_EDGE_SHA:
+        raise ValueError("base_augmented_edge_identity_mismatch")
     structural_edges: set[tuple[str, str, str, str]] = {
-        edge for edge in exact_edges
-        if edge[0] not in target_set and edge[2] not in target_set
+        edge for edge in exact_edges if edge[0] not in target_set and edge[2] not in target_set
     }
     structural_edges.update(
-        tuple(edge) for edge in graph.get("custom_conflict_edges", [])
+        edge
+        for edge in hard_review_edges
         if edge[0] not in target_set and edge[2] not in target_set
     )
     supplement_views = []
@@ -253,10 +287,8 @@ def validate_supplements(
             raise ValueError("supplement_identity_invalid")
         text_key = split.canonical_text(record["query_text"])
         digest = hashlib.sha256(text_key.encode("utf-8")).hexdigest()
-        if digest in exact_seen or any(
-            text_key == split.canonical_text(item["query_text"]) for item in pool
-        ):
-            raise ValueError("supplemental_exact_duplicate")
+        if digest in exact_seen:
+            raise ValueError("supplemental_exact_duplicate_prior_supplement")
         if any(text_key == split.canonical_text(item["query_text"]) for item in public):
             raise ValueError("supplemental_gate2_exact_duplicate")
         exact_seen.add(digest)
@@ -271,6 +303,9 @@ def validate_supplements(
             if hard or unrelated_review:
                 raise ValueError("supplemental_pair_conflict")
     for supplement in supplement_views:
+        supplement_digest = hashlib.sha256(
+            split.canonical_text(supplement["query_text"]).encode("utf-8")
+        ).hexdigest()
         for other in public_views:
             if supplement["slot_id"] == other.get("slot_id"):
                 continue
@@ -281,14 +316,17 @@ def validate_supplements(
             hard, review, _ = _conflict(supplement, other)
             if hard or review:
                 raise ValueError("supplemental_gate2_structural_conflict")
-        for other in base_views:
-            if split.canonical_text(supplement["query_text"]) == split.canonical_text(
-                other["query_text"]
-            ):
-                raise ValueError("supplemental_exact_duplicate")
-            if supplement["slot_id"] == other.get("slot_id"):
-                raise ValueError("supplemental_same_target_conflict")
-            if other.get("slot_id") in target_set:
+        for other, other_digest in base_digests:
+            other_slot = other["slot_id"]
+            action = exact_base_action(
+                supplement["slot_id"], other_slot, target_set, supplement_digest == other_digest
+            )
+            if action == "fatal_same_target":
+                raise ValueError("supplemental_exact_duplicate_same_target")
+            if action == "ignore_repaired_target":
+                continue
+            if action == "remove_role":
+                available[other_slot].discard(other["draft_role"])
                 continue
             hard, review, _ = _conflict(supplement, other)
             if not (hard or review):
@@ -298,8 +336,8 @@ def validate_supplements(
                 or supplement["group_id"] == other.get("group_id")
             ):
                 continue
-            if other.get("slot_id") in available:
-                available[other["slot_id"]].discard(other["draft_role"])
+            if other_slot in available:
+                available[other_slot].discard(other["draft_role"])
     remaining = sorted(available)
     feasible, proof = _two_sat_generalized(remaining, sorted(structural_edges), available)
     return {

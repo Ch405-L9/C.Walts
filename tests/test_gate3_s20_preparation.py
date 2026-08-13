@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 import pytest
 import yaml
+from jsonschema import ValidationError
 
 from scripts import generate_gate3_s20_supplements as generator
 from scripts import verify_gate3_s20_supplemental_repair as validator
@@ -76,12 +78,8 @@ def test_generalized_solver_supports_units_and_replacement_only() -> None:
         ["A", "B"], [("A", "primary", "B", "replacement")], {"A": {"primary"}, "B": {"replacement"}}
     )
     assert not feasible
-    old, _ = validator.base_verifier._two_sat(
-        ["A", "B"], [], {"A": {"primary"}, "B": {"primary"}}
-    )
-    new, _ = validator._two_sat_generalized(
-        ["A", "B"], [], {"A": {"primary"}, "B": {"primary"}}
-    )
+    old, _ = validator.base_verifier._two_sat(["A", "B"], [], {"A": {"primary"}, "B": {"primary"}})
+    new, _ = validator._two_sat_generalized(["A", "B"], [], {"A": {"primary"}, "B": {"primary"}})
     assert old == new
 
 
@@ -102,6 +100,69 @@ def test_base_exact_edges_reconstruct_accepted_count() -> None:
     assert len(validator.base_exact_edges(pool)) == 243
 
 
+def test_exact_role_disposition_is_scoped() -> None:
+    targets = {"G3S-0101", "G3S-0102"}
+    assert validator.exact_base_action("G3S-0101", "G3S-0101", targets, True) == "fatal_same_target"
+    assert (
+        validator.exact_base_action("G3S-0101", "G3S-0102", targets, True)
+        == "ignore_repaired_target"
+    )
+    assert validator.exact_base_action("G3S-0101", "G3S-0200", targets, True) == "remove_role"
+    assert validator.exact_base_action("G3S-0101", "G3S-0200", targets, False) == "none"
+
+
+def test_prompt_contains_frozen_base_and_no_history() -> None:
+    slot = validator.target_metadata()[EXPECTED_TARGETS[0]]
+    prompt = generator._prompt(slot, generator._profile_for(EXPECTED_TARGETS[0]))
+    base = (ROOT / "config/gate3_custom_generation_prompt.txt").read_text()
+    assert base in prompt
+    assert "Supplemental-20 instruction layer:" in prompt
+    assert slot["slot_id"] in prompt
+    assert "previous candidate" in prompt
+    assert "PRIVATE_HISTORICAL_QUERY_SENTINEL" not in prompt
+
+
+def test_failure_classifier_never_uses_exception_text() -> None:
+    stable, detail = generator._stable_failure(ValueError("PRIVATE_QUERY_SENTINEL"))
+    assert (stable, detail) == ("internal_error", "unclassified")
+    assert "PRIVATE_QUERY_SENTINEL" not in json.dumps({"stable": stable, "detail": detail})
+
+
+def test_cli_failure_boundary_sanitizes_non_runtime_exception(monkeypatch, capsys) -> None:
+    def fail(_expected_head: str) -> None:
+        raise ValidationError(
+            "PRIVATE_QUERY_SENTINEL", instance={"query_text": "PRIVATE_QUERY_SENTINEL"}
+        )
+
+    monkeypatch.setattr(generator, "generate", fail)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "generate_gate3_s20_supplements.py",
+            "--generate",
+            "--confirm-gate3-s20-generation",
+            "--expected-head",
+            "a" * 40,
+        ],
+    )
+    assert generator.main() == 1
+    captured = capsys.readouterr()
+    assert "PRIVATE_QUERY_SENTINEL" not in captured.out
+    assert "PRIVATE_QUERY_SENTINEL" not in captured.err
+    assert "Traceback" not in captured.out + captured.err
+    assert json.loads(captured.out) == {
+        "detail_code": "schema_failure",
+        "stable_error_code": "format_safety_failure",
+        "verdict": "fail",
+    }
+    stable, detail = generator._stable_failure(
+        ValidationError("PRIVATE_QUERY_SENTINEL", instance={"query_text": "PRIVATE_QUERY_SENTINEL"})
+    )
+    assert (stable, detail) == ("format_safety_failure", "schema_failure")
+    assert "PRIVATE_QUERY_SENTINEL" not in json.dumps({"stable": stable, "detail": detail})
+
+
 def _mock_generator(monkeypatch, tmp_path, responses):
     freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
     policy = json.loads(
@@ -112,16 +173,18 @@ def _mock_generator(monkeypatch, tmp_path, responses):
             }
         )
     )
-    slots = yaml.safe_load(
-        (ROOT / "config/gate3_custom_authoring_slots.yaml").read_text()
-    )
+    slots = yaml.safe_load((ROOT / "config/gate3_custom_authoring_slots.yaml").read_text())
     monkeypatch.setattr(generator, "_load", lambda: (freeze, policy, slots))
     monkeypatch.setattr(generator, "require_loopback", lambda _: None)
     monkeypatch.setattr(generator, "verify_model_identity", lambda _: {"model": "mock"})
     monkeypatch.setattr(generator, "validate_draft", lambda _: None)
-    monkeypatch.setattr(generator.validator, "validate_supplements", lambda *a, **k: {})
+    monkeypatch.setattr(
+        generator.validator,
+        "validate_supplements",
+        lambda *a, **k: {"one_role_per_slot_feasible": True},
+    )
     monkeypatch.setattr(generator, "resolve_private_path", lambda rel: tmp_path / Path(rel).name)
-    monkeypatch.setattr(generator, "current_git_head", lambda: "mock-head")
+    monkeypatch.setattr(generator, "_runtime_state", lambda _: None)
     calls = []
 
     def request(_freeze, _prompt, seed):
@@ -145,7 +208,7 @@ def test_mocked_twenty_slot_path_is_atomic_and_ordered(monkeypatch, tmp_path) ->
         for i, slot in enumerate(EXPECTED_TARGETS)
     ]
     calls, _ = _mock_generator(monkeypatch, tmp_path, responses)
-    result = generator.generate()
+    result = generator.generate("a" * 40)
     assert result["accepted_count"] == 20
     assert len(calls) == 20
     assert (tmp_path / "gate3_s20_supplement_pool.json").exists()
@@ -165,8 +228,10 @@ def test_mocked_retry_is_same_slot_and_three_calls(monkeypatch, tmp_path) -> Non
         for i, slot in enumerate(EXPECTED_TARGETS[1:], start=1)
     )
     calls, _ = _mock_generator(monkeypatch, tmp_path, responses)
-    generator.generate()
+    result = generator.generate("a" * 40)
     assert len(calls) == 22
+    assert result["attempts"] == 22
+    assert result["retries"] == 2
     assert calls[:3] == [
         generator.derive_supplement_seed("gate3-v3r1-s20-supplement-v1", EXPECTED_TARGETS[0], n)
         for n in (1, 2, 3)
@@ -176,10 +241,24 @@ def test_mocked_retry_is_same_slot_and_three_calls(monkeypatch, tmp_path) -> Non
 def test_mocked_terminal_failure_writes_only_sanitized_failure(monkeypatch, tmp_path) -> None:
     responses = [ValueError("terminal") for _ in range(3)]
     _mock_generator(monkeypatch, tmp_path, responses)
-    with pytest.raises(ValueError):
-        generator.generate()
+    with pytest.raises(RuntimeError):
+        generator.generate("a" * 40)
     assert not (tmp_path / "gate3_s20_supplement_pool.json").exists()
     assert not (tmp_path / "gate3_s20_supplement_pool.seal.json").exists()
     failure = json.loads((tmp_path / "gate3_s20_generation_failure.json").read_text())
     assert failure["query_text_recorded"] is False
     assert "query_text" not in failure
+
+
+def test_staged_install_rolls_back_without_deleting_preexisting_artifacts(tmp_path) -> None:
+    staged = tmp_path / "stage"
+    staged.mkdir()
+    for name in ("pool", "audit", "seal"):
+        (staged / name).write_text(name)
+    destinations = tuple(tmp_path / name for name in ("pool", "audit", "seal"))
+    destinations[1].write_text("preexisting")
+    with pytest.raises(RuntimeError, match="supplement_artifact_preexists"):
+        generator._install_staged_artifacts(staged, destinations)
+    assert not destinations[0].exists()
+    assert destinations[1].read_text() == "preexisting"
+    assert not destinations[2].exists()
