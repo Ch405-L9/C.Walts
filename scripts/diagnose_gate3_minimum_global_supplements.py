@@ -244,7 +244,6 @@ class DeletionSearch:
         self.stats = SearchStats()
         self.failed: set[tuple[frozenset[str], int]] = set()
         self.solutions: set[tuple[str, ...]] = set()
-        self.first_solution: tuple[str, ...] | None = None
         self.check_cache: dict[frozenset[str], tuple[bool, str]] = {}
         self.core_cache: dict[frozenset[str], list[tuple[str, ...]]] = {}
 
@@ -259,8 +258,6 @@ class DeletionSearch:
         return result
 
     def _visit(self, repaired: frozenset[str], budget: int) -> None:
-        if self.first_solution is not None:
-            return
         state = (repaired, budget)
         if state in self.failed:
             self.stats.memoized_failed_states += 1
@@ -269,8 +266,7 @@ class DeletionSearch:
         self.stats.max_depth = max(self.stats.max_depth, len(repaired))
         feasible, _ = self._check(repaired)
         if feasible:
-            self.first_solution = tuple(sorted(repaired))
-            self.solutions.add(self.first_solution)
+            self.solutions.add(tuple(sorted(repaired)))
             return
         if budget == 0:
             self.failed.add((repaired, budget))
@@ -303,7 +299,6 @@ class DeletionSearch:
     def run(self, target: int) -> dict[str, Any]:
         self.target = target
         self.solutions.clear()
-        self.first_solution = None
         self.failed.clear()
         self.check_cache.clear()
         self.core_cache.clear()
@@ -377,49 +372,99 @@ def _load_state() -> dict[str, Any]:
 
 
 def _search_system(state: dict[str, Any], edges: set[tuple[str, str, str, str]]) -> dict[str, Any]:
-    upper = _greedy_upper_bound(state["slot_ids"], edges, state["available"])
-    search = DeletionSearch(state["slot_ids"], edges, state["available"])
-    cardinality = 0
-    exhausted: list[int] = []
-    while cardinality <= len(upper):
-        result = search.run(cardinality)
-        if result["solutions"]:
-            chosen = min(result["solutions"])
-            return {
-                "minimum_repair_count": cardinality,
-                "minimum_repair_set": list(chosen),
-                "minimum_repair_set_sha256": _sha(list(chosen)),
-                "all_smaller_cardinalities_exhausted": True,
-                "exhausted_cardinalities": exhausted,
-                "minimum_set_count": len(result["solutions"]),
-                "minimum_set_count_greater_than_1000": len(result["solutions"]) > MAX_SET_REPORT,
-                "all_minimum_sets_sha256": _sha(result["solutions"])
-                if len(result["solutions"]) <= MAX_SET_REPORT
-                else None,
-                "stats": result["stats"],
-                "repaired_feasible": True,
-                "repaired_proof_sha256": _repaired_proof(
-                    edges, state["slot_ids"], state["available"], frozenset(chosen), True
-                ),
-            }
-        exhausted.append(cardinality)
-        cardinality += 1
-    chosen = upper
+    components = _constraint_components(state["slot_ids"], edges)
+    component_results: list[dict[str, Any]] = []
+    aggregate = SearchStats()
+    for component in components:
+        component_edges = {
+            edge for edge in edges if edge[0] in component and edge[2] in component
+        }
+        component_available = {slot: state["available"][slot] for slot in component}
+        upper = _greedy_upper_bound(component, component_edges, component_available)
+        search = DeletionSearch(component, component_edges, component_available)
+        exhausted: list[int] = []
+        for cardinality in range(len(upper) + 1):
+            result = search.run(cardinality)
+            _merge_stats(aggregate, result["stats"])
+            if result["solutions"]:
+                component_results.append(
+                    {
+                        "minimum_repair_count": cardinality,
+                        "solutions": result["solutions"],
+                        "exhausted_cardinalities": exhausted,
+                    }
+                )
+                break
+            exhausted.append(cardinality)
+        else:
+            raise RuntimeError("exact_search_incomplete")
+
+    minimum = sum(item["minimum_repair_count"] for item in component_results)
+    local_solutions = [item["solutions"] for item in component_results]
+    solution_count = 1
+    for solutions in local_solutions:
+        solution_count *= len(solutions)
+    # The components are disjoint; taking the lexicographically least local
+    # solution in each component is the lexicographically least global tuple.
+    chosen = tuple(sorted(slot for solutions in local_solutions for slot in min(solutions)))
+    all_sets_sha = None
+    if solution_count <= MAX_SET_REPORT:
+        combined: list[tuple[str, ...]] = [()]
+        for solutions in local_solutions:
+            combined = [tuple(sorted((*left, *right))) for left in combined for right in solutions]
+        combined.sort()
+        all_sets_sha = _sha(combined)
+    repaired = frozenset(chosen)
     return {
-        "minimum_repair_count": len(chosen),
+        "minimum_repair_count": minimum,
         "minimum_repair_set": list(chosen),
         "minimum_repair_set_sha256": _sha(list(chosen)),
         "all_smaller_cardinalities_exhausted": True,
-        "exhausted_cardinalities": exhausted,
-        "minimum_set_count": 1,
-        "minimum_set_count_greater_than_1000": False,
-        "all_minimum_sets_sha256": _sha([chosen]),
-        "stats": search.stats,
-        "repaired_feasible": True,
+        "exhausted_cardinalities": list(range(minimum)),
+        "minimum_set_count": solution_count if solution_count <= MAX_SET_REPORT else None,
+        "minimum_set_count_greater_than_1000": solution_count > MAX_SET_REPORT,
+        "all_minimum_sets_sha256": all_sets_sha,
+        "stats": aggregate,
+        "repaired_feasible": _sat_only(
+            *_reduced(state["slot_ids"], edges, state["available"], repaired)
+        ),
         "repaired_proof_sha256": _repaired_proof(
-            edges, state["slot_ids"], state["available"], frozenset(chosen), True
+            edges, state["slot_ids"], state["available"], repaired, True
         ),
     }
+
+
+def _merge_stats(target: SearchStats, source: SearchStats) -> None:
+    target.nodes += source.nodes
+    target.memoized_failed_states += source.memoized_failed_states
+    target.max_depth = max(target.max_depth, source.max_depth)
+    target.cores_extracted += source.cores_extracted
+    target.core_sizes.update(source.core_sizes)
+
+
+def _constraint_components(
+    slot_ids: list[str], edges: set[tuple[str, str, str, str]]
+) -> list[list[str]]:
+    adjacency = {slot: set() for slot in slot_ids}
+    for left_slot, _, right_slot, _ in edges:
+        adjacency[left_slot].add(right_slot)
+        adjacency[right_slot].add(left_slot)
+    components: list[list[str]] = []
+    remaining = set(slot_ids)
+    while remaining:
+        start = min(remaining)
+        stack = [start]
+        remaining.remove(start)
+        component: list[str] = []
+        while stack:
+            slot = stack.pop()
+            component.append(slot)
+            for neighbor in sorted(adjacency[slot], reverse=True):
+                if neighbor in remaining:
+                    remaining.remove(neighbor)
+                    stack.append(neighbor)
+        components.append(sorted(component))
+    return sorted(components, key=lambda component: tuple(component))
 
 
 def _greedy_upper_bound(
