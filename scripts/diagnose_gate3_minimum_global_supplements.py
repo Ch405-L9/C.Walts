@@ -180,6 +180,21 @@ def _reduced(
     return remaining, kept_edges, roles
 
 
+def _sat_only(
+    slot_ids: list[str],
+    edges: list[tuple[str, str, str, str]],
+    available_roles: dict[str, set[str]],
+) -> bool:
+    """Use the shared solver's implication semantics without proof serialization."""
+    graph, reverse = _implication_graph(slot_ids, edges, available_roles)
+    components = _components(graph, reverse)
+    return all(
+        components[_literal_index(slot_ids, slot, "primary")]
+        != components[_literal_index(slot_ids, slot, "replacement")]
+        for slot in slot_ids
+    )
+
+
 def _repaired_proof(
     edges: set[tuple[str, str, str, str]],
     slot_ids: list[str],
@@ -235,7 +250,7 @@ class DeletionSearch:
         remaining, edges, roles = _reduced(
             self.slot_ids, self.edges, self.available_roles, repaired
         )
-        result = verifier._two_sat(remaining, edges, roles)
+        result = (_sat_only(remaining, edges, roles), "")
         self.check_cache[repaired] = result
         return result
 
