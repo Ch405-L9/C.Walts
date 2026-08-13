@@ -11,7 +11,7 @@ import subprocess
 import tempfile
 import urllib.error
 import urllib.request
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 import jsonschema
@@ -67,10 +67,6 @@ TARGETS = ROOT / "config/gate3_s20_target_slots.json"
 POOL_RELATIVE = "supplements/gate3_s20_supplement_pool.json"
 SEAL_RELATIVE = "supplements/gate3_s20_supplement_pool.seal.json"
 AUDIT_RELATIVE = "audit/gate3_s20_generation_audit.json"
-FAILURE_RELATIVE = "audit/gate3_s20_generation_failure.json"
-EVENT1_FAILURE_RELATIVE = FAILURE_RELATIVE
-EVENT2_FAILURE_RELATIVE = "audit/gate3_s20_generation_failure_event2.json"
-EVENT1_FAILURE_SHA256 = "b2bce6ed92f21fa7d73baab6540d104883082b44c986ea186226f8a33248e390"
 
 
 def derive_supplement_seed(
@@ -337,11 +333,56 @@ def _runtime_state(expected_head: str) -> None:
         raise RuntimeError("runtime_worktree_not_clean")
 
 
-def _guard_absent() -> None:
-    historical = resolve_private_path(EVENT1_FAILURE_RELATIVE)
-    if not historical.exists() or file_sha256(historical) != EVENT1_FAILURE_SHA256:
+def _safe_audit_relative(relative: str) -> bool:
+    path = PurePosixPath(relative)
+    return (
+        bool(relative)
+        and not path.is_absolute()
+        and ".." not in path.parts
+        and path.parts[:1] == ("audit",)
+        and path.suffix == ".json"
+    )
+
+
+def _verify_event2_contract(
+    freeze: dict[str, Any], *, verify_history_identity: bool = True
+) -> None:
+    expected = {
+        "generation_event_ordinal": 2,
+        "run_version": "gate3-b1-v3r1-s20-event2",
+        "source_version": "cwalts-custom-v0.4-gate3-v3r1-s20-event2",
+        "prior_failed_activation_commit": "558988d34985d4b0c24103d6a331e939caba701c",
+        "prior_failure_audit_relative": "audit/gate3_s20_generation_failure.json",
+        "prior_failure_audit_sha256": (
+            "b2bce6ed92f21fa7d73baab6540d104883082b44c986ea186226f8a33248e390"
+        ),
+        "event2_failure_audit_relative": "audit/gate3_s20_generation_failure_event2.json",
+    }
+    contract_items = expected.items()
+    if not verify_history_identity:
+        contract_items = (
+            (key, value)
+            for key, value in contract_items
+            if key not in {"prior_failure_audit_relative", "prior_failure_audit_sha256"}
+        )
+    if any(freeze.get(key) != value for key, value in contract_items):
+        raise RuntimeError("freeze_identity_mismatch:event_contract")
+    for key in ("prior_failure_audit_relative", "event2_failure_audit_relative"):
+        if not _safe_audit_relative(freeze[key]):
+            raise RuntimeError("freeze_identity_mismatch:audit_path")
+
+
+def _guard_event2_state(freeze: dict[str, Any]) -> None:
+    _verify_event2_contract(freeze, verify_history_identity=False)
+    historical = resolve_private_path(freeze["prior_failure_audit_relative"])
+    if not historical.exists() or file_sha256(historical) != freeze["prior_failure_audit_sha256"]:
         raise RuntimeError("prior_failure_audit_mismatch")
-    for relative in (POOL_RELATIVE, SEAL_RELATIVE, AUDIT_RELATIVE, EVENT2_FAILURE_RELATIVE):
+    for relative in (
+        POOL_RELATIVE,
+        SEAL_RELATIVE,
+        AUDIT_RELATIVE,
+        freeze["event2_failure_audit_relative"],
+    ):
         if resolve_private_path(relative).exists():
             raise RuntimeError("supplement_artifact_preexists")
 
@@ -370,7 +411,7 @@ def _write_failure(
         "query_text_recorded": False,
         "raw_response_recorded": False,
     }
-    path = resolve_private_path(EVENT2_FAILURE_RELATIVE)
+    path = resolve_private_path(freeze["event2_failure_audit_relative"])
     atomic_write_bytes(path, (json.dumps(payload, sort_keys=True, indent=2) + "\n").encode())
 
 
@@ -379,9 +420,9 @@ def generate(expected_head: str) -> dict[str, Any]:
     if not all(status.values()):
         raise RuntimeError("supplemental_authorization_missing")
     _runtime_state(expected_head)
-    _guard_absent()
     freeze, policy, slots_payload = _load()
     schema = _load_schema(freeze)
+    _guard_event2_state(freeze)
     require_loopback(freeze["endpoint"])
     verify_model_identity(
         {
