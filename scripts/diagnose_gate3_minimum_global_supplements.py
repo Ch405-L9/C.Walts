@@ -226,12 +226,18 @@ class DeletionSearch:
         self.failed: set[tuple[frozenset[str], int]] = set()
         self.solutions: set[tuple[str, ...]] = set()
         self.first_solution: tuple[str, ...] | None = None
+        self.check_cache: dict[frozenset[str], tuple[bool, str]] = {}
+        self.core_cache: dict[frozenset[str], list[tuple[str, ...]]] = {}
 
     def _check(self, repaired: frozenset[str]) -> tuple[bool, str]:
+        if repaired in self.check_cache:
+            return self.check_cache[repaired]
         remaining, edges, roles = _reduced(
             self.slot_ids, self.edges, self.available_roles, repaired
         )
-        return verifier._two_sat(remaining, edges, roles)
+        result = verifier._two_sat(remaining, edges, roles)
+        self.check_cache[repaired] = result
+        return result
 
     def _visit(self, repaired: frozenset[str], budget: int) -> None:
         if self.first_solution is not None:
@@ -250,11 +256,21 @@ class DeletionSearch:
         if budget == 0:
             self.failed.add((repaired, budget))
             return
-        cores, _, _ = _unsat_cores(
-            *_reduced(self.slot_ids, self.edges, self.available_roles, repaired)
-        )
+        if repaired not in self.core_cache:
+            self.core_cache[repaired] = _unsat_cores(
+                *_reduced(self.slot_ids, self.edges, self.available_roles, repaired)
+            )[0]
+        cores = self.core_cache[repaired]
         if not cores:
             raise RuntimeError("unsat_without_extractable_core")
+        disjoint: list[set[str]] = []
+        for core in cores:
+            candidate = set(core)
+            if all(candidate.isdisjoint(previous) for previous in disjoint):
+                disjoint.append(candidate)
+        if len(disjoint) > budget:
+            self.failed.add(state)
+            return
         core = cores[0]
         self.stats.cores_extracted += 1
         self.stats.core_sizes[str(len(core))] += 1
@@ -270,6 +286,8 @@ class DeletionSearch:
         self.solutions.clear()
         self.first_solution = None
         self.failed.clear()
+        self.check_cache.clear()
+        self.core_cache.clear()
         self.stats = SearchStats()
         self._visit(frozenset(), target)
         return {
