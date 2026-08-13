@@ -85,6 +85,22 @@ ALLOWED_DRAFT_RECORD_FIELDS = frozenset(
         "draft_fingerprint",
     }
 )
+REQUIRED_DRAFT_VIEW_FIELDS = frozenset(
+    {
+        "id",
+        "slot_id",
+        "draft_role",
+        "query_text",
+        "class",
+        "expected_behavior",
+        "source_dataset",
+        "source_version",
+        "source_record_id",
+        "group_id",
+        "template_fingerprint",
+        "provenance",
+    }
+)
 
 
 def validate_record_field_set(record: dict[str, Any]) -> None:
@@ -95,6 +111,8 @@ def validate_record_field_set(record: dict[str, Any]) -> None:
 def _draft_view(record: dict[str, Any]) -> dict[str, Any]:
     return {
         "id": record["draft_id"],
+        "slot_id": record["slot_id"],
+        "draft_role": record["draft_role"],
         "query_text": record["query_text"],
         "class": record["class"],
         "expected_behavior": record["expected_behavior"],

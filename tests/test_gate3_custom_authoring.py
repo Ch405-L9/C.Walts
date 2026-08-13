@@ -76,6 +76,82 @@ def test_v2_taxonomy_validator_compatibility_is_complete() -> None:
     assert all(entry["class"] and entry["expected_behavior"] for entry in families)
 
 
+def test_private_pool_draft_view_preserves_structural_and_source_identity() -> None:
+    record = {
+        "draft_id": "G3D-G3S-9001-primary",
+        "slot_id": "G3S-9001",
+        "draft_role": "primary",
+        "query_text": "Synthetic request.",
+        "class": "supported_in_domain",
+        "expected_behavior": "answer",
+        "group_id": "group-synthetic",
+        "template_fingerprint": "template-synthetic",
+    }
+    view = draft_pool._draft_view(record)
+
+    assert view["slot_id"] == record["slot_id"]
+    assert view["draft_role"] == record["draft_role"]
+    assert view["source_record_id"] == record["slot_id"]
+    assert draft_pool.REQUIRED_DRAFT_VIEW_FIELDS == set(view)
+
+
+def test_private_pool_conflict_views_retain_slot_role_identity() -> None:
+    left = draft_pool._draft_view(
+        {
+            "draft_id": "G3D-G3S-9001-primary",
+            "slot_id": "G3S-9001",
+            "draft_role": "primary",
+            "query_text": "Synthetic request about the same operation.",
+            "class": "supported_in_domain",
+            "expected_behavior": "answer",
+            "group_id": "group-left",
+            "template_fingerprint": "template-left",
+        }
+    )
+    right = draft_pool._draft_view(
+        {
+            "draft_id": "G3D-G3S-9002-replacement",
+            "slot_id": "G3S-9002",
+            "draft_role": "replacement",
+            "query_text": "Synthetic request about the same operation, please.",
+            "class": "supported_in_domain",
+            "expected_behavior": "answer",
+            "group_id": "group-right",
+            "template_fingerprint": "template-right",
+        }
+    )
+
+    hard, review, _ = draft_pool._near_kind(left, right)
+    assert hard or review
+    edge = (left["slot_id"], left["draft_role"], right["slot_id"], right["draft_role"])
+    assert edge == ("G3S-9001", "primary", "G3S-9002", "replacement")
+
+
+def test_private_pool_same_slot_view_identity_is_available() -> None:
+    primary = draft_pool._draft_view(
+        {
+            "draft_id": "G3D-G3S-9001-primary",
+            "slot_id": "G3S-9001",
+            "draft_role": "primary",
+            "query_text": "Synthetic request one.",
+            "class": "supported_in_domain",
+            "expected_behavior": "answer",
+            "group_id": "group-synthetic",
+            "template_fingerprint": "template-synthetic",
+        }
+    )
+    replacement = dict(primary)
+    replacement.update(
+        {
+            "id": "G3D-G3S-9001-replacement",
+            "draft_role": "replacement",
+            "query_text": "Synthetic request two.",
+        }
+    )
+    assert primary["slot_id"] == replacement["slot_id"]
+    assert primary["draft_role"] != replacement["draft_role"]
+
+
 def test_policy_schema_and_identity_hashes() -> None:
     policy = load_policy()
     schema = json.loads((ROOT / "schemas/gate3_custom_authoring_policy.schema.json").read_text())
