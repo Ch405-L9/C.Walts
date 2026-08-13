@@ -232,8 +232,31 @@ def _stable_failure(exc: BaseException) -> tuple[str, str]:
         "supplemental_structural_unsat": ("format_safety_failure", "supplemental_structural_unsat"),
         "supplement_identity_invalid": ("format_safety_failure", "identity_mismatch"),
         "supplement_same_target_conflict": ("format_safety_failure", "exact_duplicate_same_target"),
+        "runtime_worktree_not_clean": ("preflight_failure", "worktree_not_clean"),
+        "runtime_head_mismatch": ("preflight_failure", "head_mismatch"),
+        "runtime_expected_head_invalid": ("preflight_failure", "expected_head_invalid"),
+        "git_unavailable": ("preflight_failure", "git_unavailable"),
+        "supplement_artifact_preexists": ("preflight_failure", "artifact_preexists"),
+        "supplemental_authorization_missing": ("preflight_failure", "authorization_missing"),
+        "freeze_identity_mismatch": ("preflight_failure", "freeze_identity_mismatch"),
     }
     return mapping.get(marker, ("internal_error", "unclassified"))
+
+
+def _parse_porcelain_z(raw: bytes) -> list[tuple[str, str]]:
+    """Decode only ordinary NUL-delimited porcelain records losslessly."""
+    records: list[tuple[str, str]] = []
+    for field in raw.split(b"\0"):
+        if not field:
+            continue
+        if len(field) < 3 or field[2:3] != b" ":
+            raise RuntimeError("runtime_worktree_not_clean")
+        status = field[:2].decode("ascii", errors="strict")
+        path = field[3:].decode("utf-8", errors="surrogateescape")
+        if "R" in status or "C" in status:
+            raise RuntimeError("runtime_worktree_not_clean")
+        records.append((status, path))
+    return records
 
 
 def _runtime_state(expected_head: str) -> None:
@@ -249,18 +272,19 @@ def _runtime_state(expected_head: str) -> None:
         if result.returncode != 0 or result.stdout.strip() != expected_head:
             raise RuntimeError("runtime_head_mismatch")
     result = subprocess.run(  # noqa: S603, S607
-        [git, "status", "--porcelain", "--untracked-files=all"],
+        [git, "status", "--porcelain=v1", "-z", "--untracked-files=all"],
         cwd=ROOT,
         capture_output=True,
-        text=True,
+        text=False,
         check=False,
     )
     allowed = {
-        "?? C.Walts Stage 2.2B-1C Noncompliance Correction.md",
-        "?? C.Walts Stage 2.2B-1C Noncompliance Correction.pdf",
+        "C.Walts Stage 2.2B-1C Noncompliance Correction.md",
+        "C.Walts Stage 2.2B-1C Noncompliance Correction.pdf",
     }
     if result.returncode != 0 or any(
-        line not in allowed for line in result.stdout.splitlines() if line
+        status != "??" or path not in allowed
+        for status, path in _parse_porcelain_z(result.stdout)
     ):
         raise RuntimeError("runtime_worktree_not_clean")
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -67,6 +68,66 @@ def test_authorization_guard_is_independent(monkeypatch) -> None:
     assert not all(generator.authorization_status().values())
     monkeypatch.setenv("NFR_GATE3_B1_S20_AUTHORIZED", "true")
     assert all(generator.authorization_status().values())
+
+
+def _mock_git_run(monkeypatch, status: bytes):
+    def run(command, **kwargs):
+        if command[1:3] == ["rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(command, 0, stdout="a" * 40, stderr="")
+        if command[1:3] == ["rev-parse", "@{upstream}"]:
+            return subprocess.CompletedProcess(command, 0, stdout="a" * 40, stderr="")
+        return subprocess.CompletedProcess(command, 0, stdout=status, stderr=b"")
+
+    monkeypatch.setattr(generator.subprocess, "run", run)
+    monkeypatch.setattr(generator.shutil, "which", lambda _: "/usr/bin/git")
+
+
+def test_runtime_guard_accepts_literal_owner_paths_and_empty_status(monkeypatch) -> None:
+    owner = (
+        b"?? C.Walts Stage 2.2B-1C Noncompliance Correction.md\0"
+        b"?? C.Walts Stage 2.2B-1C Noncompliance Correction.pdf\0"
+    )
+    _mock_git_run(monkeypatch, owner)
+    generator._runtime_state("a" * 40)
+    _mock_git_run(monkeypatch, b"")
+    generator._runtime_state("a" * 40)
+
+
+@pytest.mark.parametrize(
+    "status",
+    [
+        b"?? unexpected.txt\0",
+        b" M tracked_file.py\0",
+        b"M  tracked_file.py\0",
+        b"?? C.Walts Stage 2.2B-1C Noncompliance Correction.md\0M  tracked_file.py\0",
+    ],
+)
+def test_runtime_guard_rejects_unapproved_status(monkeypatch, status) -> None:
+    _mock_git_run(monkeypatch, status)
+    with pytest.raises(RuntimeError, match="runtime_worktree_not_clean"):
+        generator._runtime_state("a" * 40)
+
+
+def test_runtime_guard_rejects_rename_record(monkeypatch) -> None:
+    _mock_git_run(monkeypatch, b"R  old.txt\0new.txt\0")
+    with pytest.raises(RuntimeError, match="runtime_worktree_not_clean"):
+        generator._runtime_state("a" * 40)
+
+
+@pytest.mark.parametrize(
+    "marker, expected",
+    [
+        ("runtime_worktree_not_clean", ("preflight_failure", "worktree_not_clean")),
+        ("runtime_head_mismatch", ("preflight_failure", "head_mismatch")),
+        ("runtime_expected_head_invalid", ("preflight_failure", "expected_head_invalid")),
+        ("git_unavailable", ("preflight_failure", "git_unavailable")),
+        ("supplement_artifact_preexists", ("preflight_failure", "artifact_preexists")),
+        ("supplemental_authorization_missing", ("preflight_failure", "authorization_missing")),
+        ("freeze_identity_mismatch:generator", ("preflight_failure", "freeze_identity_mismatch")),
+    ],
+)
+def test_bounded_preflight_failures_are_classified(marker, expected) -> None:
+    assert generator._stable_failure(RuntimeError(marker)) == expected
 
 
 def test_generalized_solver_supports_units_and_replacement_only() -> None:
