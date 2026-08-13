@@ -527,7 +527,7 @@ def validate_pool(path: Path, write_audit: bool = True) -> dict[str, Any]:
                 or left["group_id"] == right["group_id"]
             ):
                 same_family.append(
-                    {"left": left["draft_id"], "right": right["draft_id"], "metrics": metrics}
+                    {"left": left["id"], "right": right["id"], "metrics": metrics}
                 )
             else:
                 custom_review += 1

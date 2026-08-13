@@ -152,6 +152,58 @@ def test_private_pool_same_slot_view_identity_is_available() -> None:
     assert primary["draft_role"] != replacement["draft_role"]
 
 
+def test_private_pool_draft_view_consumers_use_declared_fields() -> None:
+    source = (ROOT / "scripts/verify_gate3_private_draft_pool.py").read_text()
+    tree = ast.parse(source)
+    verifier = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.FunctionDef) and node.name == "validate_pool"
+    )
+    keys: set[str] = set()
+    for node in ast.walk(verifier):
+        if not isinstance(node, ast.Subscript) or not isinstance(node.value, ast.Name):
+            continue
+        if node.value.id not in {"left", "right", "draft", "public"}:
+            continue
+        if isinstance(node.slice, ast.Constant) and isinstance(node.slice.value, str):
+            keys.add(node.slice.value)
+    assert keys <= draft_pool.REQUIRED_DRAFT_VIEW_FIELDS
+    assert {"id", "slot_id", "draft_role", "query_text", "template_fingerprint", "group_id"} <= keys
+
+
+def test_private_pool_same_family_relation_uses_view_identity() -> None:
+    left = draft_pool._draft_view(
+        {
+            "draft_id": "G3D-G3S-9001-primary",
+            "slot_id": "G3S-9001",
+            "draft_role": "primary",
+            "query_text": "Synthetic request about the same operation.",
+            "class": "supported_in_domain",
+            "expected_behavior": "answer",
+            "group_id": "group-same",
+            "template_fingerprint": "template-same",
+        }
+    )
+    right = draft_pool._draft_view(
+        {
+            "draft_id": "G3D-G3S-9002-replacement",
+            "slot_id": "G3S-9002",
+            "draft_role": "replacement",
+            "query_text": "Synthetic request about the same operation, please.",
+            "class": "supported_in_domain",
+            "expected_behavior": "answer",
+            "group_id": "group-same",
+            "template_fingerprint": "template-other",
+        }
+    )
+    hard, review, metrics = draft_pool._near_kind(left, right)
+    assert review and not hard
+    relation = {"left": left["id"], "right": right["id"], "metrics": metrics}
+    assert relation["left"] == "G3D-G3S-9001-primary"
+    assert relation["right"] == "G3D-G3S-9002-replacement"
+
+
 def test_policy_schema_and_identity_hashes() -> None:
     policy = load_policy()
     schema = json.loads((ROOT / "schemas/gate3_custom_authoring_policy.schema.json").read_text())
