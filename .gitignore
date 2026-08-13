@@ -62,3 +62,6 @@ dist/
 # Local authentication and machine-specific settings
 .env-local
 .claude/settings.local.json
+var/eval_sources/custom/supplements/gate3_s20_supplement_pool.json
+var/eval_sources/custom/supplements/gate3_s20_supplement_pool.seal.json
+var/eval_sources/custom/audit/gate3_s20_generation_audit.json

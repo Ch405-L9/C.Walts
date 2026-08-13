@@ -44,12 +44,12 @@ def test_reconciliation_is_sanitized_and_does_not_define_model_calls() -> None:
     assert result["raw_response_recorded"] is False
 
 
-def test_failed_ids_resolve_once_and_private_artifacts_are_absent() -> None:
+def test_failed_ids_resolve_once_and_historical_pool_is_preserved() -> None:
     result = topology.reconcile()
     assert result["failed_shadow_slot_count"] == 25
     assert result["canonical_pool_present"] is False
     assert result["canonical_manifest_present"] is False
-    assert not Path("var/eval_sources/custom/drafts/gate3_private_draft_pool.json").exists()
+    assert Path("var/eval_sources/custom/drafts/gate3_private_draft_pool.json").exists()
     assert not Path("var/eval_sources/custom/selected/gate3_custom_candidates.json").exists()
 
 

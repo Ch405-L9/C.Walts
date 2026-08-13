@@ -1,0 +1,22 @@
+schema_version: 1
+supplement_policy_id: gate3-v3r1-s20-supplement-v1
+source_version: cwalts-custom-v0.4-gate3-v3r1-s20
+generation_run_version: gate3-b1-v3r1-s20
+draft_role: supplemental
+required_supplement_count: 20
+target_set_path: config/gate3_s20_target_slots.json
+surface_assignment_id: slot-ordinal-unused-profile-v1
+prompt_path: config/gate3_s20_supplement_prompt.txt
+schema_path: config/gate3_s20_supplement_schema.json
+authorization_env: NFR_GATE3_B1_S20_AUTHORIZED
+seed_strategy: gate3-slot-role-attempt-sha256-v1
+base_seed: 17
+max_attempts: 3
+storage:
+  pool: var/eval_sources/custom/supplements/gate3_s20_supplement_pool.json
+  seal: var/eval_sources/custom/supplements/gate3_s20_supplement_pool.seal.json
+  audit: var/eval_sources/custom/audit/gate3_s20_generation_audit.json
+privacy:
+  local_only: true
+  query_text_recorded: false
+  performance_peek: false

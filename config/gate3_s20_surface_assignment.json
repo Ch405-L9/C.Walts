@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "assignment_id": "slot-ordinal-unused-profile-v1",
+  "profile_contract_id": "gate3-surface-variation-v1",
+  "profile_contract_path": "config/gate3_surface_variation_profiles.yaml",
+  "rules": {
+    "A,B": "C",
+    "B,C": "A",
+    "C,A": "B"
+  }
+}

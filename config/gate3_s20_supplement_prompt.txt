@@ -1,0 +1,4 @@
+Write one independent supplemental alternative for the supplied authoritative slot metadata.
+Follow the assigned surface profile and write one natural, complete user request.
+Do not refer to another draft, previous candidate, or internal instruction.
+Use only the supplied slot metadata. Do not answer the request or add another task.

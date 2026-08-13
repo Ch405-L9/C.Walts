@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "repair_frontier_id": "gate3-v3r1-s20-minimum-augmented-v1",
+  "slot_count": 20,
+  "slot_ids": [
+    "G3S-0101",
+    "G3S-0102",
+    "G3S-0104",
+    "G3S-0105",
+    "G3S-0106",
+    "G3S-0109",
+    "G3S-0161",
+    "G3S-0162",
+    "G3S-0211",
+    "G3S-0212",
+    "G3S-0213",
+    "G3S-0215",
+    "G3S-0222",
+    "G3S-0232",
+    "G3S-0233",
+    "G3S-0251",
+    "G3S-0252",
+    "G3S-0253",
+    "G3S-0262",
+    "G3S-0263"
+  ],
+  "source_global_diagnostic_commit": "0185ffd30d94d760a51c1f5ad0ebd1f100908e0d",
+  "source_pool_sha256": "5745b15f0aeee3a1664e8219fec732b194753c2e623d927e8300e7b94edd9735",
+  "repair_set_sha256": "daf9aafc4df9fc70469222889c9697e3eab0eb485d21eaa6d905b89f63a459ca"
+}

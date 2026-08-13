@@ -69,11 +69,11 @@ def test_pool2_generation_guard_rejects_old_guard(monkeypatch) -> None:
     assert common.generation_v3r1_pool2_authorized() is True
 
 
-def test_pre_r3_private_artifacts_remain_absent() -> None:
-    assert not (ROOT / "var/eval_sources/custom/drafts/gate3_private_draft_pool.json").exists()
-    assert not (ROOT / "var/eval_sources/custom/drafts/gate3_private_draft_pool.seal.json").exists()
+def test_pre_r3_historical_pool_remains_preserved() -> None:
+    assert (ROOT / "var/eval_sources/custom/drafts/gate3_private_draft_pool.json").exists()
+    assert (ROOT / "var/eval_sources/custom/drafts/gate3_private_draft_pool.seal.json").exists()
     assert not (ROOT / "var/eval_sources/custom/selected/gate3_custom_candidates.json").exists()
-    assert not (ROOT / "var/eval_sources/custom/audit/gate3_replacement_omissions.json").exists()
+    assert (ROOT / "var/eval_sources/custom/audit/gate3_replacement_omissions.json").exists()
 
 
 def test_archived_attempt1_audit_is_sanitized() -> None:

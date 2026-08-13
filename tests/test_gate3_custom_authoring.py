@@ -435,10 +435,10 @@ def test_freeze_hash_mismatch_fails_closed(
         common.load_freeze()
 
 
-def test_r3_has_no_real_private_artifacts() -> None:
+def test_r3_preserves_historical_private_artifacts_without_manifest() -> None:
     assert not (ROOT / "var/eval_sources/custom/selected/gate3_custom_candidates.json").exists()
-    assert not (ROOT / "var/eval_sources/custom/drafts/gate3_private_draft_pool.json").exists()
-    assert not (ROOT / "var/eval_sources/custom/drafts/gate3_private_draft_pool.seal.json").exists()
+    assert (ROOT / "var/eval_sources/custom/drafts/gate3_private_draft_pool.json").exists()
+    assert (ROOT / "var/eval_sources/custom/drafts/gate3_private_draft_pool.seal.json").exists()
 
 
 def test_one_role_solver_synthetic_sat_and_unsat() -> None:
