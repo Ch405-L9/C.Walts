@@ -96,6 +96,26 @@ def test_runtime_guard_accepts_literal_owner_paths_and_empty_status(monkeypatch)
 @pytest.mark.parametrize(
     "status",
     [
+        b"?? C.Walts Stage 2.2B-1C Noncompliance Correction.md\0",
+        b"?? C.Walts Stage 2.2B-1C Noncompliance Correction.pdf\0",
+    ],
+)
+def test_runtime_guard_rejects_only_one_owner_file(monkeypatch, status) -> None:
+    _mock_git_run(monkeypatch, status)
+    with pytest.raises(RuntimeError, match="runtime_worktree_not_clean"):
+        generator._runtime_state("a" * 40)
+
+
+def test_runtime_guard_rejects_duplicate_owner_record(monkeypatch) -> None:
+    status = b"?? C.Walts Stage 2.2B-1C Noncompliance Correction.md\0" * 2
+    _mock_git_run(monkeypatch, status)
+    with pytest.raises(RuntimeError, match="runtime_worktree_not_clean"):
+        generator._runtime_state("a" * 40)
+
+
+@pytest.mark.parametrize(
+    "status",
+    [
         b"?? unexpected.txt\0",
         b" M tracked_file.py\0",
         b"M  tracked_file.py\0",

@@ -259,6 +259,14 @@ def _parse_porcelain_z(raw: bytes) -> list[tuple[str, str]]:
     return records
 
 
+def _allowed_worktree_records(records: list[tuple[str, str]]) -> bool:
+    approved = {
+        ("??", "C.Walts Stage 2.2B-1C Noncompliance Correction.md"),
+        ("??", "C.Walts Stage 2.2B-1C Noncompliance Correction.pdf"),
+    }
+    return not records or len(records) == 2 and set(records) == approved
+
+
 def _runtime_state(expected_head: str) -> None:
     if len(expected_head) != 40 or any(char not in "0123456789abcdef" for char in expected_head):
         raise RuntimeError("runtime_expected_head_invalid")
@@ -278,14 +286,7 @@ def _runtime_state(expected_head: str) -> None:
         text=False,
         check=False,
     )
-    allowed = {
-        "C.Walts Stage 2.2B-1C Noncompliance Correction.md",
-        "C.Walts Stage 2.2B-1C Noncompliance Correction.pdf",
-    }
-    if result.returncode != 0 or any(
-        status != "??" or path not in allowed
-        for status, path in _parse_porcelain_z(result.stdout)
-    ):
+    if result.returncode != 0 or not _allowed_worktree_records(_parse_porcelain_z(result.stdout)):
         raise RuntimeError("runtime_worktree_not_clean")
 
 

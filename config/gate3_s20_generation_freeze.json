@@ -28,7 +28,7 @@
   "seed_strategy": "gate3-slot-role-attempt-sha256-v1",
   "base_seed": 17,
   "max_attempts": 3,
-  "supplement_generator_sha256": "a7b93fde739a5c4ad0c7f484dfc3e578e851f945251b6a89a2230b122f60e53c",
+  "supplement_generator_sha256": "d85aa19469012cb36ad390c02186a35e59999c769963f32156453d7005ebf5c8",
   "supplement_validator_sha256": "7094db32f0bc94429c301ef4f07c1005f0221884937ace9b9a7094ef8079306b",
   "run_version": "gate3-b1-v3r1-s20",
   "source_version": "cwalts-custom-v0.4-gate3-v3r1-s20",
