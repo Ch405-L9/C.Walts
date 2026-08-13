@@ -391,6 +391,51 @@ def test_event2_failure_writer_uses_frozen_path(monkeypatch, tmp_path) -> None:
     assert not (tmp_path / "gate3_s20_generation_failure_event2.json").exists()
 
 
+def test_generate_runs_full_event_contract_before_model_preflight(monkeypatch) -> None:
+    freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
+    policy = {"supplement_policy_id": "gate3-v3r1-s20-supplement-v1"}
+    slots = {"slots": []}
+    order = []
+    monkeypatch.setattr(generator, "authorization_status", lambda: {"ok": True})
+    monkeypatch.setattr(generator, "_runtime_state", lambda _: order.append("runtime"))
+    monkeypatch.setattr(generator, "_load", lambda: (freeze, policy, slots))
+    monkeypatch.setattr(generator, "_load_schema", lambda _: order.append("schema") or {})
+    monkeypatch.setattr(
+        generator,
+        "_verify_event2_contract",
+        lambda value: order.append("event_contract"),
+    )
+    monkeypatch.setattr(generator, "_guard_event2_state", lambda _: order.append("event_guard"))
+    monkeypatch.setattr(generator, "require_loopback", lambda _: order.append("loopback"))
+    monkeypatch.setattr(generator, "verify_model_identity", lambda _: order.append("model"))
+    with pytest.raises(KeyError):
+        generator.generate("a" * 40)
+    assert order == ["runtime", "schema", "event_contract", "event_guard", "loopback", "model"]
+
+
+@pytest.mark.parametrize("field, value", [
+    ("prior_failure_audit_sha256", "0" * 64),
+    ("prior_failure_audit_relative", "audit/other.json"),
+])
+def test_generate_rejects_altered_event_history_before_model(monkeypatch, field, value) -> None:
+    freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
+    freeze[field] = value
+    monkeypatch.setattr(generator, "authorization_status", lambda: {"ok": True})
+    monkeypatch.setattr(generator, "_runtime_state", lambda _: None)
+    monkeypatch.setattr(
+        generator,
+        "_load",
+        lambda: (freeze, {"supplement_policy_id": "x"}, {"slots": []}),
+    )
+    monkeypatch.setattr(generator, "_load_schema", lambda _: {})
+    monkeypatch.setattr(
+        generator, "require_loopback", lambda _: pytest.fail("model preflight reached")
+    )
+    monkeypatch.setattr(generator, "verify_model_identity", lambda _: pytest.fail("model reached"))
+    with pytest.raises(RuntimeError, match="freeze_identity_mismatch:event_contract"):
+        generator.generate("a" * 40)
+
+
 def _mock_generator(monkeypatch, tmp_path, responses):
     freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
     policy = json.loads(

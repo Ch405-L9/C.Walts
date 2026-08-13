@@ -422,6 +422,7 @@ def generate(expected_head: str) -> dict[str, Any]:
     _runtime_state(expected_head)
     freeze, policy, slots_payload = _load()
     schema = _load_schema(freeze)
+    _verify_event2_contract(freeze)
     _guard_event2_state(freeze)
     require_loopback(freeze["endpoint"])
     verify_model_identity(
