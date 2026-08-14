@@ -421,8 +421,13 @@ def _verify_event3_contract(freeze: dict[str, Any]) -> None:
     }
     if any(freeze.get(key) != value for key, value in expected.items()):
         raise RuntimeError("freeze_identity_mismatch:event_contract")
-    if not _safe_audit_relative(freeze["event3_failure_audit_relative"]):
-        raise RuntimeError("freeze_identity_mismatch:audit_path")
+    for key in (
+        "event1_failure_audit_relative",
+        "event2_failure_audit_relative",
+        "event3_failure_audit_relative",
+    ):
+        if not _safe_audit_relative(freeze[key]):
+            raise RuntimeError("freeze_identity_mismatch:audit_path")
 
 
 def _guard_event2_state(freeze: dict[str, Any]) -> None:

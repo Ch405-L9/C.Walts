@@ -326,15 +326,15 @@ def test_historical_failure_guard_rejects_missing_or_altered_event1(
         generator._guard_event3_state(freeze)
 
 
-def test_event2_guard_uses_freeze_history_authority(monkeypatch, tmp_path) -> None:
+def test_event3_guard_uses_freeze_history_authority(monkeypatch, tmp_path) -> None:
     historical = ROOT / "var/eval_sources/custom/audit/gate3_s20_generation_failure.json"
     (tmp_path / historical.name).write_bytes(historical.read_bytes())
     monkeypatch.setattr(generator, "resolve_private_path", lambda rel: tmp_path / Path(rel).name)
     freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
-    wrong_sha = dict(freeze, prior_failure_audit_sha256="0" * 64)
+    wrong_sha = dict(freeze, event1_failure_audit_sha256="0" * 64)
     with pytest.raises(RuntimeError, match="prior_failure_audit_mismatch"):
         generator._guard_event3_state(wrong_sha)
-    wrong_path = dict(freeze, prior_failure_audit_relative="audit/other.json")
+    wrong_path = dict(freeze, event1_failure_audit_relative="audit/other.json")
     with pytest.raises(RuntimeError, match="prior_failure_audit_mismatch"):
         generator._guard_event3_state(wrong_path)
 
@@ -342,17 +342,22 @@ def test_event2_guard_uses_freeze_history_authority(monkeypatch, tmp_path) -> No
 @pytest.mark.parametrize(
     "key, value",
     [
-        ("prior_failure_audit_relative", "../escape.json"),
-        ("prior_failure_audit_relative", "/a/b.json"),
+        ("event1_failure_audit_relative", "../escape.json"),
+        ("event1_failure_audit_relative", "/a/b.json"),
         ("event2_failure_audit_relative", "audit/../../escape.json"),
-        ("event2_failure_audit_relative", ""),
+        ("event3_failure_audit_relative", ""),
     ],
 )
 def test_event_audit_paths_fail_closed(monkeypatch, key, value) -> None:
     freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
     freeze[key] = value
     with pytest.raises(RuntimeError, match="freeze_identity_mismatch"):
-        generator._verify_event2_contract(freeze)
+        generator._verify_event3_contract(freeze)
+
+
+def test_all_canonical_event_audit_paths_are_safe() -> None:
+    freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
+    generator._verify_event3_contract(freeze)
 
 
 def test_event_contract_values_fail_closed() -> None:
@@ -361,11 +366,11 @@ def test_event_contract_values_fail_closed() -> None:
         "generation_event_ordinal",
         "run_version",
         "source_version",
-        "prior_failed_activation_commit",
+        "event1_failed_activation_commit",
     ):
         altered = dict(freeze, **{key: "wrong"})
         with pytest.raises(RuntimeError, match="freeze_identity_mismatch"):
-            generator._verify_event2_contract(altered)
+            generator._verify_event3_contract(altered)
 
 
 def test_event2_failure_writer_uses_frozen_path(monkeypatch, tmp_path) -> None:

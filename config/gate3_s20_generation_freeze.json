@@ -35,7 +35,7 @@
   "seed_strategy": "gate3-slot-role-attempt-sha256-v1",
   "base_seed": 17,
   "max_attempts": 3,
-  "supplement_generator_sha256": "97305fe1a8ec7e3fc99fdc5d473864100d1d23a2bf852b10ae8be7b7bc8e35dd",
+  "supplement_generator_sha256": "a42823af482cbb68a8010d79b1ab0836a3a4e360eddf73395bb88157e2779472",
   "supplement_validator_sha256": "7094db32f0bc94429c301ef4f07c1005f0221884937ace9b9a7094ef8079306b",
   "retry_feedback_contract_id": "gate3-v3r1-s20-same-target-diversity-v1",
   "retry_feedback_sha256": "ee1f6afff83689655a6a833360f9bd5c51b4ad2617545b8768190082daa1ae73",
