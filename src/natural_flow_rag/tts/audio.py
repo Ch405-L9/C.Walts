@@ -38,6 +38,7 @@ class AudioSynthesisResult:
     voice_settings_used: dict[str, Any]
     mapped_controls: dict[str, Any]
     unmapped_controls: tuple[str, ...]
+    timestamps_path: Path | None = None
 
 
 def chunk_segments(
@@ -90,6 +91,9 @@ def _canonical_json(value: Any) -> bytes:
 
 
 def cache_key(request: TTSRequest, provider: str, pronunciation_identity: str | None = None) -> str:
+    pronunciation_identity = pronunciation_identity or _canonical_identity(
+        request.pronunciation_dictionary_locators
+    )
     payload = {
         "spoken_text_sha256": hashlib.sha256(request.text.encode("utf-8")).hexdigest(),
         "provider": provider,
@@ -98,9 +102,33 @@ def cache_key(request: TTSRequest, provider: str, pronunciation_identity: str | 
         "voice_settings": request.voice_settings,
         "output_format": request.output_format,
         "apply_text_normalization": request.apply_text_normalization,
+        "previous_text_sha256": _text_identity(request.previous_text),
+        "next_text_sha256": _text_identity(request.next_text),
+        "with_timestamps": request.with_timestamps,
         "pronunciation_dictionary_identity": pronunciation_identity,
     }
     return hashlib.sha256(_canonical_json(payload)).hexdigest()
+
+
+def _text_identity(text: str | None) -> str | None:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest() if text is not None else None
+
+
+def _canonical_identity(value: Any) -> str:
+    return hashlib.sha256(_canonical_json(value)).hexdigest()
+
+
+def _sanitize_alignment(alignment: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not alignment:
+        return None
+    starts = alignment.get("charStartTimesSeconds") or alignment.get("start_times_seconds") or []
+    ends = alignment.get("charEndTimesSeconds") or alignment.get("end_times_seconds") or []
+    chars = alignment.get("chars") or alignment.get("characters") or []
+    return {
+        "character_count": len(chars) if chars else max(len(starts), len(ends)),
+        "start_times_seconds": list(starts),
+        "end_times_seconds": list(ends),
+    }
 
 
 def validate_audio_file(path: Path) -> dict[str, Any]:
@@ -164,7 +192,13 @@ class AudioSynthesisService:
         self.sleep = sleep
 
     def build_requests(
-        self, plan: NarrationPlan, voice_id: str, model_id: str, output_format: str
+        self,
+        plan: NarrationPlan,
+        voice_id: str,
+        model_id: str,
+        output_format: str,
+        pronunciation_dictionary_locators: tuple[dict[str, str], ...] = (),
+        with_timestamps: bool = False,
     ) -> tuple[TTSRequest, ...]:
         from .elevenlabs import map_plan_to_request
 
@@ -177,6 +211,8 @@ class AudioSynthesisService:
                 output_format,
                 chunk.previous_text,
                 chunk.next_text,
+                with_timestamps=with_timestamps,
+                pronunciation_dictionary_locators=pronunciation_dictionary_locators,
             )[0]
             for chunk in chunk_segments(plan.segments, self.max_chars)
         )
@@ -190,6 +226,7 @@ class AudioSynthesisService:
         output_format: str = "mp3_44100_128",
         with_timestamps: bool = False,
         pronunciation_dictionary_identity: str | None = None,
+        pronunciation_dictionary_locators: tuple[dict[str, str], ...] = (),
     ) -> AudioSynthesisResult:
         from .elevenlabs import map_plan_to_request
 
@@ -204,6 +241,7 @@ class AudioSynthesisService:
         mapped_controls: dict[str, Any] = {}
         unmapped: set[str] = set()
         voice_settings: dict[str, Any] = {}
+        alignments: list[dict[str, Any]] = []
         try:
             for _index, chunk in enumerate(chunks):
                 request, mapped, ignored = map_plan_to_request(
@@ -214,16 +252,21 @@ class AudioSynthesisService:
                     output_format,
                     chunk.previous_text,
                     chunk.next_text,
-                    with_timestamps,
+                    with_timestamps=with_timestamps,
+                    pronunciation_dictionary_locators=pronunciation_dictionary_locators,
                 )
                 mapped_controls.update(mapped)
                 unmapped.update(ignored)
                 voice_settings = dict(request.voice_settings)
                 key = cache_key(request, self.provider, pronunciation_dictionary_identity)
                 cached = self.cache_dir / f"{key}.audio"
+                cached_metadata = self.cache_dir / f"{key}.json"
                 if cached.is_file() and cached.stat().st_size > 0:
                     cache_hits += 1
                     audio_paths.append(cached)
+                    if with_timestamps and cached_metadata.is_file():
+                        cached_data = json.loads(cached_metadata.read_text(encoding="utf-8"))
+                        alignments.append(cached_data.get("alignment") or {})
                     continue
                 result: TTSResult | None = None
                 for attempt in range(3):
@@ -240,16 +283,34 @@ class AudioSynthesisService:
                         self.sleep(0.1 * (2**attempt))
                 if result is None:
                     raise TTSAudioError("provider returned no audio")
+                sanitized_alignment = _sanitize_alignment(result.alignment)
+                if with_timestamps:
+                    alignments.append(sanitized_alignment or {})
                 temp_cache = cached.with_suffix(".tmp")
                 temp_cache.write_bytes(result.audio_bytes)
                 if temp_cache.stat().st_size <= 0:
                     temp_cache.unlink(missing_ok=True)
                     raise TTSAudioError("provider returned zero-length audio")
                 os.replace(temp_cache, cached)
+                if with_timestamps:
+                    temp_metadata = cached_metadata.with_suffix(".tmp")
+                    temp_metadata.write_bytes(_canonical_json({"alignment": sanitized_alignment}))
+                    os.replace(temp_metadata, cached_metadata)
                 audio_paths.append(cached)
             self._assemble(audio_paths, output)
             audio_metadata = validate_audio_file(output)
             sidecar = output.with_suffix(output.suffix + ".json")
+            timestamps_path = None
+            if with_timestamps:
+                timestamps_path = output.with_suffix(output.suffix + ".timestamps.json")
+                timestamp_data = {
+                    "schema_version": 1,
+                    "chunk_count": len(chunks),
+                    "alignments": alignments,
+                }
+                temp_timestamps = timestamps_path.with_suffix(timestamps_path.suffix + ".tmp")
+                temp_timestamps.write_bytes(_canonical_json(timestamp_data))
+                os.replace(temp_timestamps, timestamps_path)
             sidecar_data = {
                 "schema_version": 1,
                 "source_text_sha256": plan.source_text_sha256,
@@ -271,6 +332,7 @@ class AudioSynthesisService:
                 "unmapped_controls": sorted(unmapped),
                 "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 "text_preserved": True,
+                "timestamps_sidecar": str(timestamps_path) if timestamps_path else None,
             }
             temp_sidecar = sidecar.with_suffix(sidecar.suffix + ".tmp")
             temp_sidecar.write_bytes(_canonical_json(sidecar_data))
@@ -286,10 +348,12 @@ class AudioSynthesisService:
                 voice_settings,
                 mapped_controls,
                 tuple(sorted(unmapped)),
+                timestamps_path,
             )
         except Exception:
             output.unlink(missing_ok=True)
             output.with_suffix(output.suffix + ".json").unlink(missing_ok=True)
+            output.with_suffix(output.suffix + ".timestamps.json").unlink(missing_ok=True)
             raise
 
     def _assemble(self, paths: list[Path], output: Path) -> None:

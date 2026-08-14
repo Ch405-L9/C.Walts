@@ -66,6 +66,7 @@ def main() -> int:
         voice_id,
         config.model_id,
         config.output_format,
+        with_timestamps=args.with_timestamps,
     )
     summary = {
         "route": plan.content_profile["domain"],

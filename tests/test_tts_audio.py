@@ -9,7 +9,7 @@ import pytest
 import natural_flow_rag.tts.audio as audio_module
 from natural_flow_rag.narration import NarrationSegment
 from natural_flow_rag.runtime import NarrationRuntime
-from natural_flow_rag.tts.audio import AudioSynthesisService, chunk_segments
+from natural_flow_rag.tts.audio import AudioSynthesisService, cache_key, chunk_segments
 from natural_flow_rag.tts.base import TTSRequest, TTSRequestError, TTSResult
 from natural_flow_rag.tts.elevenlabs import ElevenLabsConfig, map_plan_to_request
 
@@ -46,6 +46,21 @@ def test_provider_mapping_is_deterministic_and_does_not_insert_prompt() -> None:
     assert "Speak dramatically" not in request.text
     assert mapped["model_id"] == "eleven_multilingual_v2"
     assert "pitch_tendency" in unmapped
+
+
+def test_cache_identity_covers_continuity_timestamps_and_pronunciation() -> None:
+    base = TTSRequest("spoken", "voice", "model", "format")
+    changed = TTSRequest(
+        "spoken",
+        "voice",
+        "model",
+        "format",
+        previous_text="previous",
+        next_text="next",
+        with_timestamps=True,
+        pronunciation_dictionary_locators=({"pronunciation_dictionary_id": "dict"},),
+    )
+    assert cache_key(base, "provider") != cache_key(changed, "provider")
 
 
 def test_chunking_is_bounded_and_deterministic() -> None:
@@ -88,6 +103,33 @@ def test_transient_retry_is_bounded(tmp_path: Path, monkeypatch: pytest.MonkeyPa
     result = service.synthesize(_plan(), tmp_path / "retry.mp3", "voice", "eleven_multilingual_v2")
     assert result.retry_count == 2
     assert result.provider_request_count == 3
+
+
+def test_timestamps_and_pronunciation_locators_are_persisted(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(audio_module, "validate_audio_file", lambda path: {"duration_seconds": 1.0})
+    adapter = MockAdapter(
+        [TTSResult(b"ID3timed", alignment={
+            "chars": ["x"],
+            "charStartTimesSeconds": [0.0],
+            "charEndTimesSeconds": [0.2],
+        })]
+    )
+    service = AudioSynthesisService(adapter, cache_dir=tmp_path / "cache")
+    result = service.synthesize(
+        _plan(),
+        tmp_path / "timed.mp3",
+        "voice",
+        "eleven_multilingual_v2",
+        with_timestamps=True,
+        pronunciation_dictionary_locators=({"pronunciation_dictionary_id": "dict"},),
+    )
+    assert result.timestamps_path is not None
+    timing = result.timestamps_path.read_text(encoding="utf-8")
+    assert "character_count" in timing
+    assert "chars" not in timing
+    assert adapter.calls[0].pronunciation_dictionary_locators
 
 
 def test_zero_length_audio_is_rejected_atomically(tmp_path: Path) -> None:
