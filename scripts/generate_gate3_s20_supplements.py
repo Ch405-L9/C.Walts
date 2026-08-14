@@ -65,6 +65,7 @@ SURFACE_ASSIGNMENT = ROOT / "config/gate3_s20_surface_assignment.json"
 SURFACE_PROFILES = ROOT / "config/gate3_surface_variation_profiles.yaml"
 TARGETS = ROOT / "config/gate3_s20_target_slots.json"
 RETRY_FEEDBACK = ROOT / "config/gate3_s20_retry_feedback.json"
+RETRY_SAMPLING = ROOT / "config/gate3_s20_retry_sampling.json"
 POOL_RELATIVE = "supplements/gate3_s20_supplement_pool.json"
 SEAL_RELATIVE = "supplements/gate3_s20_supplement_pool.seal.json"
 AUDIT_RELATIVE = "audit/gate3_s20_generation_audit.json"
@@ -119,6 +120,15 @@ def _load_retry_feedback(freeze: dict[str, Any]) -> dict[str, Any]:
     return contract
 
 
+def _load_retry_sampling(freeze: dict[str, Any]) -> dict[str, Any]:
+    contract = json.loads(RETRY_SAMPLING.read_text(encoding="utf-8"))
+    if freeze.get("retry_sampling_contract_id") != contract.get("contract_id"):
+        raise RuntimeError("freeze_identity_mismatch:retry_sampling_contract")
+    if freeze.get("retry_sampling_sha256") != file_sha256(RETRY_SAMPLING):
+        raise RuntimeError("freeze_identity_mismatch:retry_sampling")
+    return contract
+
+
 def _retry_feedback_for_attempt(
     history: list[dict[str, Any]], attempt: int, retry_feedback: dict[str, Any]
 ) -> str | None:
@@ -131,6 +141,22 @@ def _retry_feedback_for_attempt(
     ):
         return None
     return retry_feedback["feedback"]["exact_duplicate_same_target"].get(str(attempt))
+
+
+def _retry_temperature_for_attempt(
+    history: list[dict[str, Any]], attempt: int, retry_sampling: dict[str, Any]
+) -> float:
+    base_temperature = retry_sampling["base_temperature"]
+    if attempt not in (2, 3) or not history:
+        return base_temperature
+    previous = history[-1]
+    trigger = retry_sampling["trigger"]
+    if (
+        previous.get("stable_error_code") != trigger["stable_error_code"]
+        or previous.get("detail_code") != trigger["detail_code"]
+    ):
+        return base_temperature
+    return retry_sampling["attempt_temperatures"].get(str(attempt), base_temperature)
 
 
 def _load() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
@@ -206,7 +232,11 @@ def _prompt(
 
 
 def _model_request(
-    freeze: dict[str, Any], prompt: str, seed: int, schema: dict[str, Any]
+    freeze: dict[str, Any],
+    prompt: str,
+    seed: int,
+    schema: dict[str, Any],
+    temperature: float | None = None,
 ) -> dict[str, Any]:
     payload = {
         "model": freeze["model"],
@@ -215,7 +245,7 @@ def _model_request(
         "stream": freeze["stream"],
         "think": freeze["think"],
         "options": {
-            "temperature": freeze["temperature"],
+            "temperature": freeze["temperature"] if temperature is None else temperature,
             "top_p": freeze["top_p"],
             "num_predict": freeze["num_predict"],
             "seed": seed,
@@ -402,11 +432,11 @@ def _verify_event2_contract(
             raise RuntimeError("freeze_identity_mismatch:audit_path")
 
 
-def _verify_event3_contract(freeze: dict[str, Any]) -> None:
+def _verify_event4_contract(freeze: dict[str, Any]) -> None:
     expected = {
-        "generation_event_ordinal": 3,
-        "run_version": "gate3-b1-v3r1-s20-event3",
-        "source_version": "cwalts-custom-v0.4-gate3-v3r1-s20-event3",
+        "generation_event_ordinal": 4,
+        "run_version": "gate3-b1-v3r1-s20-event4",
+        "source_version": "cwalts-custom-v0.4-gate3-v3r1-s20-event4",
         "event1_failed_activation_commit": "558988d34985d4b0c24103d6a331e939caba701c",
         "event1_failure_audit_relative": "audit/gate3_s20_generation_failure.json",
         "event1_failure_audit_sha256": (
@@ -418,6 +448,10 @@ def _verify_event3_contract(freeze: dict[str, Any]) -> None:
             "5449448fcc0e033f9ed64db0187ed1f4bdb81133378f73ad59dc7af953064cda"
         ),
         "event3_failure_audit_relative": "audit/gate3_s20_generation_failure_event3.json",
+        "event3_failure_audit_sha256": (
+            "5284e74ef1c2ae80b66d010a516401e048b97c07916ac12d53ca43b9ff473470"
+        ),
+        "event4_failure_audit_relative": "audit/gate3_s20_generation_failure_event4.json",
     }
     if any(freeze.get(key) != value for key, value in expected.items()):
         raise RuntimeError("freeze_identity_mismatch:event_contract")
@@ -425,6 +459,7 @@ def _verify_event3_contract(freeze: dict[str, Any]) -> None:
         "event1_failure_audit_relative",
         "event2_failure_audit_relative",
         "event3_failure_audit_relative",
+        "event4_failure_audit_relative",
     ):
         if not _safe_audit_relative(freeze[key]):
             raise RuntimeError("freeze_identity_mismatch:audit_path")
@@ -445,10 +480,11 @@ def _guard_event2_state(freeze: dict[str, Any]) -> None:
             raise RuntimeError("supplement_artifact_preexists")
 
 
-def _guard_event3_state(freeze: dict[str, Any]) -> None:
+def _guard_event4_state(freeze: dict[str, Any]) -> None:
     for relative, digest in (
         (freeze["event1_failure_audit_relative"], freeze["event1_failure_audit_sha256"]),
         (freeze["event2_failure_audit_relative"], freeze["event2_failure_audit_sha256"]),
+        (freeze["event3_failure_audit_relative"], freeze["event3_failure_audit_sha256"]),
     ):
         historical = resolve_private_path(relative)
         if not historical.exists() or file_sha256(historical) != digest:
@@ -457,7 +493,7 @@ def _guard_event3_state(freeze: dict[str, Any]) -> None:
         POOL_RELATIVE,
         SEAL_RELATIVE,
         AUDIT_RELATIVE,
-        freeze["event3_failure_audit_relative"],
+        freeze["event4_failure_audit_relative"],
     ):
         if resolve_private_path(relative).exists():
             raise RuntimeError("supplement_artifact_preexists")
@@ -491,7 +527,7 @@ def _write_failure(
         "query_text_recorded": False,
         "raw_response_recorded": False,
     }
-    path = resolve_private_path(freeze["event3_failure_audit_relative"])
+    path = resolve_private_path(freeze["event4_failure_audit_relative"])
     atomic_write_bytes(path, (json.dumps(payload, sort_keys=True, indent=2) + "\n").encode())
 
 
@@ -503,8 +539,9 @@ def generate(expected_head: str) -> dict[str, Any]:
     freeze, policy, slots_payload = _load()
     schema = _load_schema(freeze)
     retry_feedback = _load_retry_feedback(freeze)
-    _verify_event3_contract(freeze)
-    _guard_event3_state(freeze)
+    retry_sampling = _load_retry_sampling(freeze)
+    _verify_event4_contract(freeze)
+    _guard_event4_state(freeze)
     require_loopback(freeze["endpoint"])
     verify_model_identity(
         {
@@ -528,8 +565,13 @@ def generate(expected_head: str) -> dict[str, Any]:
             retries += int(attempt > 1)
             try:
                 feedback = _retry_feedback_for_attempt(history, attempt, retry_feedback)
+                temperature = _retry_temperature_for_attempt(history, attempt, retry_sampling)
                 value = _model_request(
-                    freeze, _prompt(slot, _profile_for(slot_id), feedback), seed, schema
+                    freeze,
+                    _prompt(slot, _profile_for(slot_id), feedback),
+                    seed,
+                    schema,
+                    temperature,
                 )
                 jsonschema.validate(value, schema)
                 if value["slot_id"] != slot_id or value["draft_role"] != "supplemental":
@@ -616,6 +658,8 @@ def generate(expected_head: str) -> dict[str, Any]:
         "supplement_schema_sha256": freeze["supplement_schema_sha256"],
         "retry_feedback_contract_id": freeze["retry_feedback_contract_id"],
         "retry_feedback_sha256": freeze["retry_feedback_sha256"],
+        "retry_sampling_contract_id": freeze["retry_sampling_contract_id"],
+        "retry_sampling_sha256": freeze["retry_sampling_sha256"],
         "parameter_hash": freeze["parameter_hash"],
         "model": freeze["model"],
         "model_tag_digest": freeze["model_tag_digest"],

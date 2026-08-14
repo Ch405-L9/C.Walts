@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "contract_id": "gate3-v3r1-s20-same-target-retry-sampling-v1",
+  "trigger": {
+    "stable_error_code": "format_safety_failure",
+    "detail_code": "exact_duplicate_same_target"
+  },
+  "base_temperature": 0.25,
+  "attempt_temperatures": {
+    "2": 0.55,
+    "3": 0.8
+  }
+}

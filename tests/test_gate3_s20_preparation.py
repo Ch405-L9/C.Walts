@@ -296,6 +296,30 @@ def test_model_request_uses_exact_frozen_schema_and_sampling(monkeypatch) -> Non
     }
 
 
+@pytest.mark.parametrize("temperature", [0.25, 0.55, 0.8])
+def test_model_request_uses_selected_retry_temperature(monkeypatch, temperature) -> None:
+    freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
+    captured = {}
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return json.dumps({"response": json.dumps({})}).encode()
+
+    def urlopen(request, timeout):
+        captured["payload"] = json.loads(request.data)
+        return Response()
+
+    monkeypatch.setattr(generator.urllib.request, "urlopen", urlopen)
+    generator._model_request(freeze, "synthetic prompt", 123, {}, temperature)
+    assert captured["payload"]["options"]["temperature"] == temperature
+
+
 def test_parameter_contract_hash_is_self_consistent() -> None:
     freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
     assert generator._parameter_hash(freeze) == freeze["parameter_hash"]
@@ -306,12 +330,14 @@ def test_historical_failure_guard_accepts_only_untouched_event1(monkeypatch, tmp
     (tmp_path / "gate3_s20_generation_failure.json").write_bytes(historical.read_bytes())
     event2 = ROOT / "var/eval_sources/custom/audit/gate3_s20_generation_failure_event2.json"
     (tmp_path / "gate3_s20_generation_failure_event2.json").write_bytes(event2.read_bytes())
+    event3 = ROOT / "var/eval_sources/custom/audit/gate3_s20_generation_failure_event3.json"
+    (tmp_path / "gate3_s20_generation_failure_event3.json").write_bytes(event3.read_bytes())
     monkeypatch.setattr(generator, "resolve_private_path", lambda rel: tmp_path / Path(rel).name)
     freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
-    generator._guard_event3_state(freeze)
-    (tmp_path / "gate3_s20_generation_failure_event3.json").write_text("existing")
+    generator._guard_event4_state(freeze)
+    (tmp_path / "gate3_s20_generation_failure_event4.json").write_text("existing")
     with pytest.raises(RuntimeError, match="supplement_artifact_preexists"):
-        generator._guard_event3_state(freeze)
+        generator._guard_event4_state(freeze)
 
 
 @pytest.mark.parametrize("historical_bytes", [None, b"altered historical evidence\n"])
@@ -323,7 +349,7 @@ def test_historical_failure_guard_rejects_missing_or_altered_event1(
     monkeypatch.setattr(generator, "resolve_private_path", lambda rel: tmp_path / Path(rel).name)
     freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
     with pytest.raises(RuntimeError, match="prior_failure_audit_mismatch"):
-        generator._guard_event3_state(freeze)
+        generator._guard_event4_state(freeze)
 
 
 def test_event3_guard_uses_freeze_history_authority(monkeypatch, tmp_path) -> None:
@@ -333,10 +359,35 @@ def test_event3_guard_uses_freeze_history_authority(monkeypatch, tmp_path) -> No
     freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
     wrong_sha = dict(freeze, event1_failure_audit_sha256="0" * 64)
     with pytest.raises(RuntimeError, match="prior_failure_audit_mismatch"):
-        generator._guard_event3_state(wrong_sha)
+        generator._guard_event4_state(wrong_sha)
     wrong_path = dict(freeze, event1_failure_audit_relative="audit/other.json")
     with pytest.raises(RuntimeError, match="prior_failure_audit_mismatch"):
-        generator._guard_event3_state(wrong_path)
+        generator._guard_event4_state(wrong_path)
+
+
+@pytest.mark.parametrize(
+    "field, filename",
+    [
+        ("event1_failure_audit_relative", "gate3_s20_generation_failure.json"),
+        ("event2_failure_audit_relative", "gate3_s20_generation_failure_event2.json"),
+        ("event3_failure_audit_relative", "gate3_s20_generation_failure_event3.json"),
+    ],
+)
+def test_event4_guard_requires_all_historical_failures(
+    monkeypatch, tmp_path, field, filename
+) -> None:
+    for source in (
+        "gate3_s20_generation_failure.json",
+        "gate3_s20_generation_failure_event2.json",
+        "gate3_s20_generation_failure_event3.json",
+    ):
+        source_path = ROOT / "var/eval_sources/custom/audit" / source
+        (tmp_path / source).write_bytes(source_path.read_bytes())
+    (tmp_path / filename).unlink()
+    monkeypatch.setattr(generator, "resolve_private_path", lambda rel: tmp_path / Path(rel).name)
+    freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
+    with pytest.raises(RuntimeError, match="prior_failure_audit_mismatch"):
+        generator._guard_event4_state(freeze)
 
 
 @pytest.mark.parametrize(
@@ -365,7 +416,7 @@ def test_all_canonical_event_audit_paths_are_safe() -> None:
         "event3_failure_audit_relative",
     ):
         assert generator._safe_audit_relative(freeze[key]) is True
-    generator._verify_event3_contract(freeze)
+    generator._verify_event4_contract(freeze)
 
 
 @pytest.mark.parametrize(
@@ -380,7 +431,7 @@ def test_event_contract_identity_precedes_path_safety(key) -> None:
     freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
     freeze[key] = "../escape.json"
     with pytest.raises(RuntimeError, match="freeze_identity_mismatch:event_contract"):
-        generator._verify_event3_contract(freeze)
+        generator._verify_event4_contract(freeze)
 
 
 def test_event_contract_values_fail_closed() -> None:
@@ -393,12 +444,12 @@ def test_event_contract_values_fail_closed() -> None:
     ):
         altered = dict(freeze, **{key: "wrong"})
         with pytest.raises(RuntimeError, match="freeze_identity_mismatch"):
-            generator._verify_event3_contract(altered)
+            generator._verify_event4_contract(altered)
 
 
-def test_event2_failure_writer_uses_frozen_path(monkeypatch, tmp_path) -> None:
+def test_event4_failure_writer_uses_frozen_path(monkeypatch, tmp_path) -> None:
     freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
-    freeze["event3_failure_audit_relative"] = "audit/alternate_event3.json"
+    freeze["event4_failure_audit_relative"] = "audit/alternate_event4.json"
     monkeypatch.setattr(generator, "resolve_private_path", lambda rel: tmp_path / Path(rel).name)
     generator._write_failure(
         "G3S-0101",
@@ -419,8 +470,8 @@ def test_event2_failure_writer_uses_frozen_path(monkeypatch, tmp_path) -> None:
         3,
         2,
     )
-    assert (tmp_path / "alternate_event3.json").exists()
-    assert not (tmp_path / "gate3_s20_generation_failure_event3.json").exists()
+    assert (tmp_path / "alternate_event4.json").exists()
+    assert not (tmp_path / "gate3_s20_generation_failure_event4.json").exists()
 
 
 def test_generate_runs_full_event_contract_before_model_preflight(monkeypatch) -> None:
@@ -433,16 +484,31 @@ def test_generate_runs_full_event_contract_before_model_preflight(monkeypatch) -
     monkeypatch.setattr(generator, "_load", lambda: (freeze, policy, slots))
     monkeypatch.setattr(generator, "_load_schema", lambda _: order.append("schema") or {})
     monkeypatch.setattr(
+        generator, "_load_retry_feedback", lambda _: order.append("retry_feedback") or {}
+    )
+    monkeypatch.setattr(
+        generator, "_load_retry_sampling", lambda _: order.append("retry_sampling") or {}
+    )
+    monkeypatch.setattr(
         generator,
-        "_verify_event3_contract",
+        "_verify_event4_contract",
         lambda value: order.append("event_contract"),
     )
-    monkeypatch.setattr(generator, "_guard_event3_state", lambda _: order.append("event_guard"))
+    monkeypatch.setattr(generator, "_guard_event4_state", lambda _: order.append("event_guard"))
     monkeypatch.setattr(generator, "require_loopback", lambda _: order.append("loopback"))
     monkeypatch.setattr(generator, "verify_model_identity", lambda _: order.append("model"))
     with pytest.raises(KeyError):
         generator.generate("a" * 40)
-    assert order == ["runtime", "schema", "event_contract", "event_guard", "loopback", "model"]
+    assert order == [
+        "runtime",
+        "schema",
+        "retry_feedback",
+        "retry_sampling",
+        "event_contract",
+        "event_guard",
+        "loopback",
+        "model",
+    ]
 
 
 @pytest.mark.parametrize("field, value", [
@@ -536,6 +602,63 @@ def test_retry_feedback_requires_full_failure_pair() -> None:
         assert generator._retry_feedback_for_attempt(history, 2, contract) is None
 
 
+def test_retry_sampling_temperatures_require_full_failure_pair() -> None:
+    contract = json.loads((ROOT / "config/gate3_s20_retry_sampling.json").read_text())
+    duplicate = [
+        {
+            "stable_error_code": "format_safety_failure",
+            "detail_code": "exact_duplicate_same_target",
+        }
+    ]
+    assert generator._retry_temperature_for_attempt([], 1, contract) == 0.25
+    assert generator._retry_temperature_for_attempt(duplicate, 2, contract) == 0.55
+    assert generator._retry_temperature_for_attempt(duplicate, 3, contract) == 0.8
+    for history in (
+        [{"stable_error_code": "format_safety_failure", "detail_code": "schema_failure"}],
+        [{"stable_error_code": "internal_error", "detail_code": "exact_duplicate_same_target"}],
+        [{"stable_error_code": "transport_failure", "detail_code": "local_model_transport"}],
+    ):
+        assert generator._retry_temperature_for_attempt(history, 2, contract) == 0.25
+
+
+def test_retry_sampling_uses_loaded_contract() -> None:
+    contract = json.loads((ROOT / "config/gate3_s20_retry_sampling.json").read_text())
+    contract["attempt_temperatures"]["2"] = 0.61
+    history = [
+        {
+            "stable_error_code": "format_safety_failure",
+            "detail_code": "exact_duplicate_same_target",
+        }
+    ]
+    assert generator._retry_temperature_for_attempt(history, 2, contract) == 0.61
+
+
+def test_actual_generate_uses_loaded_retry_sampling_contract(monkeypatch, tmp_path) -> None:
+    responses = [
+        ValueError("supplemental_exact_duplicate_same_target"),
+        {"slot_id": EXPECTED_TARGETS[0], "draft_role": "supplemental", "query_text": "ok"},
+    ]
+    responses.extend(
+        {"slot_id": slot, "draft_role": "supplemental", "query_text": f"synthetic {i}"}
+        for i, slot in enumerate(EXPECTED_TARGETS[1:], start=1)
+    )
+    contract = json.loads((ROOT / "config/gate3_s20_retry_sampling.json").read_text())
+    contract["attempt_temperatures"]["2"] = 0.61
+    monkeypatch.setattr(generator, "_load_retry_sampling", lambda _: contract)
+    _, _, _, temperatures = _mock_generator(monkeypatch, tmp_path, responses)
+    generator.generate("a" * 40)
+    assert temperatures[:2] == [0.25, 0.61]
+
+
+def test_retry_sampling_contract_identity_is_frozen() -> None:
+    freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
+    contract = generator._load_retry_sampling(freeze)
+    assert contract["contract_id"] == "gate3-v3r1-s20-same-target-retry-sampling-v1"
+    altered = dict(freeze, retry_sampling_sha256="0" * 64)
+    with pytest.raises(RuntimeError, match="freeze_identity_mismatch:retry_sampling"):
+        generator._load_retry_sampling(altered)
+
+
 def test_failure_accounting_invariant() -> None:
     accepted = 4
     attempts = 9
@@ -566,13 +689,15 @@ def _mock_generator(monkeypatch, tmp_path, responses):
     )
     monkeypatch.setattr(generator, "resolve_private_path", lambda rel: tmp_path / Path(rel).name)
     monkeypatch.setattr(generator, "_runtime_state", lambda _: None)
-    monkeypatch.setattr(generator, "_guard_event3_state", lambda _: None)
+    monkeypatch.setattr(generator, "_guard_event4_state", lambda _: None)
     calls = []
     prompts = []
+    temperatures = []
 
-    def request(_freeze, _prompt, seed, _schema):
+    def request(_freeze, _prompt, seed, _schema, temperature):
         calls.append(seed)
         prompts.append(_prompt)
+        temperatures.append(temperature)
         response = responses.pop(0)
         if isinstance(response, BaseException):
             raise response
@@ -583,7 +708,7 @@ def _mock_generator(monkeypatch, tmp_path, responses):
     monkeypatch.setenv("NFR_ALLOW_PRIVATE_EVAL_GENERATION", "true")
     monkeypatch.setenv("NFR_GATE3_B_AUTHORIZED", "true")
     monkeypatch.setenv("NFR_GATE3_B1_S20_AUTHORIZED", "true")
-    return calls, slots, prompts
+    return calls, slots, prompts, temperatures
 
 
 def test_mocked_twenty_slot_path_is_atomic_and_ordered(monkeypatch, tmp_path) -> None:
@@ -591,7 +716,7 @@ def test_mocked_twenty_slot_path_is_atomic_and_ordered(monkeypatch, tmp_path) ->
         {"slot_id": slot, "draft_role": "supplemental", "query_text": f"synthetic {i}"}
         for i, slot in enumerate(EXPECTED_TARGETS)
     ]
-    calls, _, _ = _mock_generator(monkeypatch, tmp_path, responses)
+    calls, _, _, _ = _mock_generator(monkeypatch, tmp_path, responses)
     result = generator.generate("a" * 40)
     assert result["accepted_count"] == 20
     assert len(calls) == 20
@@ -611,7 +736,7 @@ def test_mocked_retry_is_same_slot_and_three_calls(monkeypatch, tmp_path) -> Non
         {"slot_id": slot, "draft_role": "supplemental", "query_text": f"synthetic {i}"}
         for i, slot in enumerate(EXPECTED_TARGETS[1:], start=1)
     )
-    calls, _, prompts = _mock_generator(monkeypatch, tmp_path, responses)
+    calls, _, prompts, temperatures = _mock_generator(monkeypatch, tmp_path, responses)
     result = generator.generate("a" * 40)
     assert len(calls) == 22
     assert result["attempts"] == 22
@@ -624,6 +749,7 @@ def test_mocked_retry_is_same_slot_and_three_calls(monkeypatch, tmp_path) -> Non
     assert "Supplemental retry correction:" in prompts[1]
     assert "Supplemental retry correction:" in prompts[2]
     assert prompts[1] != prompts[2]
+    assert temperatures[:3] == [0.25, 0.55, 0.8]
 
 
 def test_actual_retry_path_with_other_error_has_no_feedback(monkeypatch, tmp_path) -> None:
@@ -635,10 +761,11 @@ def test_actual_retry_path_with_other_error_has_no_feedback(monkeypatch, tmp_pat
         {"slot_id": slot, "draft_role": "supplemental", "query_text": f"synthetic {i}"}
         for i, slot in enumerate(EXPECTED_TARGETS[1:], start=1)
     )
-    _, _, prompts = _mock_generator(monkeypatch, tmp_path, responses)
+    _, _, prompts, temperatures = _mock_generator(monkeypatch, tmp_path, responses)
     generator.generate("a" * 40)
     assert "Supplemental retry correction:" not in prompts[0]
     assert "Supplemental retry correction:" not in prompts[1]
+    assert temperatures[:2] == [0.25, 0.25]
 
 
 def test_private_sentinel_stays_out_of_real_retry_path(monkeypatch, tmp_path, capsys) -> None:
@@ -659,7 +786,7 @@ def test_private_sentinel_stays_out_of_real_retry_path(monkeypatch, tmp_path, ca
         "_stable_failure",
         lambda _: ("format_safety_failure", "exact_duplicate_same_target"),
     )
-    _, _, prompts = _mock_generator(monkeypatch, tmp_path, responses)
+    _, _, prompts, _ = _mock_generator(monkeypatch, tmp_path, responses)
     generator.generate("a" * 40)
     captured = capsys.readouterr()
     assert "PRIVATE_QUERY_SENTINEL" not in "".join(prompts) + captured.out + captured.err
@@ -674,7 +801,7 @@ def test_mocked_terminal_failure_writes_only_sanitized_failure(monkeypatch, tmp_
         generator.generate("a" * 40)
     assert not (tmp_path / "gate3_s20_supplement_pool.json").exists()
     assert not (tmp_path / "gate3_s20_supplement_pool.seal.json").exists()
-    failure = json.loads((tmp_path / "gate3_s20_generation_failure_event3.json").read_text())
+    failure = json.loads((tmp_path / "gate3_s20_generation_failure_event4.json").read_text())
     assert failure["query_text_recorded"] is False
     assert "query_text" not in failure
     assert generator.file_sha256(historical) == historical_sha
