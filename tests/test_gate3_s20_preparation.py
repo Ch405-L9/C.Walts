@@ -458,6 +458,26 @@ def test_retry_feedback_is_sanitized_and_attempt_specific() -> None:
     assert "PRIVATE_QUERY_SENTINEL" not in p2 + p3
 
 
+def test_retry_feedback_requires_full_failure_pair() -> None:
+    contract = json.loads((ROOT / "config/gate3_s20_retry_feedback.json").read_text())
+    assert generator._retry_feedback_for_attempt(
+        [
+            {
+                "stable_error_code": "format_safety_failure",
+                "detail_code": "exact_duplicate_same_target",
+            }
+        ],
+        2,
+        contract,
+    ) == contract["feedback"]["exact_duplicate_same_target"]["2"]
+    for history in (
+        [{"stable_error_code": "internal_error", "detail_code": "exact_duplicate_same_target"}],
+        [{"stable_error_code": "format_safety_failure", "detail_code": "schema_failure"}],
+        [{"stable_error_code": "transport_failure", "detail_code": "local_model_transport"}],
+    ):
+        assert generator._retry_feedback_for_attempt(history, 2, contract) is None
+
+
 def test_failure_accounting_invariant() -> None:
     accepted = 4
     attempts = 9
@@ -490,9 +510,11 @@ def _mock_generator(monkeypatch, tmp_path, responses):
     monkeypatch.setattr(generator, "_runtime_state", lambda _: None)
     monkeypatch.setattr(generator, "_guard_event3_state", lambda _: None)
     calls = []
+    prompts = []
 
     def request(_freeze, _prompt, seed, _schema):
         calls.append(seed)
+        prompts.append(_prompt)
         response = responses.pop(0)
         if isinstance(response, BaseException):
             raise response
@@ -503,7 +525,7 @@ def _mock_generator(monkeypatch, tmp_path, responses):
     monkeypatch.setenv("NFR_ALLOW_PRIVATE_EVAL_GENERATION", "true")
     monkeypatch.setenv("NFR_GATE3_B_AUTHORIZED", "true")
     monkeypatch.setenv("NFR_GATE3_B1_S20_AUTHORIZED", "true")
-    return calls, slots
+    return calls, slots, prompts
 
 
 def test_mocked_twenty_slot_path_is_atomic_and_ordered(monkeypatch, tmp_path) -> None:
@@ -511,7 +533,7 @@ def test_mocked_twenty_slot_path_is_atomic_and_ordered(monkeypatch, tmp_path) ->
         {"slot_id": slot, "draft_role": "supplemental", "query_text": f"synthetic {i}"}
         for i, slot in enumerate(EXPECTED_TARGETS)
     ]
-    calls, _ = _mock_generator(monkeypatch, tmp_path, responses)
+    calls, _, _ = _mock_generator(monkeypatch, tmp_path, responses)
     result = generator.generate("a" * 40)
     assert result["accepted_count"] == 20
     assert len(calls) == 20
@@ -523,15 +545,15 @@ def test_mocked_twenty_slot_path_is_atomic_and_ordered(monkeypatch, tmp_path) ->
 
 def test_mocked_retry_is_same_slot_and_three_calls(monkeypatch, tmp_path) -> None:
     responses = [
-        ValueError("exact_conflict"),
-        ValueError("supplemental_structural_unsat"),
+        ValueError("supplemental_exact_duplicate_same_target"),
+        ValueError("supplemental_exact_duplicate_same_target"),
         {"slot_id": EXPECTED_TARGETS[0], "draft_role": "supplemental", "query_text": "ok"},
     ]
     responses.extend(
         {"slot_id": slot, "draft_role": "supplemental", "query_text": f"synthetic {i}"}
         for i, slot in enumerate(EXPECTED_TARGETS[1:], start=1)
     )
-    calls, _ = _mock_generator(monkeypatch, tmp_path, responses)
+    calls, _, prompts = _mock_generator(monkeypatch, tmp_path, responses)
     result = generator.generate("a" * 40)
     assert len(calls) == 22
     assert result["attempts"] == 22
@@ -540,6 +562,49 @@ def test_mocked_retry_is_same_slot_and_three_calls(monkeypatch, tmp_path) -> Non
         generator.derive_supplement_seed("gate3-v3r1-s20-supplement-v1", EXPECTED_TARGETS[0], n)
         for n in (1, 2, 3)
     ]
+    assert "Supplemental retry correction:" not in prompts[0]
+    assert "Supplemental retry correction:" in prompts[1]
+    assert "Supplemental retry correction:" in prompts[2]
+    assert prompts[1] != prompts[2]
+
+
+def test_actual_retry_path_with_other_error_has_no_feedback(monkeypatch, tmp_path) -> None:
+    responses = [
+        ValueError("supplemental_structural_unsat"),
+        {"slot_id": EXPECTED_TARGETS[0], "draft_role": "supplemental", "query_text": "ok"},
+    ]
+    responses.extend(
+        {"slot_id": slot, "draft_role": "supplemental", "query_text": f"synthetic {i}"}
+        for i, slot in enumerate(EXPECTED_TARGETS[1:], start=1)
+    )
+    _, _, prompts = _mock_generator(monkeypatch, tmp_path, responses)
+    generator.generate("a" * 40)
+    assert "Supplemental retry correction:" not in prompts[0]
+    assert "Supplemental retry correction:" not in prompts[1]
+
+
+def test_private_sentinel_stays_out_of_real_retry_path(monkeypatch, tmp_path, capsys) -> None:
+    class PrivateDuplicate(Exception):
+        pass
+
+    responses = [
+        PrivateDuplicate("PRIVATE_QUERY_SENTINEL"),
+        PrivateDuplicate("PRIVATE_QUERY_SENTINEL"),
+        {"slot_id": EXPECTED_TARGETS[0], "draft_role": "supplemental", "query_text": "ok"},
+    ]
+    responses.extend(
+        {"slot_id": slot, "draft_role": "supplemental", "query_text": f"synthetic {i}"}
+        for i, slot in enumerate(EXPECTED_TARGETS[1:], start=1)
+    )
+    monkeypatch.setattr(
+        generator,
+        "_stable_failure",
+        lambda _: ("format_safety_failure", "exact_duplicate_same_target"),
+    )
+    _, _, prompts = _mock_generator(monkeypatch, tmp_path, responses)
+    generator.generate("a" * 40)
+    captured = capsys.readouterr()
+    assert "PRIVATE_QUERY_SENTINEL" not in "".join(prompts) + captured.out + captured.err
 
 
 def test_mocked_terminal_failure_writes_only_sanitized_failure(monkeypatch, tmp_path) -> None:

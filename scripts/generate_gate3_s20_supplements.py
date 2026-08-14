@@ -119,6 +119,20 @@ def _load_retry_feedback(freeze: dict[str, Any]) -> dict[str, Any]:
     return contract
 
 
+def _retry_feedback_for_attempt(
+    history: list[dict[str, Any]], attempt: int, retry_feedback: dict[str, Any]
+) -> str | None:
+    if attempt not in (2, 3) or not history:
+        return None
+    previous = history[-1]
+    if (
+        previous.get("stable_error_code") != "format_safety_failure"
+        or previous.get("detail_code") != "exact_duplicate_same_target"
+    ):
+        return None
+    return retry_feedback["feedback"]["exact_duplicate_same_target"].get(str(attempt))
+
+
 def _load() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     freeze = json.loads(FREEZE.read_text(encoding="utf-8"))
     policy = yaml.safe_load(POLICY.read_text(encoding="utf-8"))
@@ -508,11 +522,7 @@ def generate(expected_head: str) -> dict[str, Any]:
             attempts += 1
             retries += int(attempt > 1)
             try:
-                feedback = None
-                if history and history[-1]["detail_code"] == "exact_duplicate_same_target":
-                    feedback = retry_feedback["feedback"]["exact_duplicate_same_target"].get(
-                        str(attempt)
-                    )
+                feedback = _retry_feedback_for_attempt(history, attempt, retry_feedback)
                 value = _model_request(
                     freeze, _prompt(slot, _profile_for(slot_id), feedback), seed, schema
                 )
