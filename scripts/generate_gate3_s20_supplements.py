@@ -18,6 +18,7 @@ import jsonschema
 import yaml
 
 try:
+    from scripts import verify_eval_split as split
     from scripts import verify_gate3_s20_supplemental_repair as validator
     from scripts.gate3_private_common import (
         ROOT,
@@ -36,6 +37,7 @@ except ModuleNotFoundError:  # pragma: no cover - direct script execution
     import sys
 
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    import verify_eval_split as split
     import verify_gate3_s20_supplemental_repair as validator
     from gate3_private_common import (
         ROOT,
@@ -66,6 +68,7 @@ SURFACE_PROFILES = ROOT / "config/gate3_surface_variation_profiles.yaml"
 TARGETS = ROOT / "config/gate3_s20_target_slots.json"
 RETRY_FEEDBACK = ROOT / "config/gate3_s20_retry_feedback.json"
 RETRY_SAMPLING = ROOT / "config/gate3_s20_retry_sampling.json"
+RETRY_STRUCTURE = ROOT / "config/gate3_s20_retry_structure.json"
 POOL_RELATIVE = "supplements/gate3_s20_supplement_pool.json"
 SEAL_RELATIVE = "supplements/gate3_s20_supplement_pool.seal.json"
 AUDIT_RELATIVE = "audit/gate3_s20_generation_audit.json"
@@ -127,6 +130,50 @@ def _load_retry_sampling(freeze: dict[str, Any]) -> dict[str, Any]:
     if freeze.get("retry_sampling_sha256") != file_sha256(RETRY_SAMPLING):
         raise RuntimeError("freeze_identity_mismatch:retry_sampling")
     return contract
+
+
+def _load_retry_structure(freeze: dict[str, Any]) -> dict[str, Any]:
+    contract = json.loads(RETRY_STRUCTURE.read_text(encoding="utf-8"))
+    if freeze.get("retry_structure_contract_id") != contract.get("contract_id"):
+        raise RuntimeError("freeze_identity_mismatch:retry_structure_contract")
+    if freeze.get("retry_structure_sha256") != file_sha256(RETRY_STRUCTURE):
+        raise RuntimeError("freeze_identity_mismatch:retry_structure")
+    return contract
+
+
+def canonical_word_count(text: str) -> int:
+    return len(split.canonical_text(text).split())
+
+
+def _retry_structure_instruction_for_attempt(
+    history: list[dict[str, Any]],
+    slot_id: str,
+    attempt: int,
+    retry_structure: dict[str, Any],
+) -> dict[str, Any] | None:
+    if slot_id not in retry_structure.get("scope_slot_ids", ()) or attempt not in (2, 3):
+        return None
+    trigger = retry_structure["trigger"]
+    active = any(
+        entry.get("stable_error_code") == trigger["stable_error_code"]
+        and entry.get("detail_code") == trigger["detail_code"]
+        for entry in history
+    )
+    if not active:
+        return None
+    return retry_structure["attempt_envelopes"].get(str(attempt))
+
+
+def _enforce_retry_structure(value: dict[str, Any], envelope: dict[str, Any] | None) -> None:
+    if envelope is None:
+        return
+    count = canonical_word_count(value["query_text"])
+    if not (
+        envelope["minimum_canonical_words"]
+        <= count
+        <= envelope["maximum_canonical_words"]
+    ):
+        raise ValueError("supplement_retry_structure_out_of_band")
 
 
 def _retry_feedback_for_attempt(
@@ -213,7 +260,10 @@ def _profile_for(slot_id: str) -> dict[str, Any]:
 
 
 def _prompt(
-    slot: dict[str, Any], profile: dict[str, Any], retry_feedback: str | None = None
+    slot: dict[str, Any],
+    profile: dict[str, Any],
+    retry_feedback: str | None = None,
+    retry_structure: str | None = None,
 ) -> str:
     metadata = json.dumps(slot, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     prompt = (
@@ -228,6 +278,8 @@ def _prompt(
     )
     if retry_feedback:
         prompt += "\nSupplemental retry correction:\n" + retry_feedback + "\n"
+    if retry_structure:
+        prompt += "\nSupplemental retry structure correction:\n" + retry_structure + "\n"
     return prompt
 
 
@@ -334,6 +386,10 @@ def _stable_failure(exc: BaseException) -> tuple[str, str]:
         "supplemental_structural_unsat": ("format_safety_failure", "supplemental_structural_unsat"),
         "supplement_identity_invalid": ("format_safety_failure", "identity_mismatch"),
         "supplement_same_target_conflict": ("format_safety_failure", "exact_duplicate_same_target"),
+        "supplement_retry_structure_out_of_band": (
+            "format_safety_failure",
+            "retry_structure_out_of_band",
+        ),
         "runtime_worktree_not_clean": ("preflight_failure", "worktree_not_clean"),
         "runtime_head_mismatch": ("preflight_failure", "head_mismatch"),
         "runtime_expected_head_invalid": ("preflight_failure", "expected_head_invalid"),
@@ -432,11 +488,11 @@ def _verify_event2_contract(
             raise RuntimeError("freeze_identity_mismatch:audit_path")
 
 
-def _verify_event4_contract(freeze: dict[str, Any]) -> None:
+def _verify_event5_contract(freeze: dict[str, Any]) -> None:
     expected = {
-        "generation_event_ordinal": 4,
-        "run_version": "gate3-b1-v3r1-s20-event4",
-        "source_version": "cwalts-custom-v0.4-gate3-v3r1-s20-event4",
+        "generation_event_ordinal": 5,
+        "run_version": "gate3-b1-v3r1-s20-event5",
+        "source_version": "cwalts-custom-v0.4-gate3-v3r1-s20-event5",
         "event1_failed_activation_commit": "558988d34985d4b0c24103d6a331e939caba701c",
         "event1_failure_audit_relative": "audit/gate3_s20_generation_failure.json",
         "event1_failure_audit_sha256": (
@@ -452,7 +508,12 @@ def _verify_event4_contract(freeze: dict[str, Any]) -> None:
         "event3_failure_audit_sha256": (
             "5284e74ef1c2ae80b66d010a516401e048b97c07916ac12d53ca43b9ff473470"
         ),
+        "event4_failed_activation_commit": "66b3c6e6bc5cb902802dd7caaf59f13c7cbeb071",
         "event4_failure_audit_relative": "audit/gate3_s20_generation_failure_event4.json",
+        "event4_failure_audit_sha256": (
+            "e664c5a5e5449261dad05c736eea349c385d0f4ad5ef3ae0bacf67b1d0d1bb59"
+        ),
+        "event5_failure_audit_relative": "audit/gate3_s20_generation_failure_event5.json",
     }
     if any(freeze.get(key) != value for key, value in expected.items()):
         raise RuntimeError("freeze_identity_mismatch:event_contract")
@@ -461,6 +522,7 @@ def _verify_event4_contract(freeze: dict[str, Any]) -> None:
         "event2_failure_audit_relative",
         "event3_failure_audit_relative",
         "event4_failure_audit_relative",
+        "event5_failure_audit_relative",
     ):
         if not _safe_audit_relative(freeze[key]):
             raise RuntimeError("freeze_identity_mismatch:audit_path")
@@ -481,11 +543,12 @@ def _guard_event2_state(freeze: dict[str, Any]) -> None:
             raise RuntimeError("supplement_artifact_preexists")
 
 
-def _guard_event4_state(freeze: dict[str, Any]) -> None:
+def _guard_event5_state(freeze: dict[str, Any]) -> None:
     for relative, digest in (
         (freeze["event1_failure_audit_relative"], freeze["event1_failure_audit_sha256"]),
         (freeze["event2_failure_audit_relative"], freeze["event2_failure_audit_sha256"]),
         (freeze["event3_failure_audit_relative"], freeze["event3_failure_audit_sha256"]),
+        (freeze["event4_failure_audit_relative"], freeze["event4_failure_audit_sha256"]),
     ):
         historical = resolve_private_path(relative)
         if not historical.exists() or file_sha256(historical) != digest:
@@ -494,10 +557,29 @@ def _guard_event4_state(freeze: dict[str, Any]) -> None:
         POOL_RELATIVE,
         SEAL_RELATIVE,
         AUDIT_RELATIVE,
-        freeze["event4_failure_audit_relative"],
+        freeze["event5_failure_audit_relative"],
     ):
         if resolve_private_path(relative).exists():
             raise RuntimeError("supplement_artifact_preexists")
+
+
+def _verify_retry_structure_base_disjointness(
+    freeze: dict[str, Any], retry_structure: dict[str, Any]
+) -> None:
+    pool = resolve_private_path("drafts/gate3_private_draft_pool.json")
+    if file_sha256(pool) != freeze["source_pool_sha256"]:
+        raise RuntimeError("freeze_identity_mismatch:source_pool")
+    records = json.loads(pool.read_text(encoding="utf-8"))["records"]
+    target_records = [record for record in records if record.get("slot_id") == "G3S-0106"]
+    if len(target_records) != 2:
+        raise RuntimeError("freeze_identity_mismatch:retry_structure_base")
+    counts = {canonical_word_count(record["query_text"]) for record in target_records}
+    for envelope in retry_structure["attempt_envelopes"].values():
+        if any(
+            envelope["minimum_canonical_words"] <= count <= envelope["maximum_canonical_words"]
+            for count in counts
+        ):
+            raise RuntimeError("freeze_identity_mismatch:retry_structure_overlap")
 
 
 def _write_failure(
@@ -528,7 +610,7 @@ def _write_failure(
         "query_text_recorded": False,
         "raw_response_recorded": False,
     }
-    path = resolve_private_path(freeze["event4_failure_audit_relative"])
+    path = resolve_private_path(freeze["event5_failure_audit_relative"])
     atomic_write_bytes(path, (json.dumps(payload, sort_keys=True, indent=2) + "\n").encode())
 
 
@@ -541,8 +623,10 @@ def generate(expected_head: str) -> dict[str, Any]:
     schema = _load_schema(freeze)
     retry_feedback = _load_retry_feedback(freeze)
     retry_sampling = _load_retry_sampling(freeze)
-    _verify_event4_contract(freeze)
-    _guard_event4_state(freeze)
+    retry_structure = _load_retry_structure(freeze)
+    _verify_event5_contract(freeze)
+    _guard_event5_state(freeze)
+    _verify_retry_structure_base_disjointness(freeze, retry_structure)
     require_loopback(freeze["endpoint"])
     verify_model_identity(
         {
@@ -567,9 +651,17 @@ def generate(expected_head: str) -> dict[str, Any]:
             try:
                 feedback = _retry_feedback_for_attempt(history, attempt, retry_feedback)
                 temperature = _retry_temperature_for_attempt(history, attempt, retry_sampling)
+                structure = _retry_structure_instruction_for_attempt(
+                    history, slot_id, attempt, retry_structure
+                )
                 value = _model_request(
                     freeze,
-                    _prompt(slot, _profile_for(slot_id), feedback),
+                    _prompt(
+                        slot,
+                        _profile_for(slot_id),
+                        feedback,
+                        structure["instruction"] if structure else None,
+                    ),
                     seed,
                     schema,
                     temperature,
@@ -577,6 +669,7 @@ def generate(expected_head: str) -> dict[str, Any]:
                 jsonschema.validate(value, schema)
                 if value["slot_id"] != slot_id or value["draft_role"] != "supplemental":
                     raise ValueError("supplement_identity_invalid")
+                _enforce_retry_structure(value, structure)
                 validate_draft(
                     {"slot_id": slot_id, "draft_role": "primary", "query_text": value["query_text"]}
                 )
@@ -661,6 +754,8 @@ def generate(expected_head: str) -> dict[str, Any]:
         "retry_feedback_sha256": freeze["retry_feedback_sha256"],
         "retry_sampling_contract_id": freeze["retry_sampling_contract_id"],
         "retry_sampling_sha256": freeze["retry_sampling_sha256"],
+        "retry_structure_contract_id": freeze["retry_structure_contract_id"],
+        "retry_structure_sha256": freeze["retry_structure_sha256"],
         "parameter_hash": freeze["parameter_hash"],
         "model": freeze["model"],
         "model_tag_digest": freeze["model_tag_digest"],

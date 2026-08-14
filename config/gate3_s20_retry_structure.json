@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "contract_id": "gate3-v3r1-s20-g3s0106-word-envelope-v1",
+  "scope_slot_ids": ["G3S-0106"],
+  "trigger": {
+    "stable_error_code": "format_safety_failure",
+    "detail_code": "exact_duplicate_same_target"
+  },
+  "activation_mode": "sticky_slot_local_after_trigger",
+  "attempt_envelopes": {
+    "2": {
+      "minimum_canonical_words": 16,
+      "maximum_canonical_words": 22,
+      "instruction": "Use one natural realization of 16 through 22 words. Preserve exactly the supplied task, intent, constraints, register, and requested operation. Do not add facts, remove requirements, or add another task."
+    },
+    "3": {
+      "minimum_canonical_words": 23,
+      "maximum_canonical_words": 30,
+      "instruction": "Use one natural realization of 23 through 30 words. Preserve exactly the supplied task, intent, constraints, register, and requested operation. Do not add facts, remove requirements, or add another task."
+    }
+  }
+}
