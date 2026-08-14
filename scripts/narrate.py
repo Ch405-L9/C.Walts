@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from natural_flow_rag.runtime import NarrationRuntime  # noqa: E402
 from natural_flow_rag.settings import load_settings  # noqa: E402
 from natural_flow_rag.tts.audio import AudioSynthesisService  # noqa: E402
+from natural_flow_rag.tts.base import TTSRequestError  # noqa: E402
 from natural_flow_rag.tts.elevenlabs import (  # noqa: E402
     ElevenLabsAdapter,
     ElevenLabsConfig,
@@ -97,14 +98,34 @@ def main() -> int:
         return 0
     adapter = ElevenLabsAdapter(config)
     adapter.validate_configuration()
-    result = service.synthesize(
-        plan,
-        args.output,
-        config.voice_id or "",
-        config.model_id,
-        config.output_format,
-        args.with_timestamps,
-    )
+    try:
+        result = service.synthesize(
+            plan,
+            args.output,
+            config.voice_id or "",
+            config.model_id,
+            config.output_format,
+            args.with_timestamps,
+        )
+    except TTSRequestError as exc:
+        summary.update(
+            {
+                "http_status": exc.http_status,
+                "provider_error_type": exc.provider_error_type,
+                "provider_status": exc.provider_status,
+                "provider_message": exc.provider_message,
+                "request_id": exc.request_id,
+                "retryable": exc.retryable,
+            }
+        )
+        if args.json_summary:
+            print(json.dumps(summary, ensure_ascii=False, indent=2))
+        else:
+            print(
+                "tts_error status={http_status} provider_status={provider_status} "
+                "retryable={retryable}".format(**summary)
+            )
+        return 2
     summary.update(
         {
             "output": str(result.output_path),

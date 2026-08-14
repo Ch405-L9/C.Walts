@@ -14,11 +14,23 @@ class TTSRequestError(RuntimeError):
     """Sanitized provider request failure."""
 
     def __init__(
-        self, status_code: int | None, retryable: bool, message: str = "tts request failed"
+        self,
+        status_code: int | None,
+        retryable: bool,
+        message: str = "tts request failed",
+        provider_error_type: str | None = None,
+        provider_status: str | None = None,
+        provider_message: str | None = None,
+        request_id: str | None = None,
     ):
         super().__init__(message)
+        self.http_status = status_code
         self.status_code = status_code
         self.retryable = retryable
+        self.provider_error_type = provider_error_type
+        self.provider_status = provider_status
+        self.provider_message = provider_message
+        self.request_id = request_id
 
 
 class TTSAudioError(RuntimeError):

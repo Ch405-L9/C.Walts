@@ -2,16 +2,20 @@
 
 from __future__ import annotations
 
+import io
+import json
+import urllib.error
 from pathlib import Path
 
 import pytest
 
 import natural_flow_rag.tts.audio as audio_module
+import natural_flow_rag.tts.elevenlabs as elevenlabs_module
 from natural_flow_rag.narration import NarrationSegment
 from natural_flow_rag.runtime import NarrationRuntime
 from natural_flow_rag.tts.audio import AudioSynthesisService, cache_key, chunk_segments
 from natural_flow_rag.tts.base import TTSRequest, TTSRequestError, TTSResult
-from natural_flow_rag.tts.elevenlabs import ElevenLabsConfig, map_plan_to_request
+from natural_flow_rag.tts.elevenlabs import ElevenLabsAdapter, ElevenLabsConfig, map_plan_to_request
 
 
 class MockAdapter:
@@ -151,3 +155,74 @@ def test_missing_configuration_is_concise() -> None:
 def test_provider_error_does_not_include_secret() -> None:
     error = TTSRequestError(401, False)
     assert "redacted-test-marker" not in str(error)
+
+
+@pytest.mark.parametrize(
+    ("status_code", "provider_status", "provider_message", "retryable"),
+    [
+        (403, "insufficient_permissions", "Text to Speech permission required", False),
+        (402, "quota_exceeded", "Account quota is exhausted", False),
+        (400, "validation_error", "Invalid output format", False),
+        (401, "invalid_api_key", "The API key is invalid", False),
+        (429, "rate_limit_exceeded", "Too many requests", True),
+    ],
+)
+def test_http_error_parsing_is_sanitized(
+    status_code: int,
+    provider_status: str,
+    provider_message: str,
+    retryable: bool,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    payload = json.dumps(
+        {
+            "error_type": "provider_error",
+            "detail": {"status": provider_status, "message": provider_message},
+            "request_text": "PRIVATE_QUERY_SENTINEL",
+        }
+    ).encode()
+
+    def fail(*args, **kwargs):
+        raise urllib.error.HTTPError(
+            "https://api.example.test",
+            status_code,
+            "provider failure",
+            {"request-id": "request-123"},
+            io.BytesIO(payload),
+        )
+
+    monkeypatch.setattr(elevenlabs_module.urllib.request, "urlopen", fail)
+    adapter = ElevenLabsAdapter(ElevenLabsConfig("secret-api-key", "voice"))
+    request = TTSRequest("PRIVATE_QUERY_SENTINEL", "voice", "model", "format")
+    with pytest.raises(TTSRequestError) as raised:
+        adapter.synthesize(request)
+    error = raised.value
+    assert error.http_status == status_code
+    assert error.provider_error_type == "provider_error"
+    assert error.provider_status == provider_status
+    assert error.provider_message == provider_message
+    assert error.request_id == "request-123"
+    assert error.retryable is retryable
+    assert "secret-api-key" not in str(error)
+    assert "PRIVATE_QUERY_SENTINEL" not in str(error)
+
+
+def test_unparseable_http_error_is_not_dumped(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fail(*args, **kwargs):
+        raise urllib.error.HTTPError(
+            "https://api.example.test",
+            422,
+            "provider failure",
+            {},
+            io.BytesIO(b"PRIVATE_QUERY_SENTINEL raw response"),
+        )
+
+    monkeypatch.setattr(elevenlabs_module.urllib.request, "urlopen", fail)
+    adapter = ElevenLabsAdapter(ElevenLabsConfig("secret-api-key", "voice"))
+    with pytest.raises(TTSRequestError) as raised:
+        adapter.synthesize(TTSRequest("PRIVATE_QUERY_SENTINEL", "voice", "model", "format"))
+    error = raised.value
+    assert error.http_status == 422
+    assert error.provider_status == "unparseable_provider_error"
+    assert error.provider_message is None
+    assert error.retryable is False

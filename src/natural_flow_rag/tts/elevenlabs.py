@@ -170,7 +170,7 @@ class ElevenLabsAdapter:
                 content_type = response.headers.get("Content-Type", "audio/mpeg")
                 request_id = response.headers.get("request-id")
         except urllib.error.HTTPError as exc:
-            raise TTSRequestError(exc.code, exc.code == 429 or exc.code >= 500) from None
+            raise _sanitized_http_error(exc, request.text, self.config.api_key) from None
         except (urllib.error.URLError, TimeoutError):
             raise TTSRequestError(None, True) from None
         if request.with_timestamps:
@@ -182,6 +182,48 @@ class ElevenLabsAdapter:
                 raise TTSRequestError(None, False, "invalid timestamp response") from None
             return TTSResult(audio, "audio/mpeg", alignment, request_id)
         return TTSResult(raw, content_type, None, request_id)
+
+
+def _safe_provider_text(value: Any, forbidden: tuple[str, ...]) -> str | None:
+    if not isinstance(value, str) or not value:
+        return None
+    if any(secret and secret in value for secret in forbidden):
+        return "provider_error_message_redacted"
+    return value[:240]
+
+
+def _sanitized_http_error(
+    error: urllib.error.HTTPError,
+    request_text: str,
+    api_key: str | None,
+) -> TTSRequestError:
+    body = error.read()
+    provider_error_type = None
+    provider_status = None
+    provider_message = None
+    try:
+        data = json.loads(body.decode("utf-8"))
+        detail = data.get("detail") if isinstance(data, dict) else None
+        forbidden = (api_key or "", request_text)
+        provider_error_type = _safe_provider_text(
+            data.get("error_type") if isinstance(data, dict) else None,
+            forbidden,
+        )
+        if isinstance(detail, dict):
+            provider_status = _safe_provider_text(detail.get("status"), forbidden)
+            provider_message = _safe_provider_text(detail.get("message"), forbidden)
+        elif isinstance(detail, str):
+            provider_message = _safe_provider_text(detail, forbidden)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        provider_status = "unparseable_provider_error"
+    return TTSRequestError(
+        status_code=error.code,
+        retryable=error.code == 429 or error.code >= 500,
+        provider_error_type=provider_error_type,
+        provider_status=provider_status,
+        provider_message=provider_message,
+        request_id=error.headers.get("request-id") if error.headers else None,
+    )
 
 
 def map_plan_to_request(
