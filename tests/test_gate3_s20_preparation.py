@@ -342,22 +342,45 @@ def test_event3_guard_uses_freeze_history_authority(monkeypatch, tmp_path) -> No
 @pytest.mark.parametrize(
     "key, value",
     [
-        ("event1_failure_audit_relative", "../escape.json"),
-        ("event1_failure_audit_relative", "/a/b.json"),
-        ("event2_failure_audit_relative", "audit/../../escape.json"),
-        ("event3_failure_audit_relative", ""),
+        (key, value)
+        for key in (
+            "event1_failure_audit_relative",
+            "event2_failure_audit_relative",
+            "event3_failure_audit_relative",
+        )
+        for value in ("../escape.json", "/a/b.json", "audit/../../escape.json", "")
     ],
 )
-def test_event_audit_paths_fail_closed(monkeypatch, key, value) -> None:
+def test_event_audit_paths_fail_closed(key, value) -> None:
     freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
     freeze[key] = value
-    with pytest.raises(RuntimeError, match="freeze_identity_mismatch"):
-        generator._verify_event3_contract(freeze)
+    assert generator._safe_audit_relative(freeze[key]) is False
 
 
 def test_all_canonical_event_audit_paths_are_safe() -> None:
     freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
+    for key in (
+        "event1_failure_audit_relative",
+        "event2_failure_audit_relative",
+        "event3_failure_audit_relative",
+    ):
+        assert generator._safe_audit_relative(freeze[key]) is True
     generator._verify_event3_contract(freeze)
+
+
+@pytest.mark.parametrize(
+    "key",
+    [
+        "event1_failure_audit_relative",
+        "event2_failure_audit_relative",
+        "event3_failure_audit_relative",
+    ],
+)
+def test_event_contract_identity_precedes_path_safety(key) -> None:
+    freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
+    freeze[key] = "../escape.json"
+    with pytest.raises(RuntimeError, match="freeze_identity_mismatch:event_contract"):
+        generator._verify_event3_contract(freeze)
 
 
 def test_event_contract_values_fail_closed() -> None:
@@ -441,6 +464,36 @@ def test_generate_rejects_altered_event_history_before_model(monkeypatch, field,
         generator, "require_loopback", lambda _: pytest.fail("model preflight reached")
     )
     monkeypatch.setattr(generator, "verify_model_identity", lambda _: pytest.fail("model reached"))
+    with pytest.raises(RuntimeError, match="freeze_identity_mismatch:event_contract"):
+        generator.generate("a" * 40)
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "event1_failure_audit_relative",
+        "event2_failure_audit_relative",
+        "event3_failure_audit_relative",
+    ],
+)
+def test_generate_rejects_unsafe_event_paths_before_model(monkeypatch, field) -> None:
+    freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
+    freeze[field] = "../escape.json"
+    monkeypatch.setattr(generator, "authorization_status", lambda: {"ok": True})
+    monkeypatch.setattr(generator, "_runtime_state", lambda _: None)
+    monkeypatch.setattr(
+        generator,
+        "_load",
+        lambda: (freeze, {"supplement_policy_id": "x"}, {"slots": []}),
+    )
+    monkeypatch.setattr(generator, "_load_schema", lambda _: {})
+    monkeypatch.setattr(
+        generator, "require_loopback", lambda _: pytest.fail("model preflight reached")
+    )
+    monkeypatch.setattr(generator, "verify_model_identity", lambda _: pytest.fail("model reached"))
+    monkeypatch.setattr(
+        generator, "_model_request", lambda *_: pytest.fail("model request reached")
+    )
     with pytest.raises(RuntimeError, match="freeze_identity_mismatch:event_contract"):
         generator.generate("a" * 40)
 
