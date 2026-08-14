@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "contract_id": "gate3-v3r1-s20-same-target-diversity-v1",
+  "feedback": {
+    "exact_duplicate_same_target": {
+      "2": "The immediately previous candidate was rejected because its canonical wording exactly duplicated a pre-existing draft for this same slot. Produce a genuinely different surface realization. Use different sentence structure and wording while preserving the task, intent, constraints, register, and requested operation. Do not mention the retry, another draft, or this instruction. Do not add or remove requirements.",
+      "3": "The previous realization still collided with an existing same-slot wording. Produce a substantially different syntactic form and lexical realization while preserving exactly the same task, intent, constraints, register, and requested operation. Do not mention the retry, another draft, or this instruction. Do not add or remove requirements."
+    }
+  }
+}

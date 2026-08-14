@@ -64,6 +64,7 @@ SLOTS = ROOT / "config/gate3_custom_authoring_slots.yaml"
 SURFACE_ASSIGNMENT = ROOT / "config/gate3_s20_surface_assignment.json"
 SURFACE_PROFILES = ROOT / "config/gate3_surface_variation_profiles.yaml"
 TARGETS = ROOT / "config/gate3_s20_target_slots.json"
+RETRY_FEEDBACK = ROOT / "config/gate3_s20_retry_feedback.json"
 POOL_RELATIVE = "supplements/gate3_s20_supplement_pool.json"
 SEAL_RELATIVE = "supplements/gate3_s20_supplement_pool.seal.json"
 AUDIT_RELATIVE = "audit/gate3_s20_generation_audit.json"
@@ -109,6 +110,15 @@ def _load_schema(freeze: dict[str, Any]) -> dict[str, Any]:
     return schema
 
 
+def _load_retry_feedback(freeze: dict[str, Any]) -> dict[str, Any]:
+    contract = json.loads(RETRY_FEEDBACK.read_text(encoding="utf-8"))
+    if freeze.get("retry_feedback_contract_id") != contract.get("contract_id"):
+        raise RuntimeError("freeze_identity_mismatch:retry_feedback_contract")
+    if freeze.get("retry_feedback_sha256") != file_sha256(RETRY_FEEDBACK):
+        raise RuntimeError("freeze_identity_mismatch:retry_feedback")
+    return contract
+
+
 def _load() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     freeze = json.loads(FREEZE.read_text(encoding="utf-8"))
     policy = yaml.safe_load(POLICY.read_text(encoding="utf-8"))
@@ -120,6 +130,7 @@ def _load() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
         "supplement_validator_sha256": Path(validator.__file__),
         "supplement_policy_sha256": POLICY,
         "supplement_instruction_sha256": PROMPT,
+        "retry_feedback_sha256": RETRY_FEEDBACK,
         "supplement_schema_sha256": SCHEMA,
         "surface_profile_sha256": SURFACE_PROFILES,
         "supplement_surface_assignment_sha256": SURFACE_ASSIGNMENT,
@@ -161,9 +172,11 @@ def _profile_for(slot_id: str) -> dict[str, Any]:
     }
 
 
-def _prompt(slot: dict[str, Any], profile: dict[str, Any]) -> str:
+def _prompt(
+    slot: dict[str, Any], profile: dict[str, Any], retry_feedback: str | None = None
+) -> str:
     metadata = json.dumps(slot, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-    return (
+    prompt = (
         BASE_PROMPT.read_text(encoding="utf-8").rstrip()
         + "\n\nSupplemental-20 instruction layer:\n"
         + PROMPT.read_text(encoding="utf-8").rstrip()
@@ -173,6 +186,9 @@ def _prompt(slot: dict[str, Any], profile: dict[str, Any]) -> str:
         + metadata
         + "\n"
     )
+    if retry_feedback:
+        prompt += "\nSupplemental retry correction:\n" + retry_feedback + "\n"
+    return prompt
 
 
 def _model_request(
@@ -372,6 +388,29 @@ def _verify_event2_contract(
             raise RuntimeError("freeze_identity_mismatch:audit_path")
 
 
+def _verify_event3_contract(freeze: dict[str, Any]) -> None:
+    expected = {
+        "generation_event_ordinal": 3,
+        "run_version": "gate3-b1-v3r1-s20-event3",
+        "source_version": "cwalts-custom-v0.4-gate3-v3r1-s20-event3",
+        "event1_failed_activation_commit": "558988d34985d4b0c24103d6a331e939caba701c",
+        "event1_failure_audit_relative": "audit/gate3_s20_generation_failure.json",
+        "event1_failure_audit_sha256": (
+            "b2bce6ed92f21fa7d73baab6540d104883082b44c986ea186226f8a33248e390"
+        ),
+        "event2_failed_activation_commit": "1c9030b0c6a12489f1879a45ba2bd2cf0923334f",
+        "event2_failure_audit_relative": "audit/gate3_s20_generation_failure_event2.json",
+        "event2_failure_audit_sha256": (
+            "5449448fcc0e033f9ed64db0187ed1f4bdb81133378f73ad59dc7af953064cda"
+        ),
+        "event3_failure_audit_relative": "audit/gate3_s20_generation_failure_event3.json",
+    }
+    if any(freeze.get(key) != value for key, value in expected.items()):
+        raise RuntimeError("freeze_identity_mismatch:event_contract")
+    if not _safe_audit_relative(freeze["event3_failure_audit_relative"]):
+        raise RuntimeError("freeze_identity_mismatch:audit_path")
+
+
 def _guard_event2_state(freeze: dict[str, Any]) -> None:
     _verify_event2_contract(freeze, verify_history_identity=False)
     historical = resolve_private_path(freeze["prior_failure_audit_relative"])
@@ -387,6 +426,24 @@ def _guard_event2_state(freeze: dict[str, Any]) -> None:
             raise RuntimeError("supplement_artifact_preexists")
 
 
+def _guard_event3_state(freeze: dict[str, Any]) -> None:
+    for relative, digest in (
+        (freeze["event1_failure_audit_relative"], freeze["event1_failure_audit_sha256"]),
+        (freeze["event2_failure_audit_relative"], freeze["event2_failure_audit_sha256"]),
+    ):
+        historical = resolve_private_path(relative)
+        if not historical.exists() or file_sha256(historical) != digest:
+            raise RuntimeError("prior_failure_audit_mismatch")
+    for relative in (
+        POOL_RELATIVE,
+        SEAL_RELATIVE,
+        AUDIT_RELATIVE,
+        freeze["event3_failure_audit_relative"],
+    ):
+        if resolve_private_path(relative).exists():
+            raise RuntimeError("supplement_artifact_preexists")
+
+
 def _write_failure(
     slot_id: str,
     attempt: int,
@@ -396,9 +453,11 @@ def _write_failure(
     expected_head: str,
     error: tuple[str, str],
     freeze: dict[str, Any],
+    total_attempts: int,
+    total_retries: int,
 ) -> None:
     payload = {
-        "schema_version": 1,
+        "schema_version": 2,
         "run_version": freeze["run_version"],
         "generation_activation_commit": expected_head,
         "slot_id": slot_id,
@@ -407,11 +466,13 @@ def _write_failure(
         "stable_error_code": error[0],
         "detail_code": error[1],
         "accepted_supplement_count": accepted,
+        "total_attempts": total_attempts,
+        "total_retries": total_retries,
         "attempt_history": history,
         "query_text_recorded": False,
         "raw_response_recorded": False,
     }
-    path = resolve_private_path(freeze["event2_failure_audit_relative"])
+    path = resolve_private_path(freeze["event3_failure_audit_relative"])
     atomic_write_bytes(path, (json.dumps(payload, sort_keys=True, indent=2) + "\n").encode())
 
 
@@ -422,8 +483,9 @@ def generate(expected_head: str) -> dict[str, Any]:
     _runtime_state(expected_head)
     freeze, policy, slots_payload = _load()
     schema = _load_schema(freeze)
-    _verify_event2_contract(freeze)
-    _guard_event2_state(freeze)
+    retry_feedback = _load_retry_feedback(freeze)
+    _verify_event3_contract(freeze)
+    _guard_event3_state(freeze)
     require_loopback(freeze["endpoint"])
     verify_model_identity(
         {
@@ -446,7 +508,14 @@ def generate(expected_head: str) -> dict[str, Any]:
             attempts += 1
             retries += int(attempt > 1)
             try:
-                value = _model_request(freeze, _prompt(slot, _profile_for(slot_id)), seed, schema)
+                feedback = None
+                if history and history[-1]["detail_code"] == "exact_duplicate_same_target":
+                    feedback = retry_feedback["feedback"]["exact_duplicate_same_target"].get(
+                        str(attempt)
+                    )
+                value = _model_request(
+                    freeze, _prompt(slot, _profile_for(slot_id), feedback), seed, schema
+                )
                 jsonschema.validate(value, schema)
                 if value["slot_id"] != slot_id or value["draft_role"] != "supplemental":
                     raise ValueError("supplement_identity_invalid")
@@ -468,6 +537,9 @@ def generate(expected_head: str) -> dict[str, Any]:
                     }
                 )
                 if attempt == 3:
+                    targets_touched = len(accepted) + 1
+                    if retries != attempts - targets_touched:
+                        raise RuntimeError("failure_accounting_invariant") from None
                     _write_failure(
                         slot_id,
                         attempt,
@@ -477,6 +549,8 @@ def generate(expected_head: str) -> dict[str, Any]:
                         expected_head,
                         error,
                         freeze,
+                        attempts,
+                        retries,
                     )
                     raise RuntimeError("supplement_generation_failed") from None
     if len(accepted) != 20:
@@ -498,6 +572,8 @@ def generate(expected_head: str) -> dict[str, Any]:
         "generation_activation_commit": expected_head,
         "target_count": 20,
         "accepted_count": 20,
+        "generation_event_ordinal": freeze["generation_event_ordinal"],
+        "source_version": freeze["source_version"],
         "attempts": attempts,
         "retries": retries,
         "query_text_recorded": False,
@@ -523,6 +599,8 @@ def generate(expected_head: str) -> dict[str, Any]:
         "surface_profile_sha256": freeze["surface_profile_sha256"],
         "supplement_surface_assignment_sha256": freeze["supplement_surface_assignment_sha256"],
         "supplement_schema_sha256": freeze["supplement_schema_sha256"],
+        "retry_feedback_contract_id": freeze["retry_feedback_contract_id"],
+        "retry_feedback_sha256": freeze["retry_feedback_sha256"],
         "parameter_hash": freeze["parameter_hash"],
         "model": freeze["model"],
         "model_tag_digest": freeze["model_tag_digest"],
