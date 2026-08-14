@@ -391,6 +391,35 @@ def test_event4_guard_requires_all_historical_failures(
 
 
 @pytest.mark.parametrize(
+    "field, filename",
+    [
+        ("event1_failure_audit_relative", "gate3_s20_generation_failure.json"),
+        ("event2_failure_audit_relative", "gate3_s20_generation_failure_event2.json"),
+        ("event3_failure_audit_relative", "gate3_s20_generation_failure_event3.json"),
+    ],
+)
+@pytest.mark.parametrize("altered", [None, b"altered historical evidence\n"])
+def test_event4_guard_rejects_missing_or_altered_historical_audits(
+    monkeypatch, tmp_path, field, filename, altered
+) -> None:
+    for source in (
+        "gate3_s20_generation_failure.json",
+        "gate3_s20_generation_failure_event2.json",
+        "gate3_s20_generation_failure_event3.json",
+    ):
+        source_path = ROOT / "var/eval_sources/custom/audit" / source
+        (tmp_path / source).write_bytes(source_path.read_bytes())
+    if altered is None:
+        (tmp_path / filename).unlink()
+    else:
+        (tmp_path / filename).write_bytes(altered)
+    monkeypatch.setattr(generator, "resolve_private_path", lambda rel: tmp_path / Path(rel).name)
+    freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
+    with pytest.raises(RuntimeError, match="prior_failure_audit_mismatch"):
+        generator._guard_event4_state(freeze)
+
+
+@pytest.mark.parametrize(
     "key, value",
     [
         (key, value)
@@ -398,6 +427,7 @@ def test_event4_guard_requires_all_historical_failures(
             "event1_failure_audit_relative",
             "event2_failure_audit_relative",
             "event3_failure_audit_relative",
+            "event4_failure_audit_relative",
         )
         for value in ("../escape.json", "/a/b.json", "audit/../../escape.json", "")
     ],
@@ -414,6 +444,7 @@ def test_all_canonical_event_audit_paths_are_safe() -> None:
         "event1_failure_audit_relative",
         "event2_failure_audit_relative",
         "event3_failure_audit_relative",
+        "event4_failure_audit_relative",
     ):
         assert generator._safe_audit_relative(freeze[key]) is True
     generator._verify_event4_contract(freeze)
@@ -425,6 +456,7 @@ def test_all_canonical_event_audit_paths_are_safe() -> None:
         "event1_failure_audit_relative",
         "event2_failure_audit_relative",
         "event3_failure_audit_relative",
+        "event4_failure_audit_relative",
     ],
 )
 def test_event_contract_identity_precedes_path_safety(key) -> None:
@@ -441,6 +473,8 @@ def test_event_contract_values_fail_closed() -> None:
         "run_version",
         "source_version",
         "event1_failed_activation_commit",
+        "event2_failed_activation_commit",
+        "event3_failed_activation_commit",
     ):
         altered = dict(freeze, **{key: "wrong"})
         with pytest.raises(RuntimeError, match="freeze_identity_mismatch"):
@@ -530,6 +564,36 @@ def test_generate_rejects_altered_event_history_before_model(monkeypatch, field,
         generator, "require_loopback", lambda _: pytest.fail("model preflight reached")
     )
     monkeypatch.setattr(generator, "verify_model_identity", lambda _: pytest.fail("model reached"))
+    with pytest.raises(RuntimeError, match="freeze_identity_mismatch:event_contract"):
+        generator.generate("a" * 40)
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "event1_failed_activation_commit",
+        "event2_failed_activation_commit",
+        "event3_failed_activation_commit",
+    ],
+)
+def test_generate_rejects_altered_historical_activation_before_model(monkeypatch, field) -> None:
+    freeze = json.loads((ROOT / "config/gate3_s20_generation_freeze.json").read_text())
+    freeze[field] = "0" * 40
+    monkeypatch.setattr(generator, "authorization_status", lambda: {"ok": True})
+    monkeypatch.setattr(generator, "_runtime_state", lambda _: None)
+    monkeypatch.setattr(
+        generator,
+        "_load",
+        lambda: (freeze, {"supplement_policy_id": "x"}, {"slots": []}),
+    )
+    monkeypatch.setattr(generator, "_load_schema", lambda _: {})
+    monkeypatch.setattr(
+        generator, "require_loopback", lambda _: pytest.fail("model preflight reached")
+    )
+    monkeypatch.setattr(generator, "verify_model_identity", lambda _: pytest.fail("model reached"))
+    monkeypatch.setattr(
+        generator, "_model_request", lambda *_: pytest.fail("model request reached")
+    )
     with pytest.raises(RuntimeError, match="freeze_identity_mismatch:event_contract"):
         generator.generate("a" * 40)
 

@@ -447,6 +447,7 @@ def _verify_event4_contract(freeze: dict[str, Any]) -> None:
         "event2_failure_audit_sha256": (
             "5449448fcc0e033f9ed64db0187ed1f4bdb81133378f73ad59dc7af953064cda"
         ),
+        "event3_failed_activation_commit": "c9042b7d804636b1f95f4833e420e981e1a2ec74",
         "event3_failure_audit_relative": "audit/gate3_s20_generation_failure_event3.json",
         "event3_failure_audit_sha256": (
             "5284e74ef1c2ae80b66d010a516401e048b97c07916ac12d53ca43b9ff473470"
