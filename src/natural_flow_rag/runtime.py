@@ -9,7 +9,7 @@ from typing import Any
 from .analysis import analyze
 from .narration import NarrationPlan, build_plan
 from .retrieval import RetrievalResult, RetrievedChunk, Retriever
-from .routing import ContentClassifier, ContentProfile
+from .routing import ContentClassifier, ContentProfile, preferred_registers
 
 log = logging.getLogger(__name__)
 
@@ -25,17 +25,7 @@ class RouteResult:
 def _compatible(chunk: RetrievedChunk, profile: ContentProfile) -> bool:
     metadata = chunk.metadata
     register = str(metadata.get("register", ""))
-    if profile.register and register == profile.register:
-        return True
-    if profile.domain == "technical" and register in {
-        "technical_explainer", "professional_introduction",
-    }:
-        return True
-    if profile.domain == "educational" and register in {
-        "technical_explainer", "reflective_narration",
-    }:
-        return True
-    return False
+    return register in preferred_registers(profile)
 
 
 class NarrationRuntime:
@@ -110,17 +100,19 @@ class NarrationRuntime:
             "retrieval_arm": "hybrid",
             "lexical_degraded": result.lexical_error is not None,
             "lexical_error_code": (
-                type(result.lexical_error).__name__ if result.lexical_error else None
-            ),
+                result.lexical_error
+                if isinstance(result.lexical_error, str)
+                else "lexical_degraded"
+            )
+            if result.lexical_error
+            else None,
         }
         return RouteResult(profile, result, selected, summary)
 
     def plan(self, text: str, metadata: dict[str, Any] | None = None, k: int = 5) -> NarrationPlan:
         route = self.route(text, metadata, k)
         flow = analyze(text)
-        fallbacks = tuple(
-            ["neutral_clear"] if route.profile.fallback_used else []
-        )
+        fallbacks = tuple(["neutral_clear"] if route.profile.fallback_used else [])
         if route.summary.get("route_filter_relaxed"):
             fallbacks += ("broader_retrieval",)
         return build_plan(text, route.profile, flow, route.summary, fallbacks)

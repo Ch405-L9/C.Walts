@@ -13,8 +13,13 @@ from typing import Any
 
 CONTENT_MODES = frozenset(
     {
-        "narrative", "dialogue", "informational", "instructional",
-        "persuasive", "reflective", "compliance",
+        "narrative",
+        "dialogue",
+        "informational",
+        "instructional",
+        "persuasive",
+        "reflective",
+        "compliance",
     }
 )
 DOMAINS = frozenset(
@@ -24,6 +29,25 @@ AUDIENCES = frozenset({"children", "general", "adult", "professional"})
 GENRES = frozenset(
     {"neutral", "children", "horror_suspense", "comedy", "drama", "action", "reflective"}
 )
+
+# Auditable runtime preference policy. These are preferences only: the
+# runtime deliberately falls back to the broader approved corpus when sparse.
+ROUTE_REGISTER_PREFERENCES: dict[str, frozenset[str]] = {
+    "general": frozenset(),
+    "educational": frozenset({"technical_explainer", "educational_explainer"}),
+    "technical": frozenset({"technical_explainer", "professional_introduction"}),
+    "commercial": frozenset({"commercial"}),
+    "professional": frozenset({"professional_introduction"}),
+    "compliance": frozenset({"compliance"}),
+}
+
+
+def preferred_registers(profile: ContentProfile) -> frozenset[str]:
+    """Return auditable preferred registers for a route, never hard filters."""
+    if profile.register:
+        return frozenset({profile.register})
+    return ROUTE_REGISTER_PREFERENCES.get(profile.domain, frozenset())
+
 
 _DIALOGUE = re.compile(r'(^|\n)\s*(?:[A-Z][\w -]{1,24}:|["“])|["”]', re.M)
 _FIRST_PERSON = re.compile(r"\b(?:I|my|me|we|our|us)\b", re.I)
@@ -35,27 +59,73 @@ _IMPERATIVE = re.compile(
 
 _SIGNALS: dict[str, tuple[str, ...]] = {
     "children": (
-        "child", "children", "kid", "comic", "storybook", "playground", "giggle",
-        "puppy", "cartoon",
+        "child",
+        "children",
+        "kid",
+        "comic",
+        "storybook",
+        "playground",
+        "giggle",
+        "puppy",
+        "cartoon",
     ),
     "horror_suspense": (
-        "shadow", "blood", "whisper", "grave", "dark", "scream", "haunt", "terror",
-        "footsteps", "corridor",
+        "shadow",
+        "blood",
+        "whisper",
+        "grave",
+        "dark",
+        "scream",
+        "haunt",
+        "terror",
+        "footsteps",
+        "corridor",
     ),
     "educational": (
-        "geography", "latitude", "longitude", "continent", "capital", "region", "river",
-        "mountain", "climate", "located",
+        "geography",
+        "latitude",
+        "longitude",
+        "continent",
+        "capital",
+        "region",
+        "river",
+        "mountain",
+        "climate",
+        "located",
     ),
     "technical": (
-        "api", "server", "database", "oauth", "endpoint", "token", "parameter", "configure",
-        "command", "procedure",
+        "api",
+        "server",
+        "database",
+        "oauth",
+        "endpoint",
+        "token",
+        "parameter",
+        "configure",
+        "command",
+        "procedure",
     ),
     "commercial": (
-        "buy", "order", "offer", "sale", "subscribe", "discover", "limited", "call", "visit",
+        "buy",
+        "order",
+        "offer",
+        "sale",
+        "subscribe",
+        "discover",
+        "limited",
+        "call",
+        "visit",
         "free",
     ),
     "reflective": (
-        "remember", "memories", "looking back", "felt", "years ago", "quiet", "wondered", "journey",
+        "remember",
+        "memories",
+        "looking back",
+        "felt",
+        "years ago",
+        "quiet",
+        "wondered",
+        "journey",
     ),
     "compliance": ("must", "required", "policy", "audit", "prohibited", "shall", "compliance"),
 }
@@ -214,4 +284,13 @@ class ContentClassifier:
         )
 
 
-__all__ = ["AUDIENCES", "CONTENT_MODES", "ContentClassifier", "ContentProfile", "DOMAINS", "GENRES"]
+__all__ = [
+    "AUDIENCES",
+    "CONTENT_MODES",
+    "ContentClassifier",
+    "ContentProfile",
+    "DOMAINS",
+    "GENRES",
+    "ROUTE_REGISTER_PREFERENCES",
+    "preferred_registers",
+]

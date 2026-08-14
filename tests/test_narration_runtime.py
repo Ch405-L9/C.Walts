@@ -108,6 +108,16 @@ def test_lexical_degradation_is_visible() -> None:
     retriever = FakeRetriever(_result([_chunk("one", "technical_explainer")], "index unavailable"))
     plan = NarrationRuntime(retriever).plan(FIXTURES["technical"])
     assert plan.retrieval_summary["lexical_degraded"] is True
+    assert plan.retrieval_summary["lexical_error_code"] == "index unavailable"
+
+
+def test_educational_route_does_not_prefer_reflective_register() -> None:
+    retriever = FakeRetriever(
+        _result([_chunk("reflective", "reflective_narration"), _chunk("broad", "commercial")])
+    )
+    plan = NarrationRuntime(retriever).plan(FIXTURES["geography"], k=2)
+    assert plan.retrieval_summary["retrieved_chunk_ids"] == ["reflective", "broad"]
+    assert plan.retrieval_summary["route_filter_applied"] is False
 
 
 def test_zero_retrieval_does_not_crash() -> None:
