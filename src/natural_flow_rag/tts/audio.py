@@ -200,10 +200,8 @@ class AudioSynthesisService:
         pronunciation_dictionary_locators: tuple[dict[str, str], ...] = (),
         with_timestamps: bool = False,
     ) -> tuple[TTSRequest, ...]:
-        from .elevenlabs import map_plan_to_request
-
         return tuple(
-            map_plan_to_request(
+            self._map_request(
                 plan,
                 chunk.text,
                 voice_id,
@@ -217,6 +215,45 @@ class AudioSynthesisService:
             for chunk in chunk_segments(plan.segments, self.max_chars)
         )
 
+    def _map_request(
+        self,
+        plan: NarrationPlan,
+        text: str,
+        voice_id: str,
+        model_id: str,
+        output_format: str,
+        previous_text: str | None,
+        next_text: str | None,
+        with_timestamps: bool,
+        pronunciation_dictionary_locators: tuple[dict[str, str], ...],
+    ):
+        mapper = getattr(self.adapter, "build_request", None)
+        if mapper is not None:
+            return mapper(
+                plan,
+                text,
+                voice_id,
+                model_id,
+                output_format,
+                previous_text,
+                next_text,
+                with_timestamps,
+                pronunciation_dictionary_locators,
+            )
+        from .elevenlabs import map_plan_to_request
+
+        return map_plan_to_request(
+            plan,
+            text,
+            voice_id,
+            model_id,
+            output_format,
+            previous_text,
+            next_text,
+            with_timestamps=with_timestamps,
+            pronunciation_dictionary_locators=pronunciation_dictionary_locators,
+        )
+
     def synthesize(
         self,
         plan: NarrationPlan,
@@ -228,8 +265,6 @@ class AudioSynthesisService:
         pronunciation_dictionary_identity: str | None = None,
         pronunciation_dictionary_locators: tuple[dict[str, str], ...] = (),
     ) -> AudioSynthesisResult:
-        from .elevenlabs import map_plan_to_request
-
         output = Path(output_path)
         output.parent.mkdir(parents=True, exist_ok=True)
         chunks = chunk_segments(plan.segments, self.max_chars)
@@ -244,7 +279,7 @@ class AudioSynthesisService:
         alignments: list[dict[str, Any]] = []
         try:
             for _index, chunk in enumerate(chunks):
-                request, mapped, ignored = map_plan_to_request(
+                request, mapped, ignored = self._map_request(
                     plan,
                     chunk.text,
                     voice_id,

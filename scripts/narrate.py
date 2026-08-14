@@ -22,6 +22,7 @@ from natural_flow_rag.tts.elevenlabs import (  # noqa: E402
     ElevenLabsAdapter,
     ElevenLabsConfig,
 )
+from natural_flow_rag.tts.f5_local import LocalF5Adapter, LocalF5Config  # noqa: E402
 
 
 def main() -> int:
@@ -40,8 +41,8 @@ def main() -> int:
     )
     args = parser.parse_args()
     text = args.text if args.text is not None else args.file.read_text(encoding="utf-8")
-    provider = os.getenv("CWALTS_TTS_PROVIDER", "elevenlabs")
-    if provider != "elevenlabs":
+    provider = os.getenv("CWALTS_TTS_PROVIDER", "f5_local")
+    if provider not in {"elevenlabs", "f5_local"}:
         raise SystemExit("unsupported CWALTS_TTS_PROVIDER")
 
     retriever = None
@@ -59,14 +60,24 @@ def main() -> int:
             LexicalIndex(settings.project_root / "var" / "bm25" / "index.json"),
         )
     plan = NarrationRuntime(retriever).plan(text)
-    config = ElevenLabsConfig.from_env(args.voice_id, args.model_id)
-    voice_id = config.voice_id or "configured-voice-required"
-    service = AudioSynthesisService(ElevenLabsAdapter(config), cache_dir=Path("var/audio_cache"))
+    if provider == "f5_local":
+        config = LocalF5Config.from_env()
+        adapter = LocalF5Adapter(config)
+        voice_id = config.voice_name
+        model_id = args.model_id or config.model_id
+        output_format = "wav"
+    else:
+        config = ElevenLabsConfig.from_env(args.voice_id, args.model_id)
+        adapter = ElevenLabsAdapter(config)
+        voice_id = config.voice_id or "configured-voice-required"
+        model_id = config.model_id
+        output_format = config.output_format
+    service = AudioSynthesisService(adapter, provider=provider, cache_dir=Path("var/audio_cache"))
     requests = service.build_requests(
         plan,
         voice_id,
-        config.model_id,
-        config.output_format,
+        model_id,
+        output_format,
         with_timestamps=args.with_timestamps,
     )
     summary = {
@@ -76,9 +87,9 @@ def main() -> int:
         "chunk_count": len(requests),
         "retrieval_count": plan.retrieval_summary.get("retrieval_count", 0),
         "fallbacks": list(plan.fallbacks),
-        "provider": "elevenlabs",
-        "provider_model": config.model_id,
-        "voice_configured": bool(config.voice_id),
+        "provider": provider,
+        "provider_model": model_id,
+        "voice_configured": bool(voice_id),
         "dry_run": args.dry_run,
         "request_text_hashes": [
             hashlib.sha256(request.text.encode()).hexdigest()
@@ -96,15 +107,14 @@ def main() -> int:
                 )
             )
         return 0
-    adapter = ElevenLabsAdapter(config)
     adapter.validate_configuration()
     try:
         result = service.synthesize(
             plan,
             args.output,
-            config.voice_id or "",
-            config.model_id,
-            config.output_format,
+            voice_id,
+            model_id,
+            output_format,
             args.with_timestamps,
         )
     except TTSRequestError as exc:

@@ -16,6 +16,7 @@ from natural_flow_rag.runtime import NarrationRuntime
 from natural_flow_rag.tts.audio import AudioSynthesisService, cache_key, chunk_segments
 from natural_flow_rag.tts.base import TTSRequest, TTSRequestError, TTSResult
 from natural_flow_rag.tts.elevenlabs import ElevenLabsAdapter, ElevenLabsConfig, map_plan_to_request
+from natural_flow_rag.tts.f5_local import LocalF5Adapter, LocalF5Config
 
 
 class MockAdapter:
@@ -226,3 +227,44 @@ def test_unparseable_http_error_is_not_dumped(monkeypatch: pytest.MonkeyPatch) -
     assert error.provider_status == "unparseable_provider_error"
     assert error.provider_message is None
     assert error.retryable is False
+
+
+def test_local_f5_mapping_preserves_source_text_and_needs_no_api_key(tmp_path: Path) -> None:
+    reference = tmp_path / "reference.mp3"
+    reference.write_bytes(b"reference")
+    adapter = LocalF5Adapter(LocalF5Config(reference_audio=reference))
+    adapter.validate_configuration()
+    plan = _plan("A local voice sample.")
+    request, mapped, unmapped = adapter.build_request(
+        plan, plan.segments[0].text, "ignored", "F5TTS_v1_Base", "wav"
+    )
+    assert request.text == plan.segments[0].text
+    assert request.voice_id == "B.Lawson"
+    assert "reference_audio_sha256" in mapped
+    assert "pitch_tendency" in unmapped
+    assert adapter.capabilities().provider == "f5_local"
+
+
+def test_local_f5_missing_reference_fails_clearly() -> None:
+    adapter = LocalF5Adapter(LocalF5Config(reference_audio=None))
+    with pytest.raises(ValueError, match="CWALTS_F5_REFERENCE_AUDIO"):
+        adapter.validate_configuration()
+
+
+def test_local_f5_mock_inference_returns_audio_without_network(tmp_path: Path) -> None:
+    reference = tmp_path / "reference.mp3"
+    reference.write_bytes(b"reference")
+
+    class FakeEngine:
+        def infer(self, ref_file, ref_text, gen_text, **kwargs):
+            assert ref_file == str(reference)
+            assert ref_text == "Reference words."
+            assert gen_text == "Synthetic speech."
+            Path(kwargs["file_wave"]).write_bytes(b"RIFFsynthetic-wav")
+
+    adapter = LocalF5Adapter(
+        LocalF5Config(reference, reference_text="Reference words."), engine=FakeEngine()
+    )
+    result = adapter.synthesize(TTSRequest("Synthetic speech.", "B.Lawson", "F5TTS_v1_Base", "wav"))
+    assert result.audio_bytes == b"RIFFsynthetic-wav"
+    assert result.content_type == "audio/wav"

@@ -10,10 +10,13 @@ from .base import (
     TTSResult,
 )
 from .elevenlabs import ElevenLabsAdapter, ElevenLabsConfig, map_plan_to_request
+from .f5_local import LocalF5Adapter, LocalF5Config
 
 __all__ = [
     "ElevenLabsAdapter",
     "ElevenLabsConfig",
+    "LocalF5Adapter",
+    "LocalF5Config",
     "TTSAudioError",
     "TTSAdapter",
     "TTSConfigurationError",
