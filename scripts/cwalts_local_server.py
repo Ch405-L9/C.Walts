@@ -209,7 +209,7 @@ class CwaltsHandler(BaseHTTPRequestHandler):
             self._json(HTTPStatus.BAD_REQUEST, {"error": "invalid_json_or_text"})
             return
         job = self.state.submit(text)
-        self._json(HTTPStatus.ACCEPTED, {"job_id": job.job_id, "status": job.status})
+        self._json(HTTPStatus.ACCEPTED, {"job_id": job.job_id, "status": "queued"})
 
     def _json(self, status: HTTPStatus, payload: dict[str, Any]) -> None:
         body = json.dumps(payload, separators=(",", ":")).encode("utf-8")

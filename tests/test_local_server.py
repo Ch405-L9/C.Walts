@@ -120,7 +120,10 @@ def test_health_and_queued_jobs_are_single_worker(running_bridge, caplog) -> Non
         first = _request(base, "POST", "/narrate", {"text": private_marker})
         first_payload = json.loads(first.read())
         assert first.status == 202
+        assert first_payload["status"] == "queued"
         assert adapter.first_started.wait(timeout=2)
+        running = json.loads(_request(base, "GET", f"/jobs/{first_payload['job_id']}").read())
+        assert running["status"] == "running"
         second = _request(base, "POST", "/narrate", {"text": "Second synthetic sentence."})
         second_payload = json.loads(second.read())
         assert second.status == 202
