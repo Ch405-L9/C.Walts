@@ -54,8 +54,12 @@ class MockAdapter:
 
 
 class MockRuntime:
-    def plan(self, text: str):
-        return NarrationRuntime().plan(text, {"domain": "educational"})
+    def __init__(self) -> None:
+        self.metadata: list[dict | None] = []
+
+    def plan(self, text: str, metadata: dict | None = None):
+        self.metadata.append(metadata)
+        return NarrationRuntime().plan(text, metadata or {"domain": "educational"})
 
 
 @pytest.fixture
@@ -147,3 +151,30 @@ def test_oversized_text_is_rejected(running_bridge) -> None:
     response = _request(base, "POST", "/narrate", {"text": "x" * 5001})
     assert response.status == 413
     assert json.loads(response.read())["error"] == "text_too_long"
+
+
+def test_optional_supported_metadata_is_forwarded_and_unknown_fields_are_ignored(
+    running_bridge,
+) -> None:
+    base, _state, _adapter, _thread = running_bridge
+    response = _request(
+        base,
+        "POST",
+        "/narrate",
+        {
+            "text": "A synthetic educational sentence.",
+            "metadata": {
+                "domain": "educational",
+                "register": "reflective_narration",
+                "unknown_private_field": "ignored",
+            },
+        },
+    )
+    assert response.status == 202
+    payload = json.loads(response.read())
+    assert payload["status"] == "queued"
+    assert _wait_for_status(base, payload["job_id"], "completed")["status"] == "completed"
+    runtime = running_bridge[1].runtime
+    assert runtime.metadata == [
+        {"domain": "educational", "register": "reflective_narration"}
+    ]

@@ -34,6 +34,7 @@ MAX_TEXT_CHARS = 5000
 class Job:
     job_id: str
     text: str
+    metadata: dict[str, str] | None = None
     status: str = "queued"
     output_path: Path | None = None
     error_class: str | None = None
@@ -71,8 +72,8 @@ class BridgeState:
     def queue_depth(self) -> int:
         return self.work_queue.qsize()
 
-    def submit(self, text: str) -> Job:
-        job = Job(str(uuid.uuid4()), text)
+    def submit(self, text: str, metadata: dict[str, str] | None = None) -> Job:
+        job = Job(str(uuid.uuid4()), text, metadata)
         with self.jobs_lock:
             self.jobs[job.job_id] = job
         self.work_queue.put(job.job_id)
@@ -104,7 +105,7 @@ class BridgeState:
             started = time.monotonic()
             _log_job(job, "running")
             try:
-                plan = self.runtime.plan(job.text)
+                plan = self.runtime.plan(job.text, job.metadata)
                 output_path = self.output_dir / f"{job.job_id}.wav"
                 self.service.synthesize(
                     plan,
@@ -208,7 +209,17 @@ class CwaltsHandler(BaseHTTPRequestHandler):
         except (ValueError, json.JSONDecodeError):
             self._json(HTTPStatus.BAD_REQUEST, {"error": "invalid_json_or_text"})
             return
-        job = self.state.submit(text)
+        metadata = payload.get("metadata") if isinstance(payload, dict) else None
+        if isinstance(metadata, dict):
+            allowed = {"domain", "genre", "audience", "register", "content_mode"}
+            metadata = {
+                key: value
+                for key, value in metadata.items()
+                if key in allowed and isinstance(value, str)
+            }
+        else:
+            metadata = None
+        job = self.state.submit(text, metadata)
         self._json(HTTPStatus.ACCEPTED, {"job_id": job.job_id, "status": "queued"})
 
     def _json(self, status: HTTPStatus, payload: dict[str, Any]) -> None:
