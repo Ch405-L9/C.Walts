@@ -24,6 +24,33 @@ FIXTURES = {
     "ambiguous": "The window stood open while the afternoon passed.",
 }
 
+LISTENING_FIXTURES = {
+    "horror": (
+        "The hallway was darker than Marcus remembered. He stopped at the foot\n"
+        "of the stairs and listened, certain that something had moved above him.\n"
+        "The old house answered with a single slow creak.\n\n"
+        "He told himself it was only the wood settling in the cold. Then, from\n"
+        "the second floor, three soft knocks sounded against the bedroom door.\n"
+        "Marcus had not told anyone he was home."
+    ),
+    "children": (
+        "Lena tightened the red scarf around her neck and climbed onto the\n"
+        "little wooden boat. Her dog, Pepper, jumped in beside her and nearly\n"
+        "sent both of them tumbling into the river.\n\n"
+        "'Careful!' Lena laughed. Ahead, beyond the bend, the old map showed a\n"
+        "tiny island marked with a golden star. Whatever was waiting there, Lena\n"
+        "was determined to find it before sunset."
+    ),
+    "technical": (
+        "A lithium-ion battery stores energy by moving lithium ions between two\n"
+        "electrodes. During charging, the ions travel from the positive electrode\n"
+        "through the electrolyte and enter the negative electrode.\n\n"
+        "When the battery supplies power, that process reverses. The ions move\n"
+        "back toward the positive electrode while electrons flow through the\n"
+        "external circuit, providing electrical energy to the connected device."
+    ),
+}
+
 
 def test_required_routes_are_distinct_and_deterministic() -> None:
     runtime = NarrationRuntime()
@@ -44,6 +71,21 @@ def test_required_routes_are_distinct_and_deterministic() -> None:
     assert plans["ambiguous"].delivery["voice_character_hint"] == "clear_neutral"
     assert plans["children"].delivery != plans["horror"].delivery
     assert plans["children"].to_dict() == NarrationRuntime().plan(FIXTURES["children"]).to_dict()
+
+
+def test_listening_fixtures_reach_existing_content_profiles_without_metadata() -> None:
+    runtime = NarrationRuntime()
+    horror = runtime.plan(LISTENING_FIXTURES["horror"]).content_profile
+    children = runtime.plan(LISTENING_FIXTURES["children"]).content_profile
+    technical = runtime.plan(LISTENING_FIXTURES["technical"]).content_profile
+
+    assert horror["genre"] == "horror_suspense"
+    assert horror["domain"] == "general"
+    assert children["genre"] == "children"
+    assert children["audience"] == "children"
+    assert technical["domain"] == "technical"
+    assert technical["content_mode"] == "instructional"
+    assert all(profile["fallback_used"] is False for profile in (horror, children, technical))
 
 
 def test_source_text_is_preserved_and_segmented() -> None:
